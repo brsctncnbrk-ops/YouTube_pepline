@@ -36,14 +36,13 @@ Full stage list, required files per stage, and output files per stage live in
 `STAGE_OUTPUT_FILES`, `GATES`) — read it if you need the exact contract for a
 stage rather than guessing.
 
-**Current build status**: Phase 1 (scaffolding/CLI) and Phase 2 (content
-skills) are done — `factforge-research`, `factforge-research-qa`,
-`factforge-script`, `factforge-script-qa`, `factforge-voice`, and
-`factforge-voice-qa` exist and cover stages `research` through `voice_qa`.
-Everything from `storyboard` onward (storyboard, visual style bible, visual
-prompt, director, motion/remotion, editor, packaging, and their QA gates) plus
-the Remotion template and the GitHub Actions render workflow are future
-phases. If asked to run a skill for a stage that isn't implemented yet, say so
+**Current build status**: Phase 1 (scaffolding/CLI), Phase 2 (content
+skills), and Phase 3 (visual pipeline) are done — every skill from
+`factforge-research` through `factforge-visual-qa` exists, covering stages
+`research` through `visual_qa`. Everything from `director` onward
+(director, motion/remotion, editor, packaging, and their QA gates) plus the
+Remotion template and the GitHub Actions render workflow are future phases.
+If asked to run a skill for a stage that isn't implemented yet, say so
 plainly and tell the user which stage it is and that it's coming in a later
 phase — do not attempt to improvise the skill's job yourself in its place.
 
@@ -58,7 +57,7 @@ phase — do not attempt to improvise the skill's job yourself in its place.
 | `pause` | Run `manifest_cli.mjs pause --project-id <id>`. |
 | `resume` | Run `manifest_cli.mjs resume --project-id <id>`. |
 | `reset_stage <stage>` | Confirm with the user whether they also want `--force-clean` (deletes that stage's output files) before running `manifest_cli.mjs reset-stage --project-id <id> --stage <stage> [--force-clean]` — this is a destructive option, so don't pass it unless the user asked for it or clearly wants a clean redo. |
-| `run_qa <gate>` | For `research_qa`/`script_qa`/`voice_qa`, just invoke the matching QA skill (it runs the mechanical check itself as its first step). For gates without a skill yet, run `manifest_cli.mjs qa --project-id <id> --gate <gate>` directly and note the "Judgment-Based Checks" section is a placeholder until that phase is built. |
+| `run_qa <gate>` | For `research_qa`/`script_qa`/`voice_qa`/`storyboard_qa`/`visual_qa`, just invoke the matching QA skill (it runs the mechanical check itself as its first step). For gates without a skill yet, run `manifest_cli.mjs qa --project-id <id> --gate <gate>` directly and note the "Judgment-Based Checks" section is a placeholder until that phase is built. |
 | `prepare_render` | Run `manifest_cli.mjs prepare-render --project-id <id>`. If not ready, list the reasons plainly. If ready, note that the actual render workflow is a future phase. |
 
 When a project_id isn't given and there's more than one project, ask which one
@@ -83,7 +82,12 @@ or `advance` yourself around it.
 | `script_qa` | `factforge-script-qa` |
 | `voice_script` | `factforge-voice` |
 | `voice_qa` | `factforge-voice-qa` |
-| `storyboard` onward | not implemented yet — say so, name the stage |
+| `storyboard` | `factforge-storyboard` |
+| `storyboard_qa` | `factforge-storyboard-qa` |
+| `visual_style_bible` | `factforge-visual-style-bible` |
+| `visual_prompt` | `factforge-visual-prompt` |
+| `visual_qa` | `factforge-visual-qa` |
+| `director` onward | not implemented yet — say so, name the stage |
 
 Before invoking a producer skill (not a QA skill), you may sanity-check with
 `manifest_cli.mjs check-required --project-id <id> --stage <stage>` if you
@@ -94,6 +98,13 @@ After `voice_qa` passes, the project needs `assets/audio/final_voice.mp3`
 before `storyboard` can run. That transition is gated by you, not by any
 skill: once the human confirms they've dropped the file in (`ready`), run
 `manifest_cli.mjs gate --project-id <id> --gate audio`.
+
+Similarly, after `visual_qa` passes, the project needs every
+`assets/images/scene_NNN.png` referenced by `storyboard.json` in place
+before `director` can run. `factforge-visual-qa` deliberately does not check
+for these files (they don't exist yet at that point) — once the human
+confirms they've generated and dropped in all the images (`ready`), run
+`manifest_cli.mjs gate --project-id <id> --gate images`.
 
 ## Tone
 

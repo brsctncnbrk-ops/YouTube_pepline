@@ -45,7 +45,7 @@ export const STAGE_REQUIRED_FILES = {
   storyboard_qa: ["storyboard/storyboard.json", "storyboard/storyboard.md"],
   visual_style_bible: ["storyboard/storyboard.json", "scripts/script.md"],
   visual_prompt: ["storyboard/storyboard.json", "style/visual_style_bible.md", "style/prompt_rules.md"],
-  visual_qa: ["prompts/visual_prompts.md", "prompts/negative_prompts.md", "prompts/leonardo_settings.md"],
+  visual_qa: ["prompts/visual_prompts.json", "prompts/visual_prompts.md", "prompts/negative_prompts.md", "prompts/leonardo_settings.md"],
   director: ["storyboard/storyboard.json", "prompts/visual_prompts.md", "style/visual_style_bible.md"],
   remotion: ["storyboard/storyboard.json", "direction/direction_plan.md", "assets/asset_manifest.json"],
   editor: ["remotion/composition.json", "remotion/scene_config.json", "assets/audio/final_voice.mp3"],
@@ -72,7 +72,7 @@ export const STAGE_OUTPUT_FILES = {
     "style/camera_language.md",
     "style/prompt_rules.md",
   ],
-  visual_prompt: ["prompts/visual_prompts.md", "prompts/negative_prompts.md", "prompts/leonardo_settings.md"],
+  visual_prompt: ["prompts/visual_prompts.json", "prompts/visual_prompts.md", "prompts/negative_prompts.md", "prompts/leonardo_settings.md"],
   visual_qa: ["qa/visual_qa.md"],
   director: ["direction/direction_plan.md"],
   remotion: ["remotion/composition.json", "remotion/scene_config.json", "remotion/asset_map.json"],
@@ -102,6 +102,11 @@ export const GATES = {
     errorCode: "MISSING_AUDIO",
   },
   images: {
+    // Note: this gate sits before "director", *after* visual_qa. The
+    // visual_qa gate only checks that prompts/filenames are well-formed and
+    // fully cover the storyboard's scenes - it must not require the actual
+    // scene_NNN.png bytes to exist yet, since the human hasn't generated them
+    // in Leonardo AI at that point in the pipeline.
     beforeStage: "director",
     waitStatus: "WAITING_FOR_IMAGES",
     errorCode: "MISSING_IMAGE",

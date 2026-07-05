@@ -156,6 +156,53 @@ export async function validateAssets({ projectId, check = "all" }) {
   };
 }
 
+/**
+ * Checks that prompts/visual_prompts.json fully covers the storyboard's
+ * scenes with correctly-patterned filenames - "can these scenes be linked to
+ * the asset folder" per the spec's visual QA gate. Deliberately does NOT
+ * check whether assets/images/scene_NNN.png actually exist yet: at the point
+ * visual_qa runs, the human hasn't generated them in Leonardo AI - that only
+ * happens after this gate passes, checked separately by the images gate
+ * (GATES.images) right before the "director" stage.
+ */
+export async function validatePromptCoverage({ projectId }) {
+  const dir = projectDir(projectId);
+  const storyboardPath = path.join(dir, "storyboard", "storyboard.json");
+  const promptsPath = path.join(dir, "prompts", "visual_prompts.json");
+
+  const storyboard = await readJsonSafe(storyboardPath, null);
+  if (!storyboard || !Array.isArray(storyboard.scenes)) {
+    return { valid: false, error_code: "INVALID_JSON", issues: ["storyboard.json missing or has no scenes[]"] };
+  }
+  const prompts = await readJsonSafe(promptsPath, null);
+  if (!prompts || !Array.isArray(prompts.scenes)) {
+    return { valid: false, error_code: "INVALID_JSON", issues: ["visual_prompts.json missing or has no scenes[]"] };
+  }
+
+  const issues = [];
+  const storyboardIds = new Set(storyboard.scenes.map((s) => s.scene_id));
+  const promptById = new Map(prompts.scenes.map((s) => [s.scene_id, s]));
+
+  for (const id of storyboardIds) {
+    const entry = promptById.get(id);
+    if (!entry) {
+      issues.push({ scene_id: id, reason: "no matching entry in visual_prompts.json" });
+      continue;
+    }
+    const expectedFilename = `${id}.png`;
+    if (entry.image_filename !== expectedFilename) {
+      issues.push({ scene_id: id, reason: `image_filename "${entry.image_filename}" does not match expected "${expectedFilename}"` });
+    }
+  }
+  for (const id of promptById.keys()) {
+    if (!storyboardIds.has(id)) {
+      issues.push({ scene_id: id, reason: "visual_prompts.json has an entry with no matching storyboard scene" });
+    }
+  }
+
+  return { valid: issues.length === 0, error_code: issues.length ? "BROKEN_ASSET_PATH" : null, issues };
+}
+
 export async function validateRenderReady({ projectId }) {
   const dir = projectDir(projectId);
   const checks = {};
@@ -196,7 +243,7 @@ const SCHEMA_BY_STAGE = {
   script_qa: [{ file: "scripts/script_metadata.json", schema: "script" }],
   voice_qa: [], // voice_script.txt/voice_notes.md are plain text, no JSON schema target - this gate is judgment-only
   storyboard_qa: [{ file: "storyboard/storyboard.json", schema: "storyboard" }],
-  visual_qa: [], // visual_prompts.md/negative_prompts.md/leonardo_settings.md are markdown, no JSON schema target in Phase 1
+  visual_qa: [{ file: "prompts/visual_prompts.json", schema: "visual_prompts" }],
   render_qa: [{ file: "remotion/composition.json", schema: "composition" }],
   final_qa: [], // packaging fields live across several .md/.txt files in Phase 1, not a single JSON target
 };
@@ -213,11 +260,16 @@ export async function validateAll({ projectId, stage }) {
 
   let assetCheck = { valid: true, missing: [] };
   if (stage === "storyboard_qa") assetCheck = await validateAssets({ projectId, check: "audio" });
-  if (stage === "visual_qa") assetCheck = await validateAssets({ projectId, check: "images" });
   if (stage === "render_qa") return { ...(await validateRenderReady({ projectId })), schemaChecks };
 
-  const valid = schemaChecks.every((c) => c.valid) && assetCheck.valid;
-  return { valid, schemaChecks, assetCheck };
+  let filenamesCheck = { valid: true, issues: [] };
+  if (stage === "storyboard_qa") filenamesCheck = await validateFilenames({ projectId });
+
+  let coverageCheck = { valid: true, issues: [] };
+  if (stage === "visual_qa") coverageCheck = await validatePromptCoverage({ projectId });
+
+  const valid = schemaChecks.every((c) => c.valid) && assetCheck.valid && filenamesCheck.valid && coverageCheck.valid;
+  return { valid, schemaChecks, assetCheck, filenamesCheck, coverageCheck };
 }
 
 function toHuman(result) {
@@ -230,6 +282,12 @@ function toHuman(result) {
   }
   if (result.assetCheck) {
     lines.push(`- Assets: ${result.assetCheck.valid ? "PASS" : "FAIL - missing " + result.assetCheck.missing.join(", ")}`);
+  }
+  if (result.filenamesCheck) {
+    lines.push(`- Scene filenames/numbering: ${result.filenamesCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.filenamesCheck.issues)}`);
+  }
+  if (result.coverageCheck) {
+    lines.push(`- Prompt-to-scene coverage: ${result.coverageCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.coverageCheck.issues)}`);
   }
   if (result.reasons) {
     lines.push(`- Reasons: ${result.reasons.length ? result.reasons.join("; ") : "none"}`);

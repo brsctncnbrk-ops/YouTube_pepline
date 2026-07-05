@@ -39,10 +39,25 @@ end-to-end: research → research QA → script → script QA → voice script �
 voice QA → wait for the human to record in ElevenLabs and drop in
 `final_voice.mp3`.
 
+**Phase 3 (Visual pipeline) — done.** This phase built the five skills
+covering `storyboard` through `visual_qa`:
+
+- `factforge-storyboard` / `factforge-storyboard-qa`
+- `factforge-visual-style-bible` (no dedicated QA gate, per spec)
+- `factforge-visual-prompt` / `factforge-visual-qa`
+
+A project can now continue past the audio gate all the way to
+`WAITING_FOR_IMAGES`: storyboard → storyboard QA → visual style bible →
+visual prompts → visual QA → wait for the human to generate every
+`scene_NNN.png` in Leonardo AI and drop them into `assets/images/`. Along the
+way, `factforge-visual-prompt` now also emits a schema-backed
+`prompts/visual_prompts.json` (in addition to the spec's `.md` files) so
+`visual_qa` can mechanically confirm every storyboard scene has a
+correctly-named prompt entry — without requiring the actual PNGs to exist
+yet, since that only happens after this gate.
+
 **Not yet built** (future phases — see `docs/ARCHITECTURE.md#build-phases`):
 
-- Phase 3: `storyboard`, `visual_style_bible`, `visual_prompt` and their QA
-  gates
 - Phase 4: `director`, `remotion`, `editor`, `render_qa`, the Remotion
   template, and the GitHub Actions render workflow
 - Phase 5: `packaging`, `final_qa`

@@ -56,11 +56,23 @@ runs via `manifest_cli.mjs gate` before letting a blocked stage proceed.
 `research_qa`, `script_qa`, `voice_qa`, `storyboard_qa`, `visual_qa`,
 `render_qa`, `final_qa`. Each writes `qa/<gate>.md` with two sections: an
 "Automated Checks" section (written by `manifest_cli.mjs qa`, backed by
-`scripts/validate.mjs`) and a "Judgment-Based Checks" section (written by the
-matching QA skill — not yet implemented in Phase 1, shown as a placeholder
-until then).
+`scripts/validate.mjs`) and a "Judgment-Based Checks" section. As of Phase 3,
+the first five of these gates have a matching QA skill
+(`factforge-research-qa`, `factforge-script-qa`, `factforge-voice-qa`,
+`factforge-storyboard-qa`, `factforge-visual-qa`) that fills in the
+judgment section for real; `render_qa` and `final_qa` don't have QA skills
+yet (Phases 4-5) and still show the placeholder text until then.
+
+`visual_qa` deliberately does not check whether `assets/images/scene_NNN.png`
+files exist — at that point in the pipeline the human hasn't generated them
+yet. It only checks that `prompts/visual_prompts.json` fully covers the
+storyboard's scenes with correctly-patterned filenames (a name-mapping check
+via `validatePromptCoverage` in `scripts/validate.mjs`). Actual file
+existence is checked separately by the images gate, right before `director`.
 
 `visual_style_bible`, `director`, `remotion`, `editor` have no dedicated QA
 gate per the original spec — any schema-backed JSON output among them is
 still schema-validated automatically as a cheap machine check (logged to
 `logs/errors.log` on failure) without introducing a new named gate.
+`visual_style_bible`'s outputs are all markdown with no JSON schema, so there
+is nothing to auto-check there beyond the producer skill's own review.

@@ -8,14 +8,17 @@ FactForge is a modular AI YouTube production system. Full design:
 
 Phase 1 (Foundation) is complete: scaffolding, the `manifest.json` state
 machine, the mechanical validation CLI, the 7 JSON schemas, and the
-`factforge-orchestrator` skill. Phase 2 (Content skills) is also complete:
+`factforge-orchestrator` skill. Phase 2 (Content skills) is complete:
 `factforge-research`/`-research-qa`, `factforge-script`/`-script-qa`, and
-`factforge-voice`/`-voice-qa`, covering the pipeline from `research` through
-`voice_qa`. Everything from `storyboard` onward — the visual pipeline,
-director/motion/editor, the Remotion template, and the GitHub Actions render
-workflow — is **not built yet** — see the roadmap in `README.md`. Don't
-improvise those skills' creative output in their place; say plainly that a
-stage isn't implemented yet.
+`factforge-voice`/`-voice-qa`, covering `research` through `voice_qa`. Phase 3
+(Visual pipeline) is also complete: `factforge-storyboard`/`-storyboard-qa`,
+`factforge-visual-style-bible` (no dedicated QA gate, per spec), and
+`factforge-visual-prompt`/`-visual-qa`, covering `storyboard` through
+`visual_qa`. Everything from `director` onward — director/motion/editor, the
+Remotion template, and the GitHub Actions render workflow — is **not built
+yet** — see the roadmap in `README.md`. Don't improvise those skills'
+creative output in their place; say plainly that a stage isn't implemented
+yet.
 
 ## Ground rules for working in this repo
 
