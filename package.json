@@ -1,0 +1,18 @@
+{
+  "name": "factforge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "FactForge - modular AI YouTube production system",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "manifest": "node scripts/manifest_cli.mjs",
+    "validate": "node scripts/validate.mjs"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}

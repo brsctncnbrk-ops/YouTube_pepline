@@ -1,0 +1,9 @@
+{
+  "project_id": "{{PROJECT_ID}}",
+  "project_name": "{{PROJECT_NAME}}",
+  "video_idea": "{{VIDEO_IDEA}}",
+  "target_audience": "{{TARGET_AUDIENCE}}",
+  "language": "{{LANGUAGE}}",
+  "reference_channel_style": "{{STYLE_REF}}",
+  "created_at": "{{CREATED_AT}}"
+}

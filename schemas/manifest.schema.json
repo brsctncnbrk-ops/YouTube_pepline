@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "manifest.schema.json",
+  "title": "FactForge Project Manifest",
+  "type": "object",
+  "required": [
+    "project_id",
+    "project_name",
+    "status",
+    "current_stage",
+    "completed_skills",
+    "pending_skills",
+    "waiting_for",
+    "required_files",
+    "errors",
+    "last_successful_stage",
+    "last_updated",
+    "paused"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "project_id": { "type": "string", "pattern": "^[0-9]{3}-[a-z0-9]+(-[a-z0-9]+)*$" },
+    "project_name": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": [
+        "NOT_STARTED",
+        "IN_PROGRESS",
+        "WAITING_FOR_AUDIO",
+        "WAITING_FOR_IMAGES",
+        "WAITING_FOR_USER_APPROVAL",
+        "READY_FOR_RENDER",
+        "RENDERING",
+        "RENDER_DONE",
+        "READY_FOR_FINAL_QA",
+        "READY_FOR_UPLOAD",
+        "DONE",
+        "ERROR"
+      ]
+    },
+    "current_stage": { "type": ["string", "null"] },
+    "completed_skills": { "type": "array", "items": { "type": "string" } },
+    "pending_skills": { "type": "array", "items": { "type": "string" } },
+    "waiting_for": { "type": "array", "items": { "type": "string" } },
+    "required_files": { "type": "array", "items": { "type": "string" } },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["error_code", "stage", "message", "required_action", "timestamp"],
+        "additionalProperties": false,
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "enum": [
+              "MISSING_AUDIO",
+              "MISSING_IMAGE",
+              "INVALID_JSON",
+              "SCHEMA_VALIDATION_FAILED",
+              "BROKEN_ASSET_PATH",
+              "RENDER_CONFIG_MISSING",
+              "USER_APPROVAL_REQUIRED",
+              "UNKNOWN_ERROR"
+            ]
+          },
+          "stage": { "type": "string" },
+          "message": { "type": "string" },
+          "required_action": { "type": "string" },
+          "timestamp": { "type": "string" }
+        }
+      }
+    },
+    "last_successful_stage": { "type": ["string", "null"] },
+    "last_updated": { "type": "string" },
+    "paused": { "type": "boolean" }
+  }
+}
