@@ -194,6 +194,7 @@ export async function validateRenderReady({ projectId }) {
 const SCHEMA_BY_STAGE = {
   research_qa: [{ file: "research/research.json", schema: "research" }],
   script_qa: [{ file: "scripts/script_metadata.json", schema: "script" }],
+  voice_qa: [], // voice_script.txt/voice_notes.md are plain text, no JSON schema target - this gate is judgment-only
   storyboard_qa: [{ file: "storyboard/storyboard.json", schema: "storyboard" }],
   visual_qa: [], // visual_prompts.md/negative_prompts.md/leonardo_settings.md are markdown, no JSON schema target in Phase 1
   render_qa: [{ file: "remotion/composition.json", schema: "composition" }],

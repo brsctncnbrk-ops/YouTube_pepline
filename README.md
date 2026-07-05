@@ -27,18 +27,28 @@ stage graph.
 - The `factforge-orchestrator` Claude Code skill (`.claude/skills/`)
 - This documentation set
 
+**Phase 2 (Content skills) — done.** This phase built the six skills covering
+`research` through `voice_qa`:
+
+- `factforge-research` / `factforge-research-qa`
+- `factforge-script` / `factforge-script-qa`
+- `factforge-voice` / `factforge-voice-qa`
+
+A project can now go from a video idea all the way to `WAITING_FOR_AUDIO`
+end-to-end: research → research QA → script → script QA → voice script →
+voice QA → wait for the human to record in ElevenLabs and drop in
+`final_voice.mp3`.
+
 **Not yet built** (future phases — see `docs/ARCHITECTURE.md#build-phases`):
 
-- Phase 2: the `research`, `script`, `voice_script` content skills and their
-  QA-gate skills
 - Phase 3: `storyboard`, `visual_style_bible`, `visual_prompt` and their QA
   gates
 - Phase 4: `director`, `remotion`, `editor`, `render_qa`, the Remotion
   template, and the GitHub Actions render workflow
 - Phase 5: `packaging`, `final_qa`
 
-Until later phases land, the Orchestrator can scaffold a project and track its
-state, but nothing yet produces the actual research/script/prompts/video —
+Until later phases land, a project can be scaffolded and driven through the
+voice stage, but nothing yet produces storyboards, visuals, or video —
 `manifest_cli.mjs`'s `check-required`, `qa`, and `prepare-render` will
 correctly report what's missing rather than silently succeeding.
 
