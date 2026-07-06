@@ -1,0 +1,26 @@
+{
+  "project_id": "001-voynich-manuscript",
+  "title_working": "The Book No One Has Ever Been Able to Read",
+  "hook": {
+    "text": "Somewhere in a climate-controlled vault at Yale University sits a book that has beaten every codebreaker who ever touched it. Not amateurs — the same kind of minds who cracked Nazi Enigma machines. Six hundred years old, written in a language nobody can read, filled with plants that don't exist on Earth. And to this day, no one can tell you if it means something, or nothing at all.",
+    "technique": "stakes-statement"
+  },
+  "sections": [
+    { "id": "s1", "heading": "The Book Nobody Can Read", "purpose": "Introduce the manuscript and establish the central mystery: a fluent, confident script nobody has ever decoded.", "est_duration_sec": 56, "word_count": 139, "contains_curiosity_loop": false },
+    { "id": "s2", "heading": "Six Sections, Zero Answers", "purpose": "Walk through the six illustrated sections (herbal, astronomical, biological, pharmaceutical, recipes) to show how strange and specific the content is despite being unreadable.", "est_duration_sec": 121, "word_count": 303, "contains_curiosity_loop": false },
+    { "id": "s3", "heading": "The Two-Hundred-Year Disappearance", "purpose": "Trace early provenance from Rudolf II through Kircher's failed decipherment to the manuscript's two-century disappearance.", "est_duration_sec": 80, "word_count": 201, "contains_curiosity_loop": false },
+    { "id": "s4", "heading": "A Secret Sale", "purpose": "Cover the Jesuit sale and Voynich's 1912 acquisition; opens the curiosity loop of whether Voynich was a discoverer or a forger.", "est_duration_sec": 76, "word_count": 190, "contains_curiosity_loop": true },
+    { "id": "s5", "heading": "Breaking Enigma, Beaten by a Book", "purpose": "Show the caliber of people who failed to decipher it, from WWII codebreakers to modern AI, including the disputed 2019 Hebrew claim.", "est_duration_sec": 84, "word_count": 209, "contains_curiosity_loop": false },
+    { "id": "s6", "heading": "Real Language, or the Greatest Hoax Ever Bound?", "purpose": "Present the statistical evidence for real-language structure, the Naibbe cipher theory, and radiocarbon dating — closing the curiosity loop by clearing Voynich of forgery while leaving the deeper mystery open.", "est_duration_sec": 112, "word_count": 281, "contains_curiosity_loop": false }
+  ],
+  "closing": {
+    "text": "Six hundred years. Some of the best cryptographers in history, including a man who helped win a world war with codebreaking. Modern statistical analysis. Modern AI. All of it, so far, beaten by a single handwritten book sitting quietly in a library drawer in Connecticut. Maybe it's a lost language, waiting for the right translator. Maybe it's the most elaborate con in the history of writing. Or maybe — and this is the possibility that keeps researchers coming back, year after year — we simply haven't found the right key yet. Yale has now scanned every page and put it online, free, for anyone in the world to study. If you had the whole manuscript in front of you, page by page, do you think you could crack it? Tell me your theory in the comments. And if mysteries like this one pull you in, subscribe — this is exactly the kind of story we're here to dig into.",
+    "cta": "comment-prompt"
+  },
+  "total_word_count": 1551,
+  "estimated_duration_sec": 620,
+  "target_duration_sec": 600,
+  "duration_delta_sec": 20,
+  "tone": "dramatic-but-educational",
+  "generated_at": "2026-07-06T21:52:00Z"
+}

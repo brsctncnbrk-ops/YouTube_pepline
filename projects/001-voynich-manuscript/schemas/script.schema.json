@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "script.schema.json",
+  "title": "FactForge Script Metadata",
+  "type": "object",
+  "required": [
+    "project_id",
+    "title_working",
+    "hook",
+    "sections",
+    "closing",
+    "total_word_count",
+    "estimated_duration_sec",
+    "target_duration_sec",
+    "duration_delta_sec",
+    "tone",
+    "generated_at"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "project_id": { "type": "string" },
+    "title_working": { "type": "string" },
+    "hook": {
+      "type": "object",
+      "required": ["text", "technique"],
+      "additionalProperties": false,
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "technique": { "type": "string" }
+      }
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "heading", "purpose", "est_duration_sec", "word_count", "contains_curiosity_loop"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "heading": { "type": "string" },
+          "purpose": { "type": "string" },
+          "est_duration_sec": { "type": "number", "minimum": 0 },
+          "word_count": { "type": "integer", "minimum": 0 },
+          "contains_curiosity_loop": { "type": "boolean" }
+        }
+      }
+    },
+    "closing": {
+      "type": "object",
+      "required": ["text", "cta"],
+      "additionalProperties": false,
+      "properties": {
+        "text": { "type": "string", "minLength": 1 },
+        "cta": { "type": "string" }
+      }
+    },
+    "total_word_count": { "type": "integer", "minimum": 0 },
+    "estimated_duration_sec": { "type": "number", "minimum": 0 },
+    "target_duration_sec": { "type": "integer", "minimum": 1 },
+    "duration_delta_sec": { "type": "number" },
+    "tone": { "type": "string" },
+    "generated_at": { "type": "string" }
+  }
+}
