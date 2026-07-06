@@ -32,6 +32,7 @@ node scripts/manifest_cli.mjs pause --project-id 001-my-video
 node scripts/manifest_cli.mjs resume --project-id 001-my-video
 node scripts/manifest_cli.mjs reset-stage --project-id 001-my-video --stage storyboard --force-clean
 node scripts/manifest_cli.mjs prepare-render --project-id 001-my-video
+node scripts/manifest_cli.mjs render-complete --project-id 001-my-video --output-file output/final_video.mp4   # called by render.yml
 ```
 
 ```bash
@@ -41,3 +42,22 @@ node scripts/validate.mjs filenames --project-id 001-my-video
 node scripts/validate.mjs assets --project-id 001-my-video --check audio|images|all
 node scripts/validate.mjs render-ready --project-id 001-my-video
 ```
+
+## Remotion build helpers (used by the motion + editor skills)
+
+```bash
+# Derive scene_config.json + asset_map.json from the authored composition.json
+node scripts/remotion_build.mjs derive-configs --project-id 001-my-video
+
+# Assemble remotion/render_ready_project/ from templates/remotion/
+node scripts/remotion_build.mjs build-project --project-id 001-my-video
+```
+
+## Triggering a render (GitHub Actions only)
+
+```bash
+gh workflow run render.yml -f project_id=001-my-video
+```
+
+The full-duration render never runs locally. Locally you may only do a live
+`remotion studio` preview or a single-frame `remotion still` sanity check.

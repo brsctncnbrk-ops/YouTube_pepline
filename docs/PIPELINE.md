@@ -33,10 +33,10 @@ stage — it sequences the rest.
 | `WAITING_FOR_AUDIO` | Blocked until the human drops `assets/audio/final_voice.mp3` in place (ElevenLabs is manual). |
 | `WAITING_FOR_IMAGES` | Blocked until every `assets/images/scene_NNN.png` referenced by `storyboard.json` exists (Leonardo AI is manual). |
 | `WAITING_FOR_USER_APPROVAL` | Reserved for a future explicit human sign-off step. |
-| `READY_FOR_RENDER` | `prepare-render` passed every render-readiness check. |
-| `RENDERING` | GitHub Actions render in progress (future phase). |
-| `RENDER_DONE` | `output/final_video.mp4` produced (future phase). |
-| `READY_FOR_FINAL_QA` | Reserved for post-render, pre-final-QA state (future phase). |
+| `READY_FOR_RENDER` | `prepare-render` passed every render-readiness check; ready to dispatch `render.yml`. |
+| `RENDERING` | Reserved for in-flight render state (the workflow currently goes straight from `READY_FOR_RENDER` to `RENDER_DONE`). |
+| `RENDER_DONE` | The render workflow produced `output/final_video.mp4` and called `manifest_cli.mjs render-complete`. |
+| `READY_FOR_FINAL_QA` | Reserved for post-render, pre-final-QA state (Phase 5). |
 | `READY_FOR_UPLOAD` | Final QA passed, packaging complete (future phase). |
 | `DONE` | All 17 stages completed. |
 | `ERROR` | A stage or gate failed a mechanical check; see `errors[]` and `logs/errors.log`. |
@@ -56,12 +56,12 @@ runs via `manifest_cli.mjs gate` before letting a blocked stage proceed.
 `research_qa`, `script_qa`, `voice_qa`, `storyboard_qa`, `visual_qa`,
 `render_qa`, `final_qa`. Each writes `qa/<gate>.md` with two sections: an
 "Automated Checks" section (written by `manifest_cli.mjs qa`, backed by
-`scripts/validate.mjs`) and a "Judgment-Based Checks" section. As of Phase 3,
-the first five of these gates have a matching QA skill
-(`factforge-research-qa`, `factforge-script-qa`, `factforge-voice-qa`,
-`factforge-storyboard-qa`, `factforge-visual-qa`) that fills in the
-judgment section for real; `render_qa` and `final_qa` don't have QA skills
-yet (Phases 4-5) and still show the placeholder text until then.
+`scripts/validate.mjs`) and a "Judgment-Based Checks" section. As of Phase 4,
+six of these gates have a matching QA skill (`factforge-research-qa`,
+`factforge-script-qa`, `factforge-voice-qa`, `factforge-storyboard-qa`,
+`factforge-visual-qa`, `factforge-render-qa`) that fills in the judgment
+section for real; only `final_qa` doesn't have a QA skill yet (Phase 5) and
+still shows the placeholder text until then.
 
 `visual_qa` deliberately does not check whether `assets/images/scene_NNN.png`
 files exist — at that point in the pipeline the human hasn't generated them

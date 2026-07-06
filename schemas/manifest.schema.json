@@ -72,6 +72,16 @@
     },
     "last_successful_stage": { "type": ["string", "null"] },
     "last_updated": { "type": "string" },
-    "paused": { "type": "boolean" }
+    "paused": { "type": "boolean" },
+    "render": {
+      "type": "object",
+      "description": "Set by manifest_cli.mjs render-complete after a successful GitHub Actions render.",
+      "additionalProperties": false,
+      "properties": {
+        "output": { "type": "string" },
+        "rendered_at": { "type": "string" },
+        "duration_seconds": { "type": ["number", "null"] }
+      }
+    }
   }
 }

@@ -77,13 +77,26 @@ rendering or reading assets.
 ## Render discipline
 
 Full production renders happen only on GitHub Actions
-(`.github/workflows/render.yml`, a future phase) — never locally. Locally,
-`remotion studio` (live preview) and single-frame `remotion render --frames=0-0`
-sanity checks are fine; the full-duration `.mp4` render is not. This can't be
-mechanically enforced (nothing stops a developer running the full render
-command locally), so it's a documented convention: only the workflow's
-`manifest_cli.mjs advance --stage render_qa` (and later render-complete) calls
-are treated as authoritative.
+(`.github/workflows/render.yml`) — never locally. Locally, `remotion studio`
+(live preview) and single-frame `remotion still` sanity checks are fine; the
+full-duration `.mp4` render is not. This can't be mechanically enforced
+(nothing stops a developer running the full render command locally), so it's a
+documented convention: only the workflow's `manifest_cli.mjs render-complete`
+call is treated as authoritative for `RENDER_DONE`.
+
+## Remotion composition data model
+
+`factforge-motion` authors a single schema-valid `remotion/composition.json`.
+`scene_config.json` and `asset_map.json` are **derived** from it by
+`scripts/remotion_build.mjs derive-configs`, so the three files can never
+drift. `factforge-editor` then runs `remotion_build.mjs build-project` to copy
+`templates/remotion/` into `remotion/render_ready_project/` and drop the tiny
+derived configs into its `src/data/`. The generic Remotion app renders a scene
+sequence from that data (per-scene image, camera motion, transitions, text
+overlay) — the skills only ever produce data, never React/TSX code. Large
+binaries (audio/images) are referenced in place via a public dir pointed at
+the per-project root, so LFS assets are never duplicated into the render
+project.
 
 ## Build phases
 

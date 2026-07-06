@@ -6,19 +6,41 @@ FactForge is a modular AI YouTube production system. Full design:
 
 ## Current build status
 
-Phase 1 (Foundation) is complete: scaffolding, the `manifest.json` state
-machine, the mechanical validation CLI, the 7 JSON schemas, and the
-`factforge-orchestrator` skill. Phase 2 (Content skills) is complete:
-`factforge-research`/`-research-qa`, `factforge-script`/`-script-qa`, and
-`factforge-voice`/`-voice-qa`, covering `research` through `voice_qa`. Phase 3
-(Visual pipeline) is also complete: `factforge-storyboard`/`-storyboard-qa`,
-`factforge-visual-style-bible` (no dedicated QA gate, per spec), and
-`factforge-visual-prompt`/`-visual-qa`, covering `storyboard` through
-`visual_qa`. Everything from `director` onward — director/motion/editor, the
-Remotion template, and the GitHub Actions render workflow — is **not built
-yet** — see the roadmap in `README.md`. Don't improvise those skills'
-creative output in their place; say plainly that a stage isn't implemented
-yet.
+Phases 1–4 are complete. Phase 1 (Foundation): scaffolding, the
+`manifest.json` state machine, the mechanical validation CLI, the 7 JSON
+schemas, and `factforge-orchestrator`. Phase 2 (Content skills):
+`factforge-research`/`-research-qa`, `factforge-script`/`-script-qa`,
+`factforge-voice`/`-voice-qa` (`research`→`voice_qa`). Phase 3 (Visual
+pipeline): `factforge-storyboard`/`-storyboard-qa`,
+`factforge-visual-style-bible` (no QA gate, per spec),
+`factforge-visual-prompt`/`-visual-qa` (`storyboard`→`visual_qa`). Phase 4
+(Production + render): `factforge-director` (no QA gate),
+`factforge-motion`, `factforge-editor`, `factforge-render-qa`
+(`director`→`render_qa`), plus `templates/remotion/`,
+`scripts/remotion_build.mjs`, and `.github/workflows/render.yml`.
+
+The only stages **not built yet** are `packaging` and `final_qa` (Phase 5) —
+see the roadmap in `README.md`. Don't improvise those skills' creative output
+in their place; say plainly that a stage isn't implemented yet.
+
+## Remotion / render notes
+
+- `factforge-motion` authors `remotion/composition.json` (validates against
+  `schemas/composition.schema.json`). `scene_config.json` and `asset_map.json`
+  are **derived** from it by `node scripts/remotion_build.mjs derive-configs`
+  — never hand-edit those two.
+- `factforge-editor` runs `node scripts/remotion_build.mjs build-project`,
+  which copies `templates/remotion/` into `remotion/render_ready_project/`,
+  copies the tiny config JSON into its `src/data/`, and refreshes
+  `assets/asset_manifest.json`. Large binaries are referenced in place (the
+  app's public dir points at the project root), never duplicated.
+- Full renders happen only via `.github/workflows/render.yml`
+  (`gh workflow run render.yml -f project_id=<id>`). Locally, `remotion
+  studio` and single-frame `remotion still` previews are fine; never a full
+  local render. The environment's Chromium is at
+  `/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell`
+  (pass `--browser-executable` to Remotion, since its own Chrome download host
+  is not in the egress allowlist).
 
 ## Ground rules for working in this repo
 

@@ -305,12 +305,39 @@ async function cmdPrepareRender(args) {
       ready: true,
       manifest_status: manifest.status,
       next_step:
-        "Render is not implemented until Phase 4 (Remotion template + .github/workflows/render.yml). " +
-        "Once built, trigger via: gh workflow run render.yml -f project_id=" + projectId,
+        "Trigger the render on GitHub Actions (never locally): " +
+        `gh workflow run render.yml -f project_id=${projectId}. ` +
+        "The workflow renders the Remotion project, commits output/final_video.mp4 back to the branch, " +
+        "and marks the manifest RENDER_DONE (via `manifest_cli.mjs render-complete`).",
     };
   }
 
   return { project_id: projectId, ready: false, reasons: check.reasons, checks: check.checks };
+}
+
+/**
+ * Called by the GitHub Actions render workflow after a successful render.
+ * Sets status RENDER_DONE and records render metadata. Kept separate from
+ * `advance` because the render is an external step, not one of STAGE_ORDER.
+ */
+async function cmdRenderComplete(args) {
+  const { "project-id": projectId, "output-file": outputFile, duration } = args;
+  if (!projectId) throw new CliError("--project-id is required", "UNKNOWN_ERROR");
+
+  const manifest = await loadManifest(projectId);
+  const dir = projectDir(projectId);
+  const outRel = outputFile || "output/final_video.mp4";
+  const outputExists = await pathExists(path.join(dir, outRel));
+  if (!outputExists) {
+    throw new CliError(`Render output ${outRel} not found - refusing to mark RENDER_DONE`, "RENDER_CONFIG_MISSING");
+  }
+
+  manifest.status = "RENDER_DONE";
+  manifest.render = { output: outRel, rendered_at: nowIso(), duration_seconds: duration ? Number(duration) : null };
+  await saveManifest(projectId, manifest);
+  await logSkillRun(projectId, `RENDER_COMPLETE output=${outRel}`);
+
+  return { project_id: projectId, status: manifest.status, output: outRel };
 }
 
 const SUBCOMMANDS = {
@@ -326,6 +353,7 @@ const SUBCOMMANDS = {
   resume: (args) => cmdPauseResume(args, false),
   "reset-stage": cmdResetStage,
   "prepare-render": cmdPrepareRender,
+  "render-complete": cmdRenderComplete,
 };
 
 function printUsage() {

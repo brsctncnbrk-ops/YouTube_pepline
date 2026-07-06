@@ -56,16 +56,36 @@ way, `factforge-visual-prompt` now also emits a schema-backed
 correctly-named prompt entry — without requiring the actual PNGs to exist
 yet, since that only happens after this gate.
 
-**Not yet built** (future phases — see `docs/ARCHITECTURE.md#build-phases`):
+**Phase 4 (Production + render) — done.** This phase built the four skills
+covering `director` through `render_qa`, plus the render infrastructure:
 
-- Phase 4: `director`, `remotion`, `editor`, `render_qa`, the Remotion
-  template, and the GitHub Actions render workflow
+- `factforge-director` (no dedicated QA gate, per spec)
+- `factforge-motion` (authors `remotion/composition.json`; a helper derives
+  `scene_config.json` + `asset_map.json` so the three files can't drift)
+- `factforge-editor` (assembles `remotion/render_ready_project/`)
+- `factforge-render-qa` (final technical gate → `READY_FOR_RENDER`)
+- `templates/remotion/` — a generic Remotion app that renders the scene
+  sequence from the per-project config data (camera motions, transitions,
+  text overlays); large assets are referenced in place, never duplicated
+- `scripts/remotion_build.mjs` — `derive-configs` and `build-project` helpers
+- `.github/workflows/render.yml` — `workflow_dispatch` render on GitHub
+  Actions that commits `output/final_video.mp4` back and marks the manifest
+  `RENDER_DONE`
+
+A project can now continue past the images gate all the way to a rendered
+video: director → motion → editor → render QA → `READY_FOR_RENDER` → trigger
+`render.yml` on GitHub Actions → `output/final_video.mp4`. The full render
+runs **only** on GitHub Actions; locally, `remotion studio` and single-frame
+`remotion still` previews are fine, but never a full local render.
+
+**Not yet built** (future phase — see `docs/ARCHITECTURE.md#build-phases`):
+
 - Phase 5: `packaging`, `final_qa`
 
-Until later phases land, a project can be scaffolded and driven through the
-voice stage, but nothing yet produces storyboards, visuals, or video —
-`manifest_cli.mjs`'s `check-required`, `qa`, and `prepare-render` will
-correctly report what's missing rather than silently succeeding.
+Until Phase 5 lands, a project can be driven all the way through render, but
+the YouTube packaging and final QA stages aren't built yet —
+`manifest_cli.mjs`'s `check-required` and `qa` will correctly report what's
+missing rather than silently succeeding.
 
 ## Quickstart
 
@@ -97,10 +117,12 @@ See `docs/COMMANDS.md` for the full command reference and
 ## Repo layout
 
 ```
-.claude/skills/factforge-orchestrator/   the Orchestrator skill
+.claude/skills/                           the Orchestrator + all pipeline-stage skills
+.github/workflows/render.yml              GitHub Actions render (workflow_dispatch)
 schemas/                                  JSON schemas (source of truth; copied into each project at scaffold time)
-scripts/                                  manifest_cli.mjs, validate.mjs, scaffold_project.mjs, shared lib
+scripts/                                  manifest_cli.mjs, validate.mjs, scaffold_project.mjs, remotion_build.mjs, shared lib
 templates/project/                        empty skeleton stamped into projects/<id>/
+templates/remotion/                       generic Remotion app assembled into each project's render_ready_project/
 projects/                                 one folder per video + _index.json registry
 docs/                                     architecture, pipeline, commands, error codes
 ```
