@@ -1,0 +1,139 @@
+{
+  "project_id": "001-voynich-manuscript",
+  "target_duration_sec": 600,
+  "total_duration_sec": 656,
+  "scene_count": 13,
+  "scenes": [
+    {
+      "scene_id": "scene_001",
+      "start_sec": 0, "end_sec": 29, "duration_sec": 29,
+      "purpose": "Cold-open hook establishing stakes and mystery immediately",
+      "visual_need": "Dim archival vault interior in muted teal-blue lighting; a locked glass case holding an ancient bound manuscript; slow push-in on the book's worn leather-and-vellum cover; quick inserts of looping indecipherable script and a WWII-era Enigma machine to establish the codebreaker stakes",
+      "on_screen_text": "THE VOYNICH MANUSCRIPT",
+      "transition_in": "fade",
+      "transition_out": "cut",
+      "voice_line_ref": "Somewhere in a climate-controlled vault at Yale University sits a book that has beaten every codebreaker who ever touched it... no one can tell you if it means something... or nothing at all."
+    },
+    {
+      "scene_id": "scene_002",
+      "start_sec": 29, "end_sec": 88, "duration_sec": 59,
+      "purpose": "Establish the physical object and the uncanny fluency of the handwriting",
+      "visual_need": "Extreme close-up macro shots of vellum pages with ink strokes flowing in an unknown alphabet; camera glides across dense lines of Voynichese script; aged sepia parchment texture fills the frame; cut to a gloved archivist's hand turning a page",
+      "on_screen_text": "~240 pages · unknown script · undeciphered for 100+ years",
+      "transition_in": "cut",
+      "transition_out": "dissolve",
+      "voice_line_ref": "This is the Voynich manuscript... used it for years."
+    },
+    {
+      "scene_id": "scene_003",
+      "start_sec": 88, "end_sec": 128, "duration_sec": 40,
+      "purpose": "Show the herbal section and its unidentifiable plants",
+      "visual_need": "Illustrated-style renders of strange botanical drawings, roots and leaves combined in impossible ways, matching the manuscript's sepia-teal palette; slow pan across multiple plant pages",
+      "on_screen_text": "126 pages · Herbal section",
+      "transition_in": "dissolve",
+      "transition_out": "cut",
+      "voice_line_ref": "There's a herbal section... no botanist has ever catalogued."
+    },
+    {
+      "scene_id": "scene_004",
+      "start_sec": 128, "end_sec": 152, "duration_sec": 24,
+      "purpose": "Show the astronomical/zodiac diagrams",
+      "visual_need": "Circular star-chart diagrams and zodiac symbols (a bull, an archer) rendered in period illustration style with the teal-sepia palette; gentle rotating-diagram effect",
+      "on_screen_text": "Astronomical section · zodiac diagrams",
+      "transition_in": "cut",
+      "transition_out": "cut",
+      "voice_line_ref": "There's an astronomical section... inventing symbols at random."
+    },
+    {
+      "scene_id": "scene_005",
+      "start_sec": 152, "end_sec": 182, "duration_sec": 30,
+      "purpose": "Show the uniquely strange biological illustrations",
+      "visual_need": "Illustrated tubes and vessel networks connecting small figures in pools of green-tinted liquid, rendered in a painterly, tasteful documentary-illustration style, not literal; moody teal-green lighting",
+      "on_screen_text": "Biological section — the \"nymphs\"",
+      "transition_in": "cut",
+      "transition_out": "dissolve",
+      "voice_line_ref": "Then it gets genuinely strange... no comparable illustration anywhere else."
+    },
+    {
+      "scene_id": "scene_006",
+      "start_sec": 182, "end_sec": 216, "duration_sec": 34,
+      "purpose": "Show the remaining sections and pose the 'recipes for what?' question",
+      "visual_need": "Apothecary jars and isolated root/leaf fragments illustrated in the manuscript's style, then dense text pages marked with small star symbols in the margin; camera holds on a starred paragraph",
+      "on_screen_text": "Pharmaceutical + Recipes sections · purpose unknown",
+      "transition_in": "dissolve",
+      "transition_out": "fade",
+      "voice_line_ref": "There's a pharmaceutical section... they don't say anything on their own."
+    },
+    {
+      "scene_id": "scene_007",
+      "start_sec": 216, "end_sec": 301, "duration_sec": 85,
+      "purpose": "Trace early provenance from Rudolf II through Kircher's failed decipherment to the two-century gap",
+      "visual_need": "Reenactment-style tableaux: a Renaissance emperor's alchemical study cluttered with instruments and books; a wax-sealed letter; a robed Jesuit scholar poring over the manuscript by candlelight; then a slow fade to a dusty, empty library shelf representing the two-century disappearance",
+      "on_screen_text": "c. 1600 → 1666 → two centuries of silence",
+      "transition_in": "fade",
+      "transition_out": "cut",
+      "voice_line_ref": "Here's where the story gets even stranger... Just silence."
+    },
+    {
+      "scene_id": "scene_008",
+      "start_sec": 301, "end_sec": 381, "duration_sec": 80,
+      "purpose": "Cover the Jesuit sale and Voynich's 1912 acquisition; open the discoverer-or-forger curiosity loop",
+      "visual_need": "A dim monastery library with shelved manuscripts; hands quietly wrapping books for a secret sale; a period-style portrait of a mustached early-1900s book dealer examining a manuscript stack in a dusty shop; a subtle dual-image effect suggesting the discoverer-vs-forger tension",
+      "on_screen_text": "1912 · Wilfrid Voynich acquires the manuscript",
+      "transition_in": "cut",
+      "transition_out": "cut",
+      "voice_line_ref": "It resurfaces in the library of a Jesuit college near Rome... not fully settled even now."
+    },
+    {
+      "scene_id": "scene_009",
+      "start_sec": 381, "end_sec": 469, "duration_sec": 88,
+      "purpose": "Show the caliber of people who failed to decipher it, from WWII cryptologists to modern AI",
+      "visual_need": "Montage: a 1940s codebreaking room with an Enigma-style machine and paper printouts; a portrait-style rendering of a mid-century cryptologist at a desk covered in manuscript photostats; transition into a modern glowing screen with cascading data/pattern-recognition overlays that never resolve into readable text",
+      "on_screen_text": "WWII codebreakers → modern AI · still unsolved",
+      "transition_in": "cut",
+      "transition_out": "dissolve",
+      "voice_line_ref": "Once the manuscript became public... not one has held up to peer review."
+    },
+    {
+      "scene_id": "scene_010",
+      "start_sec": 469, "end_sec": 514, "duration_sec": 45,
+      "purpose": "Present the core scientific twist: Voynichese behaves statistically like real language",
+      "visual_need": "Abstract data-visualization overlays on manuscript pages — word-frequency graphs, clustering diagrams — rendered in the teal-sepia palette to feel archival rather than clinical",
+      "on_screen_text": "Statistical tests: it behaves like a real language",
+      "transition_in": "dissolve",
+      "transition_out": "cut",
+      "voice_line_ref": "So which is it. Genuine, or fake?... Math that didn't exist yet."
+    },
+    {
+      "scene_id": "scene_011",
+      "start_sec": 514, "end_sec": 544, "duration_sec": 30,
+      "purpose": "Introduce a plausible mechanical explanation for how the script could have been constructed",
+      "visual_need": "A conceptual illustration of a grid/table cipher device or rotating cipher wheel overlaid with manuscript glyphs, suggesting a hand-built encoding mechanism",
+      "on_screen_text": "The \"Naibbe\" cipher hypothesis",
+      "transition_in": "cut",
+      "transition_out": "cut",
+      "voice_line_ref": "One recent study even proposed a specific cipher method... without modern mathematics."
+    },
+    {
+      "scene_id": "scene_012",
+      "start_sec": 544, "end_sec": 588, "duration_sec": 44,
+      "purpose": "Resolve the discoverer-vs-forger curiosity loop via radiocarbon dating and land on the deeper unresolved mystery",
+      "visual_need": "A laboratory close-up of a vellum sample under analysis equipment, subtly modern against the archival aesthetic; a date-range graphic (1404-1438) overlaid on a manuscript page; slow pull-back to reveal the full ancient book once more",
+      "on_screen_text": "Radiocarbon dated: 1404–1438",
+      "transition_in": "cut",
+      "transition_out": "fade",
+      "voice_line_ref": "And remember Wilfrid Voynich... matches nothing else on Earth."
+    },
+    {
+      "scene_id": "scene_013",
+      "start_sec": 588, "end_sec": 656, "duration_sec": 68,
+      "purpose": "Deliver the takeaway and call to action",
+      "visual_need": "A wide, contemplative shot of the manuscript resting closed in its archival box under soft light; slow fade to the Beinecke Library exterior/interior; end card with channel branding and subscribe prompt",
+      "on_screen_text": "Full manuscript free to view online · What's your theory?",
+      "transition_in": "fade",
+      "transition_out": "fade",
+      "voice_line_ref": "Six hundred years... this is exactly the kind of story we're here to dig into."
+    }
+  ],
+  "generated_at": "2026-07-06T22:15:00Z"
+}

@@ -4,3 +4,8 @@
 2026-07-06T21:49:21.936Z STAGE=script_qa RESULT=success
 2026-07-06T21:50:32.232Z STAGE=voice_script RESULT=success
 2026-07-06T21:50:55.086Z STAGE=voice_qa RESULT=success
+2026-07-06T22:12:04.844Z STAGE=storyboard RESULT=success
+2026-07-06T22:12:31.168Z STAGE=storyboard_qa RESULT=success
+2026-07-06T22:14:14.236Z STAGE=visual_style_bible RESULT=success
+2026-07-06T22:16:16.124Z STAGE=visual_prompt RESULT=success
+2026-07-06T22:16:40.036Z STAGE=visual_qa RESULT=success

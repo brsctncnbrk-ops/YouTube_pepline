@@ -2,21 +2,21 @@
   "project_id": "001-voynich-manuscript",
   "project_name": "Voynich Manuscript",
   "status": "IN_PROGRESS",
-  "current_stage": "storyboard",
+  "current_stage": "director",
   "completed_skills": [
     "research",
     "research_qa",
     "script",
     "script_qa",
     "voice_script",
-    "voice_qa"
-  ],
-  "pending_skills": [
+    "voice_qa",
     "storyboard",
     "storyboard_qa",
     "visual_style_bible",
     "visual_prompt",
-    "visual_qa",
+    "visual_qa"
+  ],
+  "pending_skills": [
     "director",
     "remotion",
     "editor",
@@ -27,7 +27,7 @@
   "waiting_for": [],
   "required_files": [],
   "errors": [],
-  "last_successful_stage": "voice_qa",
-  "last_updated": "2026-07-06T21:50:55.087Z",
+  "last_successful_stage": "visual_qa",
+  "last_updated": "2026-07-06T22:16:40.037Z",
   "paused": false
 }

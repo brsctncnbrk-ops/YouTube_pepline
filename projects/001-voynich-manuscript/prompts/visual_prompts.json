@@ -1,0 +1,192 @@
+{
+  "project_id": "001-voynich-manuscript",
+  "style_token": "FactForge archival mystery-documentary style, painterly semi-realistic illustration, aged vellum and parchment texture, muted sepia and deep teal duotone palette, warm candlelight accents, cinematic high-contrast lighting, restrained painterly detail, no modern elements, museum-archive atmosphere",
+  "scenes": [
+    {
+      "scene_id": "scene_001",
+      "image_filename": "scene_001.png",
+      "main_prompt": "FactForge archival mystery-documentary style, painterly semi-realistic illustration, aged vellum and parchment texture, muted sepia and deep teal duotone palette, warm candlelight accents, cinematic high-contrast lighting, restrained painterly detail, no modern elements, museum-archive atmosphere. A dim, climate-controlled rare-book vault interior in muted Deep Archive Teal lighting; a locked glass display case holds an ancient bound manuscript with a worn leather-and-vellum cover; faint ghostly overlay in the shadowed background of looping indecipherable script and the silhouette of a vintage WWII-era cipher machine; a single warm Candlelight Amber spotlight falls on the manuscript case; tight, centered composition suggesting a slow push-in; hushed, reverent, mysterious mood",
+      "negative_prompt": "photorealistic human faces, modern clothing, modern technology or logos, neon colors, pure white, pure black, flat vector icons, sans-serif text baked into image, dashboard chart aesthetic, handheld shaky camera look, blurry, oversaturated colors, cartoonish, anime style, 3D render, plastic look, watermark, extra limbs, disfigured hands, crowd of people",
+      "camera_angle": "Slow push-in, eye-level, centered on the locked glass case",
+      "lighting": "Single warm Candlelight Amber key light on the manuscript case, Deep Archive Teal ambient fill, vignette fading to Shadow Charcoal at the frame edges",
+      "composition": "Centered subject in sharp focus, vault background softly blurred, generous negative space in the upper third for a title card",
+      "alt_prompts": [
+        "Same vault and lighting, wider establishing framing that reveals more of the vault's shelving and architecture around the central case, still centered on the manuscript",
+        "Same composition but with the Enigma-machine silhouette rendered more clearly in the background shadow, slightly more prominent than the base version"
+      ],
+      "leonardo_settings": { "model": "Leonardo Phoenix 1.0", "aspect_ratio": "16:9", "guidance_scale": 7, "seed": null, "style_reference": null },
+      "status": "pending"
+    },
+    {
+      "scene_id": "scene_002",
+      "image_filename": "scene_002.png",
+      "main_prompt": "FactForge archival mystery-documentary style, painterly semi-realistic illustration, aged vellum and parchment texture, muted sepia and deep teal duotone palette, warm candlelight accents, cinematic high-contrast lighting, restrained painterly detail, no modern elements, museum-archive atmosphere. Extreme macro close-up of an open manuscript page: dense, flowing, elegant handwriting in an unknown alphabet fills the aged parchment surface; visible ink-stroke texture and vellum grain; a gloved archivist's hand enters frame from the right, gently turning the page; shallow depth of field with the page in crisp focus and the room falling into soft Umber-toned blur behind it",
+      "negative_prompt": "photorealistic human faces, modern clothing, modern technology or logos, neon colors, pure white, pure black, flat vector icons, sans-serif text baked into image, dashboard chart aesthetic, handheld shaky camera look, blurry text, oversaturated colors, cartoonish, anime style, 3D render, plastic look, watermark, legible real-world language text, extra fingers, disfigured hand",
+      "camera_angle": "Macro close-up, slight top-down angle looking directly down at the page",
+      "lighting": "Soft, even Candlelight Amber wash across the page with gentle Umber shadow pooling at the page's curled edge",
+      "composition": "Page fills the frame edge to edge, hand and turning page corner positioned in the lower right third",
+      "alt_prompts": [
+        "Same macro framing but camera gliding laterally across a full two-page spread instead of a single page turn, no hand visible",
+        "Tighter crop focusing only on a cluster of the unknown script glyphs, no hand, emphasizing ink texture"
+      ],
+      "leonardo_settings": { "model": "Leonardo Phoenix 1.0", "aspect_ratio": "16:9", "guidance_scale": 7, "seed": null, "style_reference": "scene_001.png" },
+      "status": "pending"
+    },
+    {
+      "scene_id": "scene_003",
+      "image_filename": "scene_003.png",
+      "main_prompt": "FactForge archival mystery-documentary style, painterly semi-realistic illustration, aged vellum and parchment texture, muted sepia and deep teal duotone palette, warm candlelight accents, cinematic high-contrast lighting, restrained painterly detail, no modern elements, museum-archive atmosphere. A manuscript herbal-section page illustration: a strange botanical drawing combining unfamiliar leaf shapes, an oversized root system, and a stem that matches no real plant, rendered in the manuscript's own aged ink-and-wash illustration style; a slow lateral pan implied across a spread of similar impossible plant pages in the background, softly out of focus",
+      "negative_prompt": "photorealistic photography, modern clothing, modern technology or logos, neon colors, pure white, pure black, flat vector icons, sans-serif text, dashboard chart aesthetic, oversaturated colors, cartoonish, anime style, 3D render, plastic look, watermark, recognizable real-world plant species, bright natural green",
+      "camera_angle": "Slow horizontal pan across a page spread, medium-close framing on the foreground plant illustration",
+      "lighting": "Even Candlelight Amber page-light with Deep Archive Teal shadow in the page margins",
+      "composition": "Foreground plant illustration large and centered, additional plant pages softly blurred in the background for depth",
+      "alt_prompts": [
+        "Same style but framed as a full-page single illustration with no background pages visible, more emphasis on the root structure detail"
+      ],
+      "leonardo_settings": { "model": "Leonardo Phoenix 1.0", "aspect_ratio": "16:9", "guidance_scale": 7, "seed": null, "style_reference": "scene_001.png" },
+      "status": "pending"
+    },
+    {
+      "scene_id": "scene_004",
+      "image_filename": "scene_004.png",
+      "main_prompt": "FactForge archival mystery-documentary style, painterly semi-realistic illustration, aged vellum and parchment texture, muted sepia and deep teal duotone palette, warm candlelight accents, cinematic high-contrast lighting, restrained painterly detail, no modern elements, museum-archive atmosphere. A circular astronomical diagram from the manuscript's astronomical section: concentric rings with suns, moons, and stars, and a zodiac symbol (a bull for Taurus) rendered in period illustration linework, aged ink on parchment, centered in frame like a rotating star chart",
+      "negative_prompt": "photorealistic photography, modern clothing, modern technology or logos, neon colors, pure white, pure black, flat vector icons, sans-serif text, dashboard chart aesthetic, oversaturated colors, cartoonish, anime style, 3D render, plastic look, watermark, real astronomical photography, modern star-map UI",
+      "camera_angle": "Static centered shot with implied gentle rotation of the circular diagram",
+      "lighting": "Warm Candlelight Amber glow radiating from the diagram's center, fading to Deep Archive Teal at the page corners",
+      "composition": "Circular diagram fills most of the frame, perfectly centered, aged parchment margin visible at the edges",
+      "alt_prompts": [
+        "Same diagram style but featuring a hunter-with-crossbow zodiac symbol (Sagittarius) instead of the bull, same layout"
+      ],
+      "leonardo_settings": { "model": "Leonardo Phoenix 1.0", "aspect_ratio": "16:9", "guidance_scale": 7, "seed": null, "style_reference": "scene_001.png" },
+      "status": "pending"
+    },
+    {
+      "scene_id": "scene_005",
+      "image_filename": "scene_005.png",
+      "main_prompt": "FactForge archival mystery-documentary style, painterly semi-realistic illustration, aged vellum and parchment texture, muted sepia and deep teal duotone palette, warm candlelight accents, cinematic high-contrast lighting, restrained painterly detail, no modern elements, museum-archive atmosphere. A stylized reproduction of the manuscript's biological-section illustration: small, simplified illustrated figures within interconnected tube-and-vessel structures, immersed in pools of muted teal-green liquid, rendered in the manuscript's own restrained archival illustration style, non-literal and tasteful, treated strictly as historical artifact reproduction",
+      "negative_prompt": "photorealistic human bodies, nudity rendered realistically, modern clothing, modern technology or logos, neon colors, pure white, pure black, flat vector icons, sans-serif text, dashboard chart aesthetic, oversaturated colors, cartoonish, anime style, 3D render, plastic look, watermark, sexualized content, bright natural green",
+      "camera_angle": "Medium close-up, static frame on the tube-and-vessel diagram cluster",
+      "lighting": "Cool Deep Archive Teal glow from within the liquid pools, thin warm Candlelight Amber rim light along the vessel edges",
+      "composition": "Diagram cluster centered, symmetrical layout echoing the manuscript's own page composition, aged parchment border visible",
+      "alt_prompts": [
+        "Same subject but framed as a wider page view showing the full network of tubes and multiple pools rather than a single cluster"
+      ],
+      "leonardo_settings": { "model": "Leonardo Phoenix 1.0", "aspect_ratio": "16:9", "guidance_scale": 7, "seed": null, "style_reference": "scene_001.png" },
+      "status": "pending"
+    },
+    {
+      "scene_id": "scene_006",
+      "image_filename": "scene_006.png",
+      "main_prompt": "FactForge archival mystery-documentary style, painterly semi-realistic illustration, aged vellum and parchment texture, muted sepia and deep teal duotone palette, warm candlelight accents, cinematic high-contrast lighting, restrained painterly detail, no modern elements, museum-archive atmosphere. A pharmaceutical-section illustration: labeled apothecary jars and isolated plant-root and leaf fragments rendered in aged ink-and-wash style, transitioning into a dense page of small paragraphs of unknown script, each paragraph marked with a small star symbol in the left margin, camera holding on one starred paragraph in sharp focus",
+      "negative_prompt": "photorealistic photography, modern clothing, modern pharmacy or lab equipment, neon colors, pure white, pure black, flat vector icons, sans-serif text, dashboard chart aesthetic, oversaturated colors, cartoonish, anime style, 3D render, plastic look, watermark, legible real-world language text",
+      "camera_angle": "Medium close-up on the jars, settling into a top-down macro shot on the starred text paragraph",
+      "lighting": "Warm Candlelight Amber wash across the jars and page, soft Umber shadow in the margins",
+      "composition": "Jars arranged along the upper portion of the frame, starred paragraph anchored in the lower third",
+      "alt_prompts": [
+        "Same subject but framed as a single full page of starred paragraphs only, no jars, for a purely textual variant"
+      ],
+      "leonardo_settings": { "model": "Leonardo Phoenix 1.0", "aspect_ratio": "16:9", "guidance_scale": 7, "seed": null, "style_reference": "scene_001.png" },
+      "status": "pending"
+    },
+    {
+      "scene_id": "scene_007",
+      "image_filename": "scene_007.png",
+      "main_prompt": "FactForge archival mystery-documentary style, painterly semi-realistic illustration, aged vellum and parchment texture, muted sepia and deep teal duotone palette, warm candlelight accents, cinematic high-contrast lighting, restrained painterly detail, no modern elements, museum-archive atmosphere. A Renaissance-era alchemical study cluttered with instruments, books, and candlelight, evoking a Holy Roman Emperor's private chamber; a wax-sealed letter rests on the desk in the foreground; the scene dissolves conceptually into a robed Jesuit scholar poring over the manuscript by candlelight in a second implied space; overall mood of secrecy and obsession with forbidden knowledge",
+      "negative_prompt": "photorealistic human faces, modern clothing, modern technology or logos, neon colors, pure white, pure black, flat vector icons, sans-serif text, dashboard chart aesthetic, oversaturated colors, cartoonish, anime style, 3D render, plastic look, watermark, crowd of people, contemporary interior design",
+      "camera_angle": "Wide establishing shot of the study, settling toward a medium shot on the desk and sealed letter",
+      "lighting": "Warm Candlelight Amber key light from a desk candle, deep Umber and Shadow Charcoal filling the surrounding room",
+      "composition": "Desk and letter in the foreground lower third, cluttered shelving and instruments receding into soft focus background",
+      "alt_prompts": [
+        "Same setting but focused entirely on the robed Jesuit scholar reading the manuscript by candlelight, desk and letter omitted",
+        "A quieter alternate: a single dusty, empty library shelf with one gap where a book once stood, representing the two-century disappearance"
+      ],
+      "leonardo_settings": { "model": "Leonardo Phoenix 1.0", "aspect_ratio": "16:9", "guidance_scale": 7, "seed": null, "style_reference": "scene_001.png" },
+      "status": "pending"
+    },
+    {
+      "scene_id": "scene_008",
+      "image_filename": "scene_008.png",
+      "main_prompt": "FactForge archival mystery-documentary style, painterly semi-realistic illustration, aged vellum and parchment texture, muted sepia and deep teal duotone palette, warm candlelight accents, cinematic high-contrast lighting, restrained painterly detail, no modern elements, museum-archive atmosphere. A dim monastery library interior with tall shelves of bound manuscripts; hands quietly wrapping a stack of books for a secret sale in the foreground; in a separate implied vignette, a period-accurate early-1900s rare book dealer with a mustache and Edwardian suit examines a manuscript in a dusty shop, painterly portrait treatment, one figure per frame, face partially in shadow",
+      "negative_prompt": "photorealistic human faces, modern clothing, modern technology or logos, neon colors, pure white, pure black, flat vector icons, sans-serif text, dashboard chart aesthetic, oversaturated colors, cartoonish, anime style, 3D render, plastic look, watermark, crowd of people, contemporary retail signage",
+      "camera_angle": "Medium shot, three-quarter angle on the book dealer figure",
+      "lighting": "Warm Candlelight Amber pooling on the manuscript stack, Deep Archive Teal ambient shadow filling the shelved background",
+      "composition": "Dealer and manuscript stack occupy the central-right frame, shelving receding diagonally into the background for depth",
+      "alt_prompts": [
+        "Same library setting but focused purely on the wrapped manuscript stack on a desk, no visible dealer figure, wide establishing framing"
+      ],
+      "leonardo_settings": { "model": "Leonardo Phoenix 1.0", "aspect_ratio": "16:9", "guidance_scale": 7, "seed": null, "style_reference": "scene_001.png" },
+      "status": "pending"
+    },
+    {
+      "scene_id": "scene_009",
+      "image_filename": "scene_009.png",
+      "main_prompt": "FactForge archival mystery-documentary style, painterly semi-realistic illustration, aged vellum and parchment texture, muted sepia and deep teal duotone palette, warm candlelight accents, cinematic high-contrast lighting, restrained painterly detail, no modern elements, museum-archive atmosphere. A 1940s codebreaking room: a vintage cipher machine and stacks of paper printouts on a wooden desk, a mid-century cryptologist in period dress studying manuscript photostats by desk lamp, portrait-style medium shot with face in three-quarter profile; the scene conceptually shifts toward a softly glowing modern screen in the background with faint cascading data patterns that never resolve into readable text, still rendered through the same aged painterly texture",
+      "negative_prompt": "photorealistic human faces, contemporary clothing, sleek modern computer or phone renders, neon colors, pure white, pure black, flat vector icons, sans-serif UI text, dashboard chart aesthetic, oversaturated colors, cartoonish, anime style, 3D render, plastic look, watermark, crowd of people",
+      "camera_angle": "Portrait-style medium shot on the cryptologist, background softly extending into the glowing screen element",
+      "lighting": "Warm Candlelight Amber desk-lamp key light on the cryptologist and papers, cool Deep Archive Teal glow from the background screen",
+      "composition": "Cryptologist and desk in the foreground left third, glowing data pattern receding into the background right side",
+      "alt_prompts": [
+        "Same room but without the modern screen element, focused solely on the 1940s desk, machine, and photostats for a purely period-accurate variant"
+      ],
+      "leonardo_settings": { "model": "Leonardo Phoenix 1.0", "aspect_ratio": "16:9", "guidance_scale": 7, "seed": null, "style_reference": "scene_001.png" },
+      "status": "pending"
+    },
+    {
+      "scene_id": "scene_010",
+      "image_filename": "scene_010.png",
+      "main_prompt": "FactForge archival mystery-documentary style, painterly semi-realistic illustration, aged vellum and parchment texture, muted sepia and deep teal duotone palette, warm candlelight accents, cinematic high-contrast lighting, restrained painterly detail, no modern elements, museum-archive atmosphere. An archival-style data diagram overlaid on a manuscript page: hand-drawn-looking word-frequency graph lines and clustering diagram sketches rendered in Umber and Teal ink tones on aged parchment, resembling a researcher's annotated notebook page rather than a modern chart, manuscript script visible faintly beneath the overlay",
+      "negative_prompt": "modern dashboard chart aesthetic, bright saturated data-series colors (red, green, blue), sans-serif UI labels, flat vector graphs, neon colors, pure white, pure black, photorealistic photography, oversaturated colors, cartoonish, anime style, 3D render, plastic look, watermark",
+      "camera_angle": "Top-down macro shot on the annotated page",
+      "lighting": "Even warm Candlelight Amber page light, subtle Deep Archive Teal ink-line contrast",
+      "composition": "Diagram lines and graph sketches centered over the faint manuscript text, parchment margin visible at the frame edges",
+      "alt_prompts": [
+        "Same concept but styled as a wider two-page spread with more annotation notes surrounding a smaller central graph"
+      ],
+      "leonardo_settings": { "model": "Leonardo Phoenix 1.0", "aspect_ratio": "16:9", "guidance_scale": 7, "seed": null, "style_reference": "scene_001.png" },
+      "status": "pending"
+    },
+    {
+      "scene_id": "scene_011",
+      "image_filename": "scene_011.png",
+      "main_prompt": "FactForge archival mystery-documentary style, painterly semi-realistic illustration, aged vellum and parchment texture, muted sepia and deep teal duotone palette, warm candlelight accents, cinematic high-contrast lighting, restrained painterly detail, no modern elements, museum-archive atmosphere. A conceptual illustration of a hand-built cipher device: a rotating wheel or grid-table cipher mechanism carved from wood and aged brass, overlaid with faint manuscript glyphs etched into its surface, suggesting a mechanical encoding tool from the 1400s",
+      "negative_prompt": "modern technology, sleek metal or plastic machinery, neon colors, pure white, pure black, flat vector icons, sans-serif text, dashboard chart aesthetic, oversaturated colors, cartoonish, anime style, 3D render, photorealistic product photography, watermark",
+      "camera_angle": "Close-up, slight three-quarter angle on the cipher device",
+      "lighting": "Warm Candlelight Amber highlighting the brass details, Deep Archive Teal shadow surrounding the device",
+      "composition": "Device centered and large in frame, softly blurred workshop background suggested behind it",
+      "alt_prompts": [
+        "Same device but shown from directly above, top-down, emphasizing the full rotating grid pattern"
+      ],
+      "leonardo_settings": { "model": "Leonardo Phoenix 1.0", "aspect_ratio": "16:9", "guidance_scale": 7, "seed": null, "style_reference": "scene_001.png" },
+      "status": "pending"
+    },
+    {
+      "scene_id": "scene_012",
+      "image_filename": "scene_012.png",
+      "main_prompt": "FactForge archival mystery-documentary style, painterly semi-realistic illustration, aged vellum and parchment texture, muted sepia and deep teal duotone palette, warm candlelight accents, cinematic high-contrast lighting, restrained painterly detail, no modern elements, museum-archive atmosphere. A laboratory close-up of a small vellum sample held in careful analysis equipment, rendered as archival-modern rather than sleek tech-product imagery; a faint date-range graphic overlay near the sample; the camera slowly pulls back to reveal the full ancient manuscript resting closed nearby, tying the scientific test back to the object itself",
+      "negative_prompt": "sleek modern lab or tech-product photography, neon colors, pure white, pure black, flat vector icons, sans-serif UI text, dashboard chart aesthetic, oversaturated colors, cartoonish, anime style, 3D render, plastic look, watermark, photorealistic human faces",
+      "camera_angle": "Close-up on the vellum sample, slow pull-back to a medium shot revealing the closed manuscript",
+      "lighting": "Cool, clinical Deep Archive Teal light on the sample, warm Candlelight Amber glow on the manuscript in the background",
+      "composition": "Sample and equipment in the foreground left, manuscript revealed in the right background as the frame widens",
+      "alt_prompts": [
+        "Same concept but framed as a single wide shot showing both the sample and the closed manuscript together from the start, no implied camera movement"
+      ],
+      "leonardo_settings": { "model": "Leonardo Phoenix 1.0", "aspect_ratio": "16:9", "guidance_scale": 7, "seed": null, "style_reference": "scene_001.png" },
+      "status": "pending"
+    },
+    {
+      "scene_id": "scene_013",
+      "image_filename": "scene_013.png",
+      "main_prompt": "FactForge archival mystery-documentary style, painterly semi-realistic illustration, aged vellum and parchment texture, muted sepia and deep teal duotone palette, warm candlelight accents, cinematic high-contrast lighting, restrained painterly detail, no modern elements, museum-archive atmosphere. A wide, contemplative shot of the manuscript resting closed in its archival storage box under soft even light; the scene slowly fades toward an exterior view of a grand rare-book library building at dusk, warm Candlelight Amber windows glowing against a deep Teal evening sky, quiet and reflective closing mood",
+      "negative_prompt": "photorealistic human faces, modern clothing, modern technology or logos, neon colors, pure white, pure black, flat vector icons, sans-serif text, dashboard chart aesthetic, oversaturated colors, cartoonish, anime style, 3D render, plastic look, watermark, crowd of people",
+      "camera_angle": "Wide static shot on the manuscript box, dissolving to a wide exterior establishing shot of the library",
+      "lighting": "Soft even Candlelight Amber interior light on the manuscript, warm window-glow against a Deep Archive Teal dusk sky for the exterior",
+      "composition": "Manuscript box centered with generous negative space around it for an end-card overlay; library exterior symmetrical and centered for the final frame",
+      "alt_prompts": [
+        "Same manuscript box shot but without the library exterior, holding on the closed book alone for a simpler ending frame"
+      ],
+      "leonardo_settings": { "model": "Leonardo Phoenix 1.0", "aspect_ratio": "16:9", "guidance_scale": 7, "seed": null, "style_reference": "scene_001.png" },
+      "status": "pending"
+    }
+  ],
+  "generated_at": "2026-07-06T22:20:00Z"
+}
