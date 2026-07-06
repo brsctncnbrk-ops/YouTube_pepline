@@ -98,10 +98,10 @@ binaries (audio/images) are referenced in place via a public dir pointed at
 the per-project root, so LFS assets are never duplicated into the render
 project.
 
-## Build phases
+## Build phases (all complete)
 
-1. **Foundation** (this phase) — scaffolding, manifest state machine,
-   validation CLI, schemas, orchestrator skill, docs.
+1. **Foundation** — scaffolding, manifest state machine, validation CLI,
+   schemas, orchestrator skill, docs.
 2. **Content skills** — research, script writer, voice script + their QA
    gates.
 3. **Visual pipeline** — storyboard, visual style bible, visual prompt + QA
@@ -110,4 +110,5 @@ project.
    Remotion template, GitHub Actions workflow.
 5. **Packaging + final QA** — packaging skill, final QA skill.
 
-See `README.md` for current status.
+All five phases are built; the pipeline runs end to end. See `README.md` for
+the per-phase summary.

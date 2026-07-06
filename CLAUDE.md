@@ -6,22 +6,22 @@ FactForge is a modular AI YouTube production system. Full design:
 
 ## Current build status
 
-Phases 1–4 are complete. Phase 1 (Foundation): scaffolding, the
-`manifest.json` state machine, the mechanical validation CLI, the 7 JSON
-schemas, and `factforge-orchestrator`. Phase 2 (Content skills):
-`factforge-research`/`-research-qa`, `factforge-script`/`-script-qa`,
-`factforge-voice`/`-voice-qa` (`research`→`voice_qa`). Phase 3 (Visual
-pipeline): `factforge-storyboard`/`-storyboard-qa`,
-`factforge-visual-style-bible` (no QA gate, per spec),
-`factforge-visual-prompt`/`-visual-qa` (`storyboard`→`visual_qa`). Phase 4
-(Production + render): `factforge-director` (no QA gate),
-`factforge-motion`, `factforge-editor`, `factforge-render-qa`
-(`director`→`render_qa`), plus `templates/remotion/`,
-`scripts/remotion_build.mjs`, and `.github/workflows/render.yml`.
-
-The only stages **not built yet** are `packaging` and `final_qa` (Phase 5) —
-see the roadmap in `README.md`. Don't improvise those skills' creative output
-in their place; say plainly that a stage isn't implemented yet.
+All five phases are complete — the pipeline runs end to end. Phase 1
+(Foundation): scaffolding, the `manifest.json` state machine, the mechanical
+validation CLI, the 7 JSON schemas, and `factforge-orchestrator`. Phase 2
+(Content skills): `factforge-research`/`-research-qa`,
+`factforge-script`/`-script-qa`, `factforge-voice`/`-voice-qa`
+(`research`→`voice_qa`). Phase 3 (Visual pipeline):
+`factforge-storyboard`/`-storyboard-qa`, `factforge-visual-style-bible` (no
+QA gate, per spec), `factforge-visual-prompt`/`-visual-qa`
+(`storyboard`→`visual_qa`). Phase 4 (Production + render):
+`factforge-director` (no QA gate), `factforge-motion`, `factforge-editor`,
+`factforge-render-qa` (`director`→`render_qa`), plus `templates/remotion/`,
+`scripts/remotion_build.mjs`, and `.github/workflows/render.yml`. Phase 5
+(Packaging + final QA): `factforge-packaging` (no QA gate, per spec; authors
+`packaging/packaging.json` + the six deliverable files) and
+`factforge-final-qa` (validates the package, confirms deliverables, marks the
+project `DONE`).
 
 ## Remotion / render notes
 

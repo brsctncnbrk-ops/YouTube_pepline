@@ -51,7 +51,7 @@ export const STAGE_REQUIRED_FILES = {
   editor: ["remotion/composition.json", "remotion/scene_config.json", "assets/audio/final_voice.mp3"],
   render_qa: ["remotion/render_ready_project"],
   packaging: ["scripts/script.md", "research/research.md", "output/final_video.mp4"],
-  final_qa: ["output/final_video.mp4", "storyboard/storyboard.json", "packaging/title.md", "packaging/description.md"],
+  final_qa: ["output/final_video.mp4", "storyboard/storyboard.json", "packaging/packaging.json", "packaging/title.md", "packaging/description.md"],
 };
 
 /** Output files/dirs (relative to the project root) a stage produces. Used by reset-stage --force-clean. */
@@ -79,6 +79,7 @@ export const STAGE_OUTPUT_FILES = {
   editor: ["remotion/render_ready_project"],
   render_qa: ["qa/render_qa.md"],
   packaging: [
+    "packaging/packaging.json",
     "packaging/title.md",
     "packaging/description.md",
     "packaging/tags.txt",

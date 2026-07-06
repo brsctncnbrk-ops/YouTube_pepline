@@ -36,14 +36,13 @@ Full stage list, required files per stage, and output files per stage live in
 `STAGE_OUTPUT_FILES`, `GATES`) — read it if you need the exact contract for a
 stage rather than guessing.
 
-**Current build status**: Phases 1–4 are done — every skill from
-`factforge-research` through `factforge-render-qa` exists, covering stages
-`research` through `render_qa`, plus the Remotion template
+**Current build status**: All phases (1–5) are done — every pipeline stage
+from `research` through `final_qa` has a skill, plus the Remotion template
 (`templates/remotion/`) and the GitHub Actions render workflow
-(`.github/workflows/render.yml`). The only stages not built yet are
-`packaging` and `final_qa` (Phase 5). If asked to run a skill for a stage
-that isn't implemented yet, say so plainly and name the stage — do not
-improvise the skill's job yourself in its place.
+(`.github/workflows/render.yml`). The full pipeline runs end to end: a video
+idea → research/script/voice → (record audio) → storyboard/style/prompts →
+(generate images) → director/motion/editor → render QA → GitHub Actions
+render → packaging → final QA → `DONE`.
 
 ## Commands you must understand
 
@@ -56,7 +55,7 @@ improvise the skill's job yourself in its place.
 | `pause` | Run `manifest_cli.mjs pause --project-id <id>`. |
 | `resume` | Run `manifest_cli.mjs resume --project-id <id>`. |
 | `reset_stage <stage>` | Confirm with the user whether they also want `--force-clean` (deletes that stage's output files) before running `manifest_cli.mjs reset-stage --project-id <id> --stage <stage> [--force-clean]` — this is a destructive option, so don't pass it unless the user asked for it or clearly wants a clean redo. |
-| `run_qa <gate>` | For `research_qa`/`script_qa`/`voice_qa`/`storyboard_qa`/`visual_qa`/`render_qa`, just invoke the matching QA skill (it runs the mechanical check itself as its first step). For gates without a skill yet (`final_qa`), run `manifest_cli.mjs qa --project-id <id> --gate <gate>` directly and note the "Judgment-Based Checks" section is a placeholder until that phase is built. |
+| `run_qa <gate>` | Every QA gate now has a matching skill (`factforge-research-qa`, `-script-qa`, `-voice-qa`, `-storyboard-qa`, `-visual-qa`, `-render-qa`, `-final-qa`) — invoke it (it runs the mechanical check itself as its first step). |
 | `prepare_render` | Prefer invoking `factforge-render-qa` (it runs the checks, records the QA verdict, then calls prepare-render). Running `manifest_cli.mjs prepare-render --project-id <id>` directly also works; if not ready, list the reasons plainly. On success it prints the `gh workflow run render.yml -f project_id=<id>` command. |
 
 When a project_id isn't given and there's more than one project, ask which one
@@ -90,7 +89,8 @@ or `advance` yourself around it.
 | `remotion` | `factforge-motion` |
 | `editor` | `factforge-editor` |
 | `render_qa` | `factforge-render-qa` |
-| `packaging` onward | not implemented yet — say so, name the stage |
+| `packaging` | `factforge-packaging` |
+| `final_qa` | `factforge-final-qa` |
 
 Before invoking a producer skill (not a QA skill), you may sanity-check with
 `manifest_cli.mjs check-required --project-id <id> --stage <stage>` if you
@@ -118,8 +118,11 @@ never locally — trigger it with `gh workflow run render.yml -f project_id=<id>
 (or the GitHub UI). The workflow renders the Remotion project, commits
 `output/final_video.mp4` back to the branch, and flips the manifest to
 `RENDER_DONE`. Only a single-frame `remotion still` preview is acceptable
-locally; never run a full local render. Once `output/final_video.mp4` exists,
-the `packaging` stage becomes unblocked (Phase 5, not built yet).
+locally; never run a full local render. Once `output/final_video.mp4` exists
+(and the manifest is `RENDER_DONE`), the `packaging` stage is unblocked: run
+`factforge-packaging`, then `factforge-final-qa`. When final QA passes, the
+project is `DONE` and the deliverables to upload are `output/final_video.mp4`
+plus the `packaging/` files.
 
 ## Tone
 

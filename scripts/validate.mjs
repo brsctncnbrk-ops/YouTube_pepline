@@ -203,6 +203,31 @@ export async function validatePromptCoverage({ projectId }) {
   return { valid: issues.length === 0, error_code: issues.length ? "BROKEN_ASSET_PATH" : null, issues };
 }
 
+/**
+ * Final-QA mechanical check: the rendered video plus all six spec-listed
+ * YouTube packaging deliverables must exist. The packaging.json schema is
+ * checked separately via SCHEMA_BY_STAGE. This is the "is the package
+ * complete / is the video rendered" half of the final QA gate; everything
+ * qualitative (sync, readability, title strength) is the final-qa skill's job.
+ */
+export async function validatePackaging({ projectId }) {
+  const dir = projectDir(projectId);
+  const required = [
+    "output/final_video.mp4",
+    "packaging/title.md",
+    "packaging/description.md",
+    "packaging/tags.txt",
+    "packaging/thumbnail.md",
+    "packaging/chapters.txt",
+    "packaging/pinned_comment.md",
+  ];
+  const missing = [];
+  for (const rel of required) {
+    if (!(await pathExists(path.join(dir, rel)))) missing.push(rel);
+  }
+  return { valid: missing.length === 0, error_code: missing.length ? "UNKNOWN_ERROR" : null, missing };
+}
+
 export async function validateRenderReady({ projectId }) {
   const dir = projectDir(projectId);
   const checks = {};
@@ -245,7 +270,7 @@ const SCHEMA_BY_STAGE = {
   storyboard_qa: [{ file: "storyboard/storyboard.json", schema: "storyboard" }],
   visual_qa: [{ file: "prompts/visual_prompts.json", schema: "visual_prompts" }],
   render_qa: [{ file: "remotion/composition.json", schema: "composition" }],
-  final_qa: [], // packaging fields live across several .md/.txt files in Phase 1, not a single JSON target
+  final_qa: [{ file: "packaging/packaging.json", schema: "packaging" }],
 };
 
 export async function validateAll({ projectId, stage }) {
@@ -268,8 +293,16 @@ export async function validateAll({ projectId, stage }) {
   let coverageCheck = { valid: true, issues: [] };
   if (stage === "visual_qa") coverageCheck = await validatePromptCoverage({ projectId });
 
-  const valid = schemaChecks.every((c) => c.valid) && assetCheck.valid && filenamesCheck.valid && coverageCheck.valid;
-  return { valid, schemaChecks, assetCheck, filenamesCheck, coverageCheck };
+  let packagingCheck = { valid: true, missing: [] };
+  if (stage === "final_qa") packagingCheck = await validatePackaging({ projectId });
+
+  const valid =
+    schemaChecks.every((c) => c.valid) &&
+    assetCheck.valid &&
+    filenamesCheck.valid &&
+    coverageCheck.valid &&
+    packagingCheck.valid;
+  return { valid, schemaChecks, assetCheck, filenamesCheck, coverageCheck, packagingCheck };
 }
 
 function toHuman(result) {
@@ -288,6 +321,9 @@ function toHuman(result) {
   }
   if (result.coverageCheck) {
     lines.push(`- Prompt-to-scene coverage: ${result.coverageCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.coverageCheck.issues)}`);
+  }
+  if (result.packagingCheck) {
+    lines.push(`- Packaging deliverables: ${result.packagingCheck.valid ? "PASS" : "FAIL - missing " + result.packagingCheck.missing.join(", ")}`);
   }
   if (result.reasons) {
     lines.push(`- Reasons: ${result.reasons.length ? result.reasons.join("; ") : "none"}`);

@@ -37,8 +37,8 @@ stage — it sequences the rest.
 | `RENDERING` | Reserved for in-flight render state (the workflow currently goes straight from `READY_FOR_RENDER` to `RENDER_DONE`). |
 | `RENDER_DONE` | The render workflow produced `output/final_video.mp4` and called `manifest_cli.mjs render-complete`. |
 | `READY_FOR_FINAL_QA` | Reserved for post-render, pre-final-QA state (Phase 5). |
-| `READY_FOR_UPLOAD` | Final QA passed, packaging complete (future phase). |
-| `DONE` | All 17 stages completed. |
+| `READY_FOR_UPLOAD` | Reserved intermediate; `final_qa` completing goes straight to `DONE`. |
+| `DONE` | All 17 stages completed — the video and its YouTube package are publish-ready. |
 | `ERROR` | A stage or gate failed a mechanical check; see `errors[]` and `logs/errors.log`. |
 
 ## Gates
@@ -56,12 +56,17 @@ runs via `manifest_cli.mjs gate` before letting a blocked stage proceed.
 `research_qa`, `script_qa`, `voice_qa`, `storyboard_qa`, `visual_qa`,
 `render_qa`, `final_qa`. Each writes `qa/<gate>.md` with two sections: an
 "Automated Checks" section (written by `manifest_cli.mjs qa`, backed by
-`scripts/validate.mjs`) and a "Judgment-Based Checks" section. As of Phase 4,
-six of these gates have a matching QA skill (`factforge-research-qa`,
+`scripts/validate.mjs`) and a "Judgment-Based Checks" section. All seven
+gates now have a matching QA skill (`factforge-research-qa`,
 `factforge-script-qa`, `factforge-voice-qa`, `factforge-storyboard-qa`,
-`factforge-visual-qa`, `factforge-render-qa`) that fills in the judgment
-section for real; only `final_qa` doesn't have a QA skill yet (Phase 5) and
-still shows the placeholder text until then.
+`factforge-visual-qa`, `factforge-render-qa`, `factforge-final-qa`) that
+fills in the judgment section for real.
+
+`final_qa`'s mechanical half schema-validates `packaging/packaging.json` and
+confirms every publish deliverable exists (`output/final_video.mp4` plus the
+six `packaging/*` files). Like `visual_prompt` in Phase 3, `packaging` emits
+a schema-backed `packaging.json` (in addition to the spec's `.md`/`.txt`
+files) so this check has a single JSON target to validate.
 
 `visual_qa` deliberately does not check whether `assets/images/scene_NNN.png`
 files exist — at that point in the pipeline the human hasn't generated them

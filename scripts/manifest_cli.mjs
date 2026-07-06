@@ -192,6 +192,7 @@ async function cmdQa(args) {
     else if (result.assetCheck && !result.assetCheck.valid && result.assetCheck.error_code) code = result.assetCheck.error_code;
     else if (result.filenamesCheck && !result.filenamesCheck.valid) code = "BROKEN_ASSET_PATH";
     else if (result.coverageCheck && !result.coverageCheck.valid) code = "BROKEN_ASSET_PATH";
+    else if (result.packagingCheck && !result.packagingCheck.valid) code = result.packagingCheck.error_code || "UNKNOWN_ERROR";
 
     await cmdError({
       "project-id": projectId,

@@ -78,14 +78,22 @@ video: director → motion → editor → render QA → `READY_FOR_RENDER` → t
 runs **only** on GitHub Actions; locally, `remotion studio` and single-frame
 `remotion still` previews are fine, but never a full local render.
 
-**Not yet built** (future phase — see `docs/ARCHITECTURE.md#build-phases`):
+**Phase 5 (Packaging + final QA) — done.** This phase built the last two
+skills, completing the pipeline:
 
-- Phase 5: `packaging`, `final_qa`
+- `factforge-packaging` (no dedicated QA gate, per spec — authors
+  `packaging/packaging.json` plus the six YouTube deliverable files:
+  titles, description, tags, thumbnail concepts, chapters, pinned comment)
+- `factforge-final-qa` (the final gate — schema-validates the package,
+  confirms every deliverable exists, reviews publish-readiness, and on pass
+  marks the project `DONE`)
 
-Until Phase 5 lands, a project can be driven all the way through render, but
-the YouTube packaging and final QA stages aren't built yet —
-`manifest_cli.mjs`'s `check-required` and `qa` will correctly report what's
-missing rather than silently succeeding.
+**The pipeline is now complete end to end.** A project can go from a video
+idea all the way to a rendered, packaged, publish-ready video: research →
+script → voice → (record audio) → storyboard → style → prompts → (generate
+images) → director → motion → editor → render QA → GitHub Actions render →
+packaging → final QA → `DONE`. The deliverables to upload are
+`output/final_video.mp4` plus the `packaging/` files.
 
 ## Quickstart
 
