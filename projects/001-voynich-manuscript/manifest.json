@@ -1,7 +1,7 @@
 {
   "project_id": "001-voynich-manuscript",
   "project_name": "Voynich Manuscript",
-  "status": "READY_FOR_RENDER",
+  "status": "RENDER_DONE",
   "current_stage": "packaging",
   "completed_skills": [
     "research",
@@ -28,6 +28,11 @@
   "required_files": [],
   "errors": [],
   "last_successful_stage": "render_qa",
-  "last_updated": "2026-07-07T01:36:30.143Z",
-  "paused": false
+  "last_updated": "2026-07-07T02:44:44.733Z",
+  "paused": false,
+  "render": {
+    "output": "output/final_video.mp4",
+    "rendered_at": "2026-07-07T02:44:44.732Z",
+    "duration_seconds": null
+  }
 }

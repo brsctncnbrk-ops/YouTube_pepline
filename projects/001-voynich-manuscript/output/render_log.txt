@@ -1,0 +1,43 @@
+Rendered at: 2026-07-07T02:44:44Z
+Workflow run: 28836937672
+---
+Rendered 19650/19680, time remaining: 2s
+Rendered 19651/19680, time remaining: 1s
+Rendered 19652/19680, time remaining: 1s
+Rendered 19653/19680, time remaining: 1s
+Rendered 19654/19680, time remaining: 1s
+Rendered 19655/19680, time remaining: 1s
+Rendered 19656/19680, time remaining: 1s
+Rendered 19657/19680, time remaining: 1s
+Rendered 19657/19680, time remaining: 1s
+Rendered 19658/19680, time remaining: 1s
+Rendered 19659/19680, time remaining: 1s
+Rendered 19660/19680, time remaining: 1s
+Rendered 19661/19680, time remaining: 1s
+Rendered 19662/19680, time remaining: 1s
+Rendered 19663/19680, time remaining: 1s
+Rendered 19664/19680, time remaining: 1s
+Rendered 19665/19680, time remaining: 1s
+Rendered 19665/19680, time remaining: 1s
+Rendered 19666/19680, time remaining: 0s
+Rendered 19667/19680, time remaining: 0s
+Rendered 19668/19680, time remaining: 0s
+Rendered 19669/19680, time remaining: 0s
+Rendered 19670/19680, time remaining: 0s
+Rendered 19671/19680, time remaining: 0s
+Rendered 19671/19680, time remaining: 0s
+Rendered 19672/19680, time remaining: 0s
+Rendered 19673/19680, time remaining: 0s
+Rendered 19674/19680, time remaining: 0s
+Rendered 19675/19680, time remaining: 0s
+Rendered 19676/19680, time remaining: 0s
+Rendered 19677/19680, time remaining: 0s
+Rendered 19677/19680, time remaining: 0s
+Rendered 19678/19680, time remaining: 0s
+Rendered 19679/19680, time remaining: 0s
+Encoded 15701/19680
+Encoded 15713/19680
+Encoded 15733/19680
+Encoded 15744/19680
+Encoded 19680/19680
+[34m+                    out/final_video.mp4[39m [90m556.2 MB[39m
