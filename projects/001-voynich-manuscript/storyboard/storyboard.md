@@ -23,7 +23,7 @@ Visual need: Extreme close-up macro shots of vellum pages with ink strokes
 flowing in an unknown alphabet; camera glides across dense lines of
 Voynichese script; aged sepia parchment texture fills the frame; cut to a
 gloved archivist's hand turning a page.
-On-screen text: "~240 pages · unknown script · undeciphered for 100+ years"
+On-screen text: "About 240 pages · unknown script · undeciphered for 100+ years"
 Voice: "This is the Voynich manuscript... used it for years."
 
 **scene_003** — 1:28–2:08 (40s) — dissolve in / cut out

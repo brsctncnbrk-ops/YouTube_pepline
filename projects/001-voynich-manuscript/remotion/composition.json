@@ -1,0 +1,274 @@
+{
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "duration_frames": 19680,
+  "audio_asset": "assets/audio/final_voice.mp3",
+  "scenes": [
+    {
+      "scene_id": "scene_001",
+      "start_frame": 0,
+      "end_frame": 870,
+      "image_asset": "assets/images/scene_001.png",
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1.0,
+          "to": 1.08
+        }
+      },
+      "text_overlay": "THE VOYNICH MANUSCRIPT",
+      "transition_in": "fade",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_002",
+      "start_frame": 870,
+      "end_frame": 2640,
+      "image_asset": "assets/images/scene_002.png",
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1.0,
+          "to": 1.06
+        }
+      },
+      "text_overlay": "About 240 pages \u00b7 unknown script \u00b7 undeciphered for 100+ years",
+      "transition_in": "cut",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_003",
+      "start_frame": 2640,
+      "end_frame": 3840,
+      "image_asset": "assets/images/scene_003.png",
+      "camera_motion": {
+        "type": "pan_right",
+        "params": {
+          "magnitude": 3
+        }
+      },
+      "text_overlay": "126 pages \u00b7 Herbal section",
+      "transition_in": "dissolve",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_004",
+      "start_frame": 3840,
+      "end_frame": 4560,
+      "image_asset": "assets/images/scene_004.png",
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1.0,
+          "to": 1.05
+        }
+      },
+      "text_overlay": "Astronomical section \u00b7 zodiac diagrams",
+      "transition_in": "cut",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_005",
+      "start_frame": 4560,
+      "end_frame": 5460,
+      "image_asset": "assets/images/scene_005.png",
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1.0,
+          "to": 1.1
+        }
+      },
+      "text_overlay": "Biological section \u2014 the \"nymphs\"",
+      "transition_in": "cut",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_006",
+      "start_frame": 5460,
+      "end_frame": 6480,
+      "image_asset": "assets/images/scene_006.png",
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1.0,
+          "to": 1.07
+        }
+      },
+      "text_overlay": "Pharmaceutical + Recipes sections \u00b7 purpose unknown",
+      "transition_in": "dissolve",
+      "transition_out": "fade"
+    },
+    {
+      "scene_id": "scene_007",
+      "start_frame": 6480,
+      "end_frame": 9030,
+      "image_asset": "assets/images/scene_007.png",
+      "camera_motion": {
+        "type": "zoom_out",
+        "params": {
+          "from": 1.1,
+          "to": 1.0
+        }
+      },
+      "text_overlay": "c. 1600 \u2192 1666 \u2192 two centuries of silence",
+      "transition_in": "fade",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_008",
+      "start_frame": 9030,
+      "end_frame": 11430,
+      "image_asset": "assets/images/scene_008.png",
+      "camera_motion": {
+        "type": "pan_right",
+        "params": {
+          "magnitude": 4
+        }
+      },
+      "text_overlay": "1912 \u00b7 Wilfrid Voynich acquires the manuscript",
+      "transition_in": "cut",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_009",
+      "start_frame": 11430,
+      "end_frame": 14070,
+      "image_asset": "assets/images/scene_009.png",
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1.0,
+          "to": 1.1
+        }
+      },
+      "text_overlay": "WWII codebreakers \u2192 modern AI \u00b7 still unsolved",
+      "transition_in": "cut",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_010",
+      "start_frame": 14070,
+      "end_frame": 15420,
+      "image_asset": "assets/images/scene_010.png",
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1.0,
+          "to": 1.1
+        }
+      },
+      "text_overlay": "Statistical tests: it behaves like a real language",
+      "transition_in": "dissolve",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_011",
+      "start_frame": 15420,
+      "end_frame": 16320,
+      "image_asset": "assets/images/scene_011.png",
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1.0,
+          "to": 1.06
+        }
+      },
+      "text_overlay": "The \"Naibbe\" cipher hypothesis",
+      "transition_in": "cut",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_012",
+      "start_frame": 16320,
+      "end_frame": 17640,
+      "image_asset": "assets/images/scene_012.png",
+      "camera_motion": {
+        "type": "zoom_out",
+        "params": {
+          "from": 1.15,
+          "to": 1.0
+        }
+      },
+      "text_overlay": "Radiocarbon dated: 1404\u20131438",
+      "transition_in": "cut",
+      "transition_out": "fade"
+    },
+    {
+      "scene_id": "scene_013",
+      "start_frame": 17640,
+      "end_frame": 19680,
+      "image_asset": "assets/images/scene_013.png",
+      "camera_motion": {
+        "type": "zoom_out",
+        "params": {
+          "from": 1.05,
+          "to": 1.0
+        }
+      },
+      "text_overlay": "Full manuscript free to view online \u00b7 What's your theory?",
+      "transition_in": "fade",
+      "transition_out": "fade"
+    }
+  ],
+  "asset_map": {
+    "scene_001": {
+      "image": "assets/images/scene_001.png",
+      "audio_offset_sec": 0
+    },
+    "scene_002": {
+      "image": "assets/images/scene_002.png",
+      "audio_offset_sec": 29
+    },
+    "scene_003": {
+      "image": "assets/images/scene_003.png",
+      "audio_offset_sec": 88
+    },
+    "scene_004": {
+      "image": "assets/images/scene_004.png",
+      "audio_offset_sec": 128
+    },
+    "scene_005": {
+      "image": "assets/images/scene_005.png",
+      "audio_offset_sec": 152
+    },
+    "scene_006": {
+      "image": "assets/images/scene_006.png",
+      "audio_offset_sec": 182
+    },
+    "scene_007": {
+      "image": "assets/images/scene_007.png",
+      "audio_offset_sec": 216
+    },
+    "scene_008": {
+      "image": "assets/images/scene_008.png",
+      "audio_offset_sec": 301
+    },
+    "scene_009": {
+      "image": "assets/images/scene_009.png",
+      "audio_offset_sec": 381
+    },
+    "scene_010": {
+      "image": "assets/images/scene_010.png",
+      "audio_offset_sec": 469
+    },
+    "scene_011": {
+      "image": "assets/images/scene_011.png",
+      "audio_offset_sec": 514
+    },
+    "scene_012": {
+      "image": "assets/images/scene_012.png",
+      "audio_offset_sec": 544
+    },
+    "scene_013": {
+      "image": "assets/images/scene_013.png",
+      "audio_offset_sec": 588
+    }
+  },
+  "render": {
+    "codec": "h264",
+    "crf": 18,
+    "output_filename": "final_video.mp4"
+  }
+}

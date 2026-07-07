@@ -1,8 +1,8 @@
 {
   "project_id": "001-voynich-manuscript",
   "project_name": "Voynich Manuscript",
-  "status": "IN_PROGRESS",
-  "current_stage": "director",
+  "status": "READY_FOR_RENDER",
+  "current_stage": "packaging",
   "completed_skills": [
     "research",
     "research_qa",
@@ -14,20 +14,20 @@
     "storyboard_qa",
     "visual_style_bible",
     "visual_prompt",
-    "visual_qa"
-  ],
-  "pending_skills": [
+    "visual_qa",
     "director",
     "remotion",
     "editor",
-    "render_qa",
+    "render_qa"
+  ],
+  "pending_skills": [
     "packaging",
     "final_qa"
   ],
   "waiting_for": [],
   "required_files": [],
   "errors": [],
-  "last_successful_stage": "visual_qa",
-  "last_updated": "2026-07-07T00:53:05.317Z",
+  "last_successful_stage": "render_qa",
+  "last_updated": "2026-07-07T01:36:30.143Z",
   "paused": false
 }

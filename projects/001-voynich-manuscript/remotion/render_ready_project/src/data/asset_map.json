@@ -1,0 +1,57 @@
+{
+  "audio_asset": "assets/audio/final_voice.mp3",
+  "asset_map": {
+    "scene_001": {
+      "image": "assets/images/scene_001.png",
+      "audio_offset_sec": 0
+    },
+    "scene_002": {
+      "image": "assets/images/scene_002.png",
+      "audio_offset_sec": 29
+    },
+    "scene_003": {
+      "image": "assets/images/scene_003.png",
+      "audio_offset_sec": 88
+    },
+    "scene_004": {
+      "image": "assets/images/scene_004.png",
+      "audio_offset_sec": 128
+    },
+    "scene_005": {
+      "image": "assets/images/scene_005.png",
+      "audio_offset_sec": 152
+    },
+    "scene_006": {
+      "image": "assets/images/scene_006.png",
+      "audio_offset_sec": 182
+    },
+    "scene_007": {
+      "image": "assets/images/scene_007.png",
+      "audio_offset_sec": 216
+    },
+    "scene_008": {
+      "image": "assets/images/scene_008.png",
+      "audio_offset_sec": 301
+    },
+    "scene_009": {
+      "image": "assets/images/scene_009.png",
+      "audio_offset_sec": 381
+    },
+    "scene_010": {
+      "image": "assets/images/scene_010.png",
+      "audio_offset_sec": 469
+    },
+    "scene_011": {
+      "image": "assets/images/scene_011.png",
+      "audio_offset_sec": 514
+    },
+    "scene_012": {
+      "image": "assets/images/scene_012.png",
+      "audio_offset_sec": 544
+    },
+    "scene_013": {
+      "image": "assets/images/scene_013.png",
+      "audio_offset_sec": 588
+    }
+  }
+}

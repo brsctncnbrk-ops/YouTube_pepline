@@ -1,0 +1,201 @@
+{
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "duration_frames": 19680,
+  "scenes": [
+    {
+      "scene_id": "scene_001",
+      "start_frame": 0,
+      "end_frame": 870,
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1,
+          "to": 1.08
+        }
+      },
+      "text_overlay": "THE VOYNICH MANUSCRIPT",
+      "transition_in": "fade",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_002",
+      "start_frame": 870,
+      "end_frame": 2640,
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1,
+          "to": 1.06
+        }
+      },
+      "text_overlay": "About 240 pages · unknown script · undeciphered for 100+ years",
+      "transition_in": "cut",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_003",
+      "start_frame": 2640,
+      "end_frame": 3840,
+      "camera_motion": {
+        "type": "pan_right",
+        "params": {
+          "magnitude": 3
+        }
+      },
+      "text_overlay": "126 pages · Herbal section",
+      "transition_in": "dissolve",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_004",
+      "start_frame": 3840,
+      "end_frame": 4560,
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1,
+          "to": 1.05
+        }
+      },
+      "text_overlay": "Astronomical section · zodiac diagrams",
+      "transition_in": "cut",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_005",
+      "start_frame": 4560,
+      "end_frame": 5460,
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1,
+          "to": 1.1
+        }
+      },
+      "text_overlay": "Biological section — the \"nymphs\"",
+      "transition_in": "cut",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_006",
+      "start_frame": 5460,
+      "end_frame": 6480,
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1,
+          "to": 1.07
+        }
+      },
+      "text_overlay": "Pharmaceutical + Recipes sections · purpose unknown",
+      "transition_in": "dissolve",
+      "transition_out": "fade"
+    },
+    {
+      "scene_id": "scene_007",
+      "start_frame": 6480,
+      "end_frame": 9030,
+      "camera_motion": {
+        "type": "zoom_out",
+        "params": {
+          "from": 1.1,
+          "to": 1
+        }
+      },
+      "text_overlay": "c. 1600 → 1666 → two centuries of silence",
+      "transition_in": "fade",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_008",
+      "start_frame": 9030,
+      "end_frame": 11430,
+      "camera_motion": {
+        "type": "pan_right",
+        "params": {
+          "magnitude": 4
+        }
+      },
+      "text_overlay": "1912 · Wilfrid Voynich acquires the manuscript",
+      "transition_in": "cut",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_009",
+      "start_frame": 11430,
+      "end_frame": 14070,
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1,
+          "to": 1.1
+        }
+      },
+      "text_overlay": "WWII codebreakers → modern AI · still unsolved",
+      "transition_in": "cut",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_010",
+      "start_frame": 14070,
+      "end_frame": 15420,
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1,
+          "to": 1.1
+        }
+      },
+      "text_overlay": "Statistical tests: it behaves like a real language",
+      "transition_in": "dissolve",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_011",
+      "start_frame": 15420,
+      "end_frame": 16320,
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1,
+          "to": 1.06
+        }
+      },
+      "text_overlay": "The \"Naibbe\" cipher hypothesis",
+      "transition_in": "cut",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_012",
+      "start_frame": 16320,
+      "end_frame": 17640,
+      "camera_motion": {
+        "type": "zoom_out",
+        "params": {
+          "from": 1.15,
+          "to": 1
+        }
+      },
+      "text_overlay": "Radiocarbon dated: 1404–1438",
+      "transition_in": "cut",
+      "transition_out": "fade"
+    },
+    {
+      "scene_id": "scene_013",
+      "start_frame": 17640,
+      "end_frame": 19680,
+      "camera_motion": {
+        "type": "zoom_out",
+        "params": {
+          "from": 1.05,
+          "to": 1
+        }
+      },
+      "text_overlay": "Full manuscript free to view online · What's your theory?",
+      "transition_in": "fade",
+      "transition_out": "fade"
+    }
+  ]
+}
