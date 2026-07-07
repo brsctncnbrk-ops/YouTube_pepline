@@ -29,13 +29,29 @@ Convert the storyboard's second-based timings to frames using `fps`:
 - `duration_frames` (top level) = the last scene's `end_frame` (the total
   frame count of the video).
 - For each scene, set `camera_motion.type` from the direction plan's keyword
-  (`zoom_in`, `zoom_out`, `pan_left`, `pan_right`, `pan_up`, `pan_down`, or
-  `static`) and put any intensity in `camera_motion.params` (e.g.
-  `{ "from": 1.0, "to": 1.12 }` for zoom, `{ "magnitude": 4 }` for pan).
-  Leave `params` as `{}` for `static`.
+  — one of `zoom_in`, `zoom_out`, `pan_left`, `pan_right`, `pan_up`,
+  `pan_down`, `static` (the schema enum; no other value validates) — and put
+  any intensity in `camera_motion.params` (e.g. `{ "from": 1.0, "to": 1.12 }`
+  for zoom, `{ "magnitude": 4 }` for pan). Leave `params` as `{}` for
+  `static`. **No two consecutive scenes may share the same
+  `camera_motion.type`** — mechanically enforced at `render_qa`
+  (`validate.mjs scene-variety`), so rotate deliberately rather than
+  defaulting to one movement throughout.
 - Carry `transition_in`/`transition_out` and `text_overlay` straight from the
-  storyboard (the template renders `fade`/`dissolve` as opacity fades; other
-  transition values render as hard cuts).
+  storyboard. All eight transition types are real and enum-constrained:
+  `fade`, `dissolve`, `cut`, `wipe`, `slide`, `light_flash`, `blur`,
+  `zoom_through`. The same `render_qa` check also forbids two consecutive
+  scenes from sharing the same `transition_in`.
+- Optionally set `overlay_effects` per scene — an array of
+  `{ "type": "glow"|"noise"|"vignette"|"particles", "params": {...} }`. This
+  is authored entirely by you from the storyboard/style bible (the direction
+  plan doesn't cover it); it is **not** subject to the consecutive-repeat
+  gate. Use it sparingly and purposefully, not on every scene:
+  - `glow` — `params: { intensity, cx, cy }` (0-100 position, default center-ish).
+  - `vignette` — `params: { strength }` (0-1, default 0.65).
+  - `noise` — `params: { opacity }` (0-1, default 0.06), subtle film-grain texture.
+  - `particles` — `params: { count }` (default 18), small drifting dots.
+  Leave `params` as `{}` to accept the defaults.
 - `image_asset` = `assets/images/<scene_id>.png`, `audio_asset` =
   `assets/audio/final_voice.mp3` — **always relative paths, never absolute**
   (the render happens on GitHub Actions, not a local machine; absolute paths
@@ -58,7 +74,8 @@ Exact shape (see `schemas/composition.schema.json` for the authority):
       "image_asset": "assets/images/scene_001.png",
       "camera_motion": { "type": "zoom_in", "params": { "from": 1.0, "to": 1.12 } },
       "text_overlay": "May 1, 1840",
-      "transition_in": "fade", "transition_out": "cut"
+      "transition_in": "fade", "transition_out": "cut",
+      "overlay_effects": [{ "type": "glow", "params": {} }]
     }
   ],
   "asset_map": { "scene_001": { "image": "assets/images/scene_001.png", "audio_offset_sec": 0 } },
@@ -77,7 +94,8 @@ Exact shape (see `schemas/composition.schema.json` for the authority):
    This writes `scene_config.json` and `asset_map.json` from your
    `composition.json`.
 3. Sanity-check paths: `node scripts/validate.mjs paths --project-id <project_id>`.
-4. Advance:
+4. Sanity-check camera/transition variety: `node scripts/validate.mjs scene-variety --project-id <project_id>`. Fix any consecutive `camera_motion.type`/`transition_in` repeats before proceeding (this also gates `render_qa`, so catching it now saves a round trip).
+5. Advance:
    `node scripts/manifest_cli.mjs advance --project-id <project_id> --stage remotion --result success`.
 
 Never hand-edit `manifest.json`, and never hand-edit `scene_config.json` or

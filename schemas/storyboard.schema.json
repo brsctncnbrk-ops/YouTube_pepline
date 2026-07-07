@@ -29,6 +29,7 @@
           "duration_sec",
           "purpose",
           "visual_need",
+          "scene_type",
           "on_screen_text",
           "transition_in",
           "transition_out",
@@ -42,9 +43,26 @@
           "duration_sec": { "type": "number", "minimum": 0 },
           "purpose": { "type": "string" },
           "visual_need": { "type": "string" },
+          "scene_type": {
+            "type": "string",
+            "enum": [
+              "cinematic", "historical_painting", "documentary", "blueprint",
+              "technical_drawing", "newspaper", "magazine", "timeline",
+              "infographic", "split_screen", "before_after", "world_map",
+              "satellite_view", "xray", "macro_shot", "isometric", "whiteboard",
+              "character_scene", "animated_illustration", "data_visualization",
+              "archive_documents", "hand_drawn_sketch", "ui_hud_screen", "diagram"
+            ]
+          },
           "on_screen_text": { "type": ["string", "null"] },
-          "transition_in": { "type": "string" },
-          "transition_out": { "type": "string" },
+          "transition_in": {
+            "type": "string",
+            "enum": ["fade", "dissolve", "cut", "wipe", "slide", "light_flash", "blur", "zoom_through"]
+          },
+          "transition_out": {
+            "type": "string",
+            "enum": ["fade", "dissolve", "cut", "wipe", "slide", "light_flash", "blur", "zoom_through"]
+          },
           "voice_line_ref": { "type": "string" }
         }
       }

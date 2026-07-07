@@ -1,15 +1,19 @@
 import React from "react";
 import { AbsoluteFill, Img, interpolate, useCurrentFrame } from "remotion";
+import { combineTransitionStyles, computeEntryStyle, computeExitStyle, lightFlashOpacity } from "./effects/transitions";
+import { OverlayEffectsLayer, OverlayEffect } from "./effects/Overlays";
 
 export type CameraMotion = { type: string; params: Record<string, number | string> };
 
 type SceneProps = {
+  sceneId: string;
   imageSrc: string;
   durationInFrames: number;
   cameraMotion: CameraMotion;
   textOverlay: string | null;
   transitionIn: string;
   transitionOut: string;
+  overlayEffects: OverlayEffect[];
 };
 
 function num(params: Record<string, number | string>, key: string, fallback: number): number {
@@ -50,26 +54,25 @@ function computeTransform(motion: CameraMotion, progress: number): string {
 }
 
 export const Scene: React.FC<SceneProps> = ({
+  sceneId,
   imageSrc,
   durationInFrames,
   cameraMotion,
   textOverlay,
   transitionIn,
   transitionOut,
+  overlayEffects,
 }) => {
   const frame = useCurrentFrame();
   const fadeFrames = Math.min(15, Math.max(1, Math.floor(durationInFrames / 4)));
 
-  let opacity = 1;
-  if (transitionIn === "fade" || transitionIn === "dissolve") {
-    opacity *= interpolate(frame, [0, fadeFrames], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  }
-  if (transitionOut === "fade" || transitionOut === "dissolve") {
-    opacity *= interpolate(frame, [durationInFrames - fadeFrames, durationInFrames], [1, 0], {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    });
-  }
+  // Transition styling lives on its own wrapper layer, independent of the
+  // camera-motion transform applied to <Img> below, so e.g. "slide" and
+  // "zoom_in" never clobber each other.
+  const entryStyle = computeEntryStyle(transitionIn, frame, fadeFrames);
+  const exitStyle = computeExitStyle(transitionOut, frame, durationInFrames, fadeFrames);
+  const transitionStyle = combineTransitionStyles(entryStyle, exitStyle);
+  const flashOpacity = lightFlashOpacity(transitionIn, transitionOut, frame, durationInFrames, fadeFrames);
 
   const progress = interpolate(frame, [0, durationInFrames], [0, 1], {
     extrapolateLeft: "clamp",
@@ -79,19 +82,25 @@ export const Scene: React.FC<SceneProps> = ({
 
   return (
     <AbsoluteFill style={{ backgroundColor: "black" }}>
-      <AbsoluteFill style={{ opacity }}>
-        <Img
-          src={imageSrc}
-          style={{ width: "100%", height: "100%", objectFit: "cover", transform }}
-        />
+      <AbsoluteFill
+        style={{
+          opacity: transitionStyle.opacity,
+          transform: transitionStyle.transform,
+          filter: transitionStyle.filter,
+          clipPath: transitionStyle.clipPath,
+        }}
+      >
+        <Img src={imageSrc} style={{ width: "100%", height: "100%", objectFit: "cover", transform }} />
       </AbsoluteFill>
+      <OverlayEffectsLayer effects={overlayEffects} sceneId={sceneId} frame={frame} durationInFrames={durationInFrames} />
+      {flashOpacity > 0 ? <AbsoluteFill style={{ backgroundColor: "white", opacity: flashOpacity }} /> : null}
       {textOverlay ? (
         <AbsoluteFill
           style={{
             justifyContent: "flex-end",
             alignItems: "center",
             padding: "6%",
-            opacity,
+            opacity: transitionStyle.opacity,
           }}
         >
           <div

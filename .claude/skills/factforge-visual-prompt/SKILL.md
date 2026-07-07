@@ -20,6 +20,17 @@ prompts into Leonardo AI manually and drops the resulting
 token** verbatim from `prompt_rules.md` — every scene's `main_prompt` must
 incorporate it.
 
+**Every storyboard scene also carries a `scene_type`** (e.g. `blueprint`,
+`infographic`, `split_screen`, `world_map`, `historical_painting` — see
+`factforge-storyboard`). Read it per scene and let it drive the scene's
+**composition/framing/subject-treatment** wording in `main_prompt` (a
+`blueprint` scene reads as a technical line-drawing composition; a
+`world_map` scene reads as a map/geography composition; etc.). The style
+consistency token stays mandatory and unchanged in every `main_prompt`
+regardless of `scene_type` — `scene_type` varies *what the shot is
+composed of*, never the overall rendering aesthetic. Don't let scene-type
+variety turn into style-hopping between scenes.
+
 ## Task
 
 For every scene in `storyboard.json` (no skipping, no extras), write:

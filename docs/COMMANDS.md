@@ -39,6 +39,8 @@ node scripts/manifest_cli.mjs render-complete --project-id 001-my-video --output
 node scripts/validate.mjs schema --file <path> --schema research
 node scripts/validate.mjs paths --project-id 001-my-video
 node scripts/validate.mjs filenames --project-id 001-my-video
+node scripts/validate.mjs scene-type-variety --project-id 001-my-video   # storyboard.json: no consecutive scene_type repeats
+node scripts/validate.mjs scene-variety --project-id 001-my-video       # composition.json: no consecutive camera_motion.type/transition_in repeats
 node scripts/validate.mjs assets --project-id 001-my-video --check audio|images|all
 node scripts/validate.mjs render-ready --project-id 001-my-video
 ```

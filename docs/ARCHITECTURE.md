@@ -93,10 +93,25 @@ drift. `factforge-editor` then runs `remotion_build.mjs build-project` to copy
 `templates/remotion/` into `remotion/render_ready_project/` and drop the tiny
 derived configs into its `src/data/`. The generic Remotion app renders a scene
 sequence from that data (per-scene image, camera motion, transitions, text
-overlay) — the skills only ever produce data, never React/TSX code. Large
-binaries (audio/images) are referenced in place via a public dir pointed at
-the per-project root, so LFS assets are never duplicated into the render
-project.
+overlay, optional overlay effects) — the skills only ever produce data, never
+React/TSX code. Large binaries (audio/images) are referenced in place via a
+public dir pointed at the per-project root, so LFS assets are never
+duplicated into the render project.
+
+Camera motion (`camera_motion.type`), transitions (`transition_in`/
+`transition_out`), and each storyboard scene's `scene_type` are all
+schema-enum-constrained (`schemas/composition.schema.json`,
+`schemas/storyboard.schema.json`). A dedicated mechanical gate —
+`validate.mjs scene-variety` (checked at `render_qa`, on
+`composition.json`) and `validate.mjs scene-type-variety` (checked at
+`storyboard_qa`, on `storyboard.json`) — rejects two consecutive scenes
+sharing the same `camera_motion.type`, `transition_in`, or `scene_type`
+(`SCENE_VARIETY_VIOLATION`), so visual monotony is caught before render
+rather than left to judgment. `overlay_effects` (glow/noise/vignette/
+particles, authored by `factforge-motion` alone) is optional per scene and
+is not subject to this repeat check — see `templates/remotion/src/effects/`
+for the transition and overlay implementations, both pure CSS/SVG with no
+new binary assets.
 
 ## Build phases (all complete)
 

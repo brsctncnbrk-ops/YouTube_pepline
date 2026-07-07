@@ -36,7 +36,24 @@ Break the script into scenes:
 - Define its **visual need** (what should be on screen — a description, not
   a Leonardo prompt).
 - Note any **on-screen text** (or `null` if none).
-- Set **transitions** in and out (e.g. `fade`, `cut`, `dissolve`).
+- Assign a **`scene_type`** — the shot's visual treatment, one of:
+  `cinematic`, `historical_painting`, `documentary`, `blueprint`,
+  `technical_drawing`, `newspaper`, `magazine`, `timeline`, `infographic`,
+  `split_screen`, `before_after`, `world_map`, `satellite_view`, `xray`,
+  `macro_shot`, `isometric`, `whiteboard`, `character_scene`,
+  `animated_illustration`, `data_visualization`, `archive_documents`,
+  `hand_drawn_sketch`, `ui_hud_screen`, `diagram`. Pick the type that matches
+  the scene's `purpose`/`visual_need` (a data-heavy beat → `infographic` or
+  `data_visualization`; a historical event → `historical_painting` or
+  `archive_documents`; a location beat → `world_map` or `satellite_view`,
+  etc.). **No two consecutive scenes may share the same `scene_type`** —
+  this is mechanically enforced at the `storyboard_qa` gate
+  (`validate.mjs scene-type-variety`), so vary it deliberately rather than
+  defaulting to `cinematic` throughout.
+- Set **transitions** in and out, one of: `fade`, `dissolve`, `cut`, `wipe`,
+  `slide`, `light_flash`, `blur`, `zoom_through`. Vary these too — the same
+  render_qa-level check (Madde 1) also forbids two consecutive scenes from
+  sharing the same `transition_in`.
 - Set `start_sec`/`end_sec`/`duration_sec` so scenes are contiguous and sum
   to `total_duration_sec` with no gaps or overlaps.
 - Give each scene a short `voice_line_ref` pointing back to the relevant
@@ -62,7 +79,8 @@ and use sequential, zero-padded, gap-free scene ids starting at `scene_001`:
     {
       "scene_id": "scene_001",
       "start_sec": 0, "end_sec": 15, "duration_sec": 15,
-      "purpose": "...", "visual_need": "...", "on_screen_text": null,
+      "purpose": "...", "visual_need": "...", "scene_type": "cinematic",
+      "on_screen_text": null,
       "transition_in": "fade", "transition_out": "cut",
       "voice_line_ref": "..."
     }
@@ -79,7 +97,8 @@ transitions.
 
 1. Validate the schema: `node scripts/validate.mjs schema --file projects/<project_id>/storyboard/storyboard.json --schema storyboard`.
 2. Validate scene numbering/filenames: `node scripts/validate.mjs filenames --project-id <project_id>`. Fix any gap/duplicate/pattern issues before proceeding.
-3. Advance: `node scripts/manifest_cli.mjs advance --project-id <project_id> --stage storyboard --result success`.
-4. If the script genuinely can't be broken into a coherent scene sequence (e.g. it's too short or too abstract), don't force it — run `node scripts/manifest_cli.mjs error --project-id <project_id> --code USER_APPROVAL_REQUIRED --stage storyboard --message "<why>" --action "<what's needed>"`.
+3. Validate scene-type variety: `node scripts/validate.mjs scene-type-variety --project-id <project_id>`. Fix any consecutive `scene_type` repeats before proceeding.
+4. Advance: `node scripts/manifest_cli.mjs advance --project-id <project_id> --stage storyboard --result success`.
+5. If the script genuinely can't be broken into a coherent scene sequence (e.g. it's too short or too abstract), don't force it — run `node scripts/manifest_cli.mjs error --project-id <project_id> --code USER_APPROVAL_REQUIRED --stage storyboard --message "<why>" --action "<what's needed>"`.
 
 Never hand-edit `manifest.json` directly.

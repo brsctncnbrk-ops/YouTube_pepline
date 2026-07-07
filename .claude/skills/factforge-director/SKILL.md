@@ -35,7 +35,10 @@ For every scene, decide and record:
   language, expressed in vocabulary the Motion stage can act on. Use these
   motion keywords so `factforge-motion` can map them directly:
   `zoom_in`, `zoom_out`, `pan_left`, `pan_right`, `pan_up`, `pan_down`,
-  `static`. Note intensity where it matters (subtle vs. dramatic).
+  `static`. Note intensity where it matters (subtle vs. dramatic). **Don't
+  call for the same motion keyword on two consecutive scenes** —
+  `factforge-motion` carries your choices straight into `camera_motion.type`,
+  and `render_qa` mechanically rejects consecutive repeats.
 - **Close vs. wide emphasis** — which scenes push in for intimacy/detail and
   which pull back for context, consistent with the storyboard's shot intent.
 - **Text animation cues** — for scenes with on-screen text, how it should

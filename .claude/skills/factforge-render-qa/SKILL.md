@@ -27,7 +27,11 @@ writes `qa/render_qa.md`. It verifies:
 - `remotion/render_ready_project/` exists.
 - `remotion/{composition,scene_config,asset_map}.json` all present.
 - `.github/workflows/render.yml` present.
-- `remotion/composition.json` validates against the composition schema.
+- `remotion/composition.json` validates against the composition schema
+  (including the `camera_motion.type`/`transition_in`/`transition_out`
+  enums).
+- No two consecutive scenes share the same `camera_motion.type` or
+  `transition_in` (the `SCENE_VARIETY_VIOLATION` check).
 
 If this reports `valid: false`, stop — status is now `ERROR` with a logged
 reason. Report exactly what's missing and which earlier stage needs to fix it

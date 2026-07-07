@@ -26,12 +26,14 @@ export const FactForgeVideo: React.FC = () => {
         return (
           <Sequence key={scene.scene_id} from={scene.start_frame} durationInFrames={durationInFrames}>
             <Scene
+              sceneId={scene.scene_id}
               imageSrc={staticFile(asset.image)}
               durationInFrames={durationInFrames}
               cameraMotion={scene.camera_motion}
               textOverlay={scene.text_overlay}
               transitionIn={scene.transition_in}
               transitionOut={scene.transition_out}
+              overlayEffects={scene.overlay_effects ?? []}
             />
           </Sequence>
         );
