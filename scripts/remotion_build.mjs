@@ -45,6 +45,9 @@ export async function deriveConfigs({ projectId }) {
   const comp = await loadComposition(projectId);
   const dir = projectDir(projectId);
 
+  const captionsPath = path.join(dir, "remotion", "captions.json");
+  const captionsData = (await pathExists(captionsPath)) ? await readJson(captionsPath) : { captions: [] };
+
   const sceneConfig = {
     fps: comp.fps,
     width: comp.width,
@@ -61,6 +64,7 @@ export async function deriveConfigs({ projectId }) {
       overlay_effects: s.overlay_effects ?? [],
       motion_graphics: s.motion_graphics ?? [],
     })),
+    captions: captionsData.captions ?? [],
   };
 
   const assetMap = {

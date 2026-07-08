@@ -344,6 +344,50 @@ export async function validateSceneVariety({ projectId }) {
   return { valid: issues.length === 0, error_code: issues.length ? "SCENE_VARIETY_VIOLATION" : null, issues };
 }
 
+/**
+ * Caption timing gate: remotion/captions.json (if present) must be schema-
+ * valid, chronological/non-overlapping, and each caption's on-screen window
+ * must stay short enough to read quickly (not lingering) but long enough to
+ * actually read - "altyazı ekranda çok uzun kalmamalı, sürükleyici olmalı"
+ * enforced mechanically rather than left to chance. Captions are generated
+ * by scripts/generate_captions.mjs, never hand-authored.
+ */
+export async function validateCaptions({ projectId }) {
+  const dir = projectDir(projectId);
+  const captionsPath = path.join(dir, "remotion", "captions.json");
+  if (!(await pathExists(captionsPath))) {
+    return { valid: true, issues: [], note: "captions.json not present yet" };
+  }
+  const schemaResult = await validateSchema({ file: captionsPath, schema: "captions" });
+  if (!schemaResult.valid) {
+    return { valid: false, error_code: "CAPTION_TIMING_INVALID", issues: schemaResult.errors };
+  }
+  const data = await readJsonSafe(captionsPath, null);
+  const captions = data?.captions ?? [];
+  const MIN_FRAMES = 10;
+  const MAX_FRAMES = 150;
+  const issues = [];
+  let prevEnd = -1;
+  for (const c of captions) {
+    if (c.end_frame <= c.start_frame) {
+      issues.push({ text: c.text, reason: "end_frame must be after start_frame" });
+      continue;
+    }
+    if (c.start_frame < prevEnd) {
+      issues.push({ text: c.text, reason: `overlaps previous caption (starts at ${c.start_frame}, previous ended at ${prevEnd})` });
+    }
+    const dur = c.end_frame - c.start_frame;
+    if (dur < MIN_FRAMES) {
+      issues.push({ text: c.text, reason: `on screen for only ${dur} frames, below minimum ${MIN_FRAMES}` });
+    }
+    if (dur > MAX_FRAMES) {
+      issues.push({ text: c.text, reason: `on screen for ${dur} frames, above maximum ${MAX_FRAMES} - not "sürükleyici"` });
+    }
+    prevEnd = c.end_frame;
+  }
+  return { valid: issues.length === 0, error_code: issues.length ? "CAPTION_TIMING_INVALID" : null, issues };
+}
+
 export async function validateRenderReady({ projectId }) {
   const dir = projectDir(projectId);
   const checks = {};
@@ -402,13 +446,16 @@ export async function validateAll({ projectId, stage }) {
   if (stage === "render_qa") {
     const renderReady = await validateRenderReady({ projectId });
     const sceneVarietyCheck = await validateSceneVariety({ projectId });
+    const captionsCheck = await validateCaptions({ projectId });
     const reasons = [...renderReady.reasons];
     if (!sceneVarietyCheck.valid) reasons.push("SCENE_VARIETY_VIOLATION: " + JSON.stringify(sceneVarietyCheck.issues));
+    if (!captionsCheck.valid) reasons.push("CAPTION_TIMING_INVALID: " + JSON.stringify(captionsCheck.issues));
     return {
       ...renderReady,
-      valid: renderReady.valid && sceneVarietyCheck.valid,
+      valid: renderReady.valid && sceneVarietyCheck.valid && captionsCheck.valid,
       reasons,
       sceneVarietyCheck,
+      captionsCheck,
       schemaChecks,
     };
   }
@@ -471,6 +518,9 @@ function toHuman(result) {
   if (result.sceneVarietyCheck) {
     lines.push(`- Camera/transition variety (no consecutive repeats): ${result.sceneVarietyCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.sceneVarietyCheck.issues)}`);
   }
+  if (result.captionsCheck) {
+    lines.push(`- Caption timing (chronological, readable, not lingering): ${result.captionsCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.captionsCheck.issues)}`);
+  }
   if (result.coverageCheck) {
     lines.push(`- Prompt-to-scene coverage: ${result.coverageCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.coverageCheck.issues)}`);
   }
@@ -510,6 +560,9 @@ async function main() {
       case "scene-variety":
         result = await validateSceneVariety({ projectId: args["project-id"] });
         break;
+      case "captions":
+        result = await validateCaptions({ projectId: args["project-id"] });
+        break;
       case "style-treatment":
         result = await validateStyleTreatment({ projectId: args["project-id"] });
         break;
@@ -524,7 +577,7 @@ async function main() {
         break;
       default:
         throw new CliError(
-          `Unknown validate subcommand "${group}". Use: schema|paths|filenames|scene-type-variety|scene-variety|style-treatment|assets|render-ready|all`,
+          `Unknown validate subcommand "${group}". Use: schema|paths|filenames|scene-type-variety|scene-variety|style-treatment|captions|assets|render-ready|all`,
           "UNKNOWN_ERROR"
         );
     }

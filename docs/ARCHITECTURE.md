@@ -152,6 +152,27 @@ global `style_token`, which stays mandatory/unchanged in every scene's
 systematically by content type, `style_token` keeps the whole video in one
 coherent brand.
 
+Narration captions (`remotion/captions.json`) are a separate top-level
+timeline independent of scene boundaries — a caption can span a scene cut —
+so they are generated mechanically rather than authored: `scripts/
+generate_captions.mjs` parses `scripts/script.md`'s `## ... (M:SS-M:SS)`
+section headers and prose, rescales those (estimated) timestamps onto
+`composition.json`'s authoritative `duration_frames`/`fps`, and distributes
+short (~4-8 word) caption chunks proportionally by word count within each
+section — the same word-count-proportional method `script.md`'s own section
+timestamps already use, since no forced-alignment/ASR step exists anywhere
+in this pipeline. `validate.mjs captions` (checked at `render_qa`,
+`CAPTION_TIMING_INVALID`) enforces schema validity, chronological
+non-overlap, and a min/max on-screen duration per caption so captions stay
+readable without lingering. `remotion_build.mjs derive-configs` merges
+`captions.json`'s array into `scene_config.json`'s top-level `captions`
+field; `Video.tsx` renders them via `CaptionLayer`
+(`templates/remotion/src/effects/Captions.tsx`) as a global bottom-bar
+layer using the top-level timeline frame, not any per-scene `Sequence`'s
+local frame. Per-scene `text_overlay` (section titles like "Botanical
+Section") is anchored to the top of the frame instead of the bottom for
+this reason, so it never collides with the caption bar.
+
 ## Build phases (all complete)
 
 1. **Foundation** — scaffolding, manifest state machine, validation CLI,

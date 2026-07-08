@@ -41,105 +41,105 @@ function computeTransform(motion: CameraMotion, progress: number, frame: number)
   switch (motion.type) {
     case "zoom_in": {
       const from = num(p, "from", 1.0);
-      const to = num(p, "to", 1.12);
+      const to = num(p, "to", 1.22);
       return `scale(${interpolate(progress, [0, 1], [from, to])})`;
     }
     case "zoom_out": {
-      const from = num(p, "from", 1.12);
+      const from = num(p, "from", 1.22);
       const to = num(p, "to", 1.0);
       return `scale(${interpolate(progress, [0, 1], [from, to])})`;
     }
     case "pan_left":
-      return `scale(1.1) translateX(${interpolate(progress, [0, 1], [num(p, "magnitude", 4), -num(p, "magnitude", 4)])}%)`;
+      return `scale(1.16) translateX(${interpolate(progress, [0, 1], [num(p, "magnitude", 7), -num(p, "magnitude", 7)])}%)`;
     case "pan_right":
-      return `scale(1.1) translateX(${interpolate(progress, [0, 1], [-num(p, "magnitude", 4), num(p, "magnitude", 4)])}%)`;
+      return `scale(1.16) translateX(${interpolate(progress, [0, 1], [-num(p, "magnitude", 7), num(p, "magnitude", 7)])}%)`;
     case "pan_up":
-      return `scale(1.1) translateY(${interpolate(progress, [0, 1], [num(p, "magnitude", 4), -num(p, "magnitude", 4)])}%)`;
+      return `scale(1.16) translateY(${interpolate(progress, [0, 1], [num(p, "magnitude", 7), -num(p, "magnitude", 7)])}%)`;
     case "pan_down":
-      return `scale(1.1) translateY(${interpolate(progress, [0, 1], [-num(p, "magnitude", 4), num(p, "magnitude", 4)])}%)`;
+      return `scale(1.16) translateY(${interpolate(progress, [0, 1], [-num(p, "magnitude", 7), num(p, "magnitude", 7)])}%)`;
     case "dolly_left": {
-      const magnitude = num(p, "magnitude", 6);
-      const zoom = num(p, "zoom", 0.08);
-      const tx = interpolate(progress, [0, 1], [2, -magnitude]);
-      const scale = interpolate(progress, [0, 1], [1.02, 1.02 + zoom]);
+      const magnitude = num(p, "magnitude", 10);
+      const zoom = num(p, "zoom", 0.13);
+      const tx = interpolate(progress, [0, 1], [3, -magnitude]);
+      const scale = interpolate(progress, [0, 1], [1.04, 1.04 + zoom]);
       return `perspective(1200px) translateX(${tx}%) scale(${scale})`;
     }
     case "dolly_right": {
-      const magnitude = num(p, "magnitude", 6);
-      const zoom = num(p, "zoom", 0.08);
-      const tx = interpolate(progress, [0, 1], [-magnitude, 2]);
-      const scale = interpolate(progress, [0, 1], [1.02, 1.02 + zoom]);
+      const magnitude = num(p, "magnitude", 10);
+      const zoom = num(p, "zoom", 0.13);
+      const tx = interpolate(progress, [0, 1], [-magnitude, 3]);
+      const scale = interpolate(progress, [0, 1], [1.04, 1.04 + zoom]);
       return `perspective(1200px) translateX(${tx}%) scale(${scale})`;
     }
     case "crane_up": {
-      const magnitude = num(p, "magnitude", 5);
-      const tilt = num(p, "tilt", 3);
+      const magnitude = num(p, "magnitude", 9);
+      const tilt = num(p, "tilt", 5);
       const ty = interpolate(progress, [0, 1], [magnitude, -magnitude]);
       const rx = interpolate(progress, [0, 1], [tilt, -tilt]);
-      return `perspective(1200px) translateY(${ty}%) rotateX(${rx}deg) scale(1.06)`;
+      return `perspective(1200px) translateY(${ty}%) rotateX(${rx}deg) scale(1.1)`;
     }
     case "crane_down": {
-      const magnitude = num(p, "magnitude", 5);
-      const tilt = num(p, "tilt", 3);
+      const magnitude = num(p, "magnitude", 9);
+      const tilt = num(p, "tilt", 5);
       const ty = interpolate(progress, [0, 1], [-magnitude, magnitude]);
       const rx = interpolate(progress, [0, 1], [-tilt, tilt]);
-      return `perspective(1200px) translateY(${ty}%) rotateX(${rx}deg) scale(1.06)`;
+      return `perspective(1200px) translateY(${ty}%) rotateX(${rx}deg) scale(1.1)`;
     }
     case "orbit": {
-      const angle = num(p, "angle", 8);
-      const pulse = num(p, "pulse", 0.03);
+      const angle = num(p, "angle", 13);
+      const pulse = num(p, "pulse", 0.05);
       const ry = Math.sin(progress * Math.PI) * angle;
-      const scale = 1.05 + pulse * Math.sin(progress * Math.PI);
+      const scale = 1.07 + pulse * Math.sin(progress * Math.PI);
       return `perspective(1000px) rotateY(${ry}deg) scale(${scale})`;
     }
     case "handheld_simulation": {
-      const amplitude = num(p, "amplitude", 1.5);
-      const frequency = num(p, "frequency", 0.05);
+      const amplitude = num(p, "amplitude", 2.2);
+      const frequency = num(p, "frequency", 0.06);
       const tx = Math.sin(frame * frequency) * amplitude + Math.sin(frame * frequency * 2.6) * amplitude * 0.3;
       const ty = Math.cos(frame * frequency * 0.8) * amplitude * 0.6;
       const rot = Math.sin(frame * frequency * 0.7) * amplitude * 0.25;
-      return `translateX(${tx}%) translateY(${ty}%) rotate(${rot}deg) scale(1.04)`;
+      return `translateX(${tx}%) translateY(${ty}%) rotate(${rot}deg) scale(1.06)`;
     }
     case "camera_shake": {
-      const amplitude = num(p, "amplitude", 0.8);
-      const frequency = num(p, "frequency", 0.4);
+      const amplitude = num(p, "amplitude", 1.3);
+      const frequency = num(p, "frequency", 0.5);
       const tx = Math.sin(frame * frequency) * amplitude;
       const ty = Math.sin(frame * frequency * 1.4 + 1) * amplitude * 0.7;
       const rot = Math.sin(frame * frequency * 1.6) * amplitude * 0.3;
-      return `translateX(${tx}%) translateY(${ty}%) rotate(${rot}deg) scale(1.05)`;
+      return `translateX(${tx}%) translateY(${ty}%) rotate(${rot}deg) scale(1.07)`;
     }
     case "rack_focus":
       // blur handled separately by computeFilter - transform just holds a gentle scale
       return "scale(1.04)";
     case "tilt_up": {
-      const angle = num(p, "angle", 6);
-      const magnitude = num(p, "magnitude", 3);
+      const angle = num(p, "angle", 10);
+      const magnitude = num(p, "magnitude", 5);
       const rx = interpolate(progress, [0, 1], [-angle, angle]);
       const ty = interpolate(progress, [0, 1], [magnitude, -magnitude]);
-      return `perspective(1000px) rotateX(${rx}deg) translateY(${ty}%) scale(1.08)`;
+      return `perspective(1000px) rotateX(${rx}deg) translateY(${ty}%) scale(1.11)`;
     }
     case "tilt_down": {
-      const angle = num(p, "angle", 6);
-      const magnitude = num(p, "magnitude", 3);
+      const angle = num(p, "angle", 10);
+      const magnitude = num(p, "magnitude", 5);
       const rx = interpolate(progress, [0, 1], [angle, -angle]);
       const ty = interpolate(progress, [0, 1], [-magnitude, magnitude]);
-      return `perspective(1000px) rotateX(${rx}deg) translateY(${ty}%) scale(1.08)`;
+      return `perspective(1000px) rotateX(${rx}deg) translateY(${ty}%) scale(1.11)`;
     }
     case "rotation": {
-      const angle = num(p, "angle", 3);
+      const angle = num(p, "angle", 5);
       const rot = interpolate(progress, [0, 1], [-angle, angle]);
-      return `rotate(${rot}deg) scale(1.1)`;
+      return `rotate(${rot}deg) scale(1.14)`;
     }
     case "perspective_shift": {
-      const angle = num(p, "angle", 10);
-      const magnitude = num(p, "magnitude", 2);
+      const angle = num(p, "angle", 16);
+      const magnitude = num(p, "magnitude", 4);
       const ry = interpolate(progress, [0, 1], [-angle, angle]);
       const tx = interpolate(progress, [0, 1], [-magnitude, magnitude]);
-      return `perspective(900px) rotateY(${ry}deg) translateX(${tx}%) scale(1.07)`;
+      return `perspective(900px) rotateY(${ry}deg) translateX(${tx}%) scale(1.1)`;
     }
     case "dynamic_zoom": {
       const from = num(p, "from", 1.0);
-      const to = num(p, "to", 1.15);
+      const to = num(p, "to", 1.24);
       const scale = interpolate(progress, [0, 1], [from, to], { easing: Easing.inOut(Easing.cubic) });
       return `scale(${scale})`;
     }
@@ -211,9 +211,12 @@ export const Scene: React.FC<SceneProps> = ({
       <MotionGraphicsLayer motionGraphics={motionGraphics} sceneId={sceneId} frame={frame} durationInFrames={durationInFrames} />
       {flashOpacity > 0 ? <AbsoluteFill style={{ backgroundColor: "white", opacity: flashOpacity }} /> : null}
       {textOverlay ? (
+        // Anchored to the top third, deliberately - the bottom is reserved
+        // for the global narration caption bar (Video.tsx's CaptionLayer),
+        // which runs continuously and would otherwise collide with this.
         <AbsoluteFill
           style={{
-            justifyContent: "flex-end",
+            justifyContent: "flex-start",
             alignItems: "center",
             padding: "6%",
             opacity: transitionStyle.opacity,

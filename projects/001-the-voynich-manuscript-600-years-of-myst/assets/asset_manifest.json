@@ -110,6 +110,62 @@
       "source": "Leonardo AI",
       "seed": null,
       "style_reference": null
+    },
+    {
+      "scene_id": "scene_014",
+      "file": "assets/images/scene_014.png",
+      "status": "available",
+      "source": "Leonardo AI",
+      "seed": null,
+      "style_reference": null
+    },
+    {
+      "scene_id": "scene_015",
+      "file": "assets/images/scene_015.png",
+      "status": "available",
+      "source": "Leonardo AI",
+      "seed": null,
+      "style_reference": null
+    },
+    {
+      "scene_id": "scene_016",
+      "file": "assets/images/scene_016.png",
+      "status": "available",
+      "source": "Leonardo AI",
+      "seed": null,
+      "style_reference": null
+    },
+    {
+      "scene_id": "scene_017",
+      "file": "assets/images/scene_017.png",
+      "status": "available",
+      "source": "Leonardo AI",
+      "seed": null,
+      "style_reference": null
+    },
+    {
+      "scene_id": "scene_018",
+      "file": "assets/images/scene_018.png",
+      "status": "available",
+      "source": "Leonardo AI",
+      "seed": null,
+      "style_reference": null
+    },
+    {
+      "scene_id": "scene_019",
+      "file": "assets/images/scene_019.png",
+      "status": "available",
+      "source": "Leonardo AI",
+      "seed": null,
+      "style_reference": null
+    },
+    {
+      "scene_id": "scene_020",
+      "file": "assets/images/scene_020.png",
+      "status": "available",
+      "source": "Leonardo AI",
+      "seed": null,
+      "style_reference": null
     }
   ],
   "music": [],

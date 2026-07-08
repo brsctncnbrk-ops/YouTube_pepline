@@ -1,6 +1,7 @@
 import React from "react";
-import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
+import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame } from "remotion";
 import { Scene } from "./Scene";
+import { CaptionLayer, Caption } from "./effects/Captions";
 import sceneConfig from "./data/scene_config.json";
 import assetMap from "./data/asset_map.json";
 
@@ -15,6 +16,8 @@ type AssetMapEntry = { image: string; audio_offset_sec: number };
  */
 export const FactForgeVideo: React.FC = () => {
   const assetLookup = assetMap.asset_map as Record<string, AssetMapEntry>;
+  const frame = useCurrentFrame();
+  const captions = (sceneConfig as { captions?: Caption[] }).captions ?? [];
 
   return (
     <AbsoluteFill style={{ backgroundColor: "black" }}>
@@ -39,6 +42,7 @@ export const FactForgeVideo: React.FC = () => {
           </Sequence>
         );
       })}
+      <CaptionLayer captions={captions} frame={frame} />
     </AbsoluteFill>
   );
 };

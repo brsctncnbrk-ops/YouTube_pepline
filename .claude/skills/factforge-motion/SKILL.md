@@ -41,17 +41,20 @@ Convert the storyboard's second-based timings to frames using `fps`:
   `tilt_down`, `rotation`, `perspective_shift`, `dynamic_zoom`. Put any
   intensity in `camera_motion.params` — `{}` accepts sensible defaults for
   every type. Params by type:
-  - `zoom_in`/`zoom_out`: `{ from, to }`. `pan_*`: `{ magnitude }` (default 4).
-  - `dolly_left`/`dolly_right`: `{ magnitude }` (6), `{ zoom }` (0.08) — a translate ramp *plus* a scale ramp, reads as the camera physically moving rather than just reframing like `pan_*`.
-  - `crane_up`/`crane_down`: `{ magnitude }` (5), `{ tilt }` (3) — vertical move with a perspective tilt.
-  - `orbit`: `{ angle }` (8), `{ pulse }` (0.03) — bounded rotateY oscillation + scale pulse, the only non-monotonic rotation.
-  - `handheld_simulation`: `{ amplitude }` (1.5), `{ frequency }` (0.05) — slow, organic layered-sine jitter, deterministic from `frame` (no randomness needed).
-  - `camera_shake`: `{ amplitude }` (0.8), `{ frequency }` (0.4) — same jitter technique, sharper/faster than handheld by default.
+  - `zoom_in`/`zoom_out`: `{ from, to }` (defaults 1.0→1.22 / 1.22→1.0 — deliberately strong; a 10-22% zoom over a 30-100s scene is barely perceptible, so don't undershoot this). `pan_*`: `{ magnitude }` (default 7).
+  - `dolly_left`/`dolly_right`: `{ magnitude }` (10), `{ zoom }` (0.13) — a translate ramp *plus* a scale ramp, reads as the camera physically moving rather than just reframing like `pan_*`.
+  - `crane_up`/`crane_down`: `{ magnitude }` (9), `{ tilt }` (5) — vertical move with a perspective tilt.
+  - `orbit`: `{ angle }` (13), `{ pulse }` (0.05) — bounded rotateY oscillation + scale pulse, the only non-monotonic rotation.
+  - `handheld_simulation`: `{ amplitude }` (2.2), `{ frequency }` (0.06) — slow, organic layered-sine jitter, deterministic from `frame` (no randomness needed).
+  - `camera_shake`: `{ amplitude }` (1.3), `{ frequency }` (0.5) — same jitter technique, sharper/faster than handheld by default.
   - `rack_focus`: `{ max_blur }` (6), `{ peak }` (0.5, 0.15-0.85) — a mid-scene blur pulse, distinct from the edge-only transition blur.
-  - `tilt_up`/`tilt_down`: `{ angle }` (6), `{ magnitude }` (3) — like `pan_up`/`pan_down` but with an added rotateX for a true camera-pitch feel.
-  - `rotation`: `{ angle }` (3) — a slow Z-axis roll.
-  - `perspective_shift`: `{ angle }` (10), `{ magnitude }` (2) — a static (non-oscillating) rotateY+translateX combo.
-  - `dynamic_zoom`: `{ from, to }` — like `zoom_in`/`zoom_out` but eased (accelerate/decelerate), not linear.
+  - `tilt_up`/`tilt_down`: `{ angle }` (10), `{ magnitude }` (5) — like `pan_up`/`pan_down` but with an added rotateX for a true camera-pitch feel.
+  - `rotation`: `{ angle }` (5) — a slow Z-axis roll.
+  - `perspective_shift`: `{ angle }` (16), `{ magnitude }` (4) — a static (non-oscillating) rotateY+translateX combo.
+  - `dynamic_zoom`: `{ from, to }` (default 1.0→1.24) — like `zoom_in`/`zoom_out` but eased (accelerate/decelerate), not linear.
+  On very long scenes (60s+), lean toward the higher end of these ranges (or
+  set explicit `params` above the defaults) rather than leaving `{}` — motion
+  that's barely visible over 10-20s reads as genuinely static over 60-100s.
   Leave `params` as `{}` for `static`. **No two consecutive scenes may share
   the same `camera_motion.type`** — mechanically enforced at `render_qa`
   (`validate.mjs scene-variety`), so rotate deliberately across all 20
@@ -136,21 +139,40 @@ Exact shape (see `schemas/composition.schema.json` for the authority):
 }
 ```
 
+## Captions
+
+Generate `remotion/captions.json` — short, frequently-changing narration
+subtitles, rendered as a global bottom-bar layer independent of scene
+boundaries. You do not author this by hand: run
+`node scripts/generate_captions.mjs generate --project-id <project_id>`
+after `composition.json` is written and schema-valid. It reads
+`scripts/script.md`'s `## ... (M:SS-M:SS)` section headers/prose and your
+`composition.json`'s `fps`/`duration_frames`, and mechanically derives
+timed ~4-8 word caption bursts (word-count-proportional, the same method
+`script.md`'s own section timestamps already use — there's no forced-
+alignment/ASR step in this pipeline). Defaults keep each caption on screen
+0.9-3.2s. Only re-run this if you change `composition.json`'s
+`duration_frames`/`fps` or the script text changes.
+
 ## Before finishing
 
 1. Validate the schema:
    `node scripts/validate.mjs schema --file projects/<project_id>/remotion/composition.json --schema composition`.
    Fix any errors (the schema forbids absolute paths, drive letters, `..`, and
    requires `output_filename` to be exactly `final_video.mp4`).
-2. Derive the two consumed configs:
+2. Generate captions (see above):
+   `node scripts/generate_captions.mjs generate --project-id <project_id>`.
+3. Derive the consumed configs (now includes captions):
    `node scripts/remotion_build.mjs derive-configs --project-id <project_id>`.
    This writes `scene_config.json` and `asset_map.json` from your
-   `composition.json`.
-3. Sanity-check paths: `node scripts/validate.mjs paths --project-id <project_id>`.
-4. Sanity-check camera/transition variety: `node scripts/validate.mjs scene-variety --project-id <project_id>`. Fix any consecutive `camera_motion.type`/`transition_in` repeats before proceeding (this also gates `render_qa`, so catching it now saves a round trip).
-5. Advance:
+   `composition.json`, merging in `captions.json`.
+4. Sanity-check paths: `node scripts/validate.mjs paths --project-id <project_id>`.
+5. Sanity-check camera/transition variety: `node scripts/validate.mjs scene-variety --project-id <project_id>`. Fix any consecutive `camera_motion.type`/`transition_in` repeats before proceeding (this also gates `render_qa`, so catching it now saves a round trip).
+6. Sanity-check caption timing: `node scripts/validate.mjs captions --project-id <project_id>`. Fix any overlap/duration issues (also gates `render_qa`).
+7. Advance:
    `node scripts/manifest_cli.mjs advance --project-id <project_id> --stage remotion --result success`.
 
-Never hand-edit `manifest.json`, and never hand-edit `scene_config.json` or
-`asset_map.json` — always regenerate them via `derive-configs` so they stay
-consistent with `composition.json`.
+Never hand-edit `manifest.json`, and never hand-edit `scene_config.json`,
+`asset_map.json`, or `captions.json` — always regenerate them via
+`derive-configs`/`generate_captions.mjs` so they stay consistent with
+`composition.json`/`script.md`.
