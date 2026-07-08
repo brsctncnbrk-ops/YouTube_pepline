@@ -159,9 +159,12 @@ function MapHighlightLayer({ frame, params }: { frame: number; params: Record<st
   return (
     <AbsoluteFill>
       <svg
-        viewBox="0 0 1000 500"
+        viewBox="-40 -40 1080 580"
         style={{ position: "absolute", left: `${cx}%`, top: `${cy}%`, width: `${58 * scale}%`, transform: "translate(-50%, -50%)" }}
       >
+        {/* Backing card so the schematic map reads as a floating overlay against any
+            background, including a fully-detailed photo, rather than washing out into it. */}
+        <rect x={-40} y={-40} width={1080} height={580} rx={28} fill="rgba(15,18,30,0.92)" />
         {REGIONS.map((r) => {
           const active = r.name === region;
           return (
@@ -172,7 +175,7 @@ function MapHighlightLayer({ frame, params }: { frame: number; params: Record<st
               width={r.width}
               height={r.height}
               rx={r.rx}
-              fill={active ? "rgba(255,196,84,1)" : "rgba(200,210,225,0.25)"}
+              fill={active ? "rgba(255,196,84,1)" : "rgba(220,228,238,0.4)"}
               opacity={active ? pulse : 1}
             />
           );
