@@ -1,0 +1,26 @@
+{
+  "project_id": "001-the-voynich-manuscript-600-years-of-myst",
+  "title_working": "The Voynich Manuscript: 600 Years of Mystery",
+  "hook": {
+    "text": "Somewhere in a climate-controlled vault at Yale University sits a book no one on Earth can read. Not because it's written in a lost language - but because after more than a hundred years of trying, nobody can even agree on whether it's a language at all. It's called the Voynich Manuscript. And for six hundred years, it has refused to give up its secret.",
+    "technique": "cold-open mystery framing - states the stakes before naming the subject"
+  },
+  "sections": [
+    { "id": "section_1", "heading": "The World's Most Mysterious Book", "purpose": "Introduce the manuscript's physical description and the unsettling confidence of its handwriting.", "est_duration_sec": 68.1, "word_count": 80, "contains_curiosity_loop": true },
+    { "id": "section_2", "heading": "Inside the Pages", "purpose": "Walk through the botanical, alchemical-looking, and pharmaceutical sections and their unidentifiable subject matter.", "est_duration_sec": 98.8, "word_count": 116, "contains_curiosity_loop": true },
+    { "id": "section_3", "heading": "Watching the Sky", "purpose": "Cover the astronomical/astrological section's circular star charts.", "est_duration_sec": 63.0, "word_count": 74, "contains_curiosity_loop": false },
+    { "id": "section_4", "heading": "Who Wrote It?", "purpose": "Cover documented provenance (Rudolf II, Roger Bacon attribution) and the 2011 radiocarbon dating result.", "est_duration_sec": 100.5, "word_count": 118, "contains_curiosity_loop": false },
+    { "id": "section_5", "heading": "Breaking the Code", "purpose": "Cover the Friedmans' WWII-codebreaker-led cryptanalysis and the statistical character-frequency evidence.", "est_duration_sec": 151.6, "word_count": 178, "contains_curiosity_loop": true },
+    { "id": "section_6", "heading": "What Science Says Today", "purpose": "Cover modern imaging/computational attempts and their lack of a peer-reviewed breakthrough.", "est_duration_sec": 41.7, "word_count": 49, "contains_curiosity_loop": false }
+  ],
+  "closing": {
+    "text": "Today, the Voynich Manuscript sits at Yale's Beinecke Rare Book and Manuscript Library, fully digitized, available for anyone in the world to examine, page by page, online. Six hundred years after it was written, in ink on calfskin, by someone who has never been identified, in a script no one has ever translated - the world's most mysterious book is still exactly that. If you had to guess - real language, invented language, elaborate cipher, or six-hundred-year-old hoax - which theory would you bet on? Tell us in the comments.",
+    "cta": "comment-prompt theory poll"
+  },
+  "total_word_count": 770,
+  "estimated_duration_sec": 656.2,
+  "target_duration_sec": 656,
+  "duration_delta_sec": 0.2,
+  "tone": "curious, measured-dramatic, documentary",
+  "generated_at": "2026-07-08T02:30:00.000Z"
+}

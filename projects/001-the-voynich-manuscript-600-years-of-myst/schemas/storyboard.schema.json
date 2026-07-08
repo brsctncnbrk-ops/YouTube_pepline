@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "storyboard.schema.json",
+  "title": "FactForge Storyboard",
+  "type": "object",
+  "required": [
+    "project_id",
+    "target_duration_sec",
+    "total_duration_sec",
+    "scene_count",
+    "scenes",
+    "generated_at"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "project_id": { "type": "string" },
+    "target_duration_sec": { "type": "integer", "minimum": 1 },
+    "total_duration_sec": { "type": "number", "minimum": 0 },
+    "scene_count": { "type": "integer", "minimum": 1 },
+    "scenes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "scene_id",
+          "start_sec",
+          "end_sec",
+          "duration_sec",
+          "purpose",
+          "visual_need",
+          "scene_type",
+          "on_screen_text",
+          "transition_in",
+          "transition_out",
+          "voice_line_ref"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "scene_id": { "type": "string", "pattern": "^scene_[0-9]{3}$" },
+          "start_sec": { "type": "number", "minimum": 0 },
+          "end_sec": { "type": "number", "minimum": 0 },
+          "duration_sec": { "type": "number", "minimum": 0 },
+          "purpose": { "type": "string" },
+          "visual_need": { "type": "string" },
+          "scene_type": {
+            "type": "string",
+            "enum": [
+              "cinematic", "historical_painting", "documentary", "blueprint",
+              "technical_drawing", "newspaper", "magazine", "timeline",
+              "infographic", "split_screen", "before_after", "world_map",
+              "satellite_view", "xray", "macro_shot", "isometric", "whiteboard",
+              "character_scene", "animated_illustration", "data_visualization",
+              "archive_documents", "hand_drawn_sketch", "ui_hud_screen", "diagram"
+            ]
+          },
+          "on_screen_text": { "type": ["string", "null"] },
+          "transition_in": {
+            "type": "string",
+            "enum": ["fade", "dissolve", "cut", "wipe", "slide", "light_flash", "blur", "zoom_through"]
+          },
+          "transition_out": {
+            "type": "string",
+            "enum": ["fade", "dissolve", "cut", "wipe", "slide", "light_flash", "blur", "zoom_through"]
+          },
+          "voice_line_ref": { "type": "string" },
+          "data_point": {
+            "type": "object",
+            "required": ["type", "value", "label"],
+            "additionalProperties": false,
+            "properties": {
+              "type": { "type": "string", "enum": ["number", "percentage", "date", "location"] },
+              "value": { "type": "string" },
+              "label": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "generated_at": { "type": "string" }
+  }
+}

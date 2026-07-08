@@ -1,0 +1,42 @@
+{
+  "project_id": "001-the-voynich-manuscript-600-years-of-myst",
+  "video_idea": "A documentary exploring the Voynich Manuscript - an undeciphered medieval codex with botanical, pharmaceutical, and astronomical sections, and the centuries of failed attempts (from Renaissance scholars to WWII codebreakers to modern computational linguists) to crack its code",
+  "target_duration_sec": 656,
+  "target_audience": "documentary/history YouTube viewers",
+  "language": "en",
+  "reference_channel_style": "The Infographics Show style cinematic documentary, candlelit archival aesthetic",
+  "summary": "The Voynich Manuscript (Beinecke MS 408) is an illustrated codex written in an unknown, undeciphered script. Radiocarbon dating places its vellum to 1404-1438 CE. It contains roughly 240 surviving pages organized into recognizable sections - botanical, astronomical/astrological, biological, pharmaceutical/recipe, and a final text-heavy section - all illustrated with plants, star charts, and figures that don't match any known species or convention. Its documented ownership traces back to Emperor Rudolf II of Bohemia, who reportedly paid 600 gold ducats for it and believed it was the work of 13th-century friar Roger Bacon. It resurfaced in 1912 when antiquarian book dealer Wilfrid Voynich acquired it from the Jesuit College at Frascati, and it has resided at Yale's Beinecke Rare Book & Manuscript Library since 1969. Numerous attempts to decode it - including a sustained multi-decade effort by WWII codebreakers William and Elizabeth Friedman - have failed to produce a scholarly-accepted translation, though statistical analysis of the text's roughly 25-character alphabet has produced competing theories (natural language, constructed language, cipher, or elaborate hoax).",
+  "key_facts": [
+    { "fact": "Radiocarbon dating of the manuscript's vellum (calfskin) by researchers at the University of Arizona in 2011 dated it to 1404-1438 CE.", "date": "2011", "source_ref": "src_ciphermysteries" },
+    { "fact": "The manuscript is catalogued at Yale's Beinecke Rare Book & Manuscript Library as MS 408, sometimes called Beinecke MS 408.", "date": null, "source_ref": "src_beinecke" },
+    { "fact": "Documented provenance traces to Emperor Rudolf II of Bohemia (Holy Roman Emperor, reigned 1576-1612), who reportedly purchased it for 600 gold ducats believing it was the work of 13th-century friar Roger Bacon.", "date": null, "source_ref": "src_wikipedia" },
+    { "fact": "Antiquarian book dealer Wilfrid M. Voynich acquired the manuscript in 1912 from the Jesuit College at Frascati, near Rome - giving the manuscript its modern name.", "date": "1912", "source_ref": "src_wikipedia" },
+    { "fact": "The manuscript was donated to Yale's Beinecke Library in 1969 by rare-book dealer H. P. Kraus, who had purchased it from the estate of Ethel Voynich.", "date": "1969", "source_ref": "src_beinecke" },
+    { "fact": "WWII codebreakers William and Elizabeth Friedman - who had previously broken Imperial Japan's 'Purple' cipher - spent decades studying the manuscript and concluded its text likely represented a constructed (invented) language rather than a straightforward cipher.", "date": null, "source_ref": "src_britannica" },
+    { "fact": "The manuscript's text uses a restricted alphabet of roughly 25 distinct glyphs with unusual positional rules (certain characters appear almost exclusively at the start or end of a word), a structure that doesn't cleanly match known European cipher or language conventions.", "date": null, "source_ref": "src_britannica" },
+    { "fact": "The manuscript's roughly 240 surviving pages are organized into informally recognized sections by scholars: botanical (full-page plant illustrations), astronomical/astrological (circular star and zodiac diagrams), biological (small figures in bath-like structures), pharmaceutical (labeled jars and plant parts), and a final dense text-only section.", "date": null, "source_ref": "src_wikipedia" },
+    { "fact": "None of the manuscript's plant illustrations reliably match real, identifiable species, which has fueled both hoax theories and theories that it depicts a lost or composite botanical tradition.", "date": null, "source_ref": "src_wikipedia" },
+    { "fact": "Yale digitized and released high-resolution scans of the complete manuscript online, with early scans published in 2004 and the full digital collection expanded in 2020.", "date": "2020", "source_ref": "src_beinecke" }
+  ],
+  "timeline": [
+    { "date": "1404-1438", "event": "Radiocarbon-dated creation window for the manuscript's vellum pages.", "source_ref": "src_ciphermysteries" },
+    { "date": "c. 1600s (documented)", "event": "Manuscript is in the possession of Emperor Rudolf II of Bohemia, who purchases it for 600 gold ducats.", "source_ref": "src_wikipedia" },
+    { "date": "1912", "event": "Wilfrid M. Voynich acquires the manuscript from the Jesuit College at Frascati, and it becomes known by his name.", "source_ref": "src_wikipedia" },
+    { "date": "1940s", "event": "WWII codebreakers William and Elizabeth Friedman begin their decades-long study of the manuscript's text.", "source_ref": "src_britannica" },
+    { "date": "1969", "event": "The manuscript is donated to Yale's Beinecke Rare Book & Manuscript Library, where it remains.", "source_ref": "src_beinecke" },
+    { "date": "2011", "event": "University of Arizona researchers radiocarbon-date the vellum to 1404-1438 CE.", "source_ref": "src_ciphermysteries" },
+    { "date": "2020", "event": "Yale expands free public access to complete high-resolution digital scans of the manuscript.", "source_ref": "src_beinecke" }
+  ],
+  "sources": [
+    { "id": "src_beinecke", "title": "Voynich Manuscript | Beinecke Rare Book & Manuscript Library", "url": "https://beinecke.library.yale.edu/collections/highlights/voynich-manuscript", "publisher": "Yale University, Beinecke Rare Book & Manuscript Library", "accessed_date": "2026-07-08", "credibility_note": "Primary holding institution's own catalog/collection page - highest-credibility source for provenance and physical description." },
+    { "id": "src_wikipedia", "title": "Voynich manuscript", "url": "https://en.wikipedia.org/wiki/Voynich_manuscript", "publisher": "Wikipedia", "accessed_date": "2026-07-08", "credibility_note": "Well-sourced tertiary overview, cross-checked against the Beinecke and Britannica entries for the facts used here; treat as a starting point, not sole authority, for any claim beyond basic provenance/dating." },
+    { "id": "src_britannica", "title": "Voynich manuscript | Medieval Ciphertext, Illuminated Texts & Cryptology", "url": "https://www.britannica.com/topic/Voynich-manuscript", "publisher": "Encyclopaedia Britannica", "accessed_date": "2026-07-08", "credibility_note": "Editorially reviewed encyclopedia entry, used to corroborate the Friedman cryptanalysis history and character-frequency claims." },
+    { "id": "src_ciphermysteries", "title": "Radiocarbon dating and the Voynich Manuscript", "url": "https://ciphermysteries.com/2015/05/14/radiocarbon-dating-and-the-voynich-manuscript", "publisher": "Cipher Mysteries (Nick Pelling)", "accessed_date": "2026-07-08", "credibility_note": "Specialist Voynich-research blog summarizing the University of Arizona radiocarbon dating study; independently corroborated by the Beinecke and Wikipedia pages' stated dating range." }
+  ],
+  "open_questions": [
+    "No scholarly-accepted translation or decipherment of the manuscript's text exists as of this writing - any 'decoded' claim should be presented as contested, not settled.",
+    "Whether the text represents a real natural language, a constructed language, a cipher over a known language, or an elaborate hoax/glossolalia remains actively debated among researchers.",
+    "The identity of the manuscript's original author/scribe is unknown; Roger Bacon authorship is a historical attribution by later owners, not an established fact."
+  ],
+  "generated_at": "2026-07-08T02:00:00.000Z"
+}

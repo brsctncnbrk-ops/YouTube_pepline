@@ -1,0 +1,145 @@
+{
+  "fps": 30, "width": 1920, "height": 1080, "duration_frames": 19686,
+  "audio_asset": "assets/audio/final_voice.mp3",
+  "scenes": [
+    {
+      "scene_id": "scene_001", "start_frame": 0, "end_frame": 1662,
+      "image_asset": "assets/images/scene_001.png",
+      "camera_motion": { "type": "zoom_in", "params": { "from": 1.0, "to": 1.1 } },
+      "text_overlay": null,
+      "transition_in": "fade", "transition_out": "cut",
+      "overlay_effects": [{ "type": "vignette", "params": { "strength": 0.6 } }],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_002", "start_frame": 1662, "end_frame": 2742,
+      "image_asset": "assets/images/scene_002.png",
+      "camera_motion": { "type": "pan_right", "params": { "magnitude": 4 } },
+      "text_overlay": null,
+      "transition_in": "cut", "transition_out": "dissolve",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_003", "start_frame": 2742, "end_frame": 3705,
+      "image_asset": "assets/images/scene_003.png",
+      "camera_motion": { "type": "zoom_in", "params": { "from": 1.0, "to": 1.15 } },
+      "text_overlay": null,
+      "transition_in": "dissolve", "transition_out": "cut",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_004", "start_frame": 3705, "end_frame": 4785,
+      "image_asset": "assets/images/scene_004.png",
+      "camera_motion": { "type": "pan_left", "params": { "magnitude": 4 } },
+      "text_overlay": "Botanical Section",
+      "transition_in": "cut", "transition_out": "wipe",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_005", "start_frame": 4785, "end_frame": 5625,
+      "image_asset": "assets/images/scene_005.png",
+      "camera_motion": { "type": "dynamic_zoom", "params": { "from": 1.0, "to": 1.12 } },
+      "text_overlay": null,
+      "transition_in": "wipe", "transition_out": "cut",
+      "overlay_effects": [{ "type": "glow", "params": { "intensity": 0.3, "cx": 50, "cy": 45 } }],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_006", "start_frame": 5625, "end_frame": 6669,
+      "image_asset": "assets/images/scene_006.png",
+      "camera_motion": { "type": "tilt_up", "params": { "angle": 5, "magnitude": 3 } },
+      "text_overlay": "Pharmaceutical Section",
+      "transition_in": "cut", "transition_out": "dissolve",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_007", "start_frame": 6669, "end_frame": 8559,
+      "image_asset": "assets/images/scene_007.png",
+      "camera_motion": { "type": "rotation", "params": { "angle": 2 } },
+      "text_overlay": "Astronomical Section",
+      "transition_in": "dissolve", "transition_out": "cut",
+      "overlay_effects": [{ "type": "glow", "params": { "intensity": 0.35, "cx": 50, "cy": 50 } }],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_008", "start_frame": 8559, "end_frame": 11574,
+      "image_asset": "assets/images/scene_008.png",
+      "camera_motion": { "type": "crane_down", "params": { "magnitude": 4, "tilt": 2 } },
+      "text_overlay": null,
+      "transition_in": "cut", "transition_out": "blur",
+      "overlay_effects": [{ "type": "vignette", "params": { "strength": 0.55 } }],
+      "motion_graphics": [
+        { "type": "counter", "params": { "from": 0, "to": 600, "label": "gold ducats paid by Emperor Rudolf II", "cy": 78 } }
+      ]
+    },
+    {
+      "scene_id": "scene_009", "start_frame": 11574, "end_frame": 13374,
+      "image_asset": "assets/images/scene_009.png",
+      "camera_motion": { "type": "camera_shake", "params": { "amplitude": 0.9, "frequency": 0.45 } },
+      "text_overlay": null,
+      "transition_in": "blur", "transition_out": "light_flash",
+      "overlay_effects": [],
+      "motion_graphics": [
+        { "type": "timeline", "params": { "date": "1940s", "label": "Friedmans begin their cryptanalysis", "cy": 80 } }
+      ]
+    },
+    {
+      "scene_id": "scene_010", "start_frame": 13374, "end_frame": 15072,
+      "image_asset": "assets/images/scene_010.png",
+      "camera_motion": { "type": "perspective_shift", "params": { "angle": 8, "magnitude": 2 } },
+      "text_overlay": "Word Frequency Graph",
+      "transition_in": "light_flash", "transition_out": "cut",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_011", "start_frame": 15072, "end_frame": 16122,
+      "image_asset": "assets/images/scene_011.png",
+      "camera_motion": { "type": "orbit", "params": { "angle": 7, "pulse": 0.02 } },
+      "text_overlay": null,
+      "transition_in": "cut", "transition_out": "slide",
+      "overlay_effects": [{ "type": "glow", "params": { "intensity": 0.3, "cx": 50, "cy": 40 } }],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_012", "start_frame": 16122, "end_frame": 17373,
+      "image_asset": "assets/images/scene_012.png",
+      "camera_motion": { "type": "dolly_left", "params": { "magnitude": 5, "zoom": 0.06 } },
+      "text_overlay": null,
+      "transition_in": "slide", "transition_out": "dissolve",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_013", "start_frame": 17373, "end_frame": 19686,
+      "image_asset": "assets/images/scene_013.png",
+      "camera_motion": { "type": "zoom_out", "params": { "from": 1.12, "to": 1.0 } },
+      "text_overlay": null,
+      "transition_in": "dissolve", "transition_out": "fade",
+      "overlay_effects": [{ "type": "vignette", "params": { "strength": 0.5 } }],
+      "motion_graphics": [
+        { "type": "map_highlight", "params": { "region": "north_america", "label": "Beinecke Library, Yale University", "cx": 78, "cy": 22, "scale": 0.62 } }
+      ]
+    }
+  ],
+  "asset_map": {
+    "scene_001": { "image": "assets/images/scene_001.png", "audio_offset_sec": 0 },
+    "scene_002": { "image": "assets/images/scene_002.png", "audio_offset_sec": 55.4 },
+    "scene_003": { "image": "assets/images/scene_003.png", "audio_offset_sec": 91.4 },
+    "scene_004": { "image": "assets/images/scene_004.png", "audio_offset_sec": 123.5 },
+    "scene_005": { "image": "assets/images/scene_005.png", "audio_offset_sec": 159.5 },
+    "scene_006": { "image": "assets/images/scene_006.png", "audio_offset_sec": 187.5 },
+    "scene_007": { "image": "assets/images/scene_007.png", "audio_offset_sec": 222.3 },
+    "scene_008": { "image": "assets/images/scene_008.png", "audio_offset_sec": 285.3 },
+    "scene_009": { "image": "assets/images/scene_009.png", "audio_offset_sec": 385.8 },
+    "scene_010": { "image": "assets/images/scene_010.png", "audio_offset_sec": 445.8 },
+    "scene_011": { "image": "assets/images/scene_011.png", "audio_offset_sec": 502.4 },
+    "scene_012": { "image": "assets/images/scene_012.png", "audio_offset_sec": 537.4 },
+    "scene_013": { "image": "assets/images/scene_013.png", "audio_offset_sec": 579.1 }
+  },
+  "render": { "codec": "h264", "crf": 18, "output_filename": "final_video.mp4" }
+}
