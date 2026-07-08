@@ -128,6 +128,30 @@ tempo/motion-graphics cues, but stays free-text markdown with no schema or
 QA gate of its own — `factforge-motion` remains the sole binding authority
 over `composition.json`.
 
+`camera_motion.type` has 20 values total: the original 7 plus 13 pseudo-3D
+types (`dolly_left`/`dolly_right`, `crane_up`/`crane_down`, `orbit`,
+`handheld_simulation`, `camera_shake`, `rack_focus`, `tilt_up`/`tilt_down`,
+`rotation`, `perspective_shift`, `dynamic_zoom`) — all CSS transform tricks
+(`perspective`/`rotateX`/`rotateY`/`filter: blur`/deterministic sine-wave
+jitter) on the same single scene image in `Scene.tsx`'s `computeTransform`/
+`computeFilter`. There is no depth/parallax layer anywhere in the
+pipeline — `foreground_parallax`/`background_parallax` are deliberately
+unsupported, since real parallax would require a second, depth-separated
+image per scene (a structurally bigger change touching the Leonardo AI
+human workflow, the `images` gate, and multiple schemas) rather than a CSS
+trick on the existing single image.
+
+Each storyboard scene's `scene_type` also deterministically maps to one of
+6 `render_treatment` values (`scripts/lib/style.mjs`'s
+`SCENE_TYPE_TO_TREATMENT`, mirrored as an enum in
+`schemas/visual_prompts.schema.json` and as prose in `style/prompt_rules.md`),
+mechanically enforced by `validate.mjs style-treatment` at `visual_qa`
+(`STYLE_TREATMENT_MISMATCH`). This is orthogonal to the video's single
+global `style_token`, which stays mandatory/unchanged in every scene's
+`main_prompt` — `render_treatment` varies the rendering approach
+systematically by content type, `style_token` keeps the whole video in one
+coherent brand.
+
 ## Build phases (all complete)
 
 1. **Foundation** — scaffolding, manifest state machine, validation CLI,

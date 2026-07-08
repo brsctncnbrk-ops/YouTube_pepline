@@ -23,6 +23,7 @@ to `ERROR`. Entry shape:
 | `BROKEN_ASSET_PATH` | An absolute path, drive letter, `~`, or `..` traversal is found in a Remotion config file, or scene filenames/numbering don't match convention. |
 | `RENDER_CONFIG_MISSING` | `prepare-render` finds `remotion/render_ready_project/`, a `remotion/*.json` config, or `.github/workflows/render.yml` missing. |
 | `SCENE_VARIETY_VIOLATION` | Two consecutive scenes share the same `camera_motion.type` or `transition_in` (checked at `render_qa` against `remotion/composition.json`), or the same `scene_type` (checked at `storyboard_qa` against `storyboard/storyboard.json`). |
+| `STYLE_TREATMENT_MISMATCH` | A scene's `render_treatment` in `prompts/visual_prompts.json` doesn't match the value the fixed `scene_type` → `render_treatment` table (`scripts/lib/style.mjs`) predicts from that scene's `storyboard.json` `scene_type` (checked at `visual_qa`). |
 | `USER_APPROVAL_REQUIRED` | A command is missing required human input (e.g. `init` called without `--name`/`--idea`, or a project_id collision). |
 | `UNKNOWN_ERROR` | Anything not covered above (also the default fallback code). |
 

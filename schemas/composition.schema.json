@@ -41,7 +41,12 @@
             "properties": {
               "type": {
                 "type": "string",
-                "enum": ["zoom_in", "zoom_out", "pan_left", "pan_right", "pan_up", "pan_down", "static"]
+                "enum": [
+                  "zoom_in", "zoom_out", "pan_left", "pan_right", "pan_up", "pan_down", "static",
+                  "dolly_left", "dolly_right", "crane_up", "crane_down", "orbit",
+                  "handheld_simulation", "camera_shake", "rack_focus", "tilt_up", "tilt_down",
+                  "rotation", "perspective_shift", "dynamic_zoom"
+                ]
               },
               "params": { "type": "object" }
             }

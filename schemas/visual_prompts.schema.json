@@ -21,6 +21,7 @@
           "camera_angle",
           "lighting",
           "composition",
+          "render_treatment",
           "alt_prompts",
           "leonardo_settings",
           "status"
@@ -34,6 +35,10 @@
           "camera_angle": { "type": "string" },
           "lighting": { "type": "string" },
           "composition": { "type": "string" },
+          "render_treatment": {
+            "type": "string",
+            "enum": ["photoreal_cinematic", "archival_period", "technical_diagram", "cartographic_aerial", "scan_xray", "vector_infographic"]
+          },
           "alt_prompts": { "type": "array", "items": { "type": "string" } },
           "leonardo_settings": {
             "type": "object",

@@ -31,14 +31,31 @@ Convert the storyboard's second-based timings to frames using `fps`:
 - `duration_frames` (top level) = the last scene's `end_frame` (the total
   frame count of the video).
 - For each scene, set `camera_motion.type` from the direction plan's keyword
-  — one of `zoom_in`, `zoom_out`, `pan_left`, `pan_right`, `pan_up`,
-  `pan_down`, `static` (the schema enum; no other value validates) — and put
-  any intensity in `camera_motion.params` (e.g. `{ "from": 1.0, "to": 1.12 }`
-  for zoom, `{ "magnitude": 4 }` for pan). Leave `params` as `{}` for
-  `static`. **No two consecutive scenes may share the same
-  `camera_motion.type`** — mechanically enforced at `render_qa`
-  (`validate.mjs scene-variety`), so rotate deliberately rather than
-  defaulting to one movement throughout.
+  — the schema enum has 20 values; no other value validates. The original 7
+  (`zoom_in`, `zoom_out`, `pan_left`, `pan_right`, `pan_up`, `pan_down`,
+  `static`) plus 13 pseudo-3D types, all CSS tricks on the same single
+  scene image (no depth/parallax layer exists — `foreground_parallax`/
+  `background_parallax` are deliberately not supported):
+  `dolly_left`, `dolly_right`, `crane_up`, `crane_down`, `orbit`,
+  `handheld_simulation`, `camera_shake`, `rack_focus`, `tilt_up`,
+  `tilt_down`, `rotation`, `perspective_shift`, `dynamic_zoom`. Put any
+  intensity in `camera_motion.params` — `{}` accepts sensible defaults for
+  every type. Params by type:
+  - `zoom_in`/`zoom_out`: `{ from, to }`. `pan_*`: `{ magnitude }` (default 4).
+  - `dolly_left`/`dolly_right`: `{ magnitude }` (6), `{ zoom }` (0.08) — a translate ramp *plus* a scale ramp, reads as the camera physically moving rather than just reframing like `pan_*`.
+  - `crane_up`/`crane_down`: `{ magnitude }` (5), `{ tilt }` (3) — vertical move with a perspective tilt.
+  - `orbit`: `{ angle }` (8), `{ pulse }` (0.03) — bounded rotateY oscillation + scale pulse, the only non-monotonic rotation.
+  - `handheld_simulation`: `{ amplitude }` (1.5), `{ frequency }` (0.05) — slow, organic layered-sine jitter, deterministic from `frame` (no randomness needed).
+  - `camera_shake`: `{ amplitude }` (0.8), `{ frequency }` (0.4) — same jitter technique, sharper/faster than handheld by default.
+  - `rack_focus`: `{ max_blur }` (6), `{ peak }` (0.5, 0.15-0.85) — a mid-scene blur pulse, distinct from the edge-only transition blur.
+  - `tilt_up`/`tilt_down`: `{ angle }` (6), `{ magnitude }` (3) — like `pan_up`/`pan_down` but with an added rotateX for a true camera-pitch feel.
+  - `rotation`: `{ angle }` (3) — a slow Z-axis roll.
+  - `perspective_shift`: `{ angle }` (10), `{ magnitude }` (2) — a static (non-oscillating) rotateY+translateX combo.
+  - `dynamic_zoom`: `{ from, to }` — like `zoom_in`/`zoom_out` but eased (accelerate/decelerate), not linear.
+  Leave `params` as `{}` for `static`. **No two consecutive scenes may share
+  the same `camera_motion.type`** — mechanically enforced at `render_qa`
+  (`validate.mjs scene-variety`), so rotate deliberately across all 20
+  rather than defaulting to a handful.
 - Carry `transition_in`/`transition_out` and `text_overlay` straight from the
   storyboard. All eight transition types are real and enum-constrained:
   `fade`, `dissolve`, `cut`, `wipe`, `slide`, `light_flash`, `blur`,

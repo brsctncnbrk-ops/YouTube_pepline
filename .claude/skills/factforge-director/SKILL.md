@@ -37,12 +37,19 @@ For every scene, decide and record:
   transitions to the next (tension → relief, curiosity → payoff, etc.).
 - **Camera movement** — a concrete motion per scene drawn from the camera
   language, expressed in vocabulary the Motion stage can act on. Use these
-  motion keywords so `factforge-motion` can map them directly:
-  `zoom_in`, `zoom_out`, `pan_left`, `pan_right`, `pan_up`, `pan_down`,
-  `static`. Note intensity where it matters (subtle vs. dramatic). **Don't
-  call for the same motion keyword on two consecutive scenes** —
-  `factforge-motion` carries your choices straight into `camera_motion.type`,
-  and `render_qa` mechanically rejects consecutive repeats.
+  motion keywords so `factforge-motion` can map them directly — 20 in total,
+  the original 7 (`zoom_in`, `zoom_out`, `pan_left`, `pan_right`, `pan_up`,
+  `pan_down`, `static`) plus 13 pseudo-3D types for more dynamic coverage:
+  `dolly_left`, `dolly_right`, `crane_up`, `crane_down`, `orbit`,
+  `handheld_simulation`, `camera_shake`, `rack_focus`, `tilt_up`,
+  `tilt_down`, `rotation`, `perspective_shift`, `dynamic_zoom`. All 20 are
+  CSS tricks on the same single scene image — there's no
+  `foreground_parallax`/`background_parallax` (those would need a second,
+  depth-separated image layer, which doesn't exist in this pipeline). Note
+  intensity where it matters (subtle vs. dramatic). **Don't call for the
+  same motion keyword on two consecutive scenes** — `factforge-motion`
+  carries your choices straight into `camera_motion.type`, and `render_qa`
+  mechanically rejects consecutive repeats.
 - **Close vs. wide emphasis** — which scenes push in for intimacy/detail and
   which pull back for context, consistent with the storyboard's shot intent.
 - **Text animation cues** — for scenes with on-screen text, how it should

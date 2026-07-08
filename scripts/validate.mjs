@@ -19,6 +19,7 @@ import {
   CliError,
 } from "./lib/fs-utils.mjs";
 import { GATES } from "./lib/pipeline.mjs";
+import { SCENE_TYPE_TO_TREATMENT } from "./lib/style.mjs";
 
 const ABSOLUTE_PATH_PATTERNS = [
   /^\//, // unix absolute
@@ -237,6 +238,47 @@ export async function validatePromptCoverage({ projectId }) {
 }
 
 /**
+ * Style-treatment policy check: each visual_prompts.json scene's
+ * render_treatment must match the value scripts/lib/style.mjs's fixed
+ * SCENE_TYPE_TO_TREATMENT table predicts from that scene's storyboard.json
+ * scene_type. Catches skill-authoring drift from the systematic
+ * content-driven treatment policy - style_token drift stays a judgment call
+ * (factforge-visual-qa Step 2), this is the mechanical half.
+ */
+export async function validateStyleTreatment({ projectId }) {
+  const dir = projectDir(projectId);
+  const storyboardPath = path.join(dir, "storyboard", "storyboard.json");
+  const promptsPath = path.join(dir, "prompts", "visual_prompts.json");
+
+  const storyboard = await readJsonSafe(storyboardPath, null);
+  if (!storyboard || !Array.isArray(storyboard.scenes)) {
+    return { valid: false, error_code: "INVALID_JSON", issues: ["storyboard.json missing or has no scenes[]"] };
+  }
+  const prompts = await readJsonSafe(promptsPath, null);
+  if (!prompts || !Array.isArray(prompts.scenes)) {
+    return { valid: false, error_code: "INVALID_JSON", issues: ["visual_prompts.json missing or has no scenes[]"] };
+  }
+
+  const sceneTypeById = new Map(storyboard.scenes.map((s) => [s.scene_id, s.scene_type]));
+  const issues = [];
+  for (const scene of prompts.scenes) {
+    const sceneType = sceneTypeById.get(scene.scene_id);
+    const expected = SCENE_TYPE_TO_TREATMENT[sceneType];
+    if (!expected) continue; // no matching storyboard scene / unknown scene_type - covered by validatePromptCoverage/schema instead
+    if (scene.render_treatment !== expected) {
+      issues.push({
+        scene_id: scene.scene_id,
+        field: "render_treatment",
+        expected,
+        actual: scene.render_treatment,
+        reason: `scene_type "${sceneType}" requires render_treatment "${expected}"`,
+      });
+    }
+  }
+  return { valid: issues.length === 0, error_code: issues.length ? "STYLE_TREATMENT_MISMATCH" : null, issues };
+}
+
+/**
  * Final-QA mechanical check: the rendered video plus all six spec-listed
  * YouTube packaging deliverables must exist. The packaging.json schema is
  * checked separately via SCHEMA_BY_STAGE. This is the "is the package
@@ -383,6 +425,9 @@ export async function validateAll({ projectId, stage }) {
   let coverageCheck = { valid: true, issues: [] };
   if (stage === "visual_qa") coverageCheck = await validatePromptCoverage({ projectId });
 
+  let styleTreatmentCheck = { valid: true, issues: [] };
+  if (stage === "visual_qa") styleTreatmentCheck = await validateStyleTreatment({ projectId });
+
   let packagingCheck = { valid: true, missing: [] };
   if (stage === "final_qa") packagingCheck = await validatePackaging({ projectId });
 
@@ -392,8 +437,18 @@ export async function validateAll({ projectId, stage }) {
     filenamesCheck.valid &&
     sceneTypeVarietyCheck.valid &&
     coverageCheck.valid &&
+    styleTreatmentCheck.valid &&
     packagingCheck.valid;
-  return { valid, schemaChecks, assetCheck, filenamesCheck, sceneTypeVarietyCheck, coverageCheck, packagingCheck };
+  return {
+    valid,
+    schemaChecks,
+    assetCheck,
+    filenamesCheck,
+    sceneTypeVarietyCheck,
+    coverageCheck,
+    styleTreatmentCheck,
+    packagingCheck,
+  };
 }
 
 function toHuman(result) {
@@ -418,6 +473,9 @@ function toHuman(result) {
   }
   if (result.coverageCheck) {
     lines.push(`- Prompt-to-scene coverage: ${result.coverageCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.coverageCheck.issues)}`);
+  }
+  if (result.styleTreatmentCheck) {
+    lines.push(`- Render-treatment policy (scene_type → render_treatment): ${result.styleTreatmentCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.styleTreatmentCheck.issues)}`);
   }
   if (result.packagingCheck) {
     lines.push(`- Packaging deliverables: ${result.packagingCheck.valid ? "PASS" : "FAIL - missing " + result.packagingCheck.missing.join(", ")}`);
@@ -452,6 +510,9 @@ async function main() {
       case "scene-variety":
         result = await validateSceneVariety({ projectId: args["project-id"] });
         break;
+      case "style-treatment":
+        result = await validateStyleTreatment({ projectId: args["project-id"] });
+        break;
       case "assets":
         result = await validateAssets({ projectId: args["project-id"], check: args.check || "all" });
         break;
@@ -463,7 +524,7 @@ async function main() {
         break;
       default:
         throw new CliError(
-          `Unknown validate subcommand "${group}". Use: schema|paths|filenames|scene-type-variety|scene-variety|assets|render-ready|all`,
+          `Unknown validate subcommand "${group}". Use: schema|paths|filenames|scene-type-variety|scene-variety|style-treatment|assets|render-ready|all`,
           "UNKNOWN_ERROR"
         );
     }

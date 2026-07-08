@@ -31,6 +31,20 @@ regardless of `scene_type` — `scene_type` varies *what the shot is
 composed of*, never the overall rendering aesthetic. Don't let scene-type
 variety turn into style-hopping between scenes.
 
+**`scene_type` also deterministically sets `render_treatment`** — a new
+required per-scene field — via the fixed table in `prompt_rules.md` (also
+listed in `factforge-visual-style-bible`): `photoreal_cinematic`,
+`archival_period`, `technical_diagram`, `cartographic_aerial`, `scan_xray`,
+or `vector_infographic`. This is a lookup, not a creative choice — every
+`scene_type` maps to exactly one `render_treatment`, always the same way.
+Let `render_treatment` inform `main_prompt` wording too (e.g. "...rendered
+in a technical blueprint diagram style..." for `technical_diagram`), but it
+never displaces the style token — the two are independent: `style_token`
+keeps the whole video in one coherent brand, `render_treatment` varies the
+rendering *approach* systematically by content type. `visual_qa`
+mechanically checks that each scene's `render_treatment` matches what the
+table predicts from its `scene_type`.
+
 ## Task
 
 For every scene in `storyboard.json` (no skipping, no extras), write:
@@ -72,6 +86,7 @@ Write all four files under `projects/<project_id>/prompts/`:
       "camera_angle": "...",
       "lighting": "...",
       "composition": "...",
+      "render_treatment": "photoreal_cinematic",
       "alt_prompts": ["..."],
       "leonardo_settings": { "model": "...", "aspect_ratio": "16:9", "guidance_scale": 7, "seed": null, "style_reference": null },
       "status": "pending"
@@ -83,7 +98,9 @@ Write all four files under `projects/<project_id>/prompts/`:
 
 `image_filename` must always equal `"<scene_id>.png"` and every storyboard
 scene must have exactly one matching entry here — this mapping is checked
-mechanically by `visual_qa`.
+mechanically by `visual_qa`. `render_treatment` must match the value the
+scene's `scene_type` predicts per the fixed table in `prompt_rules.md` —
+also checked mechanically by `visual_qa` (`validate.mjs style-treatment`).
 
 **`visual_prompts.md`**, **`negative_prompts.md`**, **`leonardo_settings.md`**
 — human-readable views of the same data, one scene per entry, so the human
