@@ -1,0 +1,54 @@
+{
+  "project_id": "001-the-voynich-manuscript-600-years-of-myst",
+  "titles": [
+    "The Voynich Manuscript: The 600-Year-Old Book No One Can Read",
+    "Nobody Has Cracked This 600-Year-Old Code (Not Even WWII's Best)",
+    "The Most Mysterious Book in the World, Explained",
+    "Inside the Voynich Manuscript: History's Greatest Unsolved Cipher"
+  ],
+  "description": "Somewhere in a climate-controlled vault at Yale sits a book that has defeated every attempt to read it for over 600 years.\n\nThe Voynich Manuscript (Beinecke MS 408) is a radiocarbon-dated medieval codex (1404-1438) filled with botanical, astronomical, and pharmaceutical illustrations, and a flowing script that matches no known language on Earth. We walk through what's actually in its pages, who owned it (including Holy Roman Emperor Rudolf II, who paid 600 gold ducats for it), and the WWII codebreakers who spent decades trying, and failing, to crack it.\n\nIf you enjoyed this deep dive, consider subscribing for more documentary-style explorations of history's unsolved mysteries, and let us know in the comments which theory you'd bet on: real language, invented language, elaborate cipher, or an elaborate hoax.\n\n00:00 Intro - The Book No One Can Read\n00:55 The World's Most Mysterious Book\n02:03 Inside the Pages: Botanical & Alchemical\n03:07 The Pharmaceutical Section\n03:42 Watching the Sky: The Astronomical Pages\n04:45 Who Wrote It? Rudolf II & Roger Bacon\n05:52 The Radiocarbon Verdict\n06:25 Breaking the Code: The WWII Cryptanalysts\n07:25 The Statistical Evidence\n08:22 Cryptographic Tools & Modern Analysis\n09:39 Where the Manuscript Lives Today\n\nSources:\nBeinecke Rare Book & Manuscript Library, Yale University - https://beinecke.library.yale.edu/collections/highlights/voynich-manuscript\nEncyclopaedia Britannica - https://www.britannica.com/topic/Voynich-manuscript\nWikipedia - https://en.wikipedia.org/wiki/Voynich_manuscript\nCipher Mysteries (Nick Pelling) - https://ciphermysteries.com/2015/05/14/radiocarbon-dating-and-the-voynich-manuscript\n\n#VoynichManuscript #UnsolvedMysteries #History",
+  "tags": [
+    "voynich manuscript",
+    "unsolved mysteries",
+    "medieval history",
+    "cryptography",
+    "unbreakable code",
+    "yale university",
+    "medieval manuscripts",
+    "history documentary",
+    "ancient mysteries",
+    "cipher",
+    "codebreakers",
+    "world war 2 codebreakers",
+    "beinecke library",
+    "historical mysteries",
+    "unexplained history"
+  ],
+  "thumbnail_concepts": [
+    {
+      "concept": "Extreme close-up of the manuscript's open page glowing under candlelight against the dark teal-shadowed archive (the scene_003/scene_004 macro handwriting shot).",
+      "text_overlay": "NO ONE CAN READ THIS",
+      "notes": "Bold white/gold condensed type across the upper third, high contrast against the dark page. Leave the lower third clear of text so the page's flowing script stays the visual hook."
+    },
+    {
+      "concept": "The wide hook shot of the manuscript in its lit glass case at the end of the dark corridor (scene_001), vignette already dramatic.",
+      "text_overlay": "600 YEARS UNSOLVED",
+      "notes": "Lower-third text banner, gold accent color matching the video's own candlelight palette. Corridor's symmetry keeps the case as the clear focal point even at thumbnail size."
+    }
+  ],
+  "chapters": [
+    { "timestamp": "0:00", "label": "Intro - The Book No One Can Read" },
+    { "timestamp": "0:55", "label": "The World's Most Mysterious Book" },
+    { "timestamp": "2:03", "label": "Inside the Pages: Botanical & Alchemical" },
+    { "timestamp": "3:07", "label": "The Pharmaceutical Section" },
+    { "timestamp": "3:42", "label": "Watching the Sky: The Astronomical Pages" },
+    { "timestamp": "4:45", "label": "Who Wrote It? Rudolf II & Roger Bacon" },
+    { "timestamp": "5:52", "label": "The Radiocarbon Verdict" },
+    { "timestamp": "6:25", "label": "Breaking the Code: The WWII Cryptanalysts" },
+    { "timestamp": "7:25", "label": "The Statistical Evidence" },
+    { "timestamp": "8:22", "label": "Cryptographic Tools & Modern Analysis" },
+    { "timestamp": "9:39", "label": "Where the Manuscript Lives Today" }
+  ],
+  "pinned_comment": "This book has been sitting unread in a vault for 600 years, and even WWII's best codebreakers couldn't crack it. Which theory do YOU believe: real language, invented language, cipher, or hoax? Drop your vote below. And if you want more deep dives like this, hit subscribe, more unsolved mysteries are on the way.",
+  "generated_at": "2026-07-08T20:00:00.000Z"
+}

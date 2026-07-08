@@ -1,8 +1,8 @@
 {
   "project_id": "001-the-voynich-manuscript-600-years-of-myst",
   "project_name": "The Voynich Manuscript: 600 Years of Mystery",
-  "status": "RENDER_DONE",
-  "current_stage": "packaging",
+  "status": "IN_PROGRESS",
+  "current_stage": "final_qa",
   "completed_skills": [
     "research",
     "research_qa",
@@ -17,18 +17,18 @@
     "director",
     "remotion",
     "editor",
-    "render_qa"
+    "render_qa",
+    "packaging"
   ],
   "pending_skills": [
     "storyboard",
-    "packaging",
     "final_qa"
   ],
   "waiting_for": [],
   "required_files": [],
   "errors": [],
-  "last_successful_stage": "render_qa",
-  "last_updated": "2026-07-08T18:29:04.872Z",
+  "last_successful_stage": "packaging",
+  "last_updated": "2026-07-08T22:16:39.524Z",
   "paused": false,
   "render": {
     "output": "output/final_video.mp4",

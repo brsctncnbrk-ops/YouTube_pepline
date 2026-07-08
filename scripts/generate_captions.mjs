@@ -135,13 +135,20 @@ export async function generateCaptions({
   minSec = DEFAULT_MIN_SEC,
   maxSec = DEFAULT_MAX_SEC,
   gapFrames = DEFAULT_GAP_FRAMES,
+  sourceFile = null,
+  outFile = null,
 }) {
   const dir = projectDir(projectId);
-  const scriptPath = path.join(dir, "scripts", "script.md");
+  // Defaults to scripts/script.md / remotion/captions.json, but either can be
+  // pointed elsewhere - e.g. a translated script file, so the same
+  // word-count-proportional chunking logic can produce a captions file in
+  // another language without hand-timing every line.
+  const scriptPath = sourceFile ? path.join(dir, sourceFile) : path.join(dir, "scripts", "script.md");
   const compositionPath = path.join(dir, "remotion", "composition.json");
+  const captionsOutPath = outFile ? path.join(dir, outFile) : path.join(dir, "remotion", "captions.json");
 
   if (!(await pathExists(scriptPath))) {
-    throw new CliError(`scripts/script.md not found for ${projectId}`, "RENDER_CONFIG_MISSING");
+    throw new CliError(`${sourceFile ?? "scripts/script.md"} not found for ${projectId}`, "RENDER_CONFIG_MISSING");
   }
   if (!(await pathExists(compositionPath))) {
     throw new CliError(`remotion/composition.json not found for ${projectId} - run factforge-motion first`, "RENDER_CONFIG_MISSING");
@@ -228,12 +235,13 @@ export async function generateCaptions({
   }
 
   const output = { captions };
-  await writeJsonAtomic(path.join(dir, "remotion", "captions.json"), output);
+  await writeJsonAtomic(captionsOutPath, output);
 
+  const writtenRel = outFile ?? "remotion/captions.json";
   const durations = captions.map((c) => (c.end_frame - c.start_frame) / fps);
   return {
     project_id: projectId,
-    written: "remotion/captions.json",
+    written: writtenRel,
     caption_count: captions.length,
     avg_duration_sec: durations.length ? Math.round((durations.reduce((a, b) => a + b, 0) / durations.length) * 100) / 100 : 0,
     min_duration_sec: durations.length ? Math.round(Math.min(...durations) * 100) / 100 : 0,
@@ -244,7 +252,9 @@ export async function generateCaptions({
 async function main() {
   const [subcommand, ...rest] = process.argv.slice(2);
   if (subcommand !== "generate") {
-    console.log("Usage: node scripts/generate_captions.mjs generate --project-id <id> [--min-sec 0.9] [--max-sec 3.2] [--gap-frames 3]");
+    console.log(
+      "Usage: node scripts/generate_captions.mjs generate --project-id <id> [--min-sec 0.9] [--max-sec 3.2] [--gap-frames 3] [--source scripts/script.md] [--out remotion/captions.json]"
+    );
     process.exitCode = subcommand ? 1 : 0;
     return;
   }
@@ -255,6 +265,8 @@ async function main() {
       minSec: args["min-sec"] ? Number.parseFloat(args["min-sec"]) : undefined,
       maxSec: args["max-sec"] ? Number.parseFloat(args["max-sec"]) : undefined,
       gapFrames: args["gap-frames"] ? Number.parseInt(args["gap-frames"], 10) : undefined,
+      sourceFile: args.source,
+      outFile: args.out,
     });
     printJson({ ok: true, ...result });
   } catch (err) {
