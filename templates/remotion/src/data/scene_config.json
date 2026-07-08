@@ -12,7 +12,8 @@
       "text_overlay": "Placeholder - replaced per project by remotion_build.mjs",
       "transition_in": "fade",
       "transition_out": "fade",
-      "overlay_effects": []
+      "overlay_effects": [],
+      "motion_graphics": []
     }
   ]
 }

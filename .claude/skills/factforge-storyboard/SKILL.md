@@ -13,7 +13,11 @@ prompts — that's `factforge-visual-style-bible` and `factforge-visual-prompt`.
 
 `scripts/script.md`, `voice/voice_script.txt`, `assets/audio/final_voice.mp3`
 (now a real recorded file — this stage only runs after the audio gate has
-passed), and `config/video_config.json` (`target_duration_sec`).
+passed), and `config/video_config.json` (`target_duration_sec`). Also read
+`research/research.json` (already on disk from the earlier `research` stage,
+even though it isn't a required input for this one) when a scene's content
+traces back to a specific fact — its `key_facts`/`timeline` entries are
+useful source material for the optional `data_point` field below.
 
 **Use the real audio duration as ground truth if you can get it.** If
 `ffprobe` (part of ffmpeg) is available in the environment, run something
@@ -54,6 +58,20 @@ Break the script into scenes:
   `slide`, `light_flash`, `blur`, `zoom_through`. Vary these too — the same
   render_qa-level check (Madde 1) also forbids two consecutive scenes from
   sharing the same `transition_in`.
+- **Optionally** set a **`data_point`** when the scene's `purpose`/
+  `visual_need` centers on one concrete, quotable fact from
+  `research/research.json`'s `key_facts` or `timeline` — a number, a
+  percentage, a date, or a location. Most scenes won't have one; only set it
+  where a specific fact genuinely anchors the scene (this feeds
+  `factforge-motion`'s motion-graphics layer — a counter, progress bar,
+  timeline marker, or map highlight — later in the pipeline):
+  `{ "type": "number"|"percentage"|"date"|"location", "value": "...", "label": "..." }`.
+  `value` is always a string (e.g. `"2.3 million"`, `"73"`, `"1969-07-20"`,
+  `"asia"`) — `factforge-motion` handles turning it into a clean number
+  later. For `type: "location"`, `value` **must** be one of these 7 region
+  names: `north_america`, `south_america`, `europe`, `africa`,
+  `middle_east`, `asia`, `oceania`. `label` is a short caption (e.g.
+  `"world population"`, `"survey respondents"`).
 - Set `start_sec`/`end_sec`/`duration_sec` so scenes are contiguous and sum
   to `total_duration_sec` with no gaps or overlaps.
 - Give each scene a short `voice_line_ref` pointing back to the relevant
@@ -83,6 +101,15 @@ and use sequential, zero-padded, gap-free scene ids starting at `scene_001`:
       "on_screen_text": null,
       "transition_in": "fade", "transition_out": "cut",
       "voice_line_ref": "..."
+    },
+    {
+      "scene_id": "scene_002",
+      "start_sec": 15, "end_sec": 25, "duration_sec": 10,
+      "purpose": "...", "visual_need": "...", "scene_type": "infographic",
+      "on_screen_text": "73%",
+      "transition_in": "cut", "transition_out": "fade",
+      "voice_line_ref": "...",
+      "data_point": { "type": "percentage", "value": "73", "label": "survey respondents" }
     }
   ],
   "generated_at": "<ISO 8601 timestamp>"

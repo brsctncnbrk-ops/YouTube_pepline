@@ -69,6 +69,21 @@
                 "params": { "type": "object" }
               }
             }
+          },
+          "motion_graphics": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type", "params"],
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["counter", "progress_bar", "timeline", "map_highlight", "arrow_callout"]
+                },
+                "params": { "type": "object" }
+              }
+            }
           }
         }
       }

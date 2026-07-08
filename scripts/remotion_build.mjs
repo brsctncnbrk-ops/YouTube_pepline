@@ -59,6 +59,7 @@ export async function deriveConfigs({ projectId }) {
       transition_in: s.transition_in,
       transition_out: s.transition_out,
       overlay_effects: s.overlay_effects ?? [],
+      motion_graphics: s.motion_graphics ?? [],
     })),
   };
 

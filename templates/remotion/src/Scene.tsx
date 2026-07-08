@@ -2,6 +2,7 @@ import React from "react";
 import { AbsoluteFill, Img, interpolate, useCurrentFrame } from "remotion";
 import { combineTransitionStyles, computeEntryStyle, computeExitStyle, lightFlashOpacity } from "./effects/transitions";
 import { OverlayEffectsLayer, OverlayEffect } from "./effects/Overlays";
+import { MotionGraphicsLayer, MotionGraphicsElement } from "./effects/MotionGraphics";
 
 export type CameraMotion = { type: string; params: Record<string, number | string> };
 
@@ -14,6 +15,7 @@ type SceneProps = {
   transitionIn: string;
   transitionOut: string;
   overlayEffects: OverlayEffect[];
+  motionGraphics: MotionGraphicsElement[];
 };
 
 function num(params: Record<string, number | string>, key: string, fallback: number): number {
@@ -62,6 +64,7 @@ export const Scene: React.FC<SceneProps> = ({
   transitionIn,
   transitionOut,
   overlayEffects,
+  motionGraphics,
 }) => {
   const frame = useCurrentFrame();
   const fadeFrames = Math.min(15, Math.max(1, Math.floor(durationInFrames / 4)));
@@ -93,6 +96,7 @@ export const Scene: React.FC<SceneProps> = ({
         <Img src={imageSrc} style={{ width: "100%", height: "100%", objectFit: "cover", transform }} />
       </AbsoluteFill>
       <OverlayEffectsLayer effects={overlayEffects} sceneId={sceneId} frame={frame} durationInFrames={durationInFrames} />
+      <MotionGraphicsLayer motionGraphics={motionGraphics} sceneId={sceneId} frame={frame} durationInFrames={durationInFrames} />
       {flashOpacity > 0 ? <AbsoluteFill style={{ backgroundColor: "white", opacity: flashOpacity }} /> : null}
       {textOverlay ? (
         <AbsoluteFill

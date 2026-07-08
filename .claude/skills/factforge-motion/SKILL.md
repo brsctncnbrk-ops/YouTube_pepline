@@ -15,9 +15,11 @@ TSX) — the generic template already handles rendering; you only produce data.
 ## Inputs
 
 `storyboard/storyboard.json` (scene timings in seconds, transitions,
-on-screen text), `direction/direction_plan.md` (per-scene camera motion
-keyword + intensity), `config/video_config.json` (`fps`, `width`, `height`),
-and `config/render_config.json` (`codec`, `crf`, `output_filename`).
+on-screen text, and each scene's optional `data_point`),
+`direction/direction_plan.md` (per-scene camera motion keyword + intensity,
+a tempo keyword, and — non-bindingly — motion-graphics suggestions),
+`config/video_config.json` (`fps`, `width`, `height`), and
+`config/render_config.json` (`codec`, `crf`, `output_filename`).
 
 ## Task
 
@@ -52,6 +54,39 @@ Convert the storyboard's second-based timings to frames using `fps`:
   - `noise` — `params: { opacity }` (0-1, default 0.06), subtle film-grain texture.
   - `particles` — `params: { count }` (default 18), small drifting dots.
   Leave `params` as `{}` to accept the defaults.
+- Optionally set `motion_graphics` per scene — an array of
+  `{ "type": "counter"|"progress_bar"|"timeline"|"map_highlight"|"arrow_callout", "params": {...} }`.
+  This is authored entirely by you; it is **not** subject to the
+  consecutive-repeat gate. Use it sparingly, only where it adds real
+  information — not as decoration:
+  - **Primary source — the storyboard's `data_point`.** If a scene has one,
+    translate it via this table (skip the scene entirely if `value` can't be
+    cleanly parsed — never guess):
+    | `data_point.type` | `motion_graphics.type` | mapping |
+    |---|---|---|
+    | `number` | `counter` | `params.to` = numeric value parsed from `data_point.value`, `params.from = 0`, `params.label = data_point.label` |
+    | `percentage` | `progress_bar` | `params.value` = 0-100 number parsed from `data_point.value`, `params.label = data_point.label` |
+    | `date` | `timeline` | `params.date = data_point.value` verbatim, `params.label = data_point.label` |
+    | `location` | `map_highlight` | `params.region = data_point.value` verbatim (already one of the 7 region names), `params.label = data_point.label` |
+  - **Secondary, non-binding source — `direction_plan.md`'s motion-graphics
+    suggestions.** The director may suggest a type for a scene as inspiration
+    (e.g. "a counter animating up to 2.3M would land well here"). You may
+    draw on it — deciding to add an `arrow_callout`, say, or picking phrasing
+    — but you're never obligated to follow it, exactly like `overlay_effects`
+    today: the direction plan has no binding authority over this field.
+  - `arrow_callout` has no `data_point` counterpart — it's purely your own
+    call for directing attention to a spot in the image. `params: { cx, cy,
+    shape, direction, label }` — `cx`/`cy` are 0-100 position, `shape` is
+    `"arrow"` or `"circle"` (default `"circle"`), `direction` (`"up"`/
+    `"down"`/`"left"`/`"right"`, only used when `shape: "arrow"`).
+  - Full `params` shapes: `counter: { from, to, decimals?, prefix?, suffix?, label?, cx?, cy? }`,
+    `progress_bar: { value, label?, cx?, cy?, width_pct?, color? }`,
+    `timeline: { date, label?, cx?, cy? }`,
+    `map_highlight: { region, label?, cx?, cy?, scale? }` where `region` is
+    one of `north_america`, `south_america`, `europe`, `africa`,
+    `middle_east`, `asia`, `oceania` (a schematic region-level map, not
+    accurate coastlines — good for "this happened around here", not precise
+    geography).
 - `image_asset` = `assets/images/<scene_id>.png`, `audio_asset` =
   `assets/audio/final_voice.mp3` — **always relative paths, never absolute**
   (the render happens on GitHub Actions, not a local machine; absolute paths
@@ -75,7 +110,8 @@ Exact shape (see `schemas/composition.schema.json` for the authority):
       "camera_motion": { "type": "zoom_in", "params": { "from": 1.0, "to": 1.12 } },
       "text_overlay": "May 1, 1840",
       "transition_in": "fade", "transition_out": "cut",
-      "overlay_effects": [{ "type": "glow", "params": {} }]
+      "overlay_effects": [{ "type": "glow", "params": {} }],
+      "motion_graphics": [{ "type": "counter", "params": { "from": 0, "to": 2300000, "suffix": "+", "label": "people affected" } }]
     }
   ],
   "asset_map": { "scene_001": { "image": "assets/images/scene_001.png", "audio_offset_sec": 0 } },

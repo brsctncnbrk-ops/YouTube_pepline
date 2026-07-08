@@ -63,7 +63,17 @@
             "type": "string",
             "enum": ["fade", "dissolve", "cut", "wipe", "slide", "light_flash", "blur", "zoom_through"]
           },
-          "voice_line_ref": { "type": "string" }
+          "voice_line_ref": { "type": "string" },
+          "data_point": {
+            "type": "object",
+            "required": ["type", "value", "label"],
+            "additionalProperties": false,
+            "properties": {
+              "type": { "type": "string", "enum": ["number", "percentage", "date", "location"] },
+              "value": { "type": "string" },
+              "label": { "type": "string" }
+            }
+          }
         }
       }
     },

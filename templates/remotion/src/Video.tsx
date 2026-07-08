@@ -34,6 +34,7 @@ export const FactForgeVideo: React.FC = () => {
               transitionIn={scene.transition_in}
               transitionOut={scene.transition_out}
               overlayEffects={scene.overlay_effects ?? []}
+              motionGraphics={scene.motion_graphics ?? []}
             />
           </Sequence>
         );
