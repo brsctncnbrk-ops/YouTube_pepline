@@ -5,10 +5,11 @@ description: Assembles the render-ready Remotion project for a FactForge video. 
 
 # FactForge Editor
 
-You assemble the self-contained Remotion project that GitHub Actions will
-render. Almost all of this stage is mechanical — a deterministic helper does
-the assembly — so your job is to run it, confirm the result, and catch any
-missing assets before handing off to the render QA gate.
+You assemble the self-contained Remotion project that the render VPS (or, as
+a fallback, GitHub Actions) will render. Almost all of this stage is
+mechanical — a deterministic helper does the assembly — so your job is to
+run it, confirm the result, and catch any missing assets before handing off
+to the render QA gate.
 
 ## Inputs
 
@@ -43,8 +44,9 @@ missing assets before handing off to the render QA gate.
 - Advance:
   `node scripts/manifest_cli.mjs advance --project-id <project_id> --stage editor --result success`.
 
-Do not run a full-length render locally — that happens only on GitHub Actions.
-A single-frame `remotion still` sanity check is fine if you want to eyeball a
-frame, but it is optional and not required to advance.
+Do not run a full-length render locally — that happens only via
+`scripts/render_vps.sh` on the render VPS, or as a fallback via GitHub
+Actions. A single-frame `remotion still` sanity check is fine if you want to
+eyeball a frame, but it is optional and not required to advance.
 
 Never hand-edit `manifest.json` directly.

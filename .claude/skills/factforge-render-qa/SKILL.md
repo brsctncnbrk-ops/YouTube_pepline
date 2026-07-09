@@ -1,11 +1,11 @@
 ---
 name: factforge-render-qa
-description: Runs the Render QA gate for a FactForge project - the final technical check before the GitHub Actions render. Use when a FactForge project's manifest current_stage is "render_qa".
+description: Runs the Render QA gate for a FactForge project - the final technical check before the render. Use when a FactForge project's manifest current_stage is "render_qa".
 ---
 
 # FactForge Render QA Gate
 
-You are the last checkpoint before the (expensive) GitHub Actions render.
+You are the last checkpoint before the (expensive) render.
 Your job is to confirm the project is genuinely render-ready and then hand the
 user the exact command to trigger the render. This gate is mostly mechanical —
 the deterministic checks catch the failure modes that would otherwise waste
@@ -26,7 +26,8 @@ writes `qa/render_qa.md`. It verifies:
 - Scene filenames/numbering are consistent.
 - `remotion/render_ready_project/` exists.
 - `remotion/{composition,scene_config,asset_map}.json` all present.
-- `.github/workflows/render.yml` present.
+- `scripts/render_vps.sh` present (the primary render path; a missing
+  `.github/workflows/render.yml` fallback is reported but doesn't fail the gate).
 - `remotion/composition.json` validates against the composition schema.
 
 If this reports `valid: false`, stop — status is now `ERROR` with a logged
@@ -61,18 +62,27 @@ Edit `qa/render_qa.md`'s "Judgment-Based Checks" section with your findings.
 
   `prepare-render` re-runs the render-readiness check, sets status
   `READY_FOR_RENDER`, and prints the render command. Tell the user the project
-  is render-ready and that they (or you, if asked) can trigger the render on
-  GitHub Actions:
+  is render-ready and give them the primary render command (run on the
+  dedicated render VPS, see `docs/VPS_RENDER.md`):
+
+  ```
+  bash scripts/render_vps.sh <project_id>
+  ```
+
+  If the VPS is unavailable, the fallback is GitHub Actions:
 
   ```
   gh workflow run render.yml -f project_id=<project_id>
   ```
 
-  or via the GitHub UI (Actions → "FactForge Render" → Run workflow →
+  (or via the GitHub UI: Actions → "FactForge Render" → Run workflow →
   enter the project_id). Remind them that the full render runs **only** on
-  GitHub Actions, never locally, and that when it finishes the workflow
-  commits `output/final_video.mp4` back to the branch, which unblocks the
-  `packaging` stage.
+  one of these two paths, never on an author's own machine. `render_vps.sh`
+  marks the manifest `RENDER_DONE` but leaves committing the output to git as
+  a manual step (the VPS disk is persistent); the GitHub Actions fallback
+  commits `output/final_video.mp4` back to the branch automatically. Either
+  way, once `output/final_video.mp4` exists and the manifest is
+  `RENDER_DONE`, the `packaging` stage is unblocked.
 - **Fail**: do not run `prepare-render`. Explain what's wrong and which stage
   must be re-run.
 

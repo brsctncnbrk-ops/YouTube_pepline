@@ -38,8 +38,9 @@ Convert the storyboard's second-based timings to frames using `fps`:
   transition values render as hard cuts).
 - `image_asset` = `assets/images/<scene_id>.png`, `audio_asset` =
   `assets/audio/final_voice.mp3` — **always relative paths, never absolute**
-  (the render happens on GitHub Actions, not a local machine; absolute paths
-  are rejected by `validate.mjs paths` and the schema regexes).
+  (the render happens on the render VPS or GitHub Actions, never on an
+  author's own machine; absolute paths are rejected by `validate.mjs paths`
+  and the schema regexes).
 - Build the top-level `asset_map` object keyed by `scene_id`, each
   `{ "image": "assets/images/<scene_id>.png", "audio_offset_sec": <scene.start_sec> }`.
 - `render` = `{ "codec", "crf", "output_filename": "final_video.mp4" }` from

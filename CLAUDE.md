@@ -17,7 +17,9 @@ QA gate, per spec), `factforge-visual-prompt`/`-visual-qa`
 (`storyboard`→`visual_qa`). Phase 4 (Production + render):
 `factforge-director` (no QA gate), `factforge-motion`, `factforge-editor`,
 `factforge-render-qa` (`director`→`render_qa`), plus `templates/remotion/`,
-`scripts/remotion_build.mjs`, and `.github/workflows/render.yml`. Phase 5
+`scripts/remotion_build.mjs`, the primary render path `scripts/render_vps.sh`
+(see `docs/VPS_RENDER.md`), and `.github/workflows/render.yml` (fallback
+render path). Phase 5
 (Packaging + final QA): `factforge-packaging` (no QA gate, per spec; authors
 `packaging/packaging.json` + the six deliverable files) and
 `factforge-final-qa` (validates the package, confirms deliverables, marks the
@@ -34,13 +36,16 @@ project `DONE`).
   copies the tiny config JSON into its `src/data/`, and refreshes
   `assets/asset_manifest.json`. Large binaries are referenced in place (the
   app's public dir points at the project root), never duplicated.
-- Full renders happen only via `.github/workflows/render.yml`
-  (`gh workflow run render.yml -f project_id=<id>`). Locally, `remotion
-  studio` and single-frame `remotion still` previews are fine; never a full
-  local render. The environment's Chromium is at
+- Full renders happen only via `scripts/render_vps.sh` on the dedicated
+  render VPS (primary — see `docs/VPS_RENDER.md`), or as a fallback via
+  `.github/workflows/render.yml` (`gh workflow run render.yml -f
+  project_id=<id>`). Locally, `remotion studio` and single-frame `remotion
+  still` previews are fine; never a full local render. In this agent
+  sandbox specifically, the environment's Chromium is at
   `/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell`
-  (pass `--browser-executable` to Remotion, since its own Chrome download host
-  is not in the egress allowlist).
+  (pass `--browser-executable` to Remotion for a local `remotion still`
+  check, since its own Chrome download host is not in the egress allowlist
+  here — the VPS and GitHub Actions provision their own Chromium instead).
 
 ## Ground rules for working in this repo
 
@@ -64,11 +69,12 @@ project `DONE`).
   repo size is a known concern across many videos over time.
 - All asset paths inside `remotion/*.json` files must be relative
   (`assets/images/scene_001.png`, never an absolute path or drive letter) —
-  the render runs on GitHub Actions, not the author's machine. This is
-  enforced by `validate.mjs paths` and the `composition.schema.json` regexes.
-- Full-duration Remotion renders happen only in GitHub Actions, never locally.
-  `remotion studio` (live preview) and single-frame sanity renders are fine
-  anywhere.
+  the render runs on the render VPS or GitHub Actions, not the author's
+  machine. This is enforced by `validate.mjs paths` and the
+  `composition.schema.json` regexes.
+- Full-duration Remotion renders happen only via `scripts/render_vps.sh`
+  (primary) or GitHub Actions (fallback), never locally. `remotion studio`
+  (live preview) and single-frame sanity renders are fine anywhere.
 
 ## Useful commands
 

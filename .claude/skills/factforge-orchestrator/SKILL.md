@@ -27,7 +27,7 @@ research -> research_qa -> script -> script_qa -> voice_script -> voice_qa
   -> storyboard -> storyboard_qa -> visual_style_bible -> visual_prompt -> visual_qa
   -> [GATE: every assets/images/scene_NNN.png referenced by storyboard.json must exist -> WAITING_FOR_IMAGES if not]
   -> director -> remotion -> editor -> render_qa
-  -> [external: GitHub Actions renders -> output/final_video.mp4]
+  -> [external: VPS renders (fallback: GitHub Actions) -> output/final_video.mp4]
   -> packaging -> final_qa -> DONE
 ```
 
@@ -38,11 +38,13 @@ stage rather than guessing.
 
 **Current build status**: All phases (1–5) are done — every pipeline stage
 from `research` through `final_qa` has a skill, plus the Remotion template
-(`templates/remotion/`) and the GitHub Actions render workflow
-(`.github/workflows/render.yml`). The full pipeline runs end to end: a video
-idea → research/script/voice → (record audio) → storyboard/style/prompts →
-(generate images) → director/motion/editor → render QA → GitHub Actions
-render → packaging → final QA → `DONE`.
+(`templates/remotion/`), the primary VPS render script
+(`scripts/render_vps.sh`, see `docs/VPS_RENDER.md`), and the GitHub Actions
+render workflow (`.github/workflows/render.yml`) kept as a fallback. The
+full pipeline runs end to end: a video idea → research/script/voice →
+(record audio) → storyboard/style/prompts → (generate images) →
+director/motion/editor → render QA → VPS (or GitHub Actions) render →
+packaging → final QA → `DONE`.
 
 ## Commands you must understand
 
@@ -56,7 +58,7 @@ render → packaging → final QA → `DONE`.
 | `resume` | Run `manifest_cli.mjs resume --project-id <id>`. |
 | `reset_stage <stage>` | Confirm with the user whether they also want `--force-clean` (deletes that stage's output files) before running `manifest_cli.mjs reset-stage --project-id <id> --stage <stage> [--force-clean]` — this is a destructive option, so don't pass it unless the user asked for it or clearly wants a clean redo. |
 | `run_qa <gate>` | Every QA gate now has a matching skill (`factforge-research-qa`, `-script-qa`, `-voice-qa`, `-storyboard-qa`, `-visual-qa`, `-render-qa`, `-final-qa`) — invoke it (it runs the mechanical check itself as its first step). |
-| `prepare_render` | Prefer invoking `factforge-render-qa` (it runs the checks, records the QA verdict, then calls prepare-render). Running `manifest_cli.mjs prepare-render --project-id <id>` directly also works; if not ready, list the reasons plainly. On success it prints the `gh workflow run render.yml -f project_id=<id>` command. |
+| `prepare_render` | Prefer invoking `factforge-render-qa` (it runs the checks, records the QA verdict, then calls prepare-render). Running `manifest_cli.mjs prepare-render --project-id <id>` directly also works; if not ready, list the reasons plainly. On success it prints both the primary VPS command (`bash scripts/render_vps.sh <id>`) and the GitHub Actions fallback (`gh workflow run render.yml -f project_id=<id>`). |
 
 When a project_id isn't given and there's more than one project, ask which one
 (or run `status --all` first to show the options). When starting a brand-new
@@ -113,13 +115,22 @@ confirms they've generated and dropped in all the images (`ready`), run
 
 `render_qa` is the last stage with a skill for now. When it passes,
 `factforge-render-qa` sets the project to `READY_FOR_RENDER` and prints the
-render command. The full-duration render runs **only** on GitHub Actions,
-never locally — trigger it with `gh workflow run render.yml -f project_id=<id>`
-(or the GitHub UI). The workflow renders the Remotion project, commits
-`output/final_video.mp4` back to the branch, and flips the manifest to
-`RENDER_DONE`. Only a single-frame `remotion still` preview is acceptable
-locally; never run a full local render. Once `output/final_video.mp4` exists
-(and the manifest is `RENDER_DONE`), the `packaging` stage is unblocked: run
+render command. The full-duration render runs **only** on the dedicated
+render VPS (primary) or GitHub Actions (fallback), never on an author's own
+machine:
+
+- Primary: `bash scripts/render_vps.sh <id>` (see `docs/VPS_RENDER.md`).
+  Renders the Remotion project, marks the manifest `RENDER_DONE` via
+  `manifest_cli.mjs render-complete`, and optionally uploads a copy via
+  `rclone` — but does **not** commit/push the output to git (the VPS disk is
+  persistent, so that's a manual step if wanted).
+- Fallback: `gh workflow run render.yml -f project_id=<id>` (or the GitHub
+  UI). Renders the Remotion project, commits `output/final_video.mp4` back
+  to the branch automatically, and flips the manifest to `RENDER_DONE`.
+
+Only a single-frame `remotion still` preview is acceptable locally; never run
+a full local render. Once `output/final_video.mp4` exists (and the manifest
+is `RENDER_DONE`), the `packaging` stage is unblocked: run
 `factforge-packaging`, then `factforge-final-qa`. When final QA passes, the
 project is `DONE` and the deliverables to upload are `output/final_video.mp4`
 plus the `packaging/` files.

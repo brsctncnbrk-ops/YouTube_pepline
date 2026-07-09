@@ -75,7 +75,7 @@
     "paused": { "type": "boolean" },
     "render": {
       "type": "object",
-      "description": "Set by manifest_cli.mjs render-complete after a successful GitHub Actions render.",
+      "description": "Set by manifest_cli.mjs render-complete after a successful render (VPS or GitHub Actions fallback).",
       "additionalProperties": false,
       "properties": {
         "output": { "type": "string" },

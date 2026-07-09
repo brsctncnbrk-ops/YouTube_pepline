@@ -68,15 +68,18 @@ covering `director` through `render_qa`, plus the render infrastructure:
   sequence from the per-project config data (camera motions, transitions,
   text overlays); large assets are referenced in place, never duplicated
 - `scripts/remotion_build.mjs` — `derive-configs` and `build-project` helpers
+- `scripts/render_vps.sh` — the primary render path, run on the dedicated
+  render VPS (see `docs/VPS_RENDER.md`); marks the manifest `RENDER_DONE`
 - `.github/workflows/render.yml` — `workflow_dispatch` render on GitHub
-  Actions that commits `output/final_video.mp4` back and marks the manifest
-  `RENDER_DONE`
+  Actions, kept as a fallback path, that commits `output/final_video.mp4`
+  back and marks the manifest `RENDER_DONE`
 
 A project can now continue past the images gate all the way to a rendered
-video: director → motion → editor → render QA → `READY_FOR_RENDER` → trigger
-`render.yml` on GitHub Actions → `output/final_video.mp4`. The full render
-runs **only** on GitHub Actions; locally, `remotion studio` and single-frame
-`remotion still` previews are fine, but never a full local render.
+video: director → motion → editor → render QA → `READY_FOR_RENDER` → render
+via `scripts/render_vps.sh` (or, as a fallback, `render.yml` on GitHub
+Actions) → `output/final_video.mp4`. The full render runs **only** on one of
+these two paths; locally, `remotion studio` and single-frame `remotion
+still` previews are fine, but never a full local render.
 
 **Phase 5 (Packaging + final QA) — done.** This phase built the last two
 skills, completing the pipeline:
@@ -91,9 +94,9 @@ skills, completing the pipeline:
 **The pipeline is now complete end to end.** A project can go from a video
 idea all the way to a rendered, packaged, publish-ready video: research →
 script → voice → (record audio) → storyboard → style → prompts → (generate
-images) → director → motion → editor → render QA → GitHub Actions render →
-packaging → final QA → `DONE`. The deliverables to upload are
-`output/final_video.mp4` plus the `packaging/` files.
+images) → director → motion → editor → render QA → VPS render (fallback:
+GitHub Actions) → packaging → final QA → `DONE`. The deliverables to upload
+are `output/final_video.mp4` plus the `packaging/` files.
 
 ## Quickstart
 
@@ -126,7 +129,8 @@ See `docs/COMMANDS.md` for the full command reference and
 
 ```
 .claude/skills/                           the Orchestrator + all pipeline-stage skills
-.github/workflows/render.yml              GitHub Actions render (workflow_dispatch)
+scripts/render_vps.sh                     primary render path (dedicated VPS)
+.github/workflows/render.yml              GitHub Actions render (fallback, workflow_dispatch)
 schemas/                                  JSON schemas (source of truth; copied into each project at scaffold time)
 scripts/                                  manifest_cli.mjs, validate.mjs, scaffold_project.mjs, remotion_build.mjs, shared lib
 templates/project/                        empty skeleton stamped into projects/<id>/

@@ -8,7 +8,7 @@ research -> research_qa -> script -> script_qa -> voice_script -> voice_qa
   -> storyboard -> storyboard_qa -> visual_style_bible -> visual_prompt -> visual_qa
   --[GATE: images]--
   -> director -> remotion -> editor -> render_qa
-  --[external: GitHub Actions render]--
+  --[external: VPS render (fallback: GitHub Actions)]--
   -> packaging -> final_qa -> DONE
 ```
 
@@ -33,9 +33,9 @@ stage — it sequences the rest.
 | `WAITING_FOR_AUDIO` | Blocked until the human drops `assets/audio/final_voice.mp3` in place (ElevenLabs is manual). |
 | `WAITING_FOR_IMAGES` | Blocked until every `assets/images/scene_NNN.png` referenced by `storyboard.json` exists (Leonardo AI is manual). |
 | `WAITING_FOR_USER_APPROVAL` | Reserved for a future explicit human sign-off step. |
-| `READY_FOR_RENDER` | `prepare-render` passed every render-readiness check; ready to dispatch `render.yml`. |
-| `RENDERING` | Reserved for in-flight render state (the workflow currently goes straight from `READY_FOR_RENDER` to `RENDER_DONE`). |
-| `RENDER_DONE` | The render workflow produced `output/final_video.mp4` and called `manifest_cli.mjs render-complete`. |
+| `READY_FOR_RENDER` | `prepare-render` passed every render-readiness check; ready to run `scripts/render_vps.sh` (or dispatch `render.yml` as a fallback). |
+| `RENDERING` | Reserved for in-flight render state (both render paths currently go straight from `READY_FOR_RENDER` to `RENDER_DONE`). |
+| `RENDER_DONE` | The render (VPS script or GitHub Actions workflow) produced `output/final_video.mp4` and called `manifest_cli.mjs render-complete`. |
 | `READY_FOR_FINAL_QA` | Reserved for post-render, pre-final-QA state (Phase 5). |
 | `READY_FOR_UPLOAD` | Reserved intermediate; `final_qa` completing goes straight to `DONE`. |
 | `DONE` | All 17 stages completed — the video and its YouTube package are publish-ready. |

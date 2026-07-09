@@ -318,9 +318,10 @@ async function cmdPrepareRender(args) {
 }
 
 /**
- * Called by the GitHub Actions render workflow after a successful render.
- * Sets status RENDER_DONE and records render metadata. Kept separate from
- * `advance` because the render is an external step, not one of STAGE_ORDER.
+ * Called by scripts/render_vps.sh or the GitHub Actions render workflow
+ * after a successful render. Sets status RENDER_DONE and records render
+ * metadata. Kept separate from `advance` because the render is an external
+ * step, not one of STAGE_ORDER.
  */
 async function cmdRenderComplete(args) {
   const { "project-id": projectId, "output-file": outputFile, duration } = args;
