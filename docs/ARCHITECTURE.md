@@ -71,18 +71,32 @@ skill" is enforced by code from day one, even before any content skill exists.
 `final_voice.mp3`, every `scene_NNN.png`, and `final_video.mp4` live directly
 in the project tree per the original spec, tracked via **Git LFS**
 (`.gitattributes`) to keep the repository's core history lightweight across
-many videos over time. GitHub Actions runners must `git lfs pull` before
-rendering or reading assets.
+many videos over time. Both the render VPS and GitHub Actions runners must
+`git lfs pull` before rendering or reading assets.
 
 ## Render discipline
 
-Full production renders happen only on GitHub Actions
-(`.github/workflows/render.yml`) — never locally. Locally, `remotion studio`
-(live preview) and single-frame `remotion still` sanity checks are fine; the
-full-duration `.mp4` render is not. This can't be mechanically enforced
-(nothing stops a developer running the full render command locally), so it's a
-documented convention: only the workflow's `manifest_cli.mjs render-complete`
-call is treated as authoritative for `RENDER_DONE`.
+Full production renders happen only via `scripts/render_vps.sh`, run on the
+dedicated render VPS (see `docs/VPS_RENDER.md`) — never on an author's own
+machine. `.github/workflows/render.yml` stays in the repo as a fallback path
+if the VPS is unavailable. Locally, `remotion studio` (live preview) and
+single-frame `remotion still` sanity checks are fine; the full-duration
+`.mp4` render is not. This can't be mechanically enforced (nothing stops a
+developer running the full render command locally), so it's a documented
+convention: only a `manifest_cli.mjs render-complete` call made by one of
+these two render paths is treated as authoritative for `RENDER_DONE`.
+
+Headless Chromium is provisioned differently on each path: the VPS runs
+`npx remotion browser ensure` once during setup (see `docs/VPS_RENDER.md`),
+while GitHub Actions' `ubuntu-latest` runner lets Remotion download it
+per-run.
+
+Because the VPS's disk is persistent (unlike a GitHub Actions runner, which
+is wiped after every job), `render_vps.sh` does not commit or push its
+output back to git automatically — the GitHub Actions fallback still does,
+since that's its only way to persist output past the job. VPS output stays
+on local disk (plus an optional secondary `rclone` copy); pushing it into
+the repo's git history is a manual, separate step if wanted.
 
 ## Remotion composition data model
 

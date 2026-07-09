@@ -10,6 +10,7 @@ import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import {
   SCHEMAS_DIR,
+  REPO_ROOT,
   projectDir,
   pathExists,
   readJson,
@@ -248,7 +249,14 @@ export async function validateRenderReady({ projectId }) {
   checks.remotion_configs_complete = missingConfigs.length === 0;
   checks.missing_remotion_configs = missingConfigs;
 
-  const workflowPath = path.join(dir, "..", "..", ".github", "workflows", "render.yml");
+  // Primary render path: scripts/render_vps.sh must exist - this is a hard
+  // requirement, since it's what actually renders the video now.
+  const renderScriptPath = path.join(REPO_ROOT, "scripts", "render_vps.sh");
+  checks.render_script_present = await pathExists(renderScriptPath);
+
+  // Fallback render path (GitHub Actions). Informational only - its absence
+  // doesn't block render-readiness, since the VPS script is authoritative.
+  const workflowPath = path.join(REPO_ROOT, ".github", "workflows", "render.yml");
   checks.github_workflow_present = await pathExists(workflowPath);
 
   const reasons = [];
@@ -258,7 +266,7 @@ export async function validateRenderReady({ projectId }) {
   if (!checks.filenames.valid) reasons.push("BROKEN_ASSET_PATH: scene filename/numbering issues");
   if (!checks.render_ready_project_exists) reasons.push("RENDER_CONFIG_MISSING: remotion/render_ready_project/ not built yet");
   if (!checks.remotion_configs_complete) reasons.push("RENDER_CONFIG_MISSING: " + checks.missing_remotion_configs.join(", "));
-  if (!checks.github_workflow_present) reasons.push("RENDER_CONFIG_MISSING: .github/workflows/render.yml not present yet");
+  if (!checks.render_script_present) reasons.push("RENDER_CONFIG_MISSING: scripts/render_vps.sh not present");
 
   return { valid: reasons.length === 0, checks, reasons };
 }

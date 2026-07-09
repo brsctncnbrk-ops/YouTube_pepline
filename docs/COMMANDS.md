@@ -53,11 +53,16 @@ node scripts/remotion_build.mjs derive-configs --project-id 001-my-video
 node scripts/remotion_build.mjs build-project --project-id 001-my-video
 ```
 
-## Triggering a render (GitHub Actions only)
+## Triggering a render
 
 ```bash
+# Primary: render on the dedicated render VPS (see docs/VPS_RENDER.md)
+bash scripts/render_vps.sh 001-my-video
+
+# Fallback: render via GitHub Actions
 gh workflow run render.yml -f project_id=001-my-video
 ```
 
-The full-duration render never runs locally. Locally you may only do a live
-`remotion studio` preview or a single-frame `remotion still` sanity check.
+The full-duration render never runs on an author's own machine. Locally you
+may only do a live `remotion studio` preview or a single-frame `remotion
+still` sanity check.

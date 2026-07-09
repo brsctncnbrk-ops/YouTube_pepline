@@ -21,7 +21,7 @@ to `ERROR`. Entry shape:
 | `INVALID_JSON` | A file that should be JSON fails to parse. |
 | `SCHEMA_VALIDATION_FAILED` | A JSON file parses but fails its `schemas/*.schema.json` validation. |
 | `BROKEN_ASSET_PATH` | An absolute path, drive letter, `~`, or `..` traversal is found in a Remotion config file, or scene filenames/numbering don't match convention. |
-| `RENDER_CONFIG_MISSING` | `prepare-render` finds `remotion/render_ready_project/`, a `remotion/*.json` config, or `.github/workflows/render.yml` missing. |
+| `RENDER_CONFIG_MISSING` | `prepare-render` finds `remotion/render_ready_project/`, a `remotion/*.json` config, or `scripts/render_vps.sh` missing (`.github/workflows/render.yml` is checked too, but only as an informational fallback-path indicator — its absence alone doesn't trigger this code). |
 | `USER_APPROVAL_REQUIRED` | A command is missing required human input (e.g. `init` called without `--name`/`--idea`, or a project_id collision). |
 | `UNKNOWN_ERROR` | Anything not covered above (also the default fallback code). |
 

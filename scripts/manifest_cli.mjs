@@ -306,10 +306,11 @@ async function cmdPrepareRender(args) {
       ready: true,
       manifest_status: manifest.status,
       next_step:
-        "Trigger the render on GitHub Actions (never locally): " +
-        `gh workflow run render.yml -f project_id=${projectId}. ` +
-        "The workflow renders the Remotion project, commits output/final_video.mp4 back to the branch, " +
-        "and marks the manifest RENDER_DONE (via `manifest_cli.mjs render-complete`).",
+        "Render on the dedicated render VPS (never on a developer machine): " +
+        `bash scripts/render_vps.sh ${projectId} (see docs/VPS_RENDER.md). ` +
+        `Fallback via GitHub Actions: gh workflow run render.yml -f project_id=${projectId}. ` +
+        "Either path renders the Remotion project and marks the manifest RENDER_DONE " +
+        "(via `manifest_cli.mjs render-complete`).",
     };
   }
 

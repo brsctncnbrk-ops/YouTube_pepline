@@ -1,9 +1,11 @@
 name: FactForge Render
 
-# Full-duration Remotion renders happen only here, never on an author's
-# machine. Triggered explicitly (not on push) so a render only runs once the
-# render QA gate has confirmed the project is READY_FOR_RENDER - a push-based
-# trigger could fire on any incremental asset commit before that.
+# Fallback render path. The primary path is scripts/render_vps.sh, run on
+# the dedicated render VPS (see docs/VPS_RENDER.md) - never on an author's
+# own machine. This workflow stays wired up as a backup for when the VPS is
+# unavailable. Triggered explicitly (not on push) so a render only runs once
+# the render QA gate has confirmed the project is READY_FOR_RENDER - a
+# push-based trigger could fire on any incremental asset commit before that.
 on:
   workflow_dispatch:
     inputs:
