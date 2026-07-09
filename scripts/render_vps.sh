@@ -63,12 +63,18 @@ echo "==> Marking manifest RENDER_DONE"
 node scripts/manifest_cli.mjs render-complete --project-id "$PID" --output-file "output/final_video.mp4"
 
 echo "==> Secondary upload (rclone)"
-if [[ -n "${RCLONE_REMOTE:-}" ]]; then
-  RCLONE_PATH="${RCLONE_PATH:-factforge/$PID}"
-  rclone copy "$DEST_DIR/final_video.mp4" "$RCLONE_REMOTE:$RCLONE_PATH/"
-  echo "Uploaded to $RCLONE_REMOTE:$RCLONE_PATH/"
-else
+if [[ -z "${RCLONE_REMOTE:-}" ]]; then
   echo "RCLONE_REMOTE not set - skipping secondary upload. Set RCLONE_REMOTE (and optionally RCLONE_PATH) to enable it."
+elif ! command -v rclone >/dev/null 2>&1; then
+  echo "WARNING: RCLONE_REMOTE is set but the 'rclone' command isn't installed - skipping secondary upload." >&2
+  echo "The render itself succeeded and the manifest is already marked RENDER_DONE." >&2
+else
+  RCLONE_PATH="${RCLONE_PATH:-factforge/$PID}"
+  if rclone copy "$DEST_DIR/final_video.mp4" "$RCLONE_REMOTE:$RCLONE_PATH/"; then
+    echo "Uploaded to $RCLONE_REMOTE:$RCLONE_PATH/"
+  else
+    echo "WARNING: rclone upload failed - the render itself still succeeded (manifest is RENDER_DONE)." >&2
+  fi
 fi
 
 echo "==> Done"
