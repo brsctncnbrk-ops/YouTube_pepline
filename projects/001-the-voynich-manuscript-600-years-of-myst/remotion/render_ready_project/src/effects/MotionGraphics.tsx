@@ -131,20 +131,20 @@ function TimelineLayer({
 }
 
 /**
- * Schematic, not geographic - 7 continent/region-level blobs on a flattened
- * 1000x500 canvas, roughly positioned relative to each other. Not real
- * coastlines; good enough for a documentary-style "this happened around
- * here" beat, not a cartography tool.
+ * Human-readable names for the 7-region vocabulary. There is no attempt at
+ * an actual world map here (an earlier version drew 7 abstract rounded-rect
+ * "continents", which read as a meaningless grid of boxes at video scale,
+ * not as a map) - a location pin + region name reads unambiguously instead.
  */
-const REGIONS: { name: string; x: number; y: number; width: number; height: number; rx: number }[] = [
-  { name: "north_america", x: 60, y: 40, width: 220, height: 160, rx: 30 },
-  { name: "south_america", x: 180, y: 230, width: 130, height: 200, rx: 30 },
-  { name: "europe", x: 430, y: 40, width: 120, height: 90, rx: 20 },
-  { name: "africa", x: 430, y: 160, width: 150, height: 220, rx: 25 },
-  { name: "middle_east", x: 560, y: 140, width: 80, height: 70, rx: 15 },
-  { name: "asia", x: 620, y: 30, width: 320, height: 220, rx: 35 },
-  { name: "oceania", x: 780, y: 300, width: 160, height: 110, rx: 25 },
-];
+const REGION_LABELS: Record<string, string> = {
+  north_america: "North America",
+  south_america: "South America",
+  europe: "Europe",
+  africa: "Africa",
+  middle_east: "Middle East",
+  asia: "Asia",
+  oceania: "Oceania",
+};
 
 function MapHighlightLayer({ frame, params }: { frame: number; params: Record<string, number | string> }) {
   const region = str(params, "region", "");
@@ -152,52 +152,67 @@ function MapHighlightLayer({ frame, params }: { frame: number; params: Record<st
   const cx = num(params, "cx", 50);
   const cy = num(params, "cy", 46);
   const scale = num(params, "scale", 1);
-  // A single shared pulse, deterministic from frame - no per-instance
-  // randomness needed here (unlike particles/noise), since there's only
-  // ever one highlighted region per graphic.
-  const pulse = 0.6 + 0.4 * Math.sin(frame / 10);
+  const regionName = REGION_LABELS[region] ?? region;
+  // Gentle deterministic pulse on the pin icon - no per-instance randomness
+  // needed here (unlike particles/noise), since there's only ever one pin.
+  const pulse = 0.92 + 0.08 * Math.sin(frame / 12);
   return (
     <AbsoluteFill>
-      <svg
-        viewBox="-40 -40 1080 580"
-        style={{ position: "absolute", left: `${cx}%`, top: `${cy}%`, width: `${58 * scale}%`, transform: "translate(-50%, -50%)" }}
+      <div
+        style={{
+          position: "absolute",
+          left: `${cx}%`,
+          top: `${cy}%`,
+          transform: "translate(-50%, -50%)",
+          display: "flex",
+          alignItems: "center",
+          gap: `${0.9 * scale}rem`,
+          backgroundColor: "rgba(15,18,30,0.92)",
+          borderRadius: "0.9rem",
+          padding: `${0.9 * scale}rem ${1.3 * scale}rem`,
+        }}
       >
-        {/* Backing card so the schematic map reads as a floating overlay against any
-            background, including a fully-detailed photo, rather than washing out into it. */}
-        <rect x={-40} y={-40} width={1080} height={580} rx={28} fill="rgba(15,18,30,0.92)" />
-        {REGIONS.map((r) => {
-          const active = r.name === region;
-          return (
-            <rect
-              key={r.name}
-              x={r.x}
-              y={r.y}
-              width={r.width}
-              height={r.height}
-              rx={r.rx}
-              fill={active ? "rgba(255,196,84,1)" : "rgba(220,228,238,0.4)"}
-              opacity={active ? pulse : 1}
-            />
-          );
-        })}
-      </svg>
-      {label ? (
-        <div
-          style={{
-            position: "absolute",
-            left: `${cx}%`,
-            top: `${cy + 30 * scale}%`,
-            transform: "translate(-50%, 0)",
-            color: "#f5efe0",
-            fontFamily: "Arial, Helvetica, sans-serif",
-            fontWeight: 700,
-            fontSize: "1.6rem",
-            textShadow: TEXT_SHADOW,
-          }}
-        >
-          {label}
+        <svg width={38 * scale} height={38 * scale} viewBox="0 0 24 24" style={{ transform: `scale(${pulse})`, flexShrink: 0 }}>
+          <path
+            d="M12 2C7.6 2 4 5.6 4 10c0 5.5 7 11.5 7.3 11.8.2.2.5.3.7.3s.5-.1.7-.3C13 21.5 20 15.5 20 10c0-4.4-3.6-8-8-8z"
+            fill={ACCENT}
+            stroke="rgba(15,18,30,0.6)"
+            strokeWidth={0.6}
+          />
+          <circle cx={12} cy={10} r={3.4} fill="rgba(15,18,30,0.9)" />
+        </svg>
+        <div>
+          {regionName ? (
+            <div
+              style={{
+                color: "#f5efe0",
+                fontFamily: "Arial, Helvetica, sans-serif",
+                fontWeight: 800,
+                fontSize: `${1.55 * scale}rem`,
+                textShadow: TEXT_SHADOW,
+                lineHeight: 1.1,
+              }}
+            >
+              {regionName}
+            </div>
+          ) : null}
+          {label ? (
+            <div
+              style={{
+                color: "#f5efe0",
+                fontFamily: "Arial, Helvetica, sans-serif",
+                fontWeight: 600,
+                fontSize: `${1.05 * scale}rem`,
+                textShadow: TEXT_SHADOW,
+                marginTop: "0.2em",
+                opacity: 0.9,
+              }}
+            >
+              {label}
+            </div>
+          ) : null}
         </div>
-      ) : null}
+      </div>
     </AbsoluteFill>
   );
 }
@@ -235,6 +250,117 @@ function ArrowCalloutLayer({ frame, params }: { frame: number; params: Record<st
   );
 }
 
+function LikePromptLayer({
+  frame,
+  durationInFrames,
+  params,
+}: {
+  frame: number;
+  durationInFrames: number;
+  params: Record<string, number | string>;
+}) {
+  const cx = num(params, "cx", 80);
+  const cy = num(params, "cy", 18);
+  const label = str(params, "label", "Like this video");
+  const introFrames = Math.min(18, Math.max(1, Math.round(durationInFrames * 0.3)));
+  const reveal = interpolate(frame, [0, introFrames], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // Deterministic overshoot-then-settle bounce for the entrance, then a gentle idle pulse - no spring dependency needed.
+  const bounce = interpolate(frame, [0, introFrames * 0.6, introFrames], [0.4, 1.18, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const idlePulse = 1 + 0.04 * Math.sin(frame / 8);
+  const scale = frame < introFrames ? bounce : idlePulse;
+  return (
+    <AbsoluteFill>
+      <div style={{ position: "absolute", left: `${cx}%`, top: `${cy}%`, transform: "translate(-50%, -50%)", opacity: reveal, textAlign: "center" }}>
+        <svg width="72" height="72" viewBox="0 0 24 24" style={{ transform: `scale(${scale})` }}>
+          <path
+            d="M2 21h3V10H2v11zm19-10c0-1.1-.9-2-2-2h-5.6l.8-4.1.03-.32c0-.42-.17-.8-.44-1.08L13.17 2 7.6 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h8c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L21 11z"
+            fill={ACCENT}
+            stroke="rgba(15,18,30,0.65)"
+            strokeWidth={0.4}
+          />
+        </svg>
+        <div
+          style={{
+            marginTop: "0.35em",
+            color: "#f5efe0",
+            fontFamily: "Arial, Helvetica, sans-serif",
+            fontWeight: 800,
+            fontSize: "1.35rem",
+            textShadow: TEXT_SHADOW,
+            backgroundColor: "rgba(15,18,30,0.72)",
+            padding: "0.25em 0.7em",
+            borderRadius: "0.5em",
+          }}
+        >
+          {label}
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
+}
+
+function SubscribePromptLayer({
+  frame,
+  durationInFrames,
+  params,
+}: {
+  frame: number;
+  durationInFrames: number;
+  params: Record<string, number | string>;
+}) {
+  const cx = num(params, "cx", 50);
+  const cy = num(params, "cy", 16);
+  const label = str(params, "label", "Subscribe");
+  const introFrames = Math.min(18, Math.max(1, Math.round(durationInFrames * 0.25)));
+  const reveal = interpolate(frame, [0, introFrames], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const rise = interpolate(frame, [0, introFrames], [16, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // Bell "ring": a few damped oscillations right after the entrance, then still - deterministic from frame.
+  const ringT = Math.max(0, frame - introFrames);
+  const ring = Math.sin(ringT / 3) * Math.exp(-ringT / 20) * 14;
+  return (
+    <AbsoluteFill>
+      <div
+        style={{
+          position: "absolute",
+          left: `${cx}%`,
+          top: `${cy}%`,
+          transform: `translate(-50%, -50%) translateY(${rise}px)`,
+          opacity: reveal,
+          display: "flex",
+          alignItems: "center",
+          gap: "0.6rem",
+          backgroundColor: "#e6231e",
+          padding: "0.6em 1.3em",
+          borderRadius: "2em",
+          boxShadow: "0 4px 14px rgba(0,0,0,0.4)",
+        }}
+      >
+        <svg width="30" height="30" viewBox="0 0 24 24" style={{ transform: `rotate(${ring}deg)`, transformOrigin: "50% 10%" }}>
+          <path
+            d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"
+            fill="#ffffff"
+          />
+        </svg>
+        <div
+          style={{
+            color: "#ffffff",
+            fontFamily: "Arial, Helvetica, sans-serif",
+            fontWeight: 800,
+            fontSize: "1.5rem",
+            letterSpacing: "0.03em",
+            textTransform: "uppercase",
+          }}
+        >
+          {label}
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
+}
+
 type MotionGraphicsLayerProps = {
   motionGraphics: MotionGraphicsElement[];
   sceneId: string;
@@ -260,6 +386,10 @@ export const MotionGraphicsLayer: React.FC<MotionGraphicsLayerProps> = ({ motion
             return <MapHighlightLayer key={key} frame={frame} params={params} />;
           case "arrow_callout":
             return <ArrowCalloutLayer key={key} frame={frame} params={params} />;
+          case "like_prompt":
+            return <LikePromptLayer key={key} frame={frame} durationInFrames={durationInFrames} params={params} />;
+          case "subscribe_prompt":
+            return <SubscribePromptLayer key={key} frame={frame} durationInFrames={durationInFrames} params={params} />;
           default:
             return null;
         }

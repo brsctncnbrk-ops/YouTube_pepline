@@ -122,7 +122,7 @@ by construction.
 ### scene_013 — Breaking the Code (WWII), first beat
 - **Pacing:** fast (punchy) — energy lift for the codebreaker reveal.
 - **Emotional beat:** determined, investigative.
-- **Camera motion:** `camera_shake` — sharper, faster jitter than any prior scene (`{"amplitude":1.2,"frequency":0.5}`).
+- **Camera motion:** `camera_shake` — a mild jitter for the codebreaker energy lift, tuned deliberately subtle so a sustained 30s take doesn't read as an earthquake (`{"amplitude":0.5,"frequency":0.25}`).
 - **Close/wide:** medium, codebreaker and machine both readable.
 - **Text animation:** none (the `timeline` motion graphic carries "1940s").
 - **Attention direction:** the cipher machine, then the analysis screen behind.

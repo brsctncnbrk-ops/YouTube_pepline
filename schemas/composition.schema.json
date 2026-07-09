@@ -84,7 +84,7 @@
               "properties": {
                 "type": {
                   "type": "string",
-                  "enum": ["counter", "progress_bar", "timeline", "map_highlight", "arrow_callout"]
+                  "enum": ["counter", "progress_bar", "timeline", "map_highlight", "arrow_callout", "like_prompt", "subscribe_prompt"]
                 },
                 "params": { "type": "object" }
               }

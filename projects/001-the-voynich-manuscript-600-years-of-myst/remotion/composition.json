@@ -101,7 +101,9 @@
       "text_overlay": null,
       "transition_in": "cut", "transition_out": "zoom_through",
       "overlay_effects": [],
-      "motion_graphics": []
+      "motion_graphics": [
+        { "type": "like_prompt", "params": {} }
+      ]
     },
     {
       "scene_id": "scene_012", "start_frame": 10569, "end_frame": 11574,
@@ -115,7 +117,7 @@
     {
       "scene_id": "scene_013", "start_frame": 11574, "end_frame": 12474,
       "image_asset": "assets/images/scene_013.png",
-      "camera_motion": { "type": "camera_shake", "params": { "amplitude": 1.2, "frequency": 0.5 } },
+      "camera_motion": { "type": "camera_shake", "params": { "amplitude": 0.5, "frequency": 0.25 } },
       "text_overlay": null,
       "transition_in": "blur", "transition_out": "cut",
       "overlay_effects": [],
@@ -186,7 +188,9 @@
       "text_overlay": null,
       "transition_in": "cut", "transition_out": "fade",
       "overlay_effects": [{ "type": "vignette", "params": { "strength": 0.5 } }],
-      "motion_graphics": []
+      "motion_graphics": [
+        { "type": "subscribe_prompt", "params": {} }
+      ]
     }
   ],
   "asset_map": {

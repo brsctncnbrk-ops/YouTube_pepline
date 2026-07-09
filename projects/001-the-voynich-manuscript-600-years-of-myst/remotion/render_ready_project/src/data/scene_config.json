@@ -228,7 +228,12 @@
       "transition_in": "cut",
       "transition_out": "zoom_through",
       "overlay_effects": [],
-      "motion_graphics": []
+      "motion_graphics": [
+        {
+          "type": "like_prompt",
+          "params": {}
+        }
+      ]
     },
     {
       "scene_id": "scene_012",
@@ -254,8 +259,8 @@
       "camera_motion": {
         "type": "camera_shake",
         "params": {
-          "amplitude": 1.2,
-          "frequency": 0.5
+          "amplitude": 0.5,
+          "frequency": 0.25
         }
       },
       "text_overlay": null,
@@ -412,7 +417,12 @@
           }
         }
       ],
-      "motion_graphics": []
+      "motion_graphics": [
+        {
+          "type": "subscribe_prompt",
+          "params": {}
+        }
+      ]
     }
   ],
   "captions": [

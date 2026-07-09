@@ -4,7 +4,10 @@ import { combineTransitionStyles, computeEntryStyle, computeExitStyle, lightFlas
 import { OverlayEffectsLayer, OverlayEffect } from "./effects/Overlays";
 import { MotionGraphicsLayer, MotionGraphicsElement } from "./effects/MotionGraphics";
 
-export type CameraMotion = { type: string; params: Record<string, number | string> };
+// params allows | undefined because TS infers a literal union type per-scene from the
+// imported scene_config.json, where params shapes differ by camera_motion.type (e.g.
+// {from,to} vs {magnitude}) - each variant's absent keys show up as `key?: undefined`.
+export type CameraMotion = { type: string; params: Record<string, number | string | undefined> };
 
 type SceneProps = {
   sceneId: string;
@@ -18,7 +21,7 @@ type SceneProps = {
   motionGraphics: MotionGraphicsElement[];
 };
 
-function num(params: Record<string, number | string>, key: string, fallback: number): number {
+function num(params: Record<string, number | string | undefined>, key: string, fallback: number): number {
   const v = params[key];
   return typeof v === "number" ? v : fallback;
 }
@@ -101,8 +104,8 @@ function computeTransform(motion: CameraMotion, progress: number, frame: number)
       return `translateX(${tx}%) translateY(${ty}%) rotate(${rot}deg) scale(1.06)`;
     }
     case "camera_shake": {
-      const amplitude = num(p, "amplitude", 1.3);
-      const frequency = num(p, "frequency", 0.5);
+      const amplitude = num(p, "amplitude", 0.5);
+      const frequency = num(p, "frequency", 0.25);
       const tx = Math.sin(frame * frequency) * amplitude;
       const ty = Math.sin(frame * frequency * 1.4 + 1) * amplitude * 0.7;
       const rot = Math.sin(frame * frequency * 1.6) * amplitude * 0.3;

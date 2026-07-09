@@ -114,7 +114,7 @@ for the transition and overlay implementations, both pure CSS/SVG with no
 new binary assets.
 
 `motion_graphics` (counter/progress_bar/timeline/map_highlight/
-arrow_callout) follows the identical pattern: an optional per-scene array in
+arrow_callout/like_prompt/subscribe_prompt) follows the identical pattern: an optional per-scene array in
 `composition.json`, authored unilaterally by `factforge-motion`
 (`templates/remotion/src/effects/MotionGraphics.tsx`, also pure CSS/SVG, no
 new binary assets, not subject to the variety gate). Its primary data
@@ -122,8 +122,9 @@ source is a new optional `data_point` field on each storyboard scene
 (`schemas/storyboard.schema.json`) — a number, percentage, date, or region
 pulled from `research/research.json`'s facts — which `factforge-motion`
 translates into the matching graphic type; `map_highlight` renders a
-schematic 7-region world outline embedded in the component, not real
-coastlines. `direction/direction_plan.md` may also carry non-binding
+location pin with the region's name and label, not an actual map (an
+earlier per-region abstract-shapes rendering read as an unlabeled grid of
+boxes at video scale, replaced for that reason). `direction/direction_plan.md` may also carry non-binding
 tempo/motion-graphics cues, but stays free-text markdown with no schema or
 QA gate of its own — `factforge-motion` remains the sole binding authority
 over `composition.json`.

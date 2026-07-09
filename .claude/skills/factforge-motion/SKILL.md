@@ -46,7 +46,7 @@ Convert the storyboard's second-based timings to frames using `fps`:
   - `crane_up`/`crane_down`: `{ magnitude }` (9), `{ tilt }` (5) — vertical move with a perspective tilt.
   - `orbit`: `{ angle }` (13), `{ pulse }` (0.05) — bounded rotateY oscillation + scale pulse, the only non-monotonic rotation.
   - `handheld_simulation`: `{ amplitude }` (2.2), `{ frequency }` (0.06) — slow, organic layered-sine jitter, deterministic from `frame` (no randomness needed).
-  - `camera_shake`: `{ amplitude }` (1.3), `{ frequency }` (0.5) — same jitter technique, sharper/faster than handheld by default.
+  - `camera_shake`: `{ amplitude }` (0.5), `{ frequency }` (0.25) — same jitter technique, sharper/faster than handheld by default, but deliberately mild: at these magnitudes it's a full-frequency oscillation, so amplitude/frequency above ~0.6/0.3 reads as violent shaking rather than a documentary energy cue, especially held over 20s+.
   - `rack_focus`: `{ max_blur }` (6), `{ peak }` (0.5, 0.15-0.85) — a mid-scene blur pulse, distinct from the edge-only transition blur.
   - `tilt_up`/`tilt_down`: `{ angle }` (10), `{ magnitude }` (5) — like `pan_up`/`pan_down` but with an added rotateX for a true camera-pitch feel.
   - `rotation`: `{ angle }` (5) — a slow Z-axis roll.
@@ -75,7 +75,7 @@ Convert the storyboard's second-based timings to frames using `fps`:
   - `particles` — `params: { count }` (default 18), small drifting dots.
   Leave `params` as `{}` to accept the defaults.
 - Optionally set `motion_graphics` per scene — an array of
-  `{ "type": "counter"|"progress_bar"|"timeline"|"map_highlight"|"arrow_callout", "params": {...} }`.
+  `{ "type": "counter"|"progress_bar"|"timeline"|"map_highlight"|"arrow_callout"|"like_prompt"|"subscribe_prompt", "params": {...} }`.
   This is authored entirely by you; it is **not** subject to the
   consecutive-repeat gate. Use it sparingly, only where it adds real
   information — not as decoration:
@@ -104,9 +104,20 @@ Convert the storyboard's second-based timings to frames using `fps`:
     `timeline: { date, label?, cx?, cy? }`,
     `map_highlight: { region, label?, cx?, cy?, scale? }` where `region` is
     one of `north_america`, `south_america`, `europe`, `africa`,
-    `middle_east`, `asia`, `oceania` (a schematic region-level map, not
-    accurate coastlines — good for "this happened around here", not precise
-    geography).
+    `middle_east`, `asia`, `oceania` — rendered as a location pin with the
+    region's name and your `label` beneath it, not an actual map (an
+    earlier abstract-shapes-per-region rendering read as an unlabeled grid
+    of boxes at video scale, not as geography, so it was replaced).
+  - `like_prompt`/`subscribe_prompt` have no `data_point` counterpart either
+    — pure engagement cues, entirely your call, used at most once each per
+    video. `like_prompt: { label?, cx?, cy? }` (default label "Like this
+    video", positioned top-right by default) — place it around the video's
+    midpoint, ideally over a visually calm scene with no other overlay.
+    `subscribe_prompt: { label?, cx?, cy? }` (default label "Subscribe",
+    positioned top-center by default) — place it on the final scene only,
+    toward the end. Both default to the top of frame specifically to stay
+    clear of the caption bar, which runs along the bottom for nearly the
+    entire video; don't move them low enough to collide with it.
 - `image_asset` = `assets/images/<scene_id>.png`, `audio_asset` =
   `assets/audio/final_voice.mp3` — **always relative paths, never absolute**
   (the render happens on GitHub Actions, not a local machine; absolute paths
