@@ -28,11 +28,11 @@
   "required_files": [],
   "errors": [],
   "last_successful_stage": "packaging",
-  "last_updated": "2026-07-08T23:01:25.924Z",
+  "last_updated": "2026-07-09T01:25:26.191Z",
   "paused": false,
   "render": {
     "output": "output/final_video.mp4",
-    "rendered_at": "2026-07-08T23:01:25.923Z",
+    "rendered_at": "2026-07-09T01:25:26.191Z",
     "duration_seconds": null
   }
 }
