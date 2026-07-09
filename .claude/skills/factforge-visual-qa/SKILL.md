@@ -22,9 +22,12 @@ This validates `prompts/visual_prompts.json` against
 `schemas/visual_prompts.schema.json` and checks that every storyboard scene
 has exactly one matching entry with a correctly-patterned
 `image_filename` ("can these scenes be linked to the asset folder" — a
-name-mapping check, not a file-existence check). If this reports
-`valid: false`, stop — status is now `ERROR`. Report the failure; don't
-judgment-review structurally broken/mismatched data.
+name-mapping check, not a file-existence check). It also confirms every
+scene's `render_treatment` matches what the fixed `scene_type` →
+`render_treatment` table predicts (`validate.mjs style-treatment`,
+`STYLE_TREATMENT_MISMATCH` if not). If this reports `valid: false`, stop —
+status is now `ERROR`. Report the failure; don't judgment-review
+structurally broken/mismatched data.
 
 ## Step 2 — judgment-based checks
 
@@ -35,7 +38,10 @@ Read `prompts/visual_prompts.md`, `negative_prompts.md`, and
   boilerplate that ignores the scene's specific visual need)?
 - Do all scenes' main prompts share **one visual style universe** — do they
   all clearly incorporate the same style consistency token, or has drift
-  crept in (a scene that reads like a different aesthetic)?
+  crept in (a scene that reads like a different aesthetic)? This is
+  judgment-only — the mechanical check above only catches `render_treatment`
+  mismatches against the fixed table, not prose drift in how the style
+  token itself is woven in.
 - Are negative prompts present and meaningful (not just a copy-pasted
   generic list with nothing scene-specific where it would help)?
 - Are Leonardo settings specified and reasonable (aspect ratio matches the

@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "research.schema.json",
+  "title": "FactForge Research Output",
+  "type": "object",
+  "required": [
+    "project_id",
+    "video_idea",
+    "target_duration_sec",
+    "target_audience",
+    "language",
+    "reference_channel_style",
+    "summary",
+    "key_facts",
+    "timeline",
+    "sources",
+    "open_questions",
+    "generated_at"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "project_id": { "type": "string" },
+    "video_idea": { "type": "string", "minLength": 1 },
+    "target_duration_sec": { "type": "integer", "minimum": 1 },
+    "target_audience": { "type": "string" },
+    "language": { "type": "string" },
+    "reference_channel_style": { "type": "string" },
+    "summary": { "type": "string", "minLength": 1 },
+    "key_facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["fact", "source_ref"],
+        "additionalProperties": false,
+        "properties": {
+          "fact": { "type": "string" },
+          "date": { "type": ["string", "null"] },
+          "source_ref": { "type": "string" }
+        }
+      }
+    },
+    "timeline": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "event", "source_ref"],
+        "additionalProperties": false,
+        "properties": {
+          "date": { "type": "string" },
+          "event": { "type": "string" },
+          "source_ref": { "type": "string" }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "url", "publisher", "accessed_date", "credibility_note"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "url": { "type": "string" },
+          "publisher": { "type": "string" },
+          "accessed_date": { "type": "string" },
+          "credibility_note": { "type": "string" }
+        }
+      }
+    },
+    "open_questions": { "type": "array", "items": { "type": "string" } },
+    "generated_at": { "type": "string" }
+  }
+}

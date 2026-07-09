@@ -1,0 +1,1 @@
+This book has been sitting unread in a vault for 600 years, and even WWII's best codebreakers couldn't crack it. Which theory do YOU believe: real language, invented language, cipher, or hoax? Drop your vote below. And if you want more deep dives like this, hit subscribe, more unsolved mysteries are on the way.

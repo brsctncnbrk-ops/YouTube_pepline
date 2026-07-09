@@ -93,10 +93,86 @@ drift. `factforge-editor` then runs `remotion_build.mjs build-project` to copy
 `templates/remotion/` into `remotion/render_ready_project/` and drop the tiny
 derived configs into its `src/data/`. The generic Remotion app renders a scene
 sequence from that data (per-scene image, camera motion, transitions, text
-overlay) — the skills only ever produce data, never React/TSX code. Large
-binaries (audio/images) are referenced in place via a public dir pointed at
-the per-project root, so LFS assets are never duplicated into the render
-project.
+overlay, optional overlay effects) — the skills only ever produce data, never
+React/TSX code. Large binaries (audio/images) are referenced in place via a
+public dir pointed at the per-project root, so LFS assets are never
+duplicated into the render project.
+
+Camera motion (`camera_motion.type`), transitions (`transition_in`/
+`transition_out`), and each storyboard scene's `scene_type` are all
+schema-enum-constrained (`schemas/composition.schema.json`,
+`schemas/storyboard.schema.json`). A dedicated mechanical gate —
+`validate.mjs scene-variety` (checked at `render_qa`, on
+`composition.json`) and `validate.mjs scene-type-variety` (checked at
+`storyboard_qa`, on `storyboard.json`) — rejects two consecutive scenes
+sharing the same `camera_motion.type`, `transition_in`, or `scene_type`
+(`SCENE_VARIETY_VIOLATION`), so visual monotony is caught before render
+rather than left to judgment. `overlay_effects` (glow/noise/vignette/
+particles, authored by `factforge-motion` alone) is optional per scene and
+is not subject to this repeat check — see `templates/remotion/src/effects/`
+for the transition and overlay implementations, both pure CSS/SVG with no
+new binary assets.
+
+`motion_graphics` (counter/progress_bar/timeline/map_highlight/
+arrow_callout/like_prompt/subscribe_prompt) follows the identical pattern: an optional per-scene array in
+`composition.json`, authored unilaterally by `factforge-motion`
+(`templates/remotion/src/effects/MotionGraphics.tsx`, also pure CSS/SVG, no
+new binary assets, not subject to the variety gate). Its primary data
+source is a new optional `data_point` field on each storyboard scene
+(`schemas/storyboard.schema.json`) — a number, percentage, date, or region
+pulled from `research/research.json`'s facts — which `factforge-motion`
+translates into the matching graphic type; `map_highlight` renders a
+location pin with the region's name and label, not an actual map (an
+earlier per-region abstract-shapes rendering read as an unlabeled grid of
+boxes at video scale, replaced for that reason). `direction/direction_plan.md` may also carry non-binding
+tempo/motion-graphics cues, but stays free-text markdown with no schema or
+QA gate of its own — `factforge-motion` remains the sole binding authority
+over `composition.json`.
+
+`camera_motion.type` has 20 values total: the original 7 plus 13 pseudo-3D
+types (`dolly_left`/`dolly_right`, `crane_up`/`crane_down`, `orbit`,
+`handheld_simulation`, `camera_shake`, `rack_focus`, `tilt_up`/`tilt_down`,
+`rotation`, `perspective_shift`, `dynamic_zoom`) — all CSS transform tricks
+(`perspective`/`rotateX`/`rotateY`/`filter: blur`/deterministic sine-wave
+jitter) on the same single scene image in `Scene.tsx`'s `computeTransform`/
+`computeFilter`. There is no depth/parallax layer anywhere in the
+pipeline — `foreground_parallax`/`background_parallax` are deliberately
+unsupported, since real parallax would require a second, depth-separated
+image per scene (a structurally bigger change touching the Leonardo AI
+human workflow, the `images` gate, and multiple schemas) rather than a CSS
+trick on the existing single image.
+
+Each storyboard scene's `scene_type` also deterministically maps to one of
+6 `render_treatment` values (`scripts/lib/style.mjs`'s
+`SCENE_TYPE_TO_TREATMENT`, mirrored as an enum in
+`schemas/visual_prompts.schema.json` and as prose in `style/prompt_rules.md`),
+mechanically enforced by `validate.mjs style-treatment` at `visual_qa`
+(`STYLE_TREATMENT_MISMATCH`). This is orthogonal to the video's single
+global `style_token`, which stays mandatory/unchanged in every scene's
+`main_prompt` — `render_treatment` varies the rendering approach
+systematically by content type, `style_token` keeps the whole video in one
+coherent brand.
+
+Narration captions (`remotion/captions.json`) are a separate top-level
+timeline independent of scene boundaries — a caption can span a scene cut —
+so they are generated mechanically rather than authored: `scripts/
+generate_captions.mjs` parses `scripts/script.md`'s `## ... (M:SS-M:SS)`
+section headers and prose, rescales those (estimated) timestamps onto
+`composition.json`'s authoritative `duration_frames`/`fps`, and distributes
+short (~4-8 word) caption chunks proportionally by word count within each
+section — the same word-count-proportional method `script.md`'s own section
+timestamps already use, since no forced-alignment/ASR step exists anywhere
+in this pipeline. `validate.mjs captions` (checked at `render_qa`,
+`CAPTION_TIMING_INVALID`) enforces schema validity, chronological
+non-overlap, and a min/max on-screen duration per caption so captions stay
+readable without lingering. `remotion_build.mjs derive-configs` merges
+`captions.json`'s array into `scene_config.json`'s top-level `captions`
+field; `Video.tsx` renders them via `CaptionLayer`
+(`templates/remotion/src/effects/Captions.tsx`) as a global bottom-bar
+layer using the top-level timeline frame, not any per-scene `Sequence`'s
+local frame. Per-scene `text_overlay` (section titles like "Botanical
+Section") is anchored to the top of the frame instead of the bottom for
+this reason, so it never collides with the caption bar.
 
 ## Build phases (all complete)
 

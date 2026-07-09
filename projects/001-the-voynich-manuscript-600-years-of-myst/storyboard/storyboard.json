@@ -1,0 +1,212 @@
+{
+  "project_id": "001-the-voynich-manuscript-600-years-of-myst",
+  "target_duration_sec": 656,
+  "total_duration_sec": 656.2,
+  "scene_count": 20,
+  "scenes": [
+    {
+      "scene_id": "scene_001",
+      "start_sec": 0, "end_sec": 27.7, "duration_sec": 27.7,
+      "purpose": "Cold-open hook, first beat - the manuscript itself as an object of mystery.",
+      "visual_need": "An ancient open manuscript displayed in a lit glass case in a dark, candlelit archive room.",
+      "scene_type": "cinematic",
+      "on_screen_text": null,
+      "transition_in": "fade", "transition_out": "cut",
+      "voice_line_ref": "Somewhere in a climate-controlled vault at Yale University sits a book no one on Earth can read."
+    },
+    {
+      "scene_id": "scene_002",
+      "start_sec": 27.7, "end_sec": 55.4, "duration_sec": 27.7,
+      "purpose": "Cold-open hook, second beat - naming the manuscript and its six-hundred-year silence.",
+      "visual_need": "A closer reframe of the same lit glass case and manuscript, tighter on the case itself, the dark archive room falling into shadow around it.",
+      "scene_type": "macro_shot",
+      "on_screen_text": null,
+      "transition_in": "cut", "transition_out": "dissolve",
+      "voice_line_ref": "It's called the Voynich Manuscript. And for six hundred years, it has refused to give up its secret."
+    },
+    {
+      "scene_id": "scene_003",
+      "start_sec": 55.4, "end_sec": 91.4, "duration_sec": 36.0,
+      "purpose": "Establish where the manuscript is kept and its scholarly weight.",
+      "visual_need": "A grand old library/archive hall with a scholar examining bound manuscripts, another figure in the background.",
+      "scene_type": "documentary",
+      "on_screen_text": null,
+      "transition_in": "dissolve", "transition_out": "cut",
+      "voice_line_ref": "This is Beinecke M-S four-oh-eight, better known as the Voynich Manuscript."
+    },
+    {
+      "scene_id": "scene_004",
+      "start_sec": 91.4, "end_sec": 123.5, "duration_sec": 32.1,
+      "purpose": "Close, intimate look at the confident, fluid handwriting.",
+      "visual_need": "A gloved hand examining an open manuscript page dense with unknown flowing script, candlelight, window behind.",
+      "scene_type": "macro_shot",
+      "on_screen_text": null,
+      "transition_in": "cut", "transition_out": "zoom_through",
+      "voice_line_ref": "Run your finger over a page and the handwriting looks confident."
+    },
+    {
+      "scene_id": "scene_005",
+      "start_sec": 123.5, "end_sec": 159.5, "duration_sec": 36.0,
+      "purpose": "Introduce the botanical section's unidentifiable plant illustrations.",
+      "visual_need": "An open manuscript spread showing two detailed botanical illustrations of plants with roots, unlike known species.",
+      "scene_type": "hand_drawn_sketch",
+      "on_screen_text": "Botanical Section",
+      "transition_in": "zoom_through", "transition_out": "wipe",
+      "voice_line_ref": "There are pages of plants... except none of them match any known species."
+    },
+    {
+      "scene_id": "scene_006",
+      "start_sec": 159.5, "end_sec": 187.5, "duration_sec": 28.0,
+      "purpose": "Transition into the alchemical/vessel diagrams bridging botanical and pharmaceutical sections.",
+      "visual_need": "A manuscript page open to strange interconnected glass vessels, tubes, and basins with candles, alchemical apparatus styling.",
+      "scene_type": "diagram",
+      "on_screen_text": null,
+      "transition_in": "wipe", "transition_out": "dissolve",
+      "voice_line_ref": "diagrams that look almost alchemical."
+    },
+    {
+      "scene_id": "scene_007",
+      "start_sec": 187.5, "end_sec": 222.3, "duration_sec": 34.8,
+      "purpose": "Cover the pharmaceutical section explicitly labeled in the manuscript's visual logic.",
+      "visual_need": "A parchment page labeled 'Pharmaceutical Section' with dried roots, leaves, and a labeled jar, candlelit.",
+      "scene_type": "archive_documents",
+      "on_screen_text": "Pharmaceutical Section",
+      "transition_in": "dissolve", "transition_out": "cut",
+      "voice_line_ref": "a section labeled, in the manuscript's own visual logic, as pharmaceutical."
+    },
+    {
+      "scene_id": "scene_008",
+      "start_sec": 222.3, "end_sec": 253.8, "duration_sec": 31.5,
+      "purpose": "Cover the astronomical/astrological section's circular star charts - first half.",
+      "visual_need": "A circular astronomical diagram with concentric rings, sun, moon, and star symbols on an aged manuscript page.",
+      "scene_type": "diagram",
+      "on_screen_text": "Astronomical Section",
+      "transition_in": "cut", "transition_out": "slide",
+      "voice_line_ref": "the manuscript turns its attention to the heavens. Circular diagrams fill entire pages — concentric rings, tiny stars, symbols that could be zodiac signs, suns, moons."
+    },
+    {
+      "scene_id": "scene_009",
+      "start_sec": 253.8, "end_sec": 285.3, "duration_sec": 31.5,
+      "purpose": "Cover the astronomical/astrological section's circular star charts - second half, drawing the comparison to a real astronomical chart.",
+      "visual_need": "A closer reframe of the same circular astronomical diagram, tightly framed on the innermost rings and star symbols.",
+      "scene_type": "macro_shot",
+      "on_screen_text": null,
+      "transition_in": "slide", "transition_out": "dissolve",
+      "voice_line_ref": "It looks astronomical. It looks astrological. It looks, in other words, exactly like the kind of chart a medieval scholar would draw to map the sky."
+    },
+    {
+      "scene_id": "scene_010",
+      "start_sec": 285.3, "end_sec": 318.8, "duration_sec": 33.5,
+      "purpose": "Cover documented provenance - the Rudolf II purchase price and Roger Bacon attribution.",
+      "visual_need": "A bearded medieval scholar/monk in robes writing on parchment by candlelight at a wooden desk.",
+      "scene_type": "historical_painting",
+      "on_screen_text": null,
+      "transition_in": "dissolve", "transition_out": "cut",
+      "voice_line_ref": "So who made this thing? The earliest confirmed owner we know of is Emperor Rudolf the Second of Bohemia, who reportedly paid six hundred gold ducats for it.",
+      "data_point": { "type": "number", "value": "600", "label": "gold ducats paid by Emperor Rudolf II" }
+    },
+    {
+      "scene_id": "scene_011",
+      "start_sec": 318.8, "end_sec": 352.3, "duration_sec": 33.5,
+      "purpose": "Cover the collapse of the Roger Bacon attribution and what it reveals about how the book was perceived.",
+      "visual_need": "The same scribe's desk from a slightly different angle, closer on the writing hand and the parchment beneath it.",
+      "scene_type": "macro_shot",
+      "on_screen_text": null,
+      "transition_in": "cut", "transition_out": "zoom_through",
+      "voice_line_ref": "That attribution didn't hold up. But it tells you something: even four hundred years ago, people looked at this book and assumed it had to be the work of a genius, not a hoaxer."
+    },
+    {
+      "scene_id": "scene_012",
+      "start_sec": 352.3, "end_sec": 385.8, "duration_sec": 33.5,
+      "purpose": "Cover the 2011 radiocarbon dating result that fixed the manuscript's true age.",
+      "visual_need": "A wider pull-back of the same candlelit desk, the scribe now smaller in frame, more of the room and shadows visible.",
+      "scene_type": "cinematic",
+      "on_screen_text": null,
+      "transition_in": "zoom_through", "transition_out": "blur",
+      "voice_line_ref": "Radiocarbon dating in 2011 gave us a harder answer. The vellum itself dates to between 1404 and 1438."
+    },
+    {
+      "scene_id": "scene_013",
+      "start_sec": 385.8, "end_sec": 415.8, "duration_sec": 30.0,
+      "purpose": "Introduce the Friedmans' WWII-codebreaker-led cryptanalysis effort.",
+      "visual_need": "A 1940s-styled codebreaker at a desk with a cipher machine and a screen displaying analyzed manuscript text.",
+      "scene_type": "character_scene",
+      "on_screen_text": null,
+      "transition_in": "blur", "transition_out": "cut",
+      "voice_line_ref": "Which brings us to the people who've spent their lives trying to crack it. In the 1940s, two of the sharpest codebreakers alive turned their attention to the manuscript: William and Elizabeth Friedman.",
+      "data_point": { "type": "date", "value": "1940s", "label": "Friedmans begin their cryptanalysis" }
+    },
+    {
+      "scene_id": "scene_014",
+      "start_sec": 415.8, "end_sec": 445.8, "duration_sec": 30.0,
+      "purpose": "Establish the Friedmans' codebreaking credentials before their conclusion.",
+      "visual_need": "A closer reframe of the same 1940s codebreaker's desk, tightly framed on the cipher machine itself.",
+      "scene_type": "macro_shot",
+      "on_screen_text": null,
+      "transition_in": "cut", "transition_out": "light_flash",
+      "voice_line_ref": "This was a husband-and-wife team who had already helped break Imperial Japan's Purple cipher during World War Two. If anyone could crack a four-hundred-year-old puzzle, it was them."
+    },
+    {
+      "scene_id": "scene_015",
+      "start_sec": 445.8, "end_sec": 474.1, "duration_sec": 28.3,
+      "purpose": "Cover the Friedmans' conclusion that the text might be an invented language.",
+      "visual_need": "A hand-drawn word frequency graph chart overlaid on manuscript pages, candlelit.",
+      "scene_type": "data_visualization",
+      "on_screen_text": "Word Frequency Graph",
+      "transition_in": "light_flash", "transition_out": "dissolve",
+      "voice_line_ref": "They spent decades on it... They came to believe the text might be an entirely invented language — built from scratch, following its own internal rules."
+    },
+    {
+      "scene_id": "scene_016",
+      "start_sec": 474.1, "end_sec": 502.4, "duration_sec": 28.3,
+      "purpose": "Cover the statistical character-frequency evidence behind the invented-language theory.",
+      "visual_need": "A closer reframe of the same word frequency graph, tightly framed on the overlapping curves.",
+      "scene_type": "macro_shot",
+      "on_screen_text": null,
+      "transition_in": "dissolve", "transition_out": "cut",
+      "voice_line_ref": "the manuscript's alphabet has only about twenty-five distinct characters... Run a statistical analysis — plot word frequency the way linguists do for real languages — and the patterns are consistent, almost too consistent."
+    },
+    {
+      "scene_id": "scene_017",
+      "start_sec": 502.4, "end_sec": 537.4, "duration_sec": 35.0,
+      "purpose": "Visual accent on cryptographic/astronomical tools associated with historical decoding attempts.",
+      "visual_need": "An ornate wooden circular astrolabe-like device with cipher/zodiac markings, resting on manuscript pages beside a candle.",
+      "scene_type": "isometric",
+      "on_screen_text": null,
+      "transition_in": "cut", "transition_out": "slide",
+      "voice_line_ref": "Real ciphers tend to be messier than this."
+    },
+    {
+      "scene_id": "scene_018",
+      "start_sec": 537.4, "end_sec": 579.1, "duration_sec": 41.7,
+      "purpose": "Cover modern high-resolution/multispectral imaging analysis attempts.",
+      "visual_need": "A precision scanning instrument analyzing an open manuscript page on a workbench, candlelit, another open manuscript beside it.",
+      "scene_type": "macro_shot",
+      "on_screen_text": null,
+      "transition_in": "slide", "transition_out": "dissolve",
+      "voice_line_ref": "High-resolution imaging, multispectral scanning, and computational linguistics have all been pointed at these pages."
+    },
+    {
+      "scene_id": "scene_019",
+      "start_sec": 579.1, "end_sec": 617.6, "duration_sec": 38.5,
+      "purpose": "Closing shot, first half - where the manuscript resides today.",
+      "visual_need": "A grand columned museum/library courtyard at dusk with the manuscript displayed prominently in the foreground.",
+      "scene_type": "documentary",
+      "on_screen_text": null,
+      "transition_in": "dissolve", "transition_out": "cut",
+      "voice_line_ref": "Today, the Voynich Manuscript sits at Yale's Beinecke Rare Book and Manuscript Library, fully digitized, available for anyone in the world to examine, page by page, online.",
+      "data_point": { "type": "location", "value": "north_america", "label": "Beinecke Library, Yale University" }
+    },
+    {
+      "scene_id": "scene_020",
+      "start_sec": 617.6, "end_sec": 656.2, "duration_sec": 38.6,
+      "purpose": "Closing shot, second half - the open question left for the viewer.",
+      "visual_need": "A closer reframe of the same courtyard scene, tightly framed on the manuscript case in the foreground, columns and dusk light softly blurred behind.",
+      "scene_type": "macro_shot",
+      "on_screen_text": null,
+      "transition_in": "cut", "transition_out": "fade",
+      "voice_line_ref": "Six hundred years after it was written, in ink on calfskin, by someone who has never been identified, in a script no one has ever translated — the world's most mysterious book is still exactly that. If you had to guess... which theory would you bet on? Tell us in the comments."
+    }
+  ],
+  "generated_at": "2026-07-08T18:00:00.000Z"
+}

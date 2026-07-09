@@ -14,11 +14,14 @@ You review `factforge-storyboard`'s output before the visual pipeline
 node scripts/manifest_cli.mjs qa --project-id <project_id> --gate storyboard_qa
 ```
 
-This validates `storyboard.json` against `schemas/storyboard.schema.json`,
-confirms `assets/audio/final_voice.mp3` is present, and checks scene
-id/filename conventions (sequential `scene_NNN`, no gaps or duplicates). If
-this reports `valid: false`, stop — status is now `ERROR`. Report the
-failure; don't judgment-review structurally broken data.
+This validates `storyboard.json` against `schemas/storyboard.schema.json`
+(including the `scene_type` and `transition_in`/`transition_out` enums),
+confirms `assets/audio/final_voice.mp3` is present, checks scene
+id/filename conventions (sequential `scene_NNN`, no gaps or duplicates), and
+confirms no two consecutive scenes share the same `scene_type` (the
+`SCENE_VARIETY_VIOLATION` check). If this reports `valid: false`, stop —
+status is now `ERROR`. Report the failure; don't judgment-review
+structurally broken data.
 
 ## Step 2 — judgment-based checks
 

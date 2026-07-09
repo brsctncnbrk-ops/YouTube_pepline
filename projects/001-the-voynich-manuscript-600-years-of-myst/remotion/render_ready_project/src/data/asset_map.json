@@ -1,0 +1,85 @@
+{
+  "audio_asset": "assets/audio/final_voice.mp3",
+  "asset_map": {
+    "scene_001": {
+      "image": "assets/images/scene_001.png",
+      "audio_offset_sec": 0
+    },
+    "scene_002": {
+      "image": "assets/images/scene_002.png",
+      "audio_offset_sec": 27.7
+    },
+    "scene_003": {
+      "image": "assets/images/scene_003.png",
+      "audio_offset_sec": 55.4
+    },
+    "scene_004": {
+      "image": "assets/images/scene_004.png",
+      "audio_offset_sec": 91.4
+    },
+    "scene_005": {
+      "image": "assets/images/scene_005.png",
+      "audio_offset_sec": 123.5
+    },
+    "scene_006": {
+      "image": "assets/images/scene_006.png",
+      "audio_offset_sec": 159.5
+    },
+    "scene_007": {
+      "image": "assets/images/scene_007.png",
+      "audio_offset_sec": 187.5
+    },
+    "scene_008": {
+      "image": "assets/images/scene_008.png",
+      "audio_offset_sec": 222.3
+    },
+    "scene_009": {
+      "image": "assets/images/scene_009.png",
+      "audio_offset_sec": 253.8
+    },
+    "scene_010": {
+      "image": "assets/images/scene_010.png",
+      "audio_offset_sec": 285.3
+    },
+    "scene_011": {
+      "image": "assets/images/scene_011.png",
+      "audio_offset_sec": 318.8
+    },
+    "scene_012": {
+      "image": "assets/images/scene_012.png",
+      "audio_offset_sec": 352.3
+    },
+    "scene_013": {
+      "image": "assets/images/scene_013.png",
+      "audio_offset_sec": 385.8
+    },
+    "scene_014": {
+      "image": "assets/images/scene_014.png",
+      "audio_offset_sec": 415.8
+    },
+    "scene_015": {
+      "image": "assets/images/scene_015.png",
+      "audio_offset_sec": 445.8
+    },
+    "scene_016": {
+      "image": "assets/images/scene_016.png",
+      "audio_offset_sec": 474.1
+    },
+    "scene_017": {
+      "image": "assets/images/scene_017.png",
+      "audio_offset_sec": 502.4
+    },
+    "scene_018": {
+      "image": "assets/images/scene_018.png",
+      "audio_offset_sec": 537.4
+    },
+    "scene_019": {
+      "image": "assets/images/scene_019.png",
+      "audio_offset_sec": 579.1
+    },
+    "scene_020": {
+      "image": "assets/images/scene_020.png",
+      "audio_offset_sec": 617.6
+    }
+  }
+}

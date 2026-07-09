@@ -1,0 +1,1880 @@
+{
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "duration_frames": 19686,
+  "scenes": [
+    {
+      "scene_id": "scene_001",
+      "start_frame": 0,
+      "end_frame": 831,
+      "camera_motion": {
+        "type": "zoom_in",
+        "params": {
+          "from": 1,
+          "to": 1.16
+        }
+      },
+      "text_overlay": null,
+      "transition_in": "fade",
+      "transition_out": "cut",
+      "overlay_effects": [
+        {
+          "type": "vignette",
+          "params": {
+            "strength": 0.6
+          }
+        }
+      ],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_002",
+      "start_frame": 831,
+      "end_frame": 1662,
+      "camera_motion": {
+        "type": "dynamic_zoom",
+        "params": {
+          "from": 1,
+          "to": 1.22
+        }
+      },
+      "text_overlay": null,
+      "transition_in": "cut",
+      "transition_out": "dissolve",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_003",
+      "start_frame": 1662,
+      "end_frame": 2742,
+      "camera_motion": {
+        "type": "pan_right",
+        "params": {
+          "magnitude": 7
+        }
+      },
+      "text_overlay": null,
+      "transition_in": "dissolve",
+      "transition_out": "cut",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_004",
+      "start_frame": 2742,
+      "end_frame": 3705,
+      "camera_motion": {
+        "type": "rack_focus",
+        "params": {
+          "max_blur": 6,
+          "peak": 0.5
+        }
+      },
+      "text_overlay": null,
+      "transition_in": "cut",
+      "transition_out": "zoom_through",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_005",
+      "start_frame": 3705,
+      "end_frame": 4785,
+      "camera_motion": {
+        "type": "pan_left",
+        "params": {
+          "magnitude": 7
+        }
+      },
+      "text_overlay": "Botanical Section",
+      "transition_in": "zoom_through",
+      "transition_out": "wipe",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_006",
+      "start_frame": 4785,
+      "end_frame": 5625,
+      "camera_motion": {
+        "type": "tilt_up",
+        "params": {
+          "angle": 9,
+          "magnitude": 4
+        }
+      },
+      "text_overlay": null,
+      "transition_in": "wipe",
+      "transition_out": "dissolve",
+      "overlay_effects": [
+        {
+          "type": "glow",
+          "params": {
+            "intensity": 0.3,
+            "cx": 50,
+            "cy": 45
+          }
+        }
+      ],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_007",
+      "start_frame": 5625,
+      "end_frame": 6669,
+      "camera_motion": {
+        "type": "crane_down",
+        "params": {
+          "magnitude": 8,
+          "tilt": 4
+        }
+      },
+      "text_overlay": "Pharmaceutical Section",
+      "transition_in": "dissolve",
+      "transition_out": "cut",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_008",
+      "start_frame": 6669,
+      "end_frame": 7614,
+      "camera_motion": {
+        "type": "rotation",
+        "params": {
+          "angle": 4
+        }
+      },
+      "text_overlay": "Astronomical Section",
+      "transition_in": "cut",
+      "transition_out": "slide",
+      "overlay_effects": [
+        {
+          "type": "glow",
+          "params": {
+            "intensity": 0.35,
+            "cx": 50,
+            "cy": 50
+          }
+        }
+      ],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_009",
+      "start_frame": 7614,
+      "end_frame": 8559,
+      "camera_motion": {
+        "type": "orbit",
+        "params": {
+          "angle": 12,
+          "pulse": 0.04
+        }
+      },
+      "text_overlay": null,
+      "transition_in": "slide",
+      "transition_out": "dissolve",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_010",
+      "start_frame": 8559,
+      "end_frame": 9564,
+      "camera_motion": {
+        "type": "crane_up",
+        "params": {
+          "magnitude": 8,
+          "tilt": 4
+        }
+      },
+      "text_overlay": null,
+      "transition_in": "dissolve",
+      "transition_out": "cut",
+      "overlay_effects": [
+        {
+          "type": "vignette",
+          "params": {
+            "strength": 0.55
+          }
+        }
+      ],
+      "motion_graphics": [
+        {
+          "type": "counter",
+          "params": {
+            "from": 0,
+            "to": 600,
+            "label": "gold ducats paid by Emperor Rudolf II",
+            "cy": 78
+          }
+        }
+      ]
+    },
+    {
+      "scene_id": "scene_011",
+      "start_frame": 9564,
+      "end_frame": 10569,
+      "camera_motion": {
+        "type": "perspective_shift",
+        "params": {
+          "angle": 14,
+          "magnitude": 3
+        }
+      },
+      "text_overlay": null,
+      "transition_in": "cut",
+      "transition_out": "zoom_through",
+      "overlay_effects": [],
+      "motion_graphics": [
+        {
+          "type": "like_prompt",
+          "params": {}
+        }
+      ]
+    },
+    {
+      "scene_id": "scene_012",
+      "start_frame": 10569,
+      "end_frame": 11574,
+      "camera_motion": {
+        "type": "zoom_out",
+        "params": {
+          "from": 1.2,
+          "to": 1
+        }
+      },
+      "text_overlay": null,
+      "transition_in": "zoom_through",
+      "transition_out": "blur",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_013",
+      "start_frame": 11574,
+      "end_frame": 12474,
+      "camera_motion": {
+        "type": "camera_shake",
+        "params": {
+          "amplitude": 0.5,
+          "frequency": 0.25
+        }
+      },
+      "text_overlay": null,
+      "transition_in": "blur",
+      "transition_out": "cut",
+      "overlay_effects": [],
+      "motion_graphics": [
+        {
+          "type": "timeline",
+          "params": {
+            "date": "1940s",
+            "label": "Friedmans begin their cryptanalysis",
+            "cy": 80
+          }
+        }
+      ]
+    },
+    {
+      "scene_id": "scene_014",
+      "start_frame": 12474,
+      "end_frame": 13374,
+      "camera_motion": {
+        "type": "dolly_left",
+        "params": {
+          "magnitude": 9,
+          "zoom": 0.12
+        }
+      },
+      "text_overlay": null,
+      "transition_in": "cut",
+      "transition_out": "light_flash",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_015",
+      "start_frame": 13374,
+      "end_frame": 14223,
+      "camera_motion": {
+        "type": "pan_down",
+        "params": {
+          "magnitude": 7
+        }
+      },
+      "text_overlay": "Word Frequency Graph",
+      "transition_in": "light_flash",
+      "transition_out": "dissolve",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_016",
+      "start_frame": 14223,
+      "end_frame": 15072,
+      "camera_motion": {
+        "type": "handheld_simulation",
+        "params": {
+          "amplitude": 2,
+          "frequency": 0.06
+        }
+      },
+      "text_overlay": null,
+      "transition_in": "dissolve",
+      "transition_out": "cut",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_017",
+      "start_frame": 15072,
+      "end_frame": 16122,
+      "camera_motion": {
+        "type": "tilt_down",
+        "params": {
+          "angle": 9,
+          "magnitude": 4
+        }
+      },
+      "text_overlay": null,
+      "transition_in": "cut",
+      "transition_out": "slide",
+      "overlay_effects": [
+        {
+          "type": "glow",
+          "params": {
+            "intensity": 0.3,
+            "cx": 50,
+            "cy": 40
+          }
+        }
+      ],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_018",
+      "start_frame": 16122,
+      "end_frame": 17373,
+      "camera_motion": {
+        "type": "dolly_right",
+        "params": {
+          "magnitude": 9,
+          "zoom": 0.12
+        }
+      },
+      "text_overlay": null,
+      "transition_in": "slide",
+      "transition_out": "dissolve",
+      "overlay_effects": [],
+      "motion_graphics": []
+    },
+    {
+      "scene_id": "scene_019",
+      "start_frame": 17373,
+      "end_frame": 18529,
+      "camera_motion": {
+        "type": "static",
+        "params": {}
+      },
+      "text_overlay": null,
+      "transition_in": "dissolve",
+      "transition_out": "cut",
+      "overlay_effects": [],
+      "motion_graphics": [
+        {
+          "type": "map_highlight",
+          "params": {
+            "region": "north_america",
+            "label": "Beinecke Library, Yale University",
+            "cx": 78,
+            "cy": 22,
+            "scale": 0.62
+          }
+        }
+      ]
+    },
+    {
+      "scene_id": "scene_020",
+      "start_frame": 18529,
+      "end_frame": 19686,
+      "camera_motion": {
+        "type": "pan_up",
+        "params": {
+          "magnitude": 7
+        }
+      },
+      "text_overlay": null,
+      "transition_in": "cut",
+      "transition_out": "fade",
+      "overlay_effects": [
+        {
+          "type": "vignette",
+          "params": {
+            "strength": 0.5
+          }
+        }
+      ],
+      "motion_graphics": [
+        {
+          "type": "subscribe_prompt",
+          "params": {}
+        }
+      ]
+    }
+  ],
+  "captions": [
+    {
+      "text": "Somewhere in a",
+      "start_frame": 0,
+      "end_frame": 73
+    },
+    {
+      "text": "climate-controlled vault at",
+      "start_frame": 76,
+      "end_frame": 149
+    },
+    {
+      "text": "Yale University",
+      "start_frame": 152,
+      "end_frame": 200
+    },
+    {
+      "text": "sits a book",
+      "start_frame": 203,
+      "end_frame": 276
+    },
+    {
+      "text": "no one on",
+      "start_frame": 279,
+      "end_frame": 352
+    },
+    {
+      "text": "Earth can",
+      "start_frame": 355,
+      "end_frame": 403
+    },
+    {
+      "text": "read. Not because",
+      "start_frame": 406,
+      "end_frame": 479
+    },
+    {
+      "text": "it's written in",
+      "start_frame": 482,
+      "end_frame": 556
+    },
+    {
+      "text": "a lost",
+      "start_frame": 559,
+      "end_frame": 606
+    },
+    {
+      "text": "language — but",
+      "start_frame": 609,
+      "end_frame": 683
+    },
+    {
+      "text": "because after more",
+      "start_frame": 686,
+      "end_frame": 759
+    },
+    {
+      "text": "than a",
+      "start_frame": 762,
+      "end_frame": 810
+    },
+    {
+      "text": "hundred years",
+      "start_frame": 813,
+      "end_frame": 860
+    },
+    {
+      "text": "of trying,",
+      "start_frame": 863,
+      "end_frame": 911
+    },
+    {
+      "text": "nobody can even",
+      "start_frame": 914,
+      "end_frame": 987
+    },
+    {
+      "text": "agree on whether",
+      "start_frame": 990,
+      "end_frame": 1063
+    },
+    {
+      "text": "it's a",
+      "start_frame": 1066,
+      "end_frame": 1114
+    },
+    {
+      "text": "language at all.",
+      "start_frame": 1117,
+      "end_frame": 1190
+    },
+    {
+      "text": "It's called the",
+      "start_frame": 1193,
+      "end_frame": 1267
+    },
+    {
+      "text": "Voynich Manuscript.",
+      "start_frame": 1270,
+      "end_frame": 1317
+    },
+    {
+      "text": "And for six",
+      "start_frame": 1320,
+      "end_frame": 1394
+    },
+    {
+      "text": "hundred years,",
+      "start_frame": 1397,
+      "end_frame": 1444
+    },
+    {
+      "text": "it has refused",
+      "start_frame": 1447,
+      "end_frame": 1521
+    },
+    {
+      "text": "to give up",
+      "start_frame": 1524,
+      "end_frame": 1597
+    },
+    {
+      "text": "its secret.",
+      "start_frame": 1600,
+      "end_frame": 1648
+    },
+    {
+      "text": "This is Beinecke",
+      "start_frame": 1651,
+      "end_frame": 1725
+    },
+    {
+      "text": "MS 408 —",
+      "start_frame": 1728,
+      "end_frame": 1803
+    },
+    {
+      "text": "better known as",
+      "start_frame": 1806,
+      "end_frame": 1880
+    },
+    {
+      "text": "the Voynich Manuscript.",
+      "start_frame": 1883,
+      "end_frame": 1958
+    },
+    {
+      "text": "Roughly two hundred",
+      "start_frame": 1961,
+      "end_frame": 2036
+    },
+    {
+      "text": "and forty pages,",
+      "start_frame": 2039,
+      "end_frame": 2113
+    },
+    {
+      "text": "bound in vellum,",
+      "start_frame": 2116,
+      "end_frame": 2191
+    },
+    {
+      "text": "filled edge to",
+      "start_frame": 2194,
+      "end_frame": 2269
+    },
+    {
+      "text": "edge with flowing,",
+      "start_frame": 2272,
+      "end_frame": 2346
+    },
+    {
+      "text": "looping script that",
+      "start_frame": 2349,
+      "end_frame": 2424
+    },
+    {
+      "text": "matches no known",
+      "start_frame": 2427,
+      "end_frame": 2502
+    },
+    {
+      "text": "alphabet on",
+      "start_frame": 2505,
+      "end_frame": 2553
+    },
+    {
+      "text": "Earth. Run your",
+      "start_frame": 2556,
+      "end_frame": 2631
+    },
+    {
+      "text": "finger over a",
+      "start_frame": 2634,
+      "end_frame": 2709
+    },
+    {
+      "text": "page and",
+      "start_frame": 2712,
+      "end_frame": 2760
+    },
+    {
+      "text": "the handwriting looks",
+      "start_frame": 2763,
+      "end_frame": 2838
+    },
+    {
+      "text": "confident —",
+      "start_frame": 2841,
+      "end_frame": 2890
+    },
+    {
+      "text": "fluid, fast, like",
+      "start_frame": 2893,
+      "end_frame": 2968
+    },
+    {
+      "text": "someone who knew",
+      "start_frame": 2971,
+      "end_frame": 3045
+    },
+    {
+      "text": "exactly what",
+      "start_frame": 3048,
+      "end_frame": 3097
+    },
+    {
+      "text": "they were writing.",
+      "start_frame": 3100,
+      "end_frame": 3175
+    },
+    {
+      "text": "That's part of",
+      "start_frame": 3178,
+      "end_frame": 3252
+    },
+    {
+      "text": "what makes it",
+      "start_frame": 3255,
+      "end_frame": 3330
+    },
+    {
+      "text": "so unsettling.",
+      "start_frame": 3333,
+      "end_frame": 3382
+    },
+    {
+      "text": "This isn't",
+      "start_frame": 3385,
+      "end_frame": 3433
+    },
+    {
+      "text": "random scribbling.",
+      "start_frame": 3436,
+      "end_frame": 3485
+    },
+    {
+      "text": "Whoever wrote this",
+      "start_frame": 3488,
+      "end_frame": 3563
+    },
+    {
+      "text": "believed every single",
+      "start_frame": 3566,
+      "end_frame": 3640
+    },
+    {
+      "text": "line meant something.",
+      "start_frame": 3643,
+      "end_frame": 3718
+    },
+    {
+      "text": "Open it up,",
+      "start_frame": 3721,
+      "end_frame": 3794
+    },
+    {
+      "text": "and the manuscript",
+      "start_frame": 3797,
+      "end_frame": 3870
+    },
+    {
+      "text": "starts to look",
+      "start_frame": 3873,
+      "end_frame": 3946
+    },
+    {
+      "text": "almost familiar",
+      "start_frame": 3949,
+      "end_frame": 3997
+    },
+    {
+      "text": "— at first.",
+      "start_frame": 4000,
+      "end_frame": 4073
+    },
+    {
+      "text": "There are pages",
+      "start_frame": 4076,
+      "end_frame": 4149
+    },
+    {
+      "text": "of plants: roots,",
+      "start_frame": 4152,
+      "end_frame": 4225
+    },
+    {
+      "text": "leaves, stems, drawn",
+      "start_frame": 4228,
+      "end_frame": 4301
+    },
+    {
+      "text": "in careful detail.",
+      "start_frame": 4304,
+      "end_frame": 4377
+    },
+    {
+      "text": "Except none of",
+      "start_frame": 4380,
+      "end_frame": 4453
+    },
+    {
+      "text": "them match any",
+      "start_frame": 4456,
+      "end_frame": 4529
+    },
+    {
+      "text": "known species.",
+      "start_frame": 4532,
+      "end_frame": 4580
+    },
+    {
+      "text": "Not fully. Some look",
+      "start_frame": 4583,
+      "end_frame": 4682
+    },
+    {
+      "text": "like chimeras —",
+      "start_frame": 4685,
+      "end_frame": 4758
+    },
+    {
+      "text": "a leaf from",
+      "start_frame": 4761,
+      "end_frame": 4834
+    },
+    {
+      "text": "one plant fused",
+      "start_frame": 4837,
+      "end_frame": 4910
+    },
+    {
+      "text": "to the",
+      "start_frame": 4913,
+      "end_frame": 4960
+    },
+    {
+      "text": "root of another.",
+      "start_frame": 4963,
+      "end_frame": 5036
+    },
+    {
+      "text": "Turn further and",
+      "start_frame": 5039,
+      "end_frame": 5113
+    },
+    {
+      "text": "you hit diagrams",
+      "start_frame": 5116,
+      "end_frame": 5189
+    },
+    {
+      "text": "that look",
+      "start_frame": 5192,
+      "end_frame": 5239
+    },
+    {
+      "text": "almost alchemical: strange",
+      "start_frame": 5242,
+      "end_frame": 5315
+    },
+    {
+      "text": "interconnected vessels,",
+      "start_frame": 5318,
+      "end_frame": 5366
+    },
+    {
+      "text": "tubes, and basins,",
+      "start_frame": 5369,
+      "end_frame": 5442
+    },
+    {
+      "text": "rendered with the",
+      "start_frame": 5445,
+      "end_frame": 5518
+    },
+    {
+      "text": "same obsessive precision.",
+      "start_frame": 5521,
+      "end_frame": 5594
+    },
+    {
+      "text": "Then comes a",
+      "start_frame": 5597,
+      "end_frame": 5670
+    },
+    {
+      "text": "section labeled,",
+      "start_frame": 5673,
+      "end_frame": 5721
+    },
+    {
+      "text": "in the manuscript's",
+      "start_frame": 5724,
+      "end_frame": 5797
+    },
+    {
+      "text": "own visual logic,",
+      "start_frame": 5800,
+      "end_frame": 5873
+    },
+    {
+      "text": "as pharmaceutical —",
+      "start_frame": 5876,
+      "end_frame": 5949
+    },
+    {
+      "text": "rows of",
+      "start_frame": 5952,
+      "end_frame": 6000
+    },
+    {
+      "text": "labeled jars,",
+      "start_frame": 6003,
+      "end_frame": 6051
+    },
+    {
+      "text": "roots, and",
+      "start_frame": 6054,
+      "end_frame": 6101
+    },
+    {
+      "text": "plant parts,",
+      "start_frame": 6104,
+      "end_frame": 6152
+    },
+    {
+      "text": "laid out like",
+      "start_frame": 6155,
+      "end_frame": 6228
+    },
+    {
+      "text": "a medieval apothecary's",
+      "start_frame": 6231,
+      "end_frame": 6304
+    },
+    {
+      "text": "recipe book.",
+      "start_frame": 6307,
+      "end_frame": 6355
+    },
+    {
+      "text": "If this",
+      "start_frame": 6358,
+      "end_frame": 6406
+    },
+    {
+      "text": "is medicine,",
+      "start_frame": 6409,
+      "end_frame": 6456
+    },
+    {
+      "text": "it's medicine for",
+      "start_frame": 6459,
+      "end_frame": 6532
+    },
+    {
+      "text": "plants nobody has",
+      "start_frame": 6535,
+      "end_frame": 6608
+    },
+    {
+      "text": "ever identified.",
+      "start_frame": 6611,
+      "end_frame": 6659
+    },
+    {
+      "text": "And then, just",
+      "start_frame": 6662,
+      "end_frame": 6736
+    },
+    {
+      "text": "when you think",
+      "start_frame": 6739,
+      "end_frame": 6812
+    },
+    {
+      "text": "you've got",
+      "start_frame": 6815,
+      "end_frame": 6863
+    },
+    {
+      "text": "a handle",
+      "start_frame": 6866,
+      "end_frame": 6915
+    },
+    {
+      "text": "on it,",
+      "start_frame": 6918,
+      "end_frame": 6966
+    },
+    {
+      "text": "the manuscript turns",
+      "start_frame": 6969,
+      "end_frame": 7042
+    },
+    {
+      "text": "its attention to",
+      "start_frame": 7045,
+      "end_frame": 7119
+    },
+    {
+      "text": "the heavens.",
+      "start_frame": 7122,
+      "end_frame": 7170
+    },
+    {
+      "text": "Circular diagrams fill",
+      "start_frame": 7173,
+      "end_frame": 7247
+    },
+    {
+      "text": "entire pages —",
+      "start_frame": 7250,
+      "end_frame": 7323
+    },
+    {
+      "text": "concentric rings,",
+      "start_frame": 7326,
+      "end_frame": 7374
+    },
+    {
+      "text": "tiny stars,",
+      "start_frame": 7377,
+      "end_frame": 7425
+    },
+    {
+      "text": "symbols that could",
+      "start_frame": 7428,
+      "end_frame": 7502
+    },
+    {
+      "text": "be zodiac signs,",
+      "start_frame": 7505,
+      "end_frame": 7579
+    },
+    {
+      "text": "suns, moons. It",
+      "start_frame": 7582,
+      "end_frame": 7655
+    },
+    {
+      "text": "looks astronomical.",
+      "start_frame": 7658,
+      "end_frame": 7707
+    },
+    {
+      "text": "It looks astrological.",
+      "start_frame": 7710,
+      "end_frame": 7783
+    },
+    {
+      "text": "It looks, in",
+      "start_frame": 7786,
+      "end_frame": 7860
+    },
+    {
+      "text": "other words,",
+      "start_frame": 7863,
+      "end_frame": 7911
+    },
+    {
+      "text": "exactly like the",
+      "start_frame": 7914,
+      "end_frame": 7988
+    },
+    {
+      "text": "kind of chart",
+      "start_frame": 7991,
+      "end_frame": 8064
+    },
+    {
+      "text": "a medieval",
+      "start_frame": 8067,
+      "end_frame": 8115
+    },
+    {
+      "text": "scholar would draw",
+      "start_frame": 8118,
+      "end_frame": 8192
+    },
+    {
+      "text": "to map the",
+      "start_frame": 8195,
+      "end_frame": 8269
+    },
+    {
+      "text": "sky —",
+      "start_frame": 8272,
+      "end_frame": 8320
+    },
+    {
+      "text": "except we can't",
+      "start_frame": 8323,
+      "end_frame": 8396
+    },
+    {
+      "text": "read a single",
+      "start_frame": 8399,
+      "end_frame": 8473
+    },
+    {
+      "text": "label on it.",
+      "start_frame": 8476,
+      "end_frame": 8550
+    },
+    {
+      "text": "So who made",
+      "start_frame": 8553,
+      "end_frame": 8627
+    },
+    {
+      "text": "this thing?",
+      "start_frame": 8630,
+      "end_frame": 8678
+    },
+    {
+      "text": "The earliest confirmed",
+      "start_frame": 8681,
+      "end_frame": 8755
+    },
+    {
+      "text": "owner we know",
+      "start_frame": 8758,
+      "end_frame": 8832
+    },
+    {
+      "text": "of is",
+      "start_frame": 8835,
+      "end_frame": 8884
+    },
+    {
+      "text": "Emperor Rudolf the",
+      "start_frame": 8887,
+      "end_frame": 8961
+    },
+    {
+      "text": "Second of Bohemia,",
+      "start_frame": 8964,
+      "end_frame": 9038
+    },
+    {
+      "text": "who reportedly paid",
+      "start_frame": 9041,
+      "end_frame": 9115
+    },
+    {
+      "text": "six hundred gold",
+      "start_frame": 9118,
+      "end_frame": 9192
+    },
+    {
+      "text": "ducats for",
+      "start_frame": 9195,
+      "end_frame": 9243
+    },
+    {
+      "text": "it — a",
+      "start_frame": 9246,
+      "end_frame": 9320
+    },
+    {
+      "text": "small fortune —",
+      "start_frame": 9323,
+      "end_frame": 9397
+    },
+    {
+      "text": "believing it was",
+      "start_frame": 9400,
+      "end_frame": 9474
+    },
+    {
+      "text": "the work of",
+      "start_frame": 9477,
+      "end_frame": 9551
+    },
+    {
+      "text": "the thirteenth-century",
+      "start_frame": 9554,
+      "end_frame": 9603
+    },
+    {
+      "text": "friar and scholar",
+      "start_frame": 9606,
+      "end_frame": 9680
+    },
+    {
+      "text": "Roger Bacon.",
+      "start_frame": 9683,
+      "end_frame": 9731
+    },
+    {
+      "text": "That attribution didn't",
+      "start_frame": 9734,
+      "end_frame": 9808
+    },
+    {
+      "text": "hold up.",
+      "start_frame": 9811,
+      "end_frame": 9860
+    },
+    {
+      "text": "But it tells",
+      "start_frame": 9863,
+      "end_frame": 9937
+    },
+    {
+      "text": "you something: even",
+      "start_frame": 9940,
+      "end_frame": 10014
+    },
+    {
+      "text": "four hundred",
+      "start_frame": 10017,
+      "end_frame": 10065
+    },
+    {
+      "text": "years ago, people",
+      "start_frame": 10068,
+      "end_frame": 10142
+    },
+    {
+      "text": "looked at this",
+      "start_frame": 10145,
+      "end_frame": 10219
+    },
+    {
+      "text": "book and",
+      "start_frame": 10222,
+      "end_frame": 10271
+    },
+    {
+      "text": "assumed it had",
+      "start_frame": 10274,
+      "end_frame": 10348
+    },
+    {
+      "text": "to be the",
+      "start_frame": 10351,
+      "end_frame": 10425
+    },
+    {
+      "text": "work of",
+      "start_frame": 10428,
+      "end_frame": 10476
+    },
+    {
+      "text": "a genius, not",
+      "start_frame": 10479,
+      "end_frame": 10553
+    },
+    {
+      "text": "a hoaxer.",
+      "start_frame": 10556,
+      "end_frame": 10604
+    },
+    {
+      "text": "Radiocarbon dating in",
+      "start_frame": 10607,
+      "end_frame": 10682
+    },
+    {
+      "text": "2011 gave us",
+      "start_frame": 10685,
+      "end_frame": 10759
+    },
+    {
+      "text": "a harder",
+      "start_frame": 10762,
+      "end_frame": 10810
+    },
+    {
+      "text": "answer. The vellum",
+      "start_frame": 10813,
+      "end_frame": 10887
+    },
+    {
+      "text": "itself dates to",
+      "start_frame": 10890,
+      "end_frame": 10964
+    },
+    {
+      "text": "between 1404",
+      "start_frame": 10967,
+      "end_frame": 11015
+    },
+    {
+      "text": "and 1438. Whoever",
+      "start_frame": 11018,
+      "end_frame": 11093
+    },
+    {
+      "text": "wrote this did",
+      "start_frame": 11096,
+      "end_frame": 11170
+    },
+    {
+      "text": "it in",
+      "start_frame": 11173,
+      "end_frame": 11221
+    },
+    {
+      "text": "the early",
+      "start_frame": 11224,
+      "end_frame": 11272
+    },
+    {
+      "text": "1400s —",
+      "start_frame": 11275,
+      "end_frame": 11324
+    },
+    {
+      "text": "two centuries before Rudolf",
+      "start_frame": 11327,
+      "end_frame": 11426
+    },
+    {
+      "text": "ever got his hands",
+      "start_frame": 11429,
+      "end_frame": 11529
+    },
+    {
+      "text": "on it.",
+      "start_frame": 11532,
+      "end_frame": 11581
+    },
+    {
+      "text": "Which brings us",
+      "start_frame": 11584,
+      "end_frame": 11657
+    },
+    {
+      "text": "to the people",
+      "start_frame": 11660,
+      "end_frame": 11733
+    },
+    {
+      "text": "who've spent",
+      "start_frame": 11736,
+      "end_frame": 11784
+    },
+    {
+      "text": "their lives trying",
+      "start_frame": 11787,
+      "end_frame": 11861
+    },
+    {
+      "text": "to crack it.",
+      "start_frame": 11864,
+      "end_frame": 11937
+    },
+    {
+      "text": "In the 1940s,",
+      "start_frame": 11940,
+      "end_frame": 12013
+    },
+    {
+      "text": "two of the",
+      "start_frame": 12016,
+      "end_frame": 12090
+    },
+    {
+      "text": "sharpest codebreakers alive",
+      "start_frame": 12093,
+      "end_frame": 12166
+    },
+    {
+      "text": "turned their",
+      "start_frame": 12169,
+      "end_frame": 12217
+    },
+    {
+      "text": "attention to the",
+      "start_frame": 12220,
+      "end_frame": 12293
+    },
+    {
+      "text": "manuscript: William and",
+      "start_frame": 12296,
+      "end_frame": 12370
+    },
+    {
+      "text": "Elizabeth Friedman.",
+      "start_frame": 12373,
+      "end_frame": 12421
+    },
+    {
+      "text": "This was a",
+      "start_frame": 12424,
+      "end_frame": 12497
+    },
+    {
+      "text": "husband-and-wife team who",
+      "start_frame": 12500,
+      "end_frame": 12573
+    },
+    {
+      "text": "had already",
+      "start_frame": 12576,
+      "end_frame": 12624
+    },
+    {
+      "text": "helped break Imperial",
+      "start_frame": 12627,
+      "end_frame": 12701
+    },
+    {
+      "text": "Japan's Purple cipher",
+      "start_frame": 12704,
+      "end_frame": 12777
+    },
+    {
+      "text": "during World",
+      "start_frame": 12780,
+      "end_frame": 12828
+    },
+    {
+      "text": "War Two. If",
+      "start_frame": 12831,
+      "end_frame": 12904
+    },
+    {
+      "text": "anyone could crack",
+      "start_frame": 12907,
+      "end_frame": 12981
+    },
+    {
+      "text": "a four-hundred-year-old",
+      "start_frame": 12984,
+      "end_frame": 13032
+    },
+    {
+      "text": "puzzle, it",
+      "start_frame": 13035,
+      "end_frame": 13083
+    },
+    {
+      "text": "was them.",
+      "start_frame": 13086,
+      "end_frame": 13133
+    },
+    {
+      "text": "They spent decades",
+      "start_frame": 13136,
+      "end_frame": 13210
+    },
+    {
+      "text": "on it.",
+      "start_frame": 13213,
+      "end_frame": 13261
+    },
+    {
+      "text": "And their conclusion",
+      "start_frame": 13264,
+      "end_frame": 13337
+    },
+    {
+      "text": "wasn't \"it's an",
+      "start_frame": 13340,
+      "end_frame": 13413
+    },
+    {
+      "text": "unbreakable cipher.\"",
+      "start_frame": 13416,
+      "end_frame": 13464
+    },
+    {
+      "text": "It was stranger",
+      "start_frame": 13467,
+      "end_frame": 13541
+    },
+    {
+      "text": "than that.",
+      "start_frame": 13544,
+      "end_frame": 13592
+    },
+    {
+      "text": "They came to",
+      "start_frame": 13595,
+      "end_frame": 13668
+    },
+    {
+      "text": "believe the text",
+      "start_frame": 13671,
+      "end_frame": 13744
+    },
+    {
+      "text": "might be",
+      "start_frame": 13747,
+      "end_frame": 13795
+    },
+    {
+      "text": "an entirely invented",
+      "start_frame": 13798,
+      "end_frame": 13872
+    },
+    {
+      "text": "language —",
+      "start_frame": 13875,
+      "end_frame": 13923
+    },
+    {
+      "text": "built from scratch,",
+      "start_frame": 13926,
+      "end_frame": 13999
+    },
+    {
+      "text": "following its own",
+      "start_frame": 14002,
+      "end_frame": 14075
+    },
+    {
+      "text": "internal rules.",
+      "start_frame": 14078,
+      "end_frame": 14126
+    },
+    {
+      "text": "Here's why that",
+      "start_frame": 14129,
+      "end_frame": 14203
+    },
+    {
+      "text": "theory has staying",
+      "start_frame": 14206,
+      "end_frame": 14279
+    },
+    {
+      "text": "power: the",
+      "start_frame": 14282,
+      "end_frame": 14330
+    },
+    {
+      "text": "manuscript's alphabet has",
+      "start_frame": 14333,
+      "end_frame": 14406
+    },
+    {
+      "text": "only about twenty-five",
+      "start_frame": 14409,
+      "end_frame": 14483
+    },
+    {
+      "text": "distinct characters,",
+      "start_frame": 14486,
+      "end_frame": 14534
+    },
+    {
+      "text": "and they don't",
+      "start_frame": 14537,
+      "end_frame": 14610
+    },
+    {
+      "text": "behave the way",
+      "start_frame": 14613,
+      "end_frame": 14686
+    },
+    {
+      "text": "letters in",
+      "start_frame": 14689,
+      "end_frame": 14737
+    },
+    {
+      "text": "a real cipher",
+      "start_frame": 14740,
+      "end_frame": 14814
+    },
+    {
+      "text": "usually do.",
+      "start_frame": 14817,
+      "end_frame": 14865
+    },
+    {
+      "text": "Certain symbols show",
+      "start_frame": 14868,
+      "end_frame": 14941
+    },
+    {
+      "text": "up almost exclusively",
+      "start_frame": 14944,
+      "end_frame": 15017
+    },
+    {
+      "text": "at the",
+      "start_frame": 15020,
+      "end_frame": 15068
+    },
+    {
+      "text": "start of",
+      "start_frame": 15071,
+      "end_frame": 15119
+    },
+    {
+      "text": "a word.",
+      "start_frame": 15122,
+      "end_frame": 15170
+    },
+    {
+      "text": "Others cluster near",
+      "start_frame": 15173,
+      "end_frame": 15246
+    },
+    {
+      "text": "the end.",
+      "start_frame": 15249,
+      "end_frame": 15297
+    },
+    {
+      "text": "Run a statistical",
+      "start_frame": 15300,
+      "end_frame": 15374
+    },
+    {
+      "text": "analysis —",
+      "start_frame": 15377,
+      "end_frame": 15425
+    },
+    {
+      "text": "plot word frequency",
+      "start_frame": 15428,
+      "end_frame": 15501
+    },
+    {
+      "text": "the way linguists",
+      "start_frame": 15504,
+      "end_frame": 15577
+    },
+    {
+      "text": "do for",
+      "start_frame": 15580,
+      "end_frame": 15628
+    },
+    {
+      "text": "real languages —",
+      "start_frame": 15631,
+      "end_frame": 15705
+    },
+    {
+      "text": "and the patterns",
+      "start_frame": 15708,
+      "end_frame": 15781
+    },
+    {
+      "text": "are consistent,",
+      "start_frame": 15784,
+      "end_frame": 15832
+    },
+    {
+      "text": "almost too consistent.",
+      "start_frame": 15835,
+      "end_frame": 15908
+    },
+    {
+      "text": "Real ciphers tend",
+      "start_frame": 15911,
+      "end_frame": 15985
+    },
+    {
+      "text": "to be messier",
+      "start_frame": 15988,
+      "end_frame": 16061
+    },
+    {
+      "text": "than this.",
+      "start_frame": 16064,
+      "end_frame": 16112
+    },
+    {
+      "text": "Modern researchers haven't",
+      "start_frame": 16115,
+      "end_frame": 16189
+    },
+    {
+      "text": "given up.",
+      "start_frame": 16192,
+      "end_frame": 16241
+    },
+    {
+      "text": "High-resolution imaging,",
+      "start_frame": 16244,
+      "end_frame": 16292
+    },
+    {
+      "text": "multispectral scanning,",
+      "start_frame": 16295,
+      "end_frame": 16343
+    },
+    {
+      "text": "and computational linguistics",
+      "start_frame": 16346,
+      "end_frame": 16421
+    },
+    {
+      "text": "have all been",
+      "start_frame": 16424,
+      "end_frame": 16498
+    },
+    {
+      "text": "pointed at",
+      "start_frame": 16501,
+      "end_frame": 16549
+    },
+    {
+      "text": "these pages, hunting",
+      "start_frame": 16552,
+      "end_frame": 16626
+    },
+    {
+      "text": "for anything the",
+      "start_frame": 16629,
+      "end_frame": 16704
+    },
+    {
+      "text": "naked eye",
+      "start_frame": 16707,
+      "end_frame": 16755
+    },
+    {
+      "text": "might miss —",
+      "start_frame": 16758,
+      "end_frame": 16832
+    },
+    {
+      "text": "faint under-drawings,",
+      "start_frame": 16835,
+      "end_frame": 16884
+    },
+    {
+      "text": "erased text,",
+      "start_frame": 16887,
+      "end_frame": 16935
+    },
+    {
+      "text": "ink composition, anything.",
+      "start_frame": 16938,
+      "end_frame": 17012
+    },
+    {
+      "text": "Every few years,",
+      "start_frame": 17015,
+      "end_frame": 17089
+    },
+    {
+      "text": "someone announces",
+      "start_frame": 17092,
+      "end_frame": 17141
+    },
+    {
+      "text": "a breakthrough.",
+      "start_frame": 17144,
+      "end_frame": 17192
+    },
+    {
+      "text": "So far, none has",
+      "start_frame": 17195,
+      "end_frame": 17295
+    },
+    {
+      "text": "survived peer review.",
+      "start_frame": 17298,
+      "end_frame": 17372
+    },
+    {
+      "text": "Today, the Voynich",
+      "start_frame": 17375,
+      "end_frame": 17449
+    },
+    {
+      "text": "Manuscript sits at",
+      "start_frame": 17452,
+      "end_frame": 17526
+    },
+    {
+      "text": "Yale's Beinecke",
+      "start_frame": 17529,
+      "end_frame": 17578
+    },
+    {
+      "text": "Rare Book and",
+      "start_frame": 17581,
+      "end_frame": 17655
+    },
+    {
+      "text": "Manuscript Library,",
+      "start_frame": 17658,
+      "end_frame": 17706
+    },
+    {
+      "text": "fully digitized, available",
+      "start_frame": 17709,
+      "end_frame": 17783
+    },
+    {
+      "text": "for anyone in",
+      "start_frame": 17786,
+      "end_frame": 17860
+    },
+    {
+      "text": "the world",
+      "start_frame": 17863,
+      "end_frame": 17911
+    },
+    {
+      "text": "to examine, page",
+      "start_frame": 17914,
+      "end_frame": 17988
+    },
+    {
+      "text": "by page,",
+      "start_frame": 17991,
+      "end_frame": 18040
+    },
+    {
+      "text": "online. Six hundred",
+      "start_frame": 18043,
+      "end_frame": 18117
+    },
+    {
+      "text": "years after it",
+      "start_frame": 18120,
+      "end_frame": 18194
+    },
+    {
+      "text": "was written,",
+      "start_frame": 18197,
+      "end_frame": 18245
+    },
+    {
+      "text": "in ink",
+      "start_frame": 18248,
+      "end_frame": 18297
+    },
+    {
+      "text": "on calfskin,",
+      "start_frame": 18300,
+      "end_frame": 18348
+    },
+    {
+      "text": "by someone who has",
+      "start_frame": 18351,
+      "end_frame": 18451
+    },
+    {
+      "text": "never been identified,",
+      "start_frame": 18454,
+      "end_frame": 18528
+    },
+    {
+      "text": "in a script",
+      "start_frame": 18531,
+      "end_frame": 18605
+    },
+    {
+      "text": "no one has",
+      "start_frame": 18608,
+      "end_frame": 18682
+    },
+    {
+      "text": "ever translated",
+      "start_frame": 18685,
+      "end_frame": 18733
+    },
+    {
+      "text": "— the world's",
+      "start_frame": 18736,
+      "end_frame": 18810
+    },
+    {
+      "text": "most mysterious book",
+      "start_frame": 18813,
+      "end_frame": 18887
+    },
+    {
+      "text": "is still",
+      "start_frame": 18890,
+      "end_frame": 18938
+    },
+    {
+      "text": "exactly that. If",
+      "start_frame": 18941,
+      "end_frame": 19015
+    },
+    {
+      "text": "you had to",
+      "start_frame": 19018,
+      "end_frame": 19092
+    },
+    {
+      "text": "guess —",
+      "start_frame": 19095,
+      "end_frame": 19144
+    },
+    {
+      "text": "real language,",
+      "start_frame": 19147,
+      "end_frame": 19195
+    },
+    {
+      "text": "invented language,",
+      "start_frame": 19198,
+      "end_frame": 19247
+    },
+    {
+      "text": "elaborate cipher, or",
+      "start_frame": 19250,
+      "end_frame": 19324
+    },
+    {
+      "text": "six-hundred-year-old hoax —",
+      "start_frame": 19327,
+      "end_frame": 19401
+    },
+    {
+      "text": "which theory would",
+      "start_frame": 19404,
+      "end_frame": 19478
+    },
+    {
+      "text": "you bet on?",
+      "start_frame": 19481,
+      "end_frame": 19555
+    },
+    {
+      "text": "Tell us in",
+      "start_frame": 19558,
+      "end_frame": 19632
+    },
+    {
+      "text": "the comments.",
+      "start_frame": 19635,
+      "end_frame": 19683
+    }
+  ]
+}

@@ -39,13 +39,57 @@
             "required": ["type", "params"],
             "additionalProperties": false,
             "properties": {
-              "type": { "type": "string" },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "zoom_in", "zoom_out", "pan_left", "pan_right", "pan_up", "pan_down", "static",
+                  "dolly_left", "dolly_right", "crane_up", "crane_down", "orbit",
+                  "handheld_simulation", "camera_shake", "rack_focus", "tilt_up", "tilt_down",
+                  "rotation", "perspective_shift", "dynamic_zoom"
+                ]
+              },
               "params": { "type": "object" }
             }
           },
           "text_overlay": { "type": ["string", "null"] },
-          "transition_in": { "type": "string" },
-          "transition_out": { "type": "string" }
+          "transition_in": {
+            "type": "string",
+            "enum": ["fade", "dissolve", "cut", "wipe", "slide", "light_flash", "blur", "zoom_through"]
+          },
+          "transition_out": {
+            "type": "string",
+            "enum": ["fade", "dissolve", "cut", "wipe", "slide", "light_flash", "blur", "zoom_through"]
+          },
+          "overlay_effects": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type", "params"],
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["glow", "noise", "vignette", "particles"]
+                },
+                "params": { "type": "object" }
+              }
+            }
+          },
+          "motion_graphics": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type", "params"],
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": ["counter", "progress_bar", "timeline", "map_highlight", "arrow_callout", "like_prompt", "subscribe_prompt"]
+                },
+                "params": { "type": "object" }
+              }
+            }
+          }
         }
       }
     },

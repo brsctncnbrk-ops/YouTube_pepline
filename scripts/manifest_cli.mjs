@@ -191,7 +191,9 @@ async function cmdQa(args) {
     else if (result.reasons?.[0]) code = result.reasons[0].split(":")[0];
     else if (result.assetCheck && !result.assetCheck.valid && result.assetCheck.error_code) code = result.assetCheck.error_code;
     else if (result.filenamesCheck && !result.filenamesCheck.valid) code = "BROKEN_ASSET_PATH";
+    else if (result.sceneTypeVarietyCheck && !result.sceneTypeVarietyCheck.valid) code = "SCENE_VARIETY_VIOLATION";
     else if (result.coverageCheck && !result.coverageCheck.valid) code = "BROKEN_ASSET_PATH";
+    else if (result.styleTreatmentCheck && !result.styleTreatmentCheck.valid) code = "STYLE_TREATMENT_MISMATCH";
     else if (result.packagingCheck && !result.packagingCheck.valid) code = result.packagingCheck.error_code || "UNKNOWN_ERROR";
 
     await cmdError({

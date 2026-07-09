@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "captions.schema.json",
+  "title": "FactForge Captions",
+  "description": "Validates remotion/captions.json - short, sequential on-screen subtitle bursts synced to the narration. Generated mechanically by scripts/generate_captions.mjs from scripts/script.md's section timestamps and remotion/composition.json's fps/duration_frames; merged into scene_config.json's top-level captions field by remotion_build.mjs. Never hand-edited.",
+  "type": "object",
+  "required": ["captions"],
+  "additionalProperties": false,
+  "properties": {
+    "captions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["text", "start_frame", "end_frame"],
+        "additionalProperties": false,
+        "properties": {
+          "text": { "type": "string", "minLength": 1, "maxLength": 90 },
+          "start_frame": { "type": "integer", "minimum": 0 },
+          "end_frame": { "type": "integer", "minimum": 0 }
+        }
+      }
+    }
+  }
+}

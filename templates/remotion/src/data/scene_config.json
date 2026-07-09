@@ -11,7 +11,10 @@
       "camera_motion": { "type": "static", "params": {} },
       "text_overlay": "Placeholder - replaced per project by remotion_build.mjs",
       "transition_in": "fade",
-      "transition_out": "fade"
+      "transition_out": "fade",
+      "overlay_effects": [],
+      "motion_graphics": []
     }
-  ]
+  ],
+  "captions": []
 }

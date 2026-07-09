@@ -19,6 +19,7 @@ import {
   CliError,
 } from "./lib/fs-utils.mjs";
 import { GATES } from "./lib/pipeline.mjs";
+import { SCENE_TYPE_TO_TREATMENT } from "./lib/style.mjs";
 
 const ABSOLUTE_PATH_PATTERNS = [
   /^\//, // unix absolute
@@ -128,6 +129,39 @@ export async function validateFilenames({ projectId }) {
   return { valid: issues.length === 0, error_code: issues.length ? "BROKEN_ASSET_PATH" : null, issues };
 }
 
+/**
+ * Storyboard-side half of the scene-variety mechanical gate: no two
+ * consecutive scenes may share the same scene_type (checked at storyboard_qa,
+ * ahead of any image generation). Keeps sahne çeşitliliği from collapsing to
+ * one repeated shot type across a whole video.
+ */
+export async function validateSceneTypeVariety({ projectId }) {
+  const dir = projectDir(projectId);
+  const storyboardPath = path.join(dir, "storyboard", "storyboard.json");
+  if (!(await pathExists(storyboardPath))) {
+    return { valid: true, issues: [], note: "storyboard.json not present yet" };
+  }
+  const storyboard = await readJsonSafe(storyboardPath, null);
+  if (!storyboard || !Array.isArray(storyboard.scenes)) {
+    return { valid: false, error_code: "INVALID_JSON", issues: ["storyboard.json missing scenes[]"] };
+  }
+  const issues = [];
+  const scenes = storyboard.scenes;
+  for (let i = 1; i < scenes.length; i++) {
+    const prev = scenes[i - 1];
+    const curr = scenes[i];
+    if (curr.scene_type && curr.scene_type === prev.scene_type) {
+      issues.push({
+        scene_id: curr.scene_id,
+        field: "scene_type",
+        value: curr.scene_type,
+        reason: `same scene_type as previous scene ${prev.scene_id}`,
+      });
+    }
+  }
+  return { valid: issues.length === 0, error_code: issues.length ? "SCENE_VARIETY_VIOLATION" : null, issues };
+}
+
 export async function validateAssets({ projectId, check = "all" }) {
   const dir = projectDir(projectId);
   const missing = [];
@@ -204,6 +238,47 @@ export async function validatePromptCoverage({ projectId }) {
 }
 
 /**
+ * Style-treatment policy check: each visual_prompts.json scene's
+ * render_treatment must match the value scripts/lib/style.mjs's fixed
+ * SCENE_TYPE_TO_TREATMENT table predicts from that scene's storyboard.json
+ * scene_type. Catches skill-authoring drift from the systematic
+ * content-driven treatment policy - style_token drift stays a judgment call
+ * (factforge-visual-qa Step 2), this is the mechanical half.
+ */
+export async function validateStyleTreatment({ projectId }) {
+  const dir = projectDir(projectId);
+  const storyboardPath = path.join(dir, "storyboard", "storyboard.json");
+  const promptsPath = path.join(dir, "prompts", "visual_prompts.json");
+
+  const storyboard = await readJsonSafe(storyboardPath, null);
+  if (!storyboard || !Array.isArray(storyboard.scenes)) {
+    return { valid: false, error_code: "INVALID_JSON", issues: ["storyboard.json missing or has no scenes[]"] };
+  }
+  const prompts = await readJsonSafe(promptsPath, null);
+  if (!prompts || !Array.isArray(prompts.scenes)) {
+    return { valid: false, error_code: "INVALID_JSON", issues: ["visual_prompts.json missing or has no scenes[]"] };
+  }
+
+  const sceneTypeById = new Map(storyboard.scenes.map((s) => [s.scene_id, s.scene_type]));
+  const issues = [];
+  for (const scene of prompts.scenes) {
+    const sceneType = sceneTypeById.get(scene.scene_id);
+    const expected = SCENE_TYPE_TO_TREATMENT[sceneType];
+    if (!expected) continue; // no matching storyboard scene / unknown scene_type - covered by validatePromptCoverage/schema instead
+    if (scene.render_treatment !== expected) {
+      issues.push({
+        scene_id: scene.scene_id,
+        field: "render_treatment",
+        expected,
+        actual: scene.render_treatment,
+        reason: `scene_type "${sceneType}" requires render_treatment "${expected}"`,
+      });
+    }
+  }
+  return { valid: issues.length === 0, error_code: issues.length ? "STYLE_TREATMENT_MISMATCH" : null, issues };
+}
+
+/**
  * Final-QA mechanical check: the rendered video plus all six spec-listed
  * YouTube packaging deliverables must exist. The packaging.json schema is
  * checked separately via SCHEMA_BY_STAGE. This is the "is the package
@@ -226,6 +301,91 @@ export async function validatePackaging({ projectId }) {
     if (!(await pathExists(path.join(dir, rel)))) missing.push(rel);
   }
   return { valid: missing.length === 0, error_code: missing.length ? "UNKNOWN_ERROR" : null, missing };
+}
+
+/**
+ * Render-side half of the scene-variety mechanical gate: no two consecutive
+ * scenes in remotion/composition.json may share the same camera_motion.type
+ * or transition_in - the "aynı kamera hareketi/geçiş art arda olmasın" rule,
+ * enforced deterministically at render_qa rather than left to judgment.
+ */
+export async function validateSceneVariety({ projectId }) {
+  const dir = projectDir(projectId);
+  const compositionPath = path.join(dir, "remotion", "composition.json");
+  if (!(await pathExists(compositionPath))) {
+    return { valid: true, issues: [], note: "composition.json not present yet" };
+  }
+  const composition = await readJsonSafe(compositionPath, null);
+  if (!composition || !Array.isArray(composition.scenes)) {
+    return { valid: false, error_code: "INVALID_JSON", issues: ["composition.json missing scenes[]"] };
+  }
+  const issues = [];
+  const scenes = composition.scenes;
+  for (let i = 1; i < scenes.length; i++) {
+    const prev = scenes[i - 1];
+    const curr = scenes[i];
+    if (curr.camera_motion?.type && curr.camera_motion.type === prev.camera_motion?.type) {
+      issues.push({
+        scene_id: curr.scene_id,
+        field: "camera_motion.type",
+        value: curr.camera_motion.type,
+        reason: `same camera_motion.type as previous scene ${prev.scene_id}`,
+      });
+    }
+    if (curr.transition_in && curr.transition_in === prev.transition_in) {
+      issues.push({
+        scene_id: curr.scene_id,
+        field: "transition_in",
+        value: curr.transition_in,
+        reason: `same transition_in as previous scene ${prev.scene_id}`,
+      });
+    }
+  }
+  return { valid: issues.length === 0, error_code: issues.length ? "SCENE_VARIETY_VIOLATION" : null, issues };
+}
+
+/**
+ * Caption timing gate: remotion/captions.json (if present) must be schema-
+ * valid, chronological/non-overlapping, and each caption's on-screen window
+ * must stay short enough to read quickly (not lingering) but long enough to
+ * actually read - "altyazı ekranda çok uzun kalmamalı, sürükleyici olmalı"
+ * enforced mechanically rather than left to chance. Captions are generated
+ * by scripts/generate_captions.mjs, never hand-authored.
+ */
+export async function validateCaptions({ projectId }) {
+  const dir = projectDir(projectId);
+  const captionsPath = path.join(dir, "remotion", "captions.json");
+  if (!(await pathExists(captionsPath))) {
+    return { valid: true, issues: [], note: "captions.json not present yet" };
+  }
+  const schemaResult = await validateSchema({ file: captionsPath, schema: "captions" });
+  if (!schemaResult.valid) {
+    return { valid: false, error_code: "CAPTION_TIMING_INVALID", issues: schemaResult.errors };
+  }
+  const data = await readJsonSafe(captionsPath, null);
+  const captions = data?.captions ?? [];
+  const MIN_FRAMES = 10;
+  const MAX_FRAMES = 150;
+  const issues = [];
+  let prevEnd = -1;
+  for (const c of captions) {
+    if (c.end_frame <= c.start_frame) {
+      issues.push({ text: c.text, reason: "end_frame must be after start_frame" });
+      continue;
+    }
+    if (c.start_frame < prevEnd) {
+      issues.push({ text: c.text, reason: `overlaps previous caption (starts at ${c.start_frame}, previous ended at ${prevEnd})` });
+    }
+    const dur = c.end_frame - c.start_frame;
+    if (dur < MIN_FRAMES) {
+      issues.push({ text: c.text, reason: `on screen for only ${dur} frames, below minimum ${MIN_FRAMES}` });
+    }
+    if (dur > MAX_FRAMES) {
+      issues.push({ text: c.text, reason: `on screen for ${dur} frames, above maximum ${MAX_FRAMES} - not "sürükleyici"` });
+    }
+    prevEnd = c.end_frame;
+  }
+  return { valid: issues.length === 0, error_code: issues.length ? "CAPTION_TIMING_INVALID" : null, issues };
 }
 
 export async function validateRenderReady({ projectId }) {
@@ -283,15 +443,37 @@ export async function validateAll({ projectId, stage }) {
     }
   }
 
+  if (stage === "render_qa") {
+    const renderReady = await validateRenderReady({ projectId });
+    const sceneVarietyCheck = await validateSceneVariety({ projectId });
+    const captionsCheck = await validateCaptions({ projectId });
+    const reasons = [...renderReady.reasons];
+    if (!sceneVarietyCheck.valid) reasons.push("SCENE_VARIETY_VIOLATION: " + JSON.stringify(sceneVarietyCheck.issues));
+    if (!captionsCheck.valid) reasons.push("CAPTION_TIMING_INVALID: " + JSON.stringify(captionsCheck.issues));
+    return {
+      ...renderReady,
+      valid: renderReady.valid && sceneVarietyCheck.valid && captionsCheck.valid,
+      reasons,
+      sceneVarietyCheck,
+      captionsCheck,
+      schemaChecks,
+    };
+  }
+
   let assetCheck = { valid: true, missing: [] };
   if (stage === "storyboard_qa") assetCheck = await validateAssets({ projectId, check: "audio" });
-  if (stage === "render_qa") return { ...(await validateRenderReady({ projectId })), schemaChecks };
 
   let filenamesCheck = { valid: true, issues: [] };
   if (stage === "storyboard_qa") filenamesCheck = await validateFilenames({ projectId });
 
+  let sceneTypeVarietyCheck = { valid: true, issues: [] };
+  if (stage === "storyboard_qa") sceneTypeVarietyCheck = await validateSceneTypeVariety({ projectId });
+
   let coverageCheck = { valid: true, issues: [] };
   if (stage === "visual_qa") coverageCheck = await validatePromptCoverage({ projectId });
+
+  let styleTreatmentCheck = { valid: true, issues: [] };
+  if (stage === "visual_qa") styleTreatmentCheck = await validateStyleTreatment({ projectId });
 
   let packagingCheck = { valid: true, missing: [] };
   if (stage === "final_qa") packagingCheck = await validatePackaging({ projectId });
@@ -300,9 +482,20 @@ export async function validateAll({ projectId, stage }) {
     schemaChecks.every((c) => c.valid) &&
     assetCheck.valid &&
     filenamesCheck.valid &&
+    sceneTypeVarietyCheck.valid &&
     coverageCheck.valid &&
+    styleTreatmentCheck.valid &&
     packagingCheck.valid;
-  return { valid, schemaChecks, assetCheck, filenamesCheck, coverageCheck, packagingCheck };
+  return {
+    valid,
+    schemaChecks,
+    assetCheck,
+    filenamesCheck,
+    sceneTypeVarietyCheck,
+    coverageCheck,
+    styleTreatmentCheck,
+    packagingCheck,
+  };
 }
 
 function toHuman(result) {
@@ -319,8 +512,20 @@ function toHuman(result) {
   if (result.filenamesCheck) {
     lines.push(`- Scene filenames/numbering: ${result.filenamesCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.filenamesCheck.issues)}`);
   }
+  if (result.sceneTypeVarietyCheck) {
+    lines.push(`- Scene type variety (no consecutive repeats): ${result.sceneTypeVarietyCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.sceneTypeVarietyCheck.issues)}`);
+  }
+  if (result.sceneVarietyCheck) {
+    lines.push(`- Camera/transition variety (no consecutive repeats): ${result.sceneVarietyCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.sceneVarietyCheck.issues)}`);
+  }
+  if (result.captionsCheck) {
+    lines.push(`- Caption timing (chronological, readable, not lingering): ${result.captionsCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.captionsCheck.issues)}`);
+  }
   if (result.coverageCheck) {
     lines.push(`- Prompt-to-scene coverage: ${result.coverageCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.coverageCheck.issues)}`);
+  }
+  if (result.styleTreatmentCheck) {
+    lines.push(`- Render-treatment policy (scene_type → render_treatment): ${result.styleTreatmentCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.styleTreatmentCheck.issues)}`);
   }
   if (result.packagingCheck) {
     lines.push(`- Packaging deliverables: ${result.packagingCheck.valid ? "PASS" : "FAIL - missing " + result.packagingCheck.missing.join(", ")}`);
@@ -349,6 +554,18 @@ async function main() {
       case "filenames":
         result = await validateFilenames({ projectId: args["project-id"] });
         break;
+      case "scene-type-variety":
+        result = await validateSceneTypeVariety({ projectId: args["project-id"] });
+        break;
+      case "scene-variety":
+        result = await validateSceneVariety({ projectId: args["project-id"] });
+        break;
+      case "captions":
+        result = await validateCaptions({ projectId: args["project-id"] });
+        break;
+      case "style-treatment":
+        result = await validateStyleTreatment({ projectId: args["project-id"] });
+        break;
       case "assets":
         result = await validateAssets({ projectId: args["project-id"], check: args.check || "all" });
         break;
@@ -360,7 +577,7 @@ async function main() {
         break;
       default:
         throw new CliError(
-          `Unknown validate subcommand "${group}". Use: schema|paths|filenames|assets|render-ready|all`,
+          `Unknown validate subcommand "${group}". Use: schema|paths|filenames|scene-type-variety|scene-variety|style-treatment|captions|assets|render-ready|all`,
           "UNKNOWN_ERROR"
         );
     }

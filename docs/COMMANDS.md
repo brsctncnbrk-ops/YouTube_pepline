@@ -39,14 +39,28 @@ node scripts/manifest_cli.mjs render-complete --project-id 001-my-video --output
 node scripts/validate.mjs schema --file <path> --schema research
 node scripts/validate.mjs paths --project-id 001-my-video
 node scripts/validate.mjs filenames --project-id 001-my-video
+node scripts/validate.mjs scene-type-variety --project-id 001-my-video   # storyboard.json: no consecutive scene_type repeats
+node scripts/validate.mjs scene-variety --project-id 001-my-video       # composition.json: no consecutive camera_motion.type/transition_in repeats
+node scripts/validate.mjs style-treatment --project-id 001-my-video     # visual_prompts.json: render_treatment matches the fixed scene_type table
+node scripts/validate.mjs captions --project-id 001-my-video            # captions.json: schema-valid, chronological, readable-but-not-lingering
 node scripts/validate.mjs assets --project-id 001-my-video --check audio|images|all
 node scripts/validate.mjs render-ready --project-id 001-my-video
+```
+
+## Caption generation (used by the motion skill, after composition.json exists)
+
+```bash
+# Derives remotion/captions.json from scripts/script.md's section timestamps
+# and composition.json's fps/duration_frames - mechanical, no ASR/forced
+# alignment available, so timing is word-count-proportional (same method
+# script.md's own section timestamps already use).
+node scripts/generate_captions.mjs generate --project-id 001-my-video [--min-sec 0.9] [--max-sec 3.2] [--gap-frames 3]
 ```
 
 ## Remotion build helpers (used by the motion + editor skills)
 
 ```bash
-# Derive scene_config.json + asset_map.json from the authored composition.json
+# Derive scene_config.json + asset_map.json (+ merge captions.json) from the authored composition.json
 node scripts/remotion_build.mjs derive-configs --project-id 001-my-video
 
 # Assemble remotion/render_ready_project/ from templates/remotion/

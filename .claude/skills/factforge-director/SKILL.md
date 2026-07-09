@@ -28,28 +28,52 @@ actually depicts), and `style/visual_style_bible.md` +
 For every scene, decide and record:
 
 - **Pacing** — is this scene a slow, let-it-breathe beat or a quick punch?
-  How does the rhythm build across the video?
+  How does the rhythm build across the video? Give each scene one explicit
+  tempo keyword alongside the qualitative description — `slow`, `medium`,
+  `fast`, or `punchy` (e.g. "Pacing: fast (punchy) — quick 2s punch before
+  the reveal") — so `factforge-motion` has a consistent word to scan for
+  even though this stays free text, not a schema field.
 - **Emotional flow** — the intended feeling of each scene and how it
   transitions to the next (tension → relief, curiosity → payoff, etc.).
 - **Camera movement** — a concrete motion per scene drawn from the camera
   language, expressed in vocabulary the Motion stage can act on. Use these
-  motion keywords so `factforge-motion` can map them directly:
-  `zoom_in`, `zoom_out`, `pan_left`, `pan_right`, `pan_up`, `pan_down`,
-  `static`. Note intensity where it matters (subtle vs. dramatic).
+  motion keywords so `factforge-motion` can map them directly — 20 in total,
+  the original 7 (`zoom_in`, `zoom_out`, `pan_left`, `pan_right`, `pan_up`,
+  `pan_down`, `static`) plus 13 pseudo-3D types for more dynamic coverage:
+  `dolly_left`, `dolly_right`, `crane_up`, `crane_down`, `orbit`,
+  `handheld_simulation`, `camera_shake`, `rack_focus`, `tilt_up`,
+  `tilt_down`, `rotation`, `perspective_shift`, `dynamic_zoom`. All 20 are
+  CSS tricks on the same single scene image — there's no
+  `foreground_parallax`/`background_parallax` (those would need a second,
+  depth-separated image layer, which doesn't exist in this pipeline). Note
+  intensity where it matters (subtle vs. dramatic). **Don't call for the
+  same motion keyword on two consecutive scenes** — `factforge-motion`
+  carries your choices straight into `camera_motion.type`, and `render_qa`
+  mechanically rejects consecutive repeats.
 - **Close vs. wide emphasis** — which scenes push in for intimacy/detail and
   which pull back for context, consistent with the storyboard's shot intent.
 - **Text animation cues** — for scenes with on-screen text, how it should
   appear (e.g. fade up, hold, fade out) and when, relative to the narration.
 - **Attention direction** — where the viewer's eye should go and how the
   motion/pacing guides it.
+- **Motion-graphics suggestion (optional, non-binding)** — for a scene that
+  carries a storyboard `data_point`, or whose `purpose`/`visual_need` is
+  naturally a stat-reveal/progress/timeline/location beat, you may suggest
+  which motion-graphics type (`counter`, `progress_bar`, `timeline`,
+  `map_highlight`, `arrow_callout`) would suit it and why — phrased as a
+  suggestion, e.g. "a counter animating up to 2.3M would land well here",
+  never as an instruction. `factforge-motion` decides independently and is
+  never obligated to follow this — unlike the camera-motion keyword above,
+  which it does treat as binding.
 
 ## Output
 
 **`direction/direction_plan.md`** — organized scene by scene (one section per
-`scene_id`), each stating pacing, emotional beat, the chosen camera motion
-keyword (+ intensity), close/wide intent, and text-animation cue. Add a short
-overall "Rhythm & Arc" intro summarizing how the video's energy rises and
-falls across its full duration.
+`scene_id`), each stating pacing (+ tempo keyword), emotional beat, the
+chosen camera motion keyword (+ intensity), close/wide intent, text-animation
+cue, and — where relevant — a motion-graphics suggestion. Add a short overall
+"Rhythm & Arc" intro summarizing how the video's energy rises and falls
+across its full duration.
 
 Make the per-scene camera motion keyword unambiguous — `factforge-motion`
 will read this file to choose each scene's `camera_motion.type`, so if you
@@ -60,7 +84,9 @@ write "slow push in" also give the keyword (`zoom_in`).
 1. Re-read the plan against `storyboard.json`: every scene_id must be
    covered, and your motion choices shouldn't fight the storyboard's
    transitions (e.g. don't call for a dramatic zoom that clashes with a hard
-   cut into the next scene).
+   cut into the next scene). The tempo keyword and motion-graphics
+   suggestions are free text like everything else here — nothing here is
+   schema-checked, and this stage still has no dedicated QA gate.
 2. Advance: `node scripts/manifest_cli.mjs advance --project-id <project_id> --stage director --result success`.
 
 Never hand-edit `manifest.json` directly.

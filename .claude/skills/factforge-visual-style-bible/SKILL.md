@@ -67,7 +67,20 @@ Write all six files under `projects/<project_id>/style/`:
 - `camera_language.md`
 - `prompt_rules.md` — the concrete dos/don'ts plus the style consistency
   token again, verbatim and easy to copy — this is the file
-  `factforge-visual-prompt` will read most closely.
+  `factforge-visual-prompt` will read most closely. **Also include the
+  fixed `scene_type` → `render_treatment` table below, copied verbatim —
+  this is not a creative per-video choice like the style token, just a
+  reference copy so `factforge-visual-prompt` doesn't have to look it up
+  elsewhere:**
+
+  ```
+  photoreal_cinematic  <- cinematic, documentary, character_scene, macro_shot, before_after
+  archival_period      <- historical_painting, archive_documents, newspaper, magazine, hand_drawn_sketch
+  technical_diagram    <- blueprint, technical_drawing, diagram, ui_hud_screen, isometric, whiteboard
+  cartographic_aerial  <- world_map, satellite_view
+  scan_xray            <- xray
+  vector_infographic   <- infographic, data_visualization, timeline, split_screen, animated_illustration
+  ```
 
 ## Before finishing
 
