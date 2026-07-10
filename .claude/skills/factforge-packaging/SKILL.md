@@ -15,7 +15,8 @@ publish-ready, not a placeholder.
 
 `scripts/script.md` and `scripts/script_metadata.json` (hook, title working,
 tone), `research/research.md` (facts worth surfacing in the description),
-`storyboard/storyboard.json` (scene start times, for deriving chapters), and
+`storyboard/storyboard.json` (scene start times, for deriving chapters),
+`footage/footage_manifest.json` (which clips need attribution), and
 `output/final_video.mp4` (the actual video length/content). Write in the
 project's configured `language` (from `config/project_config.json`).
 
@@ -39,6 +40,13 @@ Produce a strong, click-worthy-but-honest YouTube package:
   rather than one-per-scene. Keep chapters in ascending time order.
 - **Pinned comment** — a short comment to pin (a question to drive
   engagement, a correction channel, or a key link).
+- **Footage attribution** — scan `footage_manifest.json` for scenes with
+  `attribution_required: true` (Coverr clips, by default) and collect their
+  `attribution_text`. Surface these lines in `description.md` (a short
+  "Footage credits" section near the end) and, if there's only one or two,
+  optionally in `pinned_comment.md` too. If no scene requires attribution,
+  skip this section entirely — don't manufacture a credits block nobody
+  needs.
 
 ## Outputs
 
@@ -47,6 +55,7 @@ matching `schemas/packaging.schema.json`:
 
 ```json
 {
+  "schema_version": "2.0",
   "project_id": "...",
   "titles": ["...", "...", "..."],
   "description": "...",
@@ -54,15 +63,20 @@ matching `schemas/packaging.schema.json`:
   "thumbnail_concepts": [{ "concept": "...", "text_overlay": "...", "notes": "..." }],
   "chapters": [{ "timestamp": "0:00", "label": "Intro" }],
   "pinned_comment": "...",
+  "footage_attribution": ["..."],
   "generated_at": "<ISO 8601 timestamp>"
 }
 ```
+
+`footage_attribution` is optional — omit the field entirely if no scene in
+`footage_manifest.json` needs it, rather than including an empty array.
 
 Then write the six human-readable files the uploader copies from, derived
 from the same content (keep them consistent with the JSON):
 
 - `packaging/title.md` — the title alternatives, best first.
-- `packaging/description.md` — the full description, ready to paste.
+- `packaging/description.md` — the full description, ready to paste
+  (including the footage-credits section if any attribution is required).
 - `packaging/tags.txt` — the tags (comma-separated, ready to paste).
 - `packaging/thumbnail.md` — the thumbnail concepts and their overlay text.
 - `packaging/chapters.txt` — one `timestamp label` per line, ready to paste

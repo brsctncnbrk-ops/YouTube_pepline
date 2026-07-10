@@ -462,8 +462,11 @@ export async function validateAll({ projectId, stage }) {
   let coverageCheck = { valid: true, issues: [] };
   if (stage === "visual_qa") coverageCheck = await validatePromptCoverage({ projectId });
 
+  // Footage provenance is checked at visual_qa (its natural home) and
+  // re-checked at final_qa (the spec's "asset provenance completeness"
+  // check) - the manifest shouldn't drift between the two.
   let footageCheck = { valid: true, issues: [] };
-  if (stage === "visual_qa") footageCheck = await validateFootageCoverage({ projectId });
+  if (stage === "visual_qa" || stage === "final_qa") footageCheck = await validateFootageCoverage({ projectId });
 
   let packagingCheck = { valid: true, missing: [] };
   if (stage === "final_qa") packagingCheck = await validatePackaging({ projectId });
@@ -472,8 +475,15 @@ export async function validateAll({ projectId, stage }) {
   // script structure must not be approved on a pre-audit draft. factforge-
   // fact-audit itself already hard-blocks via UNRESOLVED_CLAIM before
   // advancing to script_qa, so this should never actually fail in practice.
+  // Also re-checked at final_qa (the spec's "fact-verification completion"
+  // check) in case a claim's registry entry expired between script_qa and
+  // final_qa on a long-running project.
   let factAuditCheck = { valid: true, issues: [] };
-  if (stage === "script_qa") factAuditCheck = await validateFactAudit({ projectId });
+  if (stage === "script_qa" || stage === "final_qa") factAuditCheck = await validateFactAudit({ projectId });
+
+  // Zero TBD/hedge tokens anywhere in the final script text - final_qa only.
+  let hedgeCheck = { valid: true, matches: [] };
+  if (stage === "final_qa") hedgeCheck = await validateNoHedgeTokens({ projectId });
 
   const valid =
     schemaChecks.every((c) => c.valid) &&
@@ -482,8 +492,19 @@ export async function validateAll({ projectId, stage }) {
     coverageCheck.valid &&
     footageCheck.valid &&
     packagingCheck.valid &&
-    factAuditCheck.valid;
-  return { valid, schemaChecks, assetCheck, filenamesCheck, coverageCheck, footageCheck, packagingCheck, factAuditCheck };
+    factAuditCheck.valid &&
+    hedgeCheck.valid;
+  return {
+    valid,
+    schemaChecks,
+    assetCheck,
+    filenamesCheck,
+    coverageCheck,
+    footageCheck,
+    packagingCheck,
+    factAuditCheck,
+    hedgeCheck,
+  };
 }
 
 function toHuman(result) {
@@ -511,6 +532,9 @@ function toHuman(result) {
   }
   if (result.factAuditCheck) {
     lines.push(`- Fact audit complete: ${result.factAuditCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.factAuditCheck.issues)}`);
+  }
+  if (result.hedgeCheck) {
+    lines.push(`- Zero hedge tokens in script: ${result.hedgeCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.hedgeCheck.matches)}`);
   }
   if (result.reasons) {
     lines.push(`- Reasons: ${result.reasons.length ? result.reasons.join("; ") : "none"}`);

@@ -192,6 +192,9 @@ async function cmdQa(args) {
     else if (result.assetCheck && !result.assetCheck.valid && result.assetCheck.error_code) code = result.assetCheck.error_code;
     else if (result.filenamesCheck && !result.filenamesCheck.valid) code = "BROKEN_ASSET_PATH";
     else if (result.coverageCheck && !result.coverageCheck.valid) code = "BROKEN_ASSET_PATH";
+    else if (result.footageCheck && !result.footageCheck.valid) code = result.footageCheck.error_code || "BROKEN_ASSET_PATH";
+    else if (result.factAuditCheck && !result.factAuditCheck.valid) code = result.factAuditCheck.error_code || "UNRESOLVED_CLAIM";
+    else if (result.hedgeCheck && !result.hedgeCheck.valid) code = result.hedgeCheck.error_code || "UNKNOWN_ERROR";
     else if (result.packagingCheck && !result.packagingCheck.valid) code = result.packagingCheck.error_code || "UNKNOWN_ERROR";
 
     await cmdError({
