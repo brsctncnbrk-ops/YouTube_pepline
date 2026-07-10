@@ -19,13 +19,20 @@ state read or mutation goes through `node scripts/manifest_cli.mjs <subcommand>
 actually true — the manifest is the single source of truth, not your
 conversation memory.
 
-## The pipeline (17 stages, in order)
+## The pipeline (19 stages, in order)
+
+Migrating to a footage-primary (Aperture-style) visual pipeline — see
+`/root/.claude/plans/pipeline-migration-flickering-minsky.md` for the full
+plan. Two stages were added relative to the original 17: `fact_audit`
+(post-draft claim verification, between `script` and `script_qa`) and
+`footage_retrieval` (stock-footage selection, between `storyboard_qa` and
+`visual_style_bible`).
 
 ```
-research -> research_qa -> script -> script_qa -> voice_script -> voice_qa
+research -> research_qa -> script -> fact_audit -> script_qa -> voice_script -> voice_qa
   -> [GATE: assets/audio/final_voice.mp3 must exist -> WAITING_FOR_AUDIO if not]
-  -> storyboard -> storyboard_qa -> visual_style_bible -> visual_prompt -> visual_qa
-  -> [GATE: every assets/images/scene_NNN.png referenced by storyboard.json must exist -> WAITING_FOR_IMAGES if not]
+  -> storyboard -> storyboard_qa -> footage_retrieval -> visual_style_bible -> visual_prompt -> visual_qa
+  -> [GATE: every scene's visual asset (assets/footage/*.mp4 or assets/images/*.png, per scene's asset_type) must exist -> WAITING_FOR_VISUAL_ASSETS if not]
   -> director -> remotion -> editor -> render_qa
   -> [external: GitHub Actions renders -> output/final_video.mp4]
   -> packaging -> final_qa -> DONE
@@ -36,13 +43,14 @@ Full stage list, required files per stage, and output files per stage live in
 `STAGE_OUTPUT_FILES`, `GATES`) — read it if you need the exact contract for a
 stage rather than guessing.
 
-**Current build status**: All phases (1–5) are done — every pipeline stage
-from `research` through `final_qa` has a skill, plus the Remotion template
-(`templates/remotion/`) and the GitHub Actions render workflow
-(`.github/workflows/render.yml`). The full pipeline runs end to end: a video
-idea → research/script/voice → (record audio) → storyboard/style/prompts →
-(generate images) → director/motion/editor → render QA → GitHub Actions
-render → packaging → final QA → `DONE`.
+**Current build status**: mid-migration. `research` through `script_qa` (plus
+the new `fact_audit`) are footage-migration-complete. `footage_retrieval` is
+in `STAGE_ORDER` but its skill doesn't exist yet (Phase C of the migration) —
+`visual_style_bible`/`visual_prompt`/`visual_qa` still run the pre-migration
+Leonardo-AI-only flow pending that phase. Everything from `director` onward
+through the Remotion template (`templates/remotion/`) and the GitHub Actions
+render workflow (`.github/workflows/render.yml`) is still the original
+image-only pipeline pending Phases C-E.
 
 ## Commands you must understand
 
@@ -50,7 +58,7 @@ render → packaging → final QA → `DONE`.
 |---|---|
 | `start` | Ask for: video idea, target duration (seconds), target audience, language, reference channel style (any can be "not sure" / defaults). Then run `node scripts/manifest_cli.mjs init --name "<name>" --idea "<idea>" --duration <sec> --audience "<audience>" --language <lang> --style-ref "<style>"`. Report the new project_id and that it's scaffolded, `status=NOT_STARTED`. |
 | `status` | If the user means one project, run `manifest_cli.mjs status --project-id <id>`. If ambiguous or they want the overview, run `--all`. Summarize status/current_stage/waiting_for/open_errors in plain language, not raw JSON. |
-| `ready` | Means the user has dropped a manual asset in place. Figure out which gate applies from the project's current status (`WAITING_FOR_AUDIO` -> `manifest_cli.mjs gate --project-id <id> --gate audio`; `WAITING_FOR_IMAGES` -> `--gate images`). Report whether the gate passed or what's still missing. |
+| `ready` | Means the user has dropped a manual asset in place. Figure out which gate applies from the project's current status (`WAITING_FOR_AUDIO` -> `manifest_cli.mjs gate --project-id <id> --gate audio`; `WAITING_FOR_VISUAL_ASSETS` -> `--gate visual_assets`). Report whether the gate passed or what's still missing. |
 | `retry` | Run `manifest_cli.mjs retry --project-id <id>`. Report the stage it will resume at. |
 | `pause` | Run `manifest_cli.mjs pause --project-id <id>`. |
 | `resume` | Run `manifest_cli.mjs resume --project-id <id>`. |
@@ -77,11 +85,13 @@ or `advance` yourself around it.
 | `research` | `factforge-research` |
 | `research_qa` | `factforge-research-qa` |
 | `script` | `factforge-script` |
+| `fact_audit` | `factforge-fact-audit` (no separate QA gate — it's self-auditing) |
 | `script_qa` | `factforge-script-qa` |
 | `voice_script` | `factforge-voice` |
 | `voice_qa` | `factforge-voice-qa` |
 | `storyboard` | `factforge-storyboard` |
 | `storyboard_qa` | `factforge-storyboard-qa` |
+| `footage_retrieval` | `factforge-footage-retrieval` — **not yet built (Phase C)**; if a project reaches this stage before that skill exists, tell the user the migration isn't far enough along yet rather than guessing |
 | `visual_style_bible` | `factforge-visual-style-bible` |
 | `visual_prompt` | `factforge-visual-prompt` |
 | `visual_qa` | `factforge-visual-qa` |
@@ -102,12 +112,14 @@ before `storyboard` can run. That transition is gated by you, not by any
 skill: once the human confirms they've dropped the file in (`ready`), run
 `manifest_cli.mjs gate --project-id <id> --gate audio`.
 
-Similarly, after `visual_qa` passes, the project needs every
-`assets/images/scene_NNN.png` referenced by `storyboard.json` in place
-before `director` can run. `factforge-visual-qa` deliberately does not check
-for these files (they don't exist yet at that point) — once the human
-confirms they've generated and dropped in all the images (`ready`), run
-`manifest_cli.mjs gate --project-id <id> --gate images`.
+Similarly, after `visual_qa` passes, the project needs every scene's visual
+asset in place before `director` can run — for now (pending Phase C) that
+still means every `assets/images/scene_NNN.png` referenced by
+`storyboard.json`, mechanically checked the same way it always was.
+`factforge-visual-qa` deliberately does not check for these files (they
+don't exist yet at that point) — once the human confirms they've generated
+and dropped in all the images (`ready`), run `manifest_cli.mjs gate
+--project-id <id> --gate visual_assets`.
 
 ## The render step (external, after `render_qa`)
 

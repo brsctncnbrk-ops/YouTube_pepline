@@ -6,6 +6,7 @@
  * creativity, etc.) belong in the LLM-driven QA skills, not here.
  */
 import path from "node:path";
+import { promises as fs } from "node:fs";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import {
@@ -19,6 +20,27 @@ import {
   CliError,
 } from "./lib/fs-utils.mjs";
 import { GATES } from "./lib/pipeline.mjs";
+import { lookupClaim } from "./lib/fact-registry.mjs";
+
+/**
+ * Living list (per the migration plan, section 6) - extend as real false
+ * positives/negatives surface during use. Scanned case-insensitively against
+ * scripts/script.md: the script must read confident and fluent, with
+ * verification happening in the separate factforge-fact-audit pass, never as
+ * an inline hedge in the prose itself.
+ */
+export const BANNED_HEDGE_TOKENS = [
+  "TBD",
+  "it's unclear",
+  "may or may not",
+  "allegedly",
+  "reportedly",
+  "some say",
+  "sources suggest",
+  "it seems",
+  "possibly",
+  "perhaps",
+];
 
 const ABSOLUTE_PATH_PATTERNS = [
   /^\//, // unix absolute
@@ -209,6 +231,73 @@ export async function validatePromptCoverage({ projectId }) {
 }
 
 /**
+ * Checks that factforge-fact-audit's report is complete before script_qa may
+ * approve the script's structure: fact_audit/claims.json must schema-validate,
+ * unresolved_count must be 0, and every claim marked "verified" must still
+ * have a non-expired entry in the shared fact_registry/ (a claim verified
+ * long ago whose re_verify_after has since passed is treated as needing
+ * fresh verification, not as still-settled).
+ */
+export async function validateFactAudit({ projectId }) {
+  const dir = projectDir(projectId);
+  const claimsPath = path.join(dir, "fact_audit", "claims.json");
+  if (!(await pathExists(claimsPath))) {
+    return { valid: false, error_code: "UNRESOLVED_CLAIM", issues: ["fact_audit/claims.json not found - factforge-fact-audit has not run yet"] };
+  }
+
+  const schemaResult = await validateSchema({ file: claimsPath, schema: "fact_audit" });
+  if (!schemaResult.valid) {
+    return { valid: false, error_code: schemaResult.error_code, issues: schemaResult.errors };
+  }
+
+  const claims = await readJsonSafe(claimsPath, null);
+  const issues = [];
+  if (claims.unresolved_count !== 0) {
+    issues.push(`unresolved_count is ${claims.unresolved_count}, must be 0 before script_qa may approve`);
+  }
+  for (const claim of claims.claims || []) {
+    if (claim.verification_status !== "verified") continue;
+    const registryEntry = await lookupClaim(claim.claim_text);
+    if (!registryEntry || registryEntry.expired) {
+      issues.push(`claim "${claim.claim_text}" has no non-expired fact_registry entry - must be re-verified`);
+    }
+  }
+
+  return {
+    valid: issues.length === 0,
+    error_code: issues.length ? "UNRESOLVED_CLAIM" : null,
+    unresolved_count: claims.unresolved_count,
+    issues,
+  };
+}
+
+/**
+ * Zero TBD/hedge tokens anywhere in the final script text - one of
+ * factforge-final-qa's mechanical checks. Scans scripts/script.md against
+ * BANNED_HEDGE_TOKENS case-insensitively.
+ */
+export async function validateNoHedgeTokens({ projectId }) {
+  const dir = projectDir(projectId);
+  const scriptPath = path.join(dir, "scripts", "script.md");
+  if (!(await pathExists(scriptPath))) {
+    return { valid: false, error_code: "UNKNOWN_ERROR", matches: [], note: "scripts/script.md not found" };
+  }
+  const text = await fs.readFile(scriptPath, "utf8");
+  const matches = [];
+  for (const token of BANNED_HEDGE_TOKENS) {
+    const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(escaped, "gi");
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      const start = Math.max(0, m.index - 30);
+      const end = Math.min(text.length, m.index + token.length + 30);
+      matches.push({ token, context: text.slice(start, end).replace(/\s+/g, " ").trim() });
+    }
+  }
+  return { valid: matches.length === 0, error_code: matches.length ? "UNKNOWN_ERROR" : null, matches };
+}
+
+/**
  * Final-QA mechanical check: the rendered video plus all six spec-listed
  * YouTube packaging deliverables must exist. The packaging.json schema is
  * checked separately via SCHEMA_BY_STAGE. This is the "is the package
@@ -270,7 +359,10 @@ export async function validateRenderReady({ projectId }) {
 
 const SCHEMA_BY_STAGE = {
   research_qa: [{ file: "research/research.json", schema: "research" }],
-  script_qa: [{ file: "scripts/script_metadata.json", schema: "script" }],
+  script_qa: [
+    { file: "scripts/script_metadata.json", schema: "script" },
+    { file: "fact_audit/claims.json", schema: "fact_audit" },
+  ],
   voice_qa: [], // voice_script.txt/voice_notes.md are plain text, no JSON schema target - this gate is judgment-only
   storyboard_qa: [{ file: "storyboard/storyboard.json", schema: "storyboard" }],
   visual_qa: [{ file: "prompts/visual_prompts.json", schema: "visual_prompts" }],
@@ -301,13 +393,21 @@ export async function validateAll({ projectId, stage }) {
   let packagingCheck = { valid: true, missing: [] };
   if (stage === "final_qa") packagingCheck = await validatePackaging({ projectId });
 
+  // Re-checked here as a script_qa precondition (belt-and-suspenders): the
+  // script structure must not be approved on a pre-audit draft. factforge-
+  // fact-audit itself already hard-blocks via UNRESOLVED_CLAIM before
+  // advancing to script_qa, so this should never actually fail in practice.
+  let factAuditCheck = { valid: true, issues: [] };
+  if (stage === "script_qa") factAuditCheck = await validateFactAudit({ projectId });
+
   const valid =
     schemaChecks.every((c) => c.valid) &&
     assetCheck.valid &&
     filenamesCheck.valid &&
     coverageCheck.valid &&
-    packagingCheck.valid;
-  return { valid, schemaChecks, assetCheck, filenamesCheck, coverageCheck, packagingCheck };
+    packagingCheck.valid &&
+    factAuditCheck.valid;
+  return { valid, schemaChecks, assetCheck, filenamesCheck, coverageCheck, packagingCheck, factAuditCheck };
 }
 
 function toHuman(result) {
@@ -329,6 +429,9 @@ function toHuman(result) {
   }
   if (result.packagingCheck) {
     lines.push(`- Packaging deliverables: ${result.packagingCheck.valid ? "PASS" : "FAIL - missing " + result.packagingCheck.missing.join(", ")}`);
+  }
+  if (result.factAuditCheck) {
+    lines.push(`- Fact audit complete: ${result.factAuditCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.factAuditCheck.issues)}`);
   }
   if (result.reasons) {
     lines.push(`- Reasons: ${result.reasons.length ? result.reasons.join("; ") : "none"}`);
@@ -360,12 +463,18 @@ async function main() {
       case "render-ready":
         result = await validateRenderReady({ projectId: args["project-id"] });
         break;
+      case "fact-audit":
+        result = await validateFactAudit({ projectId: args["project-id"] });
+        break;
+      case "hedge-scan":
+        result = await validateNoHedgeTokens({ projectId: args["project-id"] });
+        break;
       case "all":
         result = await validateAll({ projectId: args["project-id"], stage: args.stage });
         break;
       default:
         throw new CliError(
-          `Unknown validate subcommand "${group}". Use: schema|paths|filenames|assets|render-ready|all`,
+          `Unknown validate subcommand "${group}". Use: schema|paths|filenames|assets|render-ready|fact-audit|hedge-scan|all`,
           "UNKNOWN_ERROR"
         );
     }

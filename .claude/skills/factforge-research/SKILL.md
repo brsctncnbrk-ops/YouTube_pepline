@@ -33,6 +33,31 @@ Research the video idea thoroughly enough to support a full script:
 If the topic is time-sensitive or you can't verify claims confidently, say so
 in `open_questions` rather than presenting a guess as fact.
 
+### Topic-Discovery (when the source is a specific episode/podcast, e.g. DOAC)
+
+When `video_idea` points at a specific piece of source content rather than a
+general topic, do a second extraction pass focused on **topic-discovery**,
+not narrative retelling:
+
+- **`core_topic`** and **`thesis`** — what the source content is actually
+  arguing, in your own words.
+- **`notable_claims`** — 5 to 10 claims worth building the video around. Each
+  needs **2-3 independent sources** before scripting — don't rely on the
+  source episode itself as the only backing; find external corroboration
+  (this is on top of, not instead of, the general sourcing requirement above).
+- **`open_questions_angles`** and **`unique_angles`** — gaps or fresh takes
+  the video could pursue that the source content didn't.
+- **Strip** personal anecdotes, verbatim phrasing, and the source's own
+  narrative sequence — you're extracting the substance, not summarizing the
+  episode in order.
+
+Separately, write a **`source_structure_summary`** (topic order + argument
+sequence of the *source* content). This is bookkeeping, not writing material:
+it does **not** feed `factforge-script` and must not influence how you write
+`summary`/`key_facts`/`timeline` above — it exists solely so
+`factforge-final-qa` can later check the finished script didn't end up
+mirroring the source's structure too closely.
+
 ## Outputs
 
 Write all three files under `projects/<project_id>/research/`:
@@ -43,6 +68,7 @@ Write all three files under `projects/<project_id>/research/`:
 
 ```json
 {
+  "schema_version": "2.0",
   "project_id": "...",
   "video_idea": "...",
   "target_duration_sec": 600,
@@ -56,12 +82,27 @@ Write all three files under `projects/<project_id>/research/`:
     { "id": "s1", "title": "...", "url": "...", "publisher": "...", "accessed_date": "...", "credibility_note": "..." }
   ],
   "open_questions": ["..."],
+  "topic_discovery": {
+    "core_topic": "...",
+    "thesis": "...",
+    "notable_claims": [{ "claim": "...", "source_refs": ["s1", "s2"] }],
+    "open_questions_angles": ["..."],
+    "unique_angles": ["..."]
+  },
+  "source_structure_summary": {
+    "topic_order": ["...", "..."],
+    "argument_sequence": ["...", "..."]
+  },
   "generated_at": "<ISO 8601 timestamp>"
 }
 ```
 
 `date` in `key_facts` may be `null` when a fact isn't date-bound. Every
-`source_ref` must match a `sources[].id`.
+`source_ref` must match a `sources[].id`. `notable_claims` needs 5-10 entries,
+each with at least 2 `source_refs`. If the video idea isn't sourced from a
+specific episode/podcast, still fill `topic_discovery` and
+`source_structure_summary` from whatever source material you did use — the
+fields are required by the schema regardless.
 
 **`research.md`** — human-readable version: summary, then key facts and
 timeline as prose/bullets, then open questions.
