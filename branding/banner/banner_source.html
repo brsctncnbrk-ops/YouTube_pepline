@@ -1,0 +1,244 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>The Arcavira Files — YouTube Banner 2560x1440</title>
+<style>
+  :root {
+    --ink:    #0B1512;  /* deep ink-teal ground */
+    --panel:  #101E1A;
+    --teal:   #2E7365;  /* channel avatar teal */
+    --teal-dim: #1C4A40;
+    --brass:  #C9A96A;  /* antique gold */
+    --brass-dim: #8A7448;
+    --ivory:  #E9E4D6;
+    --muted:  #6E837C;
+    --display: "Bitstream Charter", "Liberation Serif", serif;
+    --mono: "Courier 10 Pitch", "Liberation Mono", monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 2560px; height: 1440px; overflow: hidden; }
+  body {
+    background: var(--ink);
+    font-family: var(--display);
+    position: relative;
+  }
+
+  /* ---------- ambient ground ---------- */
+  .wash {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1600px 900px at 50% 48%, rgba(46,115,101,0.16), rgba(46,115,101,0.05) 55%, transparent 75%),
+      radial-gradient(2400px 1400px at 50% 50%, transparent 55%, rgba(4,9,8,0.55) 100%);
+  }
+  /* faint vertical catalog rules across the full width */
+  .rules {
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(
+      90deg,
+      rgba(233,228,214,0.028) 0px, rgba(233,228,214,0.028) 1px,
+      transparent 1px, transparent 128px
+    );
+  }
+  /* fine horizontal ledger lines, even fainter */
+  .ledger {
+    position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(
+      0deg,
+      rgba(233,228,214,0.016) 0px, rgba(233,228,214,0.016) 1px,
+      transparent 1px, transparent 96px
+    );
+  }
+
+  /* ---------- bureau-seal contour rings (canvas) ---------- */
+  canvas#rings { position: absolute; inset: 0; }
+
+  /* ---------- ghost monogram ---------- */
+  .monogram {
+    position: absolute;
+    right: 120px; top: 50%;
+    transform: translateY(-54%);
+    font-family: var(--display);
+    font-size: 1180px; line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 2px rgba(201,169,106,0.07);
+  }
+
+  /* ---------- side index columns (desktop/TV flourish) ---------- */
+  .index {
+    position: absolute; top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--mono);
+    font-size: 21px; letter-spacing: 0.22em;
+    line-height: 2.5;
+    color: rgba(110,131,124,0.55);
+    white-space: nowrap;
+  }
+  .index.left  { left: 150px;  text-align: left; }
+  .index.right { right: 150px; text-align: right; }
+  .index .hot  { color: rgba(201,169,106,0.7); }
+  .index .dim  { color: rgba(110,131,124,0.3); }
+
+  /* ---------- registration marks ---------- */
+  .reg {
+    position: absolute; width: 46px; height: 46px;
+    opacity: 0.35;
+  }
+  .reg::before, .reg::after {
+    content: ""; position: absolute; background: var(--brass-dim);
+  }
+  .reg::before { left: 50%; top: 0; width: 1px; height: 100%; }
+  .reg::after  { top: 50%; left: 0; height: 1px; width: 100%; }
+  .reg.tl { left: 200px;  top: 170px; }
+  .reg.tr { right: 200px; top: 170px; }
+  .reg.bl { left: 200px;  bottom: 170px; }
+  .reg.br { right: 200px; bottom: 170px; }
+
+  /* top & bottom archival strips */
+  .strip {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-family: var(--mono); font-size: 20px;
+    letter-spacing: 0.55em; text-indent: 0.55em;
+    color: rgba(110,131,124,0.5);
+    white-space: nowrap;
+  }
+  .strip.top { top: 178px; }
+  .strip.bottom { bottom: 178px; }
+
+  /* ---------- the case card (safe area 1546x423, centered) ---------- */
+  .safe {
+    position: absolute;
+    left: 507px; top: 508px;
+    width: 1546px; height: 424px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card {
+    position: relative;
+    width: 1470px; height: 380px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 26px;
+    background: linear-gradient(180deg, rgba(16,30,26,0.62), rgba(11,21,18,0.30));
+    border: 1px solid rgba(201,169,106,0.28);
+  }
+  /* corner ticks on the card, like a mounted catalog plate */
+  .card .tick {
+    position: absolute; width: 26px; height: 26px;
+    border-color: var(--brass); border-style: solid;
+    opacity: 0.9;
+  }
+  .card .tick.tl { left: -1px;  top: -1px;    border-width: 2px 0 0 2px; }
+  .card .tick.tr { right: -1px; top: -1px;    border-width: 2px 2px 0 0; }
+  .card .tick.bl { left: -1px;  bottom: -1px; border-width: 0 0 2px 2px; }
+  .card .tick.br { right: -1px; bottom: -1px; border-width: 0 2px 2px 0; }
+
+  .eyebrow {
+    display: flex; align-items: center; gap: 28px;
+    font-family: var(--mono);
+    font-size: 25px; letter-spacing: 0.42em; text-indent: 0.42em;
+    color: var(--brass);
+  }
+  .eyebrow .bar { width: 90px; height: 1px; background: rgba(201,169,106,0.55); }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 110px; line-height: 1;
+    letter-spacing: 0.12em; text-indent: 0.12em;
+    color: var(--ivory);
+    text-shadow: 0 2px 40px rgba(0,0,0,0.6);
+    white-space: nowrap;
+  }
+  h1 .the { color: var(--brass); }
+
+  .divider {
+    display: flex; align-items: center; gap: 18px;
+  }
+  .divider .line { width: 330px; height: 1px; background: rgba(233,228,214,0.22); }
+  .divider .gem {
+    width: 11px; height: 11px; transform: rotate(45deg);
+    background: var(--teal);
+    box-shadow: 0 0 18px rgba(46,115,101,0.9);
+  }
+
+  .tagline {
+    font-family: var(--display);
+    font-style: italic;
+    font-size: 34px; letter-spacing: 0.06em;
+    color: rgba(233,228,214,0.78);
+  }
+</style>
+</head>
+<body>
+  <div class="wash"></div>
+  <div class="rules"></div>
+  <div class="ledger"></div>
+  <canvas id="rings" width="2560" height="1440"></canvas>
+  <div class="monogram">A</div>
+
+  <div class="index left">
+    <span class="dim">FILE&nbsp;031&nbsp;·&nbsp;SEALED</span><br>
+    <span>FILE&nbsp;047&nbsp;·&nbsp;RECOVERED</span><br>
+    <span class="hot">FILE&nbsp;052&nbsp;·&nbsp;OPEN</span><br>
+    <span>FILE&nbsp;066&nbsp;·&nbsp;VERIFIED</span><br>
+    <span class="dim">FILE&nbsp;071&nbsp;·&nbsp;PENDING</span>
+  </div>
+  <div class="index right">
+    <span class="dim">LOST&nbsp;CITIES</span><br>
+    <span>COLD&nbsp;CASES</span><br>
+    <span class="hot">FORGOTTEN&nbsp;SCIENCE</span><br>
+    <span>QUIET&nbsp;CONSPIRACIES</span><br>
+    <span class="dim">UNSOLVED&nbsp;MAPS</span>
+  </div>
+
+  <div class="reg tl"></div><div class="reg tr"></div>
+  <div class="reg bl"></div><div class="reg br"></div>
+  <div class="strip top">CASE&nbsp;ARCHIVE&nbsp;·&nbsp;RESTRICTED&nbsp;SHELF&nbsp;·&nbsp;READING&nbsp;ROOM&nbsp;IV</div>
+  <div class="strip bottom">EVERY&nbsp;STORY&nbsp;LEAVES&nbsp;A&nbsp;RECORD</div>
+
+  <div class="safe">
+    <div class="card">
+      <div class="tick tl"></div><div class="tick tr"></div>
+      <div class="tick bl"></div><div class="tick br"></div>
+      <div class="eyebrow"><span class="bar"></span>DECLASSIFIED&nbsp;WEEKLY<span class="bar"></span></div>
+      <h1><span class="the">THE</span> ARCAVIRA FILES</h1>
+      <div class="divider"><span class="line"></span><span class="gem"></span><span class="line"></span></div>
+      <div class="tagline">The deeper story behind what we think we know</div>
+    </div>
+  </div>
+
+<script>
+  // Bureau-seal contour rings: two large ring clusters anchored off-canvas
+  // left and right, plus faint arc fragments, drawn in brass and teal.
+  const cv = document.getElementById('rings');
+  const cx = cv.getContext('2d');
+
+  function ringCluster(x, y, r0, n, step, color, alpha, dash) {
+    for (let i = 0; i < n; i++) {
+      cx.beginPath();
+      cx.arc(x, y, r0 + i * step, 0, Math.PI * 2);
+      cx.strokeStyle = color;
+      cx.globalAlpha = alpha * (1 - i / (n + 2));
+      cx.lineWidth = i % 4 === 0 ? 1.6 : 1;
+      cx.setLineDash(i % 3 === 2 ? dash : []);
+      cx.stroke();
+    }
+    cx.setLineDash([]);
+    cx.globalAlpha = 1;
+  }
+
+  ringCluster(-140, 1180, 180, 14, 64, '#C9A96A', 0.10, [2, 10]);
+  ringCluster(2700,  260, 220, 12, 72, '#2E7365', 0.16, [3, 12]);
+  ringCluster(1280, -420, 300, 8,  90, '#C9A96A', 0.05, [2, 14]);
+
+  // scattered catalog dots along the ledger intersections
+  cx.fillStyle = '#C9A96A';
+  const pts = [[352,300],[608,876],[864,204],[1120,1260],[1888,1164],[2144,396],[2400,972],[224,684],[2336,588]];
+  for (const [x, y] of pts) {
+    cx.globalAlpha = 0.18;
+    cx.beginPath(); cx.arc(x, y, 2.4, 0, Math.PI * 2); cx.fill();
+  }
+  cx.globalAlpha = 1;
+</script>
+</body>
+</html>
