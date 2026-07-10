@@ -20,6 +20,13 @@ the human pastes your output manually and drops the resulting
 
 Rewrite the script into paste-ready narration:
 
+- Recommend a **calm, deep-register ElevenLabs voice profile** in
+  `voice_notes.md` — one that reads as measured and essayistic, matching the
+  Aperture-style tone the script was written in (see `factforge-script`).
+  Avoid bright/peppy/high-energy default voices; favor lower pitch, slower
+  cadence, and higher `stability` / lower `style exaggeration` settings if
+  the human is choosing ElevenLabs voice settings. This is advisory for the
+  human doing the recording, not something you can enforce mechanically.
 - Simplify anything hard to pronounce correctly on a first pass (unusual
   names, acronyms, numbers, foreign words) — spell out or phoneticize where
   it meaningfully helps (e.g. "GIF (jiff)" only if genuinely ambiguous; don't
@@ -42,9 +49,10 @@ Write both files under `projects/<project_id>/voice/`:
 **`voice_script.txt`** — plain text, nothing but what should be pasted into
 ElevenLabs. No markdown headings, no metadata, no commentary.
 
-**`voice_notes.md`** — for the human doing the recording: which words were
-simplified and why, where the pause markers are and what pacing they imply,
-and anything else worth flagging before hitting "generate" in ElevenLabs.
+**`voice_notes.md`** — for the human doing the recording: the recommended
+calm/deep-register voice profile, which words were simplified and why, where
+the pause markers are and what pacing they imply, and anything else worth
+flagging before hitting "generate" in ElevenLabs.
 
 ## Before finishing
 
