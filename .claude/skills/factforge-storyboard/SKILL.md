@@ -11,9 +11,12 @@ prompts — that's `factforge-visual-style-bible` and `factforge-visual-prompt`.
 
 ## Inputs
 
-`scripts/script.md`, `voice/voice_script.txt`, `assets/audio/final_voice.mp3`
-(now a real recorded file — this stage only runs after the audio gate has
-passed), and `config/video_config.json` (`target_duration_sec`).
+`scripts/script.md`, `scripts/script_metadata.json` (for each beat's
+`visual_guidance: {mood, visual_need_hint}` — your scenes should carry this
+forward, not invent mood/visual-need from scratch), `voice/voice_script.txt`,
+`assets/audio/final_voice.mp3` (now a real recorded file — this stage only
+runs after the audio gate has passed), and `config/video_config.json`
+(`target_duration_sec`).
 
 **Use the real audio duration as ground truth if you can get it.** If
 `ffprobe` (part of ffmpeg) is available in the environment, run something
@@ -34,7 +37,12 @@ Break the script into scenes:
 
 - Assign each scene a **purpose** (what story beat it serves).
 - Define its **visual need** (what should be on screen — a description, not
-  a Leonardo prompt).
+  a Leonardo prompt) and a controlled **`mood`** tag (one of `calm | tense |
+  hopeful | melancholic | curious | triumphant | somber | reflective |
+  neutral`). Both should carry forward the beat's `visual_guidance` from
+  `script_metadata.json` (`mood` and `visual_need_hint`) — refine/split it
+  per scene rather than inventing an unrelated mood, since this is what
+  `factforge-footage-retrieval` builds its search queries from next.
 - Note any **on-screen text** (or `null` if none).
 - Set **transitions** in and out (e.g. `fade`, `cut`, `dissolve`).
 - Set `start_sec`/`end_sec`/`duration_sec` so scenes are contiguous and sum
@@ -54,6 +62,7 @@ and use sequential, zero-padded, gap-free scene ids starting at `scene_001`:
 
 ```json
 {
+  "schema_version": "2.0",
   "project_id": "...",
   "target_duration_sec": 300,
   "total_duration_sec": 300,
@@ -62,7 +71,7 @@ and use sequential, zero-padded, gap-free scene ids starting at `scene_001`:
     {
       "scene_id": "scene_001",
       "start_sec": 0, "end_sec": 15, "duration_sec": 15,
-      "purpose": "...", "visual_need": "...", "on_screen_text": null,
+      "purpose": "...", "visual_need": "...", "mood": "curious", "on_screen_text": null,
       "transition_in": "fade", "transition_out": "cut",
       "voice_line_ref": "..."
     }

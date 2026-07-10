@@ -1,27 +1,47 @@
 ---
 name: factforge-visual-style-bible
-description: Defines the reusable visual style and consistency token for a FactForge video's images. Use when a FactForge project's manifest current_stage is "visual_style_bible".
+description: Defines the reusable visual style and consistency token for a FactForge video's AI-fallback stills (scenes footage_retrieval couldn't match with real footage). Use when a FactForge project's manifest current_stage is "visual_style_bible".
 ---
 
 # FactForge Visual Style Bible
 
-You define the single visual language every scene's Leonardo AI prompt will
-share. This stage has **no dedicated QA gate** in the pipeline — the next
-gate (`visual_qa`) only checks the prompts built from your output, not this
+You define the visual language for this video's **AI-fallback stills only**
+— since the footage-primary migration, `factforge-footage-retrieval` runs
+before you and already picked real stock footage for most scenes. You style
+whatever's left: scenes flagged `fallback_to_ai_visual: true` in
+`footage/footage_manifest.json`, because no adequate footage match existed.
+A project can legitimately have zero such scenes — in that case, still write
+a minimal style bible (a future scene might need it after a re-run), but
+don't over-invest.
+
+This stage has **no dedicated QA gate** in the pipeline — the next gate
+(`visual_qa`) only checks the prompts built from your output, not this
 output directly — so hold yourself to a high bar and double-check internal
 consistency across all six files before advancing, since nothing downstream
 will catch a self-contradictory style bible for you.
 
 ## Inputs
 
-`storyboard/storyboard.json`, `scripts/script.md`, and
+`storyboard/storyboard.json`, `scripts/script.md`,
+`footage/footage_manifest.json` (identify which scenes actually need
+styling), `footage/footage_manifest.md` (the surrounding footage's color/
+tone, so fallback stills can best-effort match it — see below), and
 `config/project_config.json`'s `reference_channel_style`.
 
 ## Task
 
-Design one coherent visual identity for this video and write it down
-precisely enough that a different prompt-writing session, days later, would
-produce visually consistent images from your notes alone. Cover:
+Design one coherent visual identity for the fallback stills and write it
+down precisely enough that a different prompt-writing session, days later,
+would produce visually consistent images from your notes alone. Cover:
+
+- **Footage color/tone matching** — read `footage_manifest.md`'s chosen
+  clips for the scenes *surrounding* each fallback scene and note their
+  general color grade/tone (warm vs. cool, high vs. low contrast, saturated
+  vs. desaturated) so the fallback stills don't visually clash when cut
+  against real footage. Treat this as **best-effort only** — call it out
+  explicitly in `visual_style_bible.md` as something that still needs a
+  human visual QC pass once the stills exist; a prompt-level color
+  description can't guarantee a true grade match.
 
 - **Overall visual language** — the core aesthetic (e.g. "clean cinematic
   2.5D illustration" or "flat vector infographic") consistent with

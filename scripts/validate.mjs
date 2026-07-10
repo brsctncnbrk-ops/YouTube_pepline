@@ -150,6 +150,38 @@ export async function validateFilenames({ projectId }) {
   return { valid: issues.length === 0, error_code: issues.length ? "BROKEN_ASSET_PATH" : null, issues };
 }
 
+/**
+ * Resolves, per storyboard scene, whether the render pipeline expects a
+ * footage clip (assets/footage/<id>.mp4) or an AI-fallback still
+ * (assets/images/<id>.png), and checks the corresponding file exists. A
+ * scene with no footage_manifest.json entry at all is treated as
+ * fallback (defensive default - matches pre-footage-retrieval behavior for
+ * any project state where the manifest hasn't been written yet).
+ */
+export async function validateVisualAssets({ projectId }) {
+  const dir = projectDir(projectId);
+  const storyboardPath = path.join(dir, "storyboard", "storyboard.json");
+  const footagePath = path.join(dir, "footage", "footage_manifest.json");
+
+  const storyboard = await readJsonSafe(storyboardPath, null);
+  if (!storyboard || !Array.isArray(storyboard.scenes)) {
+    return { valid: true, missing: [], note: "storyboard.json not present yet" };
+  }
+  const footageManifest = await readJsonSafe(footagePath, null);
+  const footageByScene = new Map((footageManifest?.scenes || []).map((s) => [s.scene_id, s]));
+
+  const missing = [];
+  for (const scene of storyboard.scenes) {
+    if (!/^scene_[0-9]{3}$/.test(scene.scene_id || "")) continue;
+    const entry = footageByScene.get(scene.scene_id);
+    const useFallback = !entry || entry.fallback_to_ai_visual;
+    const rel = useFallback ? `assets/images/${scene.scene_id}.png` : `assets/footage/${scene.scene_id}.mp4`;
+    if (!(await pathExists(path.join(dir, rel)))) missing.push(rel);
+  }
+
+  return { valid: missing.length === 0, missing };
+}
+
 export async function validateAssets({ projectId, check = "all" }) {
   const dir = projectDir(projectId);
   const missing = [];
@@ -159,21 +191,9 @@ export async function validateAssets({ projectId, check = "all" }) {
     if (!(await pathExists(audioPath))) missing.push(GATES.audio.requiredFile);
   }
 
-  // NOTE: this still only checks assets/images/*.png. Full per-scene
-  // asset_type branching (assets/footage/*.mp4 for footage scenes vs.
-  // assets/images/*.png for ai_fallback scenes, resolved from
-  // footage/footage_manifest.json) is Phase C scope - see
-  // /root/.claude/plans/pipeline-migration-flickering-minsky.md section 4.
   if (check === "visual_assets" || check === "all") {
-    const storyboardPath = path.join(dir, "storyboard", "storyboard.json");
-    const storyboard = await readJsonSafe(storyboardPath, null);
-    if (storyboard && Array.isArray(storyboard.scenes)) {
-      for (const scene of storyboard.scenes) {
-        if (!/^scene_[0-9]{3}$/.test(scene.scene_id || "")) continue;
-        const rel = `assets/images/${scene.scene_id}.png`;
-        if (!(await pathExists(path.join(dir, rel)))) missing.push(rel);
-      }
-    }
+    const visualCheck = await validateVisualAssets({ projectId });
+    missing.push(...visualCheck.missing);
   }
 
   return {
@@ -184,36 +204,85 @@ export async function validateAssets({ projectId, check = "all" }) {
 }
 
 /**
- * Checks that prompts/visual_prompts.json fully covers the storyboard's
- * scenes with correctly-patterned filenames - "can these scenes be linked to
- * the asset folder" per the spec's visual QA gate. Deliberately does NOT
- * check whether assets/images/scene_NNN.png actually exist yet: at the point
- * visual_qa runs, the human hasn't generated them in Leonardo AI - that only
- * happens after this gate passes, checked separately by the visual_assets
- * gate (GATES.visual_assets) right before the "director" stage.
+ * Checks that footage/footage_manifest.json fully covers the storyboard's
+ * scenes, and that every non-fallback entry carries complete provenance
+ * (source/license/selected_url/reasoning) - the "evidence of deliberate
+ * editorial choice" record the migration plan requires, not just a
+ * keyword-match log. Also confirms every entry either passed the duration/
+ * resolution hard filters (has native_duration_sec/native_resolution) or is
+ * flagged fallback_to_ai_visual - there's no third option.
  */
-export async function validatePromptCoverage({ projectId }) {
+export async function validateFootageCoverage({ projectId }) {
   const dir = projectDir(projectId);
   const storyboardPath = path.join(dir, "storyboard", "storyboard.json");
-  const promptsPath = path.join(dir, "prompts", "visual_prompts.json");
+  const footagePath = path.join(dir, "footage", "footage_manifest.json");
 
   const storyboard = await readJsonSafe(storyboardPath, null);
   if (!storyboard || !Array.isArray(storyboard.scenes)) {
     return { valid: false, error_code: "INVALID_JSON", issues: ["storyboard.json missing or has no scenes[]"] };
   }
-  const prompts = await readJsonSafe(promptsPath, null);
-  if (!prompts || !Array.isArray(prompts.scenes)) {
-    return { valid: false, error_code: "INVALID_JSON", issues: ["visual_prompts.json missing or has no scenes[]"] };
+  const footage = await readJsonSafe(footagePath, null);
+  if (!footage || !Array.isArray(footage.scenes)) {
+    return { valid: false, error_code: "INVALID_JSON", issues: ["footage_manifest.json missing or has no scenes[]"] };
   }
 
   const issues = [];
   const storyboardIds = new Set(storyboard.scenes.map((s) => s.scene_id));
-  const promptById = new Map(prompts.scenes.map((s) => [s.scene_id, s]));
+  const footageById = new Map(footage.scenes.map((s) => [s.scene_id, s]));
 
   for (const id of storyboardIds) {
+    const entry = footageById.get(id);
+    if (!entry) {
+      issues.push({ scene_id: id, reason: "no matching entry in footage_manifest.json" });
+      continue;
+    }
+    if (!entry.fallback_to_ai_visual) {
+      if (!entry.source || !entry.license || !entry.selected_url || !entry.reasoning) {
+        issues.push({ scene_id: id, reason: "missing source/license/selected_url/reasoning provenance" });
+      }
+      if (entry.native_duration_sec == null || !entry.native_resolution) {
+        issues.push({ scene_id: id, reason: "not fallback_to_ai_visual but missing native_duration_sec/native_resolution - did it actually pass the hard filters?" });
+      }
+    }
+  }
+  for (const id of footageById.keys()) {
+    if (!storyboardIds.has(id)) {
+      issues.push({ scene_id: id, reason: "footage_manifest.json has an entry with no matching storyboard scene" });
+    }
+  }
+
+  return { valid: issues.length === 0, error_code: issues.length ? "BROKEN_ASSET_PATH" : null, issues };
+}
+
+/**
+ * Checks that prompts/visual_prompts.json covers exactly the scenes flagged
+ * fallback_to_ai_visual in footage_manifest.json - since footage_retrieval,
+ * visual_prompt only writes fallback scenes (possibly zero), not every
+ * storyboard scene. Deliberately does NOT check whether
+ * assets/images/scene_NNN.png actually exist yet: at the point visual_qa
+ * runs, the human hasn't generated them in Leonardo AI - that only happens
+ * after this gate passes, checked separately by the visual_assets gate
+ * (GATES.visual_assets) right before the "director" stage.
+ */
+export async function validatePromptCoverage({ projectId }) {
+  const dir = projectDir(projectId);
+  const promptsPath = path.join(dir, "prompts", "visual_prompts.json");
+  const footagePath = path.join(dir, "footage", "footage_manifest.json");
+
+  const prompts = await readJsonSafe(promptsPath, null);
+  if (!prompts || !Array.isArray(prompts.scenes)) {
+    return { valid: false, error_code: "INVALID_JSON", issues: ["visual_prompts.json missing or has no scenes[]"] };
+  }
+  const footage = await readJsonSafe(footagePath, null);
+  const fallbackIds = new Set((footage?.scenes || []).filter((s) => s.fallback_to_ai_visual).map((s) => s.scene_id));
+
+  const issues = [];
+  const promptById = new Map(prompts.scenes.map((s) => [s.scene_id, s]));
+
+  for (const id of fallbackIds) {
     const entry = promptById.get(id);
     if (!entry) {
-      issues.push({ scene_id: id, reason: "no matching entry in visual_prompts.json" });
+      issues.push({ scene_id: id, reason: "flagged fallback_to_ai_visual in footage_manifest.json but no matching entry in visual_prompts.json" });
       continue;
     }
     const expectedFilename = `${id}.png`;
@@ -222,8 +291,8 @@ export async function validatePromptCoverage({ projectId }) {
     }
   }
   for (const id of promptById.keys()) {
-    if (!storyboardIds.has(id)) {
-      issues.push({ scene_id: id, reason: "visual_prompts.json has an entry with no matching storyboard scene" });
+    if (!fallbackIds.has(id)) {
+      issues.push({ scene_id: id, reason: "visual_prompts.json has an entry for a scene not flagged fallback_to_ai_visual in footage_manifest.json" });
     }
   }
 
@@ -365,7 +434,10 @@ const SCHEMA_BY_STAGE = {
   ],
   voice_qa: [], // voice_script.txt/voice_notes.md are plain text, no JSON schema target - this gate is judgment-only
   storyboard_qa: [{ file: "storyboard/storyboard.json", schema: "storyboard" }],
-  visual_qa: [{ file: "prompts/visual_prompts.json", schema: "visual_prompts" }],
+  visual_qa: [
+    { file: "prompts/visual_prompts.json", schema: "visual_prompts" },
+    { file: "footage/footage_manifest.json", schema: "footage_manifest" },
+  ],
   render_qa: [{ file: "remotion/composition.json", schema: "composition" }],
   final_qa: [{ file: "packaging/packaging.json", schema: "packaging" }],
 };
@@ -390,6 +462,9 @@ export async function validateAll({ projectId, stage }) {
   let coverageCheck = { valid: true, issues: [] };
   if (stage === "visual_qa") coverageCheck = await validatePromptCoverage({ projectId });
 
+  let footageCheck = { valid: true, issues: [] };
+  if (stage === "visual_qa") footageCheck = await validateFootageCoverage({ projectId });
+
   let packagingCheck = { valid: true, missing: [] };
   if (stage === "final_qa") packagingCheck = await validatePackaging({ projectId });
 
@@ -405,9 +480,10 @@ export async function validateAll({ projectId, stage }) {
     assetCheck.valid &&
     filenamesCheck.valid &&
     coverageCheck.valid &&
+    footageCheck.valid &&
     packagingCheck.valid &&
     factAuditCheck.valid;
-  return { valid, schemaChecks, assetCheck, filenamesCheck, coverageCheck, packagingCheck, factAuditCheck };
+  return { valid, schemaChecks, assetCheck, filenamesCheck, coverageCheck, footageCheck, packagingCheck, factAuditCheck };
 }
 
 function toHuman(result) {
@@ -425,7 +501,10 @@ function toHuman(result) {
     lines.push(`- Scene filenames/numbering: ${result.filenamesCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.filenamesCheck.issues)}`);
   }
   if (result.coverageCheck) {
-    lines.push(`- Prompt-to-scene coverage: ${result.coverageCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.coverageCheck.issues)}`);
+    lines.push(`- Prompt-to-scene coverage (fallback scenes only): ${result.coverageCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.coverageCheck.issues)}`);
+  }
+  if (result.footageCheck) {
+    lines.push(`- Footage provenance coverage: ${result.footageCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.footageCheck.issues)}`);
   }
   if (result.packagingCheck) {
     lines.push(`- Packaging deliverables: ${result.packagingCheck.valid ? "PASS" : "FAIL - missing " + result.packagingCheck.missing.join(", ")}`);

@@ -43,14 +43,17 @@ Full stage list, required files per stage, and output files per stage live in
 `STAGE_OUTPUT_FILES`, `GATES`) — read it if you need the exact contract for a
 stage rather than guessing.
 
-**Current build status**: mid-migration. `research` through `script_qa` (plus
-the new `fact_audit`) are footage-migration-complete. `footage_retrieval` is
-in `STAGE_ORDER` but its skill doesn't exist yet (Phase C of the migration) —
-`visual_style_bible`/`visual_prompt`/`visual_qa` still run the pre-migration
-Leonardo-AI-only flow pending that phase. Everything from `director` onward
-through the Remotion template (`templates/remotion/`) and the GitHub Actions
-render workflow (`.github/workflows/render.yml`) is still the original
-image-only pipeline pending Phases C-E.
+**Current build status**: mid-migration. `research` through `visual_qa`
+(`fact_audit` and `footage_retrieval` included) are footage-migration-
+complete — footage is the primary visual source, AI stills are fallback-only
+for scenes `factforge-footage-retrieval` flags `fallback_to_ai_visual`.
+Everything from `director` onward — the motion/render pipeline
+(`composition.schema.json`'s `asset_type` discriminator,
+`scripts/remotion_build.mjs`, the Remotion template in
+`templates/remotion/`) and the GitHub Actions render workflow
+(`.github/workflows/render.yml`) — is still the original image-only
+pipeline, pending Phase D. `factforge-packaging`/`factforge-final-qa`'s
+attribution/reused-content extensions are pending Phase E.
 
 ## Commands you must understand
 
@@ -91,7 +94,7 @@ or `advance` yourself around it.
 | `voice_qa` | `factforge-voice-qa` |
 | `storyboard` | `factforge-storyboard` |
 | `storyboard_qa` | `factforge-storyboard-qa` |
-| `footage_retrieval` | `factforge-footage-retrieval` — **not yet built (Phase C)**; if a project reaches this stage before that skill exists, tell the user the migration isn't far enough along yet rather than guessing |
+| `footage_retrieval` | `factforge-footage-retrieval` |
 | `visual_style_bible` | `factforge-visual-style-bible` |
 | `visual_prompt` | `factforge-visual-prompt` |
 | `visual_qa` | `factforge-visual-qa` |
