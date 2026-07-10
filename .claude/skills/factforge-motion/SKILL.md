@@ -15,9 +15,12 @@ TSX) — the generic template already handles rendering; you only produce data.
 ## Inputs
 
 `storyboard/storyboard.json` (scene timings in seconds, transitions,
-on-screen text), `direction/direction_plan.md` (per-scene camera motion
-keyword + intensity), `config/video_config.json` (`fps`, `width`, `height`),
-and `config/render_config.json` (`codec`, `crf`, `output_filename`).
+on-screen text), `footage/footage_manifest.json` (per-scene `asset_type`,
+and for footage scenes `native_duration_sec`/`trim_in_sec`/`trim_out_sec`),
+`direction/direction_plan.md` (per-scene camera motion keyword + intensity
+for `ai_fallback` scenes, or an overridden trim window for `footage`
+scenes), `config/video_config.json` (`fps`, `width`, `height`), and
+`config/render_config.json` (`codec`, `crf`, `output_filename`).
 
 ## Task
 
@@ -28,19 +31,34 @@ Convert the storyboard's second-based timings to frames using `fps`:
   `end_frame = round(scene.end_sec * fps)`.
 - `duration_frames` (top level) = the last scene's `end_frame` (the total
   frame count of the video).
-- For each scene, set `camera_motion.type` from the direction plan's keyword
-  (`zoom_in`, `zoom_out`, `pan_left`, `pan_right`, `pan_up`, `pan_down`, or
-  `static`) and put any intensity in `camera_motion.params` (e.g.
-  `{ "from": 1.0, "to": 1.12 }` for zoom, `{ "magnitude": 4 }` for pan).
-  Leave `params` as `{}` for `static`.
+- Set each scene's `asset_type` from `footage_manifest.json`
+  (`fallback_to_ai_visual: true` → `"ai_fallback"`, else → `"footage"`).
+  This decides which fields the rest of the scene needs — the schema
+  enforces it via an `if/then`, so don't mix the two shapes:
+
+  - **`asset_type: "footage"`**: `video_asset` = `assets/footage/<scene_id>.mp4`,
+    plus `trim_in_sec`/`trim_out_sec` — use the direction plan's overridden
+    trim window if it gave one, otherwise the footage manifest's own
+    `trim_in_sec`/`trim_out_sec`. **No `camera_motion`** — footage scenes
+    don't carry Ken Burns motion.
+  - **`asset_type: "ai_fallback"`**: `image_asset` = `assets/images/<scene_id>.png`,
+    plus `camera_motion.type` from the direction plan's keyword (`zoom_in`,
+    `zoom_out`, `pan_left`, `pan_right`, `pan_up`, `pan_down`, or `static`)
+    with any intensity in `camera_motion.params` (e.g.
+    `{ "from": 1.0, "to": 1.12 }` for zoom, `{ "magnitude": 4 }` for pan;
+    `{}` for `static`). **No `video_asset`/trim fields.**
+
 - Carry `transition_in`/`transition_out` and `text_overlay` straight from the
   storyboard (the template renders `fade`/`dissolve` as opacity fades; other
   transition values render as hard cuts).
-- `image_asset` = `assets/images/<scene_id>.png`, `audio_asset` =
-  `assets/audio/final_voice.mp3` — **always relative paths, never absolute**
-  (the render happens on GitHub Actions, not a local machine; absolute paths
-  are rejected by `validate.mjs paths` and the schema regexes).
-- Build the top-level `asset_map` object keyed by `scene_id`, each
+- `audio_asset` = `assets/audio/final_voice.mp3` — **always relative paths,
+  never absolute** (the render happens on GitHub Actions, not a local
+  machine; absolute paths are rejected by `validate.mjs paths` and the
+  schema regexes) — this applies to `video_asset`/`image_asset` too.
+- Build the top-level `asset_map` object keyed by `scene_id`, mirroring the
+  same discriminated shape: footage scenes get
+  `{ "video": "assets/footage/<scene_id>.mp4", "audio_offset_sec": <scene.start_sec>, "trim_in_sec": ..., "trim_out_sec": ... }`;
+  ai_fallback scenes get
   `{ "image": "assets/images/<scene_id>.png", "audio_offset_sec": <scene.start_sec> }`.
 - `render` = `{ "codec", "crf", "output_filename": "final_video.mp4" }` from
   `render_config.json`.
@@ -49,19 +67,33 @@ Exact shape (see `schemas/composition.schema.json` for the authority):
 
 ```json
 {
+  "schema_version": "2.0",
   "fps": 30, "width": 1920, "height": 1080, "duration_frames": 5040,
   "audio_asset": "assets/audio/final_voice.mp3",
   "scenes": [
     {
       "scene_id": "scene_001",
       "start_frame": 0, "end_frame": 660,
-      "image_asset": "assets/images/scene_001.png",
-      "camera_motion": { "type": "zoom_in", "params": { "from": 1.0, "to": 1.12 } },
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_001.mp4",
+      "trim_in_sec": 2, "trim_out_sec": 24,
       "text_overlay": "May 1, 1840",
       "transition_in": "fade", "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_002",
+      "start_frame": 660, "end_frame": 1200,
+      "asset_type": "ai_fallback",
+      "image_asset": "assets/images/scene_002.png",
+      "camera_motion": { "type": "zoom_in", "params": { "from": 1.0, "to": 1.12 } },
+      "text_overlay": null,
+      "transition_in": "cut", "transition_out": "fade"
     }
   ],
-  "asset_map": { "scene_001": { "image": "assets/images/scene_001.png", "audio_offset_sec": 0 } },
+  "asset_map": {
+    "scene_001": { "video": "assets/footage/scene_001.mp4", "audio_offset_sec": 0, "trim_in_sec": 2, "trim_out_sec": 24 },
+    "scene_002": { "image": "assets/images/scene_002.png", "audio_offset_sec": 22 }
+  },
   "render": { "codec": "h264", "crf": 18, "output_filename": "final_video.mp4" }
 }
 ```

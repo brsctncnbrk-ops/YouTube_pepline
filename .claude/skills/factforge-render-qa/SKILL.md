@@ -21,7 +21,9 @@ This runs the aggregate render-readiness check (`validateRenderReady`) and
 writes `qa/render_qa.md`. It verifies:
 
 - `assets/audio/final_voice.mp3` present.
-- Every `assets/images/scene_NNN.png` referenced by the storyboard present.
+- Every scene's resolved visual asset present — `assets/footage/scene_NNN.mp4`
+  or `assets/images/scene_NNN.png`, per `footage/footage_manifest.json`'s
+  `fallback_to_ai_visual` flag for that scene.
 - No absolute paths / drive letters / `..` in the Remotion config files.
 - Scene filenames/numbering are consistent.
 - `remotion/render_ready_project/` exists.

@@ -3,9 +3,10 @@
   "$id": "packaging.schema.json",
   "title": "FactForge YouTube Packaging",
   "type": "object",
-  "required": ["project_id", "titles", "description", "tags", "thumbnail_concepts", "chapters", "pinned_comment", "generated_at"],
+  "required": ["schema_version", "project_id", "titles", "description", "tags", "thumbnail_concepts", "chapters", "pinned_comment", "generated_at"],
   "additionalProperties": false,
   "properties": {
+    "schema_version": { "type": "string" },
     "project_id": { "type": "string" },
     "titles": { "type": "array", "minItems": 3, "items": { "type": "string", "minLength": 1 } },
     "description": { "type": "string", "minLength": 1 },
@@ -37,6 +38,11 @@
       }
     },
     "pinned_comment": { "type": "string" },
+    "footage_attribution": {
+      "type": "array",
+      "description": "Attribution lines sourced from footage/footage_manifest.json for clips whose license requires credit. Optional - not every project has attribution-required footage.",
+      "items": { "type": "string" }
+    },
     "generated_at": { "type": "string" }
   }
 }

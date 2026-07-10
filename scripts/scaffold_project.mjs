@@ -23,7 +23,7 @@ import {
   printJson,
   CliError,
 } from "./lib/fs-utils.mjs";
-import { STAGE_ORDER } from "./lib/pipeline.mjs";
+import { STAGE_ORDER, SCHEMA_VERSION } from "./lib/pipeline.mjs";
 
 function slugify(name) {
   return name
@@ -112,6 +112,7 @@ export async function scaffoldProject({
   });
 
   const manifest = {
+    schema_version: SCHEMA_VERSION,
     project_id: id,
     project_name: name,
     status: "NOT_STARTED",

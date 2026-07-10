@@ -107,9 +107,9 @@ async function cmdCheckRequired(args) {
     if (!(await pathExists(path.join(dir, rel)))) missing.push(rel);
   }
 
-  if (stage === GATES.images.beforeStage) {
-    const imgCheck = await validateAssets({ projectId, check: "images" });
-    if (!imgCheck.valid) missing.push(...imgCheck.missing);
+  if (stage === GATES.visual_assets.beforeStage) {
+    const visualCheck = await validateAssets({ projectId, check: "visual_assets" });
+    if (!visualCheck.valid) missing.push(...visualCheck.missing);
   }
 
   return { project_id: projectId, stage, required_files: staticFiles, missing, pass: missing.length === 0 };
@@ -143,7 +143,7 @@ async function cmdGate(args) {
   const { "project-id": projectId, gate: gateName } = args;
   if (!projectId || !gateName) throw new CliError("--project-id and --gate are required", "UNKNOWN_ERROR");
   const gate = GATES[gateName];
-  if (!gate) throw new CliError(`Unknown gate "${gateName}" (expected audio|images)`, "UNKNOWN_ERROR");
+  if (!gate) throw new CliError(`Unknown gate "${gateName}" (expected audio|visual_assets)`, "UNKNOWN_ERROR");
 
   const manifest = await loadManifest(projectId);
   const check = await validateAssets({ projectId, check: gateName });
@@ -151,12 +151,12 @@ async function cmdGate(args) {
   if (check.valid) {
     if (manifest.status === gate.waitStatus) manifest.status = "IN_PROGRESS";
     manifest.waiting_for = manifest.waiting_for.filter((f) =>
-      gateName === "audio" ? f !== gate.requiredFile : !f.startsWith("assets/images/")
+      gateName === "audio" ? f !== gate.requiredFile : !f.startsWith("assets/images/") && !f.startsWith("assets/footage/")
     );
   } else {
     manifest.status = gate.waitStatus;
     const others = manifest.waiting_for.filter((f) =>
-      gateName === "audio" ? f !== gate.requiredFile : !f.startsWith("assets/images/")
+      gateName === "audio" ? f !== gate.requiredFile : !f.startsWith("assets/images/") && !f.startsWith("assets/footage/")
     );
     manifest.waiting_for = [...others, ...check.missing];
   }
@@ -192,6 +192,9 @@ async function cmdQa(args) {
     else if (result.assetCheck && !result.assetCheck.valid && result.assetCheck.error_code) code = result.assetCheck.error_code;
     else if (result.filenamesCheck && !result.filenamesCheck.valid) code = "BROKEN_ASSET_PATH";
     else if (result.coverageCheck && !result.coverageCheck.valid) code = "BROKEN_ASSET_PATH";
+    else if (result.footageCheck && !result.footageCheck.valid) code = result.footageCheck.error_code || "BROKEN_ASSET_PATH";
+    else if (result.factAuditCheck && !result.factAuditCheck.valid) code = result.factAuditCheck.error_code || "UNRESOLVED_CLAIM";
+    else if (result.hedgeCheck && !result.hedgeCheck.valid) code = result.hedgeCheck.error_code || "UNKNOWN_ERROR";
     else if (result.packagingCheck && !result.packagingCheck.valid) code = result.packagingCheck.error_code || "UNKNOWN_ERROR";
 
     await cmdError({

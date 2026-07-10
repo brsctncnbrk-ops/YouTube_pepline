@@ -2,9 +2,9 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "composition.schema.json",
   "title": "FactForge Remotion Composition",
-  "description": "Validates the merged shape of remotion/composition.json + scene_config.json + asset_map.json. All asset path fields are regex-constrained to forbid absolute paths, drive letters, home-dir shorthand, and parent-directory traversal.",
+  "description": "Validates the merged shape of remotion/composition.json + scene_config.json + asset_map.json. All asset path fields are regex-constrained to forbid absolute paths, drive letters, home-dir shorthand, and parent-directory traversal. Each scene is either asset_type \"footage\" (a trimmed stock/manually-curated video clip, the primary path since the footage-primary migration) or \"ai_fallback\" (a Ken Burns-panned still, scoped to scenes footage_retrieval could not adequately match).",
   "type": "object",
-  "required": ["fps", "width", "height", "duration_frames", "audio_asset", "scenes", "asset_map", "render"],
+  "required": ["schema_version", "fps", "width", "height", "duration_frames", "audio_asset", "scenes", "asset_map", "render"],
   "additionalProperties": false,
   "definitions": {
     "relativeAudioPath": {
@@ -14,9 +14,14 @@
     "relativeImagePath": {
       "type": "string",
       "pattern": "^assets/images/scene_[0-9]{3}\\.png$"
+    },
+    "relativeVideoPath": {
+      "type": "string",
+      "pattern": "^assets/footage/scene_[0-9]{3}\\.mp4$"
     }
   },
   "properties": {
+    "schema_version": { "type": "string" },
     "fps": { "type": "integer", "minimum": 1 },
     "width": { "type": "integer", "minimum": 1 },
     "height": { "type": "integer", "minimum": 1 },
@@ -27,13 +32,17 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["scene_id", "start_frame", "end_frame", "image_asset", "camera_motion", "transition_in", "transition_out"],
+        "required": ["scene_id", "start_frame", "end_frame", "asset_type", "transition_in", "transition_out"],
         "additionalProperties": false,
         "properties": {
           "scene_id": { "type": "string", "pattern": "^scene_[0-9]{3}$" },
           "start_frame": { "type": "integer", "minimum": 0 },
           "end_frame": { "type": "integer", "minimum": 0 },
+          "asset_type": { "type": "string", "enum": ["footage", "ai_fallback"] },
           "image_asset": { "$ref": "#/definitions/relativeImagePath" },
+          "video_asset": { "$ref": "#/definitions/relativeVideoPath" },
+          "trim_in_sec": { "type": "number", "minimum": 0 },
+          "trim_out_sec": { "type": "number", "minimum": 0 },
           "camera_motion": {
             "type": "object",
             "required": ["type", "params"],
@@ -46,19 +55,43 @@
           "text_overlay": { "type": ["string", "null"] },
           "transition_in": { "type": "string" },
           "transition_out": { "type": "string" }
-        }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "asset_type": { "const": "footage" } } },
+            "then": { "required": ["video_asset", "trim_in_sec", "trim_out_sec"] }
+          },
+          {
+            "if": { "properties": { "asset_type": { "const": "ai_fallback" } } },
+            "then": { "required": ["image_asset", "camera_motion"] }
+          }
+        ]
       }
     },
     "asset_map": {
       "type": "object",
       "additionalProperties": {
         "type": "object",
-        "required": ["image", "audio_offset_sec"],
-        "additionalProperties": false,
-        "properties": {
-          "image": { "$ref": "#/definitions/relativeImagePath" },
-          "audio_offset_sec": { "type": "number", "minimum": 0 }
-        }
+        "oneOf": [
+          {
+            "required": ["image", "audio_offset_sec"],
+            "additionalProperties": false,
+            "properties": {
+              "image": { "$ref": "#/definitions/relativeImagePath" },
+              "audio_offset_sec": { "type": "number", "minimum": 0 }
+            }
+          },
+          {
+            "required": ["video", "audio_offset_sec", "trim_in_sec", "trim_out_sec"],
+            "additionalProperties": false,
+            "properties": {
+              "video": { "$ref": "#/definitions/relativeVideoPath" },
+              "audio_offset_sec": { "type": "number", "minimum": 0 },
+              "trim_in_sec": { "type": "number", "minimum": 0 },
+              "trim_out_sec": { "type": "number", "minimum": 0 }
+            }
+          }
+        ]
       }
     },
     "render": {

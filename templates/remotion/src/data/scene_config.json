@@ -8,6 +8,7 @@
       "scene_id": "scene_001",
       "start_frame": 0,
       "end_frame": 60,
+      "asset_type": "ai_fallback",
       "camera_motion": { "type": "static", "params": {} },
       "text_overlay": "Placeholder - replaced per project by remotion_build.mjs",
       "transition_in": "fade",

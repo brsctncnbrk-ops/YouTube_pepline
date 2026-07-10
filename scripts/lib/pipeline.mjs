@@ -4,24 +4,30 @@
  * gate placement, and required-file contracts never drift between tools.
  *
  * Stage ids follow the spec's own manifest.json example naming convention
- * (research_qa / script_qa / voice_qa suffix pattern). The spec's numbered
- * skill list (00 Orchestrator .. 12 Final QA) maps onto these 17 stage ids
- * as follows: 01->research, 01.5->research_qa, 02->script, 02.5->script_qa,
- * 03->voice_script, 03.5->voice_qa, 04->storyboard, 04.5->storyboard_qa,
- * 05->visual_style_bible, 06->visual_prompt, 06.5->visual_qa, 07->director,
- * 08->remotion, 09->editor, 10->render_qa, 11->packaging, 12->final_qa.
- * 00 (Orchestrator) is not itself a pipeline stage - it sequences the rest.
+ * (research_qa / script_qa / voice_qa suffix pattern). This is the
+ * footage-primary (Aperture-style) migration's 19-stage graph - see
+ * /root/.claude/plans/pipeline-migration-flickering-minsky.md for the full
+ * rationale. Two stages were added relative to the original 17-stage list:
+ * `fact_audit` (between script and script_qa - it can cut/replace claims in
+ * place, so script_qa must review the post-audit text) and
+ * `footage_retrieval` (between storyboard_qa and visual_style_bible - footage
+ * must be selected before the style bible/AI-fallback prompts can reference
+ * its color/tone). The `images` gate was renamed `visual_assets` since the
+ * requirement is now per-scene conditional (footage clip vs. AI-fallback
+ * still) rather than always a PNG.
  */
 
 export const STAGE_ORDER = [
   "research",
   "research_qa",
   "script",
+  "fact_audit",
   "script_qa",
   "voice_script",
   "voice_qa",
   "storyboard",
   "storyboard_qa",
+  "footage_retrieval",
   "visual_style_bible",
   "visual_prompt",
   "visual_qa",
@@ -38,20 +44,22 @@ export const STAGE_REQUIRED_FILES = {
   research: [],
   research_qa: ["research/research.json", "research/research.md", "research/sources.md"],
   script: ["research/research.json"],
-  script_qa: ["scripts/script.md", "scripts/script_metadata.json"],
+  fact_audit: ["scripts/script.md", "scripts/script_metadata.json"],
+  script_qa: ["scripts/script.md", "scripts/script_metadata.json", "fact_audit/claims.json", "fact_audit/fact_audit_report.md"],
   voice_script: ["scripts/script.md"],
   voice_qa: ["voice/voice_script.txt", "voice/voice_notes.md"],
   storyboard: ["scripts/script.md", "voice/voice_script.txt", "assets/audio/final_voice.mp3"],
   storyboard_qa: ["storyboard/storyboard.json", "storyboard/storyboard.md"],
-  visual_style_bible: ["storyboard/storyboard.json", "scripts/script.md"],
-  visual_prompt: ["storyboard/storyboard.json", "style/visual_style_bible.md", "style/prompt_rules.md"],
-  visual_qa: ["prompts/visual_prompts.json", "prompts/visual_prompts.md", "prompts/negative_prompts.md", "prompts/leonardo_settings.md"],
-  director: ["storyboard/storyboard.json", "prompts/visual_prompts.md", "style/visual_style_bible.md"],
+  footage_retrieval: ["storyboard/storyboard.json"],
+  visual_style_bible: ["storyboard/storyboard.json", "scripts/script.md", "footage/footage_manifest.json"],
+  visual_prompt: ["storyboard/storyboard.json", "style/visual_style_bible.md", "style/prompt_rules.md", "footage/footage_manifest.json"],
+  visual_qa: ["prompts/visual_prompts.json", "prompts/visual_prompts.md", "prompts/negative_prompts.md", "prompts/leonardo_settings.md", "footage/footage_manifest.json"],
+  director: ["storyboard/storyboard.json", "prompts/visual_prompts.md", "style/visual_style_bible.md", "footage/footage_manifest.json"],
   remotion: ["storyboard/storyboard.json", "direction/direction_plan.md", "assets/asset_manifest.json"],
   editor: ["remotion/composition.json", "remotion/scene_config.json", "assets/audio/final_voice.mp3"],
   render_qa: ["remotion/render_ready_project"],
   packaging: ["scripts/script.md", "research/research.md", "output/final_video.mp4"],
-  final_qa: ["output/final_video.mp4", "storyboard/storyboard.json", "packaging/packaging.json", "packaging/title.md", "packaging/description.md"],
+  final_qa: ["output/final_video.mp4", "storyboard/storyboard.json", "packaging/packaging.json", "packaging/title.md", "packaging/description.md", "fact_audit/claims.json"],
 };
 
 /** Output files/dirs (relative to the project root) a stage produces. Used by reset-stage --force-clean. */
@@ -59,11 +67,13 @@ export const STAGE_OUTPUT_FILES = {
   research: ["research/research.json", "research/research.md", "research/sources.md"],
   research_qa: ["qa/research_qa.md"],
   script: ["scripts/script.md", "scripts/script_metadata.json"],
+  fact_audit: ["fact_audit/claims.json", "fact_audit/fact_audit_report.md"],
   script_qa: ["qa/script_qa.md"],
   voice_script: ["voice/voice_script.txt", "voice/voice_notes.md"],
   voice_qa: ["qa/voice_qa.md"],
   storyboard: ["storyboard/storyboard.json", "storyboard/storyboard.md"],
   storyboard_qa: ["qa/storyboard_qa.md"],
+  footage_retrieval: ["footage/footage_manifest.json", "footage/footage_manifest.md"],
   visual_style_bible: [
     "style/visual_style_bible.md",
     "style/color_palette.md",
@@ -102,26 +112,30 @@ export const GATES = {
     requiredFile: "assets/audio/final_voice.mp3",
     errorCode: "MISSING_AUDIO",
   },
-  images: {
+  visual_assets: {
     // Note: this gate sits before "director", *after* visual_qa. The
-    // visual_qa gate only checks that prompts/filenames are well-formed and
-    // fully cover the storyboard's scenes - it must not require the actual
-    // scene_NNN.png bytes to exist yet, since the human hasn't generated them
-    // in Leonardo AI at that point in the pipeline.
+    // visual_qa gate only checks that footage provenance/prompts/filenames
+    // are well-formed and fully cover the storyboard's scenes - it must not
+    // require the actual assets/footage/*.mp4 or assets/images/*.png bytes to
+    // exist yet. Per-scene requirement is conditional on asset_type
+    // (footage vs. ai_fallback), resolved by validateVisualAssets rather than
+    // a single requiredFile string.
     beforeStage: "director",
-    waitStatus: "WAITING_FOR_IMAGES",
-    errorCode: "MISSING_IMAGE",
+    waitStatus: "WAITING_FOR_VISUAL_ASSETS",
+    errorCode: "MISSING_VISUAL_ASSET",
+    checker: "validateVisualAssets",
   },
 };
 
 export const ERROR_CODES = [
   "MISSING_AUDIO",
-  "MISSING_IMAGE",
+  "MISSING_VISUAL_ASSET",
   "INVALID_JSON",
   "SCHEMA_VALIDATION_FAILED",
   "BROKEN_ASSET_PATH",
   "RENDER_CONFIG_MISSING",
   "USER_APPROVAL_REQUIRED",
+  "UNRESOLVED_CLAIM",
   "UNKNOWN_ERROR",
 ];
 
@@ -129,7 +143,7 @@ export const STATUSES = [
   "NOT_STARTED",
   "IN_PROGRESS",
   "WAITING_FOR_AUDIO",
-  "WAITING_FOR_IMAGES",
+  "WAITING_FOR_VISUAL_ASSETS",
   "WAITING_FOR_USER_APPROVAL",
   "READY_FOR_RENDER",
   "RENDERING",
@@ -139,6 +153,9 @@ export const STATUSES = [
   "DONE",
   "ERROR",
 ];
+
+/** Current pipeline schema version, stamped into manifest.json and every schema-validated JSON artifact this pipeline authors. */
+export const SCHEMA_VERSION = "2.0";
 
 export function nextStage(currentStage) {
   if (currentStage === null || currentStage === undefined) return STAGE_ORDER[0];

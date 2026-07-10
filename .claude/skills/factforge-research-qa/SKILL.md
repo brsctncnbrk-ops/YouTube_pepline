@@ -34,6 +34,14 @@ Read `research/research.json`, `research.md`, and `sources.md`, then assess:
 - Is the main event order clear and correctly sequenced?
 - Is there enough material here for a scriptwriter to work from, or are there
   gaps that would force the Script Writer to invent facts?
+- **`topic_discovery` completeness**: is `core_topic`/`thesis` substantive
+  (not a one-word restatement of the video idea)? Does each of the 5-10
+  `notable_claims` actually have 2-3 independent `source_refs`, or does it
+  lean on a single source? Are `unique_angles` genuinely distinct angles, not
+  just a rephrasing of `thesis`?
+- **`source_structure_summary` sanity**: present and non-trivial (not an empty
+  list) — this is what `factforge-final-qa` will later compare the finished
+  script against for reused-content risk.
 
 ## Step 3 — record the verdict
 

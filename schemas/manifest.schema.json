@@ -4,6 +4,7 @@
   "title": "FactForge Project Manifest",
   "type": "object",
   "required": [
+    "schema_version",
     "project_id",
     "project_name",
     "status",
@@ -19,6 +20,7 @@
   ],
   "additionalProperties": false,
   "properties": {
+    "schema_version": { "type": "string" },
     "project_id": { "type": "string", "pattern": "^[0-9]{3}-[a-z0-9]+(-[a-z0-9]+)*$" },
     "project_name": { "type": "string", "minLength": 1 },
     "status": {
@@ -27,7 +29,7 @@
         "NOT_STARTED",
         "IN_PROGRESS",
         "WAITING_FOR_AUDIO",
-        "WAITING_FOR_IMAGES",
+        "WAITING_FOR_VISUAL_ASSETS",
         "WAITING_FOR_USER_APPROVAL",
         "READY_FOR_RENDER",
         "RENDERING",
@@ -54,12 +56,13 @@
             "type": "string",
             "enum": [
               "MISSING_AUDIO",
-              "MISSING_IMAGE",
+              "MISSING_VISUAL_ASSET",
               "INVALID_JSON",
               "SCHEMA_VALIDATION_FAILED",
               "BROKEN_ASSET_PATH",
               "RENDER_CONFIG_MISSING",
               "USER_APPROVAL_REQUIRED",
+              "UNRESOLVED_CLAIM",
               "UNKNOWN_ERROR"
             ]
           },

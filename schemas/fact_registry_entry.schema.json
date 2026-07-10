@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "fact_registry_entry.schema.json",
+  "title": "FactForge Fact Registry Entry",
+  "description": "Validates ONE line of a fact_registry/<claim_hash>.jsonl file at the repo root. The registry is append-only: each verification is a new line, never an in-place edit. Current state of a claim is its file's last line. re_verify_after is category-based (6 months for health/psychological/scientific, 12 for statistical/named, 18 for other) - an expired entry must trigger fresh verification, it is never treated as still valid by default.",
+  "type": "object",
+  "required": ["schema_version", "claim_text", "category", "verdict", "sources", "verified_date", "re_verify_after", "verified_by_project"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "claim_text": { "type": "string", "minLength": 1 },
+    "category": {
+      "type": "string",
+      "enum": ["health", "psychological", "scientific", "statistical", "named", "other"]
+    },
+    "verdict": { "type": "string", "enum": ["verified", "disputed", "outdated"] },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["url", "publisher", "accessed_date"],
+        "additionalProperties": false,
+        "properties": {
+          "url": { "type": "string" },
+          "publisher": { "type": "string" },
+          "accessed_date": { "type": "string" }
+        }
+      }
+    },
+    "verified_date": { "type": "string" },
+    "re_verify_after": { "type": "string" },
+    "verified_by_project": { "type": "string" },
+    "notes": { "type": "string" }
+  }
+}

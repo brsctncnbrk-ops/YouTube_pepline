@@ -28,7 +28,11 @@ Read `storyboard.json` and `storyboard.md`, then assess:
   drift is a real problem here, since this timing drives everything
   downstream)?
 - Is every scene's **visual need** concrete enough that
-  `factforge-visual-prompt` could act on it later, or is it vague filler?
+  `factforge-footage-retrieval` (and, for fallback scenes, `factforge-visual-prompt`)
+  could act on it later, or is it vague filler?
+- Is each scene's **`mood`** a reasonable read of that scene, not a default
+  copy-paste of the previous scene's mood or the beat's original mood
+  unchanged when the scene itself shifted tone?
 - Is **on-screen text** (where present) clear and not redundant with the
   narration?
 - Do the **transitions** make sense for the pacing (e.g. not a jarring cut
