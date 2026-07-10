@@ -1,12 +1,18 @@
 import React from "react";
-import { AbsoluteFill, Img, interpolate, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Img, OffthreadVideo, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
 
 export type CameraMotion = { type: string; params: Record<string, number | string> };
 
 type SceneProps = {
-  imageSrc: string;
+  assetType: "footage" | "ai_fallback";
+  // ai_fallback only:
+  imageSrc?: string;
+  cameraMotion?: CameraMotion;
+  // footage only:
+  videoSrc?: string;
+  trimInSec?: number;
+  trimOutSec?: number;
   durationInFrames: number;
-  cameraMotion: CameraMotion;
   textOverlay: string | null;
   transitionIn: string;
   transitionOut: string;
@@ -50,14 +56,19 @@ function computeTransform(motion: CameraMotion, progress: number): string {
 }
 
 export const Scene: React.FC<SceneProps> = ({
+  assetType,
   imageSrc,
-  durationInFrames,
   cameraMotion,
+  videoSrc,
+  trimInSec,
+  trimOutSec,
+  durationInFrames,
   textOverlay,
   transitionIn,
   transitionOut,
 }) => {
   const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
   const fadeFrames = Math.min(15, Math.max(1, Math.floor(durationInFrames / 4)));
 
   let opacity = 1;
@@ -75,15 +86,32 @@ export const Scene: React.FC<SceneProps> = ({
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
-  const transform = computeTransform(cameraMotion, progress);
 
   return (
     <AbsoluteFill style={{ backgroundColor: "black" }}>
       <AbsoluteFill style={{ opacity }}>
-        <Img
-          src={imageSrc}
-          style={{ width: "100%", height: "100%", objectFit: "cover", transform }}
-        />
+        {assetType === "footage" && videoSrc ? (
+          // Real footage is the primary visual source since the migration -
+          // no Ken Burns pan/zoom (that's scoped to ai_fallback stills only),
+          // just a subtle hold scale to avoid edge artifacts from cover-fit.
+          <OffthreadVideo
+            src={videoSrc}
+            muted
+            startFrom={Math.round((trimInSec ?? 0) * fps)}
+            endAt={Math.round((trimOutSec ?? (trimInSec ?? 0) + durationInFrames / fps) * fps)}
+            style={{ width: "100%", height: "100%", objectFit: "cover", transform: "scale(1.02)" }}
+          />
+        ) : (
+          <Img
+            src={imageSrc ?? ""}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transform: computeTransform(cameraMotion ?? { type: "static", params: {} }, progress),
+            }}
+          />
+        )}
       </AbsoluteFill>
       {textOverlay ? (
         <AbsoluteFill

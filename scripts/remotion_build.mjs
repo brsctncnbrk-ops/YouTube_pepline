@@ -50,15 +50,24 @@ export async function deriveConfigs({ projectId }) {
     width: comp.width,
     height: comp.height,
     duration_frames: comp.duration_frames,
-    scenes: comp.scenes.map((s) => ({
-      scene_id: s.scene_id,
-      start_frame: s.start_frame,
-      end_frame: s.end_frame,
-      camera_motion: s.camera_motion,
-      text_overlay: s.text_overlay ?? null,
-      transition_in: s.transition_in,
-      transition_out: s.transition_out,
-    })),
+    scenes: comp.scenes.map((s) => {
+      const base = {
+        scene_id: s.scene_id,
+        start_frame: s.start_frame,
+        end_frame: s.end_frame,
+        asset_type: s.asset_type,
+        text_overlay: s.text_overlay ?? null,
+        transition_in: s.transition_in,
+        transition_out: s.transition_out,
+      };
+      // camera_motion only applies to ai_fallback scenes (Ken Burns pan/zoom
+      // on a still); footage scenes carry trim points instead - there's no
+      // image_asset field kept here either way (Video.tsx resolves the
+      // actual src via asset_map, keyed by scene_id).
+      return s.asset_type === "footage"
+        ? { ...base, trim_in_sec: s.trim_in_sec, trim_out_sec: s.trim_out_sec }
+        : { ...base, camera_motion: s.camera_motion };
+    }),
   };
 
   const assetMap = {
@@ -77,9 +86,22 @@ export async function deriveConfigs({ projectId }) {
   };
 }
 
+/**
+ * asset_manifest.json is informational only (never schema-validated), so its
+ * shape can move freely. Since the footage-primary migration, per-scene
+ * `source` is dynamic: read from footage/footage_manifest.json for footage
+ * scenes (pexels/pixabay/coverr/mixkit), "Leonardo AI" for ai_fallback
+ * scenes as before. The old `images` key is renamed `visuals` since it now
+ * covers both asset types.
+ */
 async function refreshAssetManifest(projectId, comp) {
   const dir = projectDir(projectId);
   const durationSeconds = comp.fps ? Math.round((comp.duration_frames / comp.fps) * 100) / 100 : null;
+
+  const footageManifestPath = path.join(dir, "footage", "footage_manifest.json");
+  const footageManifest = (await pathExists(footageManifestPath)) ? await readJson(footageManifestPath) : null;
+  const footageById = new Map((footageManifest?.scenes || []).map((s) => [s.scene_id, s]));
+
   const manifest = {
     audio: {
       main_voice: {
@@ -88,17 +110,21 @@ async function refreshAssetManifest(projectId, comp) {
         duration_seconds: durationSeconds,
       },
     },
-    images: [],
+    visuals: [],
     music: [],
     sfx: [],
   };
   for (const scene of comp.scenes) {
-    const rel = scene.image_asset;
-    manifest.images.push({
+    const isFootage = scene.asset_type === "footage";
+    const rel = isFootage ? scene.video_asset : scene.image_asset;
+    const footageEntry = footageById.get(scene.scene_id);
+    manifest.visuals.push({
       scene_id: scene.scene_id,
+      asset_type: scene.asset_type,
       file: rel,
       status: (await pathExists(path.join(dir, rel))) ? "available" : "missing",
-      source: "Leonardo AI",
+      source: isFootage ? footageEntry?.source || "unknown" : "Leonardo AI",
+      license: isFootage ? footageEntry?.license || null : null,
       seed: null,
       style_reference: null,
     });
@@ -137,7 +163,7 @@ export async function buildProject({ projectId }) {
   const assetManifest = await refreshAssetManifest(projectId, comp);
   const missingAssets = [
     ...(assetManifest.audio.main_voice.status === "missing" ? [assetManifest.audio.main_voice.path] : []),
-    ...assetManifest.images.filter((i) => i.status === "missing").map((i) => i.file),
+    ...assetManifest.visuals.filter((v) => v.status === "missing").map((v) => v.file),
   ];
 
   return {

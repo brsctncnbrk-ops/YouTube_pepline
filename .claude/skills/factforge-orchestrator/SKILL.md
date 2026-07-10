@@ -43,17 +43,16 @@ Full stage list, required files per stage, and output files per stage live in
 `STAGE_OUTPUT_FILES`, `GATES`) — read it if you need the exact contract for a
 stage rather than guessing.
 
-**Current build status**: mid-migration. `research` through `visual_qa`
-(`fact_audit` and `footage_retrieval` included) are footage-migration-
-complete — footage is the primary visual source, AI stills are fallback-only
-for scenes `factforge-footage-retrieval` flags `fallback_to_ai_visual`.
-Everything from `director` onward — the motion/render pipeline
-(`composition.schema.json`'s `asset_type` discriminator,
-`scripts/remotion_build.mjs`, the Remotion template in
-`templates/remotion/`) and the GitHub Actions render workflow
-(`.github/workflows/render.yml`) — is still the original image-only
-pipeline, pending Phase D. `factforge-packaging`/`factforge-final-qa`'s
-attribution/reused-content extensions are pending Phase E.
+**Current build status**: mid-migration. `research` through `render_qa` are
+footage-migration-complete — footage is the primary visual source, AI stills
+are fallback-only for scenes `factforge-footage-retrieval` flags
+`fallback_to_ai_visual`. `factforge-director`/`-motion`/`-editor` branch per
+scene's `asset_type` (footage clip trim vs. Ken Burns fallback motion), and
+the Remotion template (`templates/remotion/`) renders both via
+`OffthreadVideo`/`Img` respectively — verified with an actual
+`remotion still` render mixing both asset types. `factforge-packaging`/
+`factforge-final-qa`'s attribution/reused-content extensions are pending
+Phase E.
 
 ## Commands you must understand
 

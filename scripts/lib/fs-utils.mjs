@@ -55,10 +55,16 @@ export async function appendLine(filePath, line) {
   await fs.appendFile(filePath, line.endsWith("\n") ? line : line + "\n", "utf8");
 }
 
+// Never worth copying into a scaffolded project or a render_ready_project -
+// build/VCS artifacts a developer's local checkout might happen to have
+// (e.g. from testing templates/remotion/ locally), never source content.
+const COPY_DIR_SKIP = new Set(["node_modules", ".git", "out", ".remotion"]);
+
 export async function copyDir(src, dest) {
   await fs.mkdir(dest, { recursive: true });
   const entries = await fs.readdir(src, { withFileTypes: true });
   for (const entry of entries) {
+    if (entry.isDirectory() && COPY_DIR_SKIP.has(entry.name)) continue;
     const srcPath = path.join(src, entry.name);
     const destPath = path.join(dest, entry.name);
     if (entry.isDirectory()) {

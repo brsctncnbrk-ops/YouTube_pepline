@@ -11,31 +11,46 @@ that's `factforge-motion`'s job, informed by your plan. This stage has **no
 dedicated QA gate**, so review your own plan for internal consistency before
 advancing.
 
-By the time this stage runs, the human has already generated the scene images
-in Leonardo AI and the images gate has passed — so every
-`assets/images/scene_NNN.png` exists and you can reason about real shots, not
-just prompts.
+By the time this stage runs, the human has already dropped in every scene's
+visual asset — footage clips for scenes `factforge-footage-retrieval`
+matched, generated stills for scenes flagged `fallback_to_ai_visual` — and
+the `visual_assets` gate has passed. Read `footage/footage_manifest.json` to
+know which is which per scene; your direction differs by `asset_type`.
 
 ## Inputs
 
 `storyboard/storyboard.json` (scene timings, purposes, visual needs,
-transitions, on-screen text), `prompts/visual_prompts.md` (what each image
-actually depicts), and `style/visual_style_bible.md` +
-`style/camera_language.md` (the shot vocabulary).
+transitions, on-screen text), `footage/footage_manifest.json` (resolves each
+scene's `asset_type` and, for footage scenes, `native_duration_sec`/
+`trim_in_sec`/`trim_out_sec`), `prompts/visual_prompts.md` (what each
+AI-fallback still actually depicts), and `style/visual_style_bible.md` +
+`style/camera_language.md` (the shot vocabulary, for fallback scenes).
 
 ## Task
 
-For every scene, decide and record:
+For every scene, decide and record pacing, emotional flow, close/wide
+emphasis, text animation cues, and attention direction (as before) — but the
+**visual treatment** branches by `asset_type`:
+
+- **Footage scenes** (`asset_type: "footage"`) — no Ken Burns pan/zoom; the
+  clip's own motion carries it. Instead decide the **clip trim/pace**: which
+  portion of the native clip (within `native_duration_sec`) best serves this
+  moment, and whether the footage_manifest's existing `trim_in_sec`/
+  `trim_out_sec` should be adjusted (e.g. a calmer mid-clip segment instead
+  of the very start). State this as a concrete trim window in seconds —
+  `factforge-motion` will use it (or the footage manifest's own trim points
+  if you don't override them) directly, not a motion keyword.
+- **AI-fallback scenes** (`asset_type: "ai_fallback"`) — unchanged: a
+  concrete motion per scene using the same vocabulary as before —
+  `zoom_in`, `zoom_out`, `pan_left`, `pan_right`, `pan_up`, `pan_down`,
+  `static` — with intensity noted (subtle vs. dramatic).
+
+Also decide, for every scene:
 
 - **Pacing** — is this scene a slow, let-it-breathe beat or a quick punch?
   How does the rhythm build across the video?
 - **Emotional flow** — the intended feeling of each scene and how it
   transitions to the next (tension → relief, curiosity → payoff, etc.).
-- **Camera movement** — a concrete motion per scene drawn from the camera
-  language, expressed in vocabulary the Motion stage can act on. Use these
-  motion keywords so `factforge-motion` can map them directly:
-  `zoom_in`, `zoom_out`, `pan_left`, `pan_right`, `pan_up`, `pan_down`,
-  `static`. Note intensity where it matters (subtle vs. dramatic).
 - **Close vs. wide emphasis** — which scenes push in for intimacy/detail and
   which pull back for context, consistent with the storyboard's shot intent.
 - **Text animation cues** — for scenes with on-screen text, how it should
@@ -46,14 +61,17 @@ For every scene, decide and record:
 ## Output
 
 **`direction/direction_plan.md`** — organized scene by scene (one section per
-`scene_id`), each stating pacing, emotional beat, the chosen camera motion
-keyword (+ intensity), close/wide intent, and text-animation cue. Add a short
-overall "Rhythm & Arc" intro summarizing how the video's energy rises and
-falls across its full duration.
+`scene_id`), each stating `asset_type`, pacing, emotional beat, the
+visual-treatment decision (trim window for footage scenes; camera motion
+keyword + intensity for ai_fallback scenes), close/wide intent, and
+text-animation cue. Add a short overall "Rhythm & Arc" intro summarizing how
+the video's energy rises and falls across its full duration.
 
-Make the per-scene camera motion keyword unambiguous — `factforge-motion`
-will read this file to choose each scene's `camera_motion.type`, so if you
-write "slow push in" also give the keyword (`zoom_in`).
+Make each scene's visual-treatment decision unambiguous —
+`factforge-motion` will read this file to populate `composition.json`. For
+ai_fallback scenes, if you write "slow push in" also give the keyword
+(`zoom_in`). For footage scenes, give explicit seconds ("use 4s-14s of the
+clip") if you're overriding the manifest's default trim.
 
 ## Before finishing
 
