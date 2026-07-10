@@ -4,6 +4,7 @@
   "title": "FactForge Research Output",
   "type": "object",
   "required": [
+    "schema_version",
     "project_id",
     "video_idea",
     "target_duration_sec",
@@ -15,10 +16,13 @@
     "timeline",
     "sources",
     "open_questions",
+    "topic_discovery",
+    "source_structure_summary",
     "generated_at"
   ],
   "additionalProperties": false,
   "properties": {
+    "schema_version": { "type": "string" },
     "project_id": { "type": "string" },
     "video_idea": { "type": "string", "minLength": 1 },
     "target_duration_sec": { "type": "integer", "minimum": 1 },
@@ -70,6 +74,42 @@
       }
     },
     "open_questions": { "type": "array", "items": { "type": "string" } },
+    "topic_discovery": {
+      "type": "object",
+      "description": "Extracted from the source podcast/episode material: core topic, thesis, notable claims, and unique angles. Strips personal anecdotes, verbatim phrasing, and narrative sequence from the source.",
+      "required": ["core_topic", "thesis", "notable_claims", "open_questions_angles", "unique_angles"],
+      "additionalProperties": false,
+      "properties": {
+        "core_topic": { "type": "string", "minLength": 1 },
+        "thesis": { "type": "string", "minLength": 1 },
+        "notable_claims": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 10,
+          "items": {
+            "type": "object",
+            "required": ["claim", "source_refs"],
+            "additionalProperties": false,
+            "properties": {
+              "claim": { "type": "string", "minLength": 1 },
+              "source_refs": { "type": "array", "minItems": 2, "items": { "type": "string" } }
+            }
+          }
+        },
+        "open_questions_angles": { "type": "array", "items": { "type": "string" } },
+        "unique_angles": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "source_structure_summary": {
+      "type": "object",
+      "description": "Retained ONLY for the reused-content check in factforge-final-qa. Does not feed factforge-script - the script must not mirror the source episode's topic order or argument sequence.",
+      "required": ["topic_order", "argument_sequence"],
+      "additionalProperties": false,
+      "properties": {
+        "topic_order": { "type": "array", "items": { "type": "string" } },
+        "argument_sequence": { "type": "array", "items": { "type": "string" } }
+      }
+    },
     "generated_at": { "type": "string" }
   }
 }

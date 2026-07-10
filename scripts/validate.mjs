@@ -137,7 +137,12 @@ export async function validateAssets({ projectId, check = "all" }) {
     if (!(await pathExists(audioPath))) missing.push(GATES.audio.requiredFile);
   }
 
-  if (check === "images" || check === "all") {
+  // NOTE: this still only checks assets/images/*.png. Full per-scene
+  // asset_type branching (assets/footage/*.mp4 for footage scenes vs.
+  // assets/images/*.png for ai_fallback scenes, resolved from
+  // footage/footage_manifest.json) is Phase C scope - see
+  // /root/.claude/plans/pipeline-migration-flickering-minsky.md section 4.
+  if (check === "visual_assets" || check === "all") {
     const storyboardPath = path.join(dir, "storyboard", "storyboard.json");
     const storyboard = await readJsonSafe(storyboardPath, null);
     if (storyboard && Array.isArray(storyboard.scenes)) {
@@ -151,7 +156,7 @@ export async function validateAssets({ projectId, check = "all" }) {
 
   return {
     valid: missing.length === 0,
-    error_code: missing.length === 0 ? null : check === "audio" ? "MISSING_AUDIO" : "MISSING_IMAGE",
+    error_code: missing.length === 0 ? null : check === "audio" ? "MISSING_AUDIO" : "MISSING_VISUAL_ASSET",
     missing,
   };
 }
@@ -162,8 +167,8 @@ export async function validateAssets({ projectId, check = "all" }) {
  * the asset folder" per the spec's visual QA gate. Deliberately does NOT
  * check whether assets/images/scene_NNN.png actually exist yet: at the point
  * visual_qa runs, the human hasn't generated them in Leonardo AI - that only
- * happens after this gate passes, checked separately by the images gate
- * (GATES.images) right before the "director" stage.
+ * happens after this gate passes, checked separately by the visual_assets
+ * gate (GATES.visual_assets) right before the "director" stage.
  */
 export async function validatePromptCoverage({ projectId }) {
   const dir = projectDir(projectId);
@@ -233,7 +238,7 @@ export async function validateRenderReady({ projectId }) {
   const checks = {};
 
   checks.audio = await validateAssets({ projectId, check: "audio" });
-  checks.images = await validateAssets({ projectId, check: "images" });
+  checks.visual_assets = await validateAssets({ projectId, check: "visual_assets" });
   checks.paths = await validatePaths({ projectId });
   checks.filenames = await validateFilenames({ projectId });
 
@@ -253,7 +258,7 @@ export async function validateRenderReady({ projectId }) {
 
   const reasons = [];
   if (!checks.audio.valid) reasons.push("MISSING_AUDIO: " + checks.audio.missing.join(", "));
-  if (!checks.images.valid) reasons.push("MISSING_IMAGE: " + checks.images.missing.join(", "));
+  if (!checks.visual_assets.valid) reasons.push("MISSING_VISUAL_ASSET: " + checks.visual_assets.missing.join(", "));
   if (!checks.paths.valid) reasons.push("BROKEN_ASSET_PATH: absolute/invalid paths found");
   if (!checks.filenames.valid) reasons.push("BROKEN_ASSET_PATH: scene filename/numbering issues");
   if (!checks.render_ready_project_exists) reasons.push("RENDER_CONFIG_MISSING: remotion/render_ready_project/ not built yet");

@@ -4,6 +4,7 @@
   "title": "FactForge Storyboard",
   "type": "object",
   "required": [
+    "schema_version",
     "project_id",
     "target_duration_sec",
     "total_duration_sec",
@@ -13,6 +14,7 @@
   ],
   "additionalProperties": false,
   "properties": {
+    "schema_version": { "type": "string" },
     "project_id": { "type": "string" },
     "target_duration_sec": { "type": "integer", "minimum": 1 },
     "total_duration_sec": { "type": "number", "minimum": 0 },
@@ -29,6 +31,7 @@
           "duration_sec",
           "purpose",
           "visual_need",
+          "mood",
           "on_screen_text",
           "transition_in",
           "transition_out",
@@ -42,6 +45,11 @@
           "duration_sec": { "type": "number", "minimum": 0 },
           "purpose": { "type": "string" },
           "visual_need": { "type": "string" },
+          "mood": {
+            "type": "string",
+            "description": "Controlled tag driving factforge-footage-retrieval's search queries, alongside the free-text visual_need.",
+            "enum": ["calm", "tense", "hopeful", "melancholic", "curious", "triumphant", "somber", "reflective", "neutral"]
+          },
           "on_screen_text": { "type": ["string", "null"] },
           "transition_in": { "type": "string" },
           "transition_out": { "type": "string" },

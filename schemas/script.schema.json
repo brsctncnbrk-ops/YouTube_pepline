@@ -4,6 +4,7 @@
   "title": "FactForge Script Metadata",
   "type": "object",
   "required": [
+    "schema_version",
     "project_id",
     "title_working",
     "hook",
@@ -17,7 +18,20 @@
     "generated_at"
   ],
   "additionalProperties": false,
+  "definitions": {
+    "visualGuidance": {
+      "type": "object",
+      "description": "Scene-level metadata consumed by factforge-storyboard and, downstream, factforge-footage-retrieval.",
+      "required": ["mood", "visual_need_hint"],
+      "additionalProperties": false,
+      "properties": {
+        "mood": { "type": "string" },
+        "visual_need_hint": { "type": "string" }
+      }
+    }
+  },
   "properties": {
+    "schema_version": { "type": "string" },
     "project_id": { "type": "string" },
     "title_working": { "type": "string" },
     "hook": {
@@ -26,7 +40,8 @@
       "additionalProperties": false,
       "properties": {
         "text": { "type": "string", "minLength": 1 },
-        "technique": { "type": "string" }
+        "technique": { "type": "string" },
+        "visual_guidance": { "$ref": "#/definitions/visualGuidance" }
       }
     },
     "sections": {
@@ -42,7 +57,21 @@
           "purpose": { "type": "string" },
           "est_duration_sec": { "type": "number", "minimum": 0 },
           "word_count": { "type": "integer", "minimum": 0 },
-          "contains_curiosity_loop": { "type": "boolean" }
+          "contains_curiosity_loop": { "type": "boolean" },
+          "beat_name": {
+            "type": "string",
+            "description": "Maps this section onto the Aperture-style 9-beat structure. hook{} is beat 1 (big question) and closing{} is beat 9 (thought-provoking close); these 7 values cover the middle beats.",
+            "enum": [
+              "internal_conflict",
+              "false_assumption",
+              "deeper_problem",
+              "scientific_explanation",
+              "real_life_manifestation",
+              "dark_turning_point",
+              "grounded_resolution"
+            ]
+          },
+          "visual_guidance": { "$ref": "#/definitions/visualGuidance" }
         }
       }
     },
@@ -52,7 +81,8 @@
       "additionalProperties": false,
       "properties": {
         "text": { "type": "string", "minLength": 1 },
-        "cta": { "type": "string" }
+        "cta": { "type": "string" },
+        "visual_guidance": { "$ref": "#/definitions/visualGuidance" }
       }
     },
     "total_word_count": { "type": "integer", "minimum": 0 },
