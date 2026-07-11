@@ -3,13 +3,13 @@
 /*FONTFACE_SLOT*/
 
   :root{
-    --ink:#0B0F0E;
-    --ink2:#0F1613;
-    --teal:#2E7D6B;
-    --teal-bright:#43C9A8;
-    --amber:#C7A063;
-    --paper:#EAEDE9;
-    --muted:#7C918A;
+    --ink:#100807;
+    --ink2:#1A0D0B;
+    --teal:#C0392B;        /* brand red */
+    --teal-bright:#FF5A43; /* bright red accent */
+    --amber:#E0A458;       /* warm amber counterpoint */
+    --paper:#EDE7E4;
+    --muted:#9A817B;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{width:2560px;height:1440px;background:var(--ink);overflow:hidden}
@@ -21,9 +21,9 @@
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
     width:1700px;height:620px;
     background:radial-gradient(ellipse at center,
-      rgba(67,201,168,0.16) 0%,
-      rgba(46,125,107,0.10) 34%,
-      rgba(11,15,14,0) 70%);
+      rgba(255,90,67,0.18) 0%,
+      rgba(192,57,43,0.11) 34%,
+      rgba(16,8,7,0) 70%);
     filter:blur(6px);
   }
 
@@ -31,8 +31,8 @@
   .vignette{
     position:absolute;inset:0;
     background:
-      radial-gradient(ellipse 120% 90% at 50% 50%, rgba(11,15,14,0) 42%, rgba(6,9,8,0.72) 100%),
-      linear-gradient(180deg, rgba(6,9,8,0.55) 0%, rgba(11,15,14,0) 22%, rgba(11,15,14,0) 78%, rgba(6,9,8,0.6) 100%);
+      radial-gradient(ellipse 120% 90% at 50% 50%, rgba(16,8,7,0) 42%, rgba(8,4,3,0.74) 100%),
+      linear-gradient(180deg, rgba(8,4,3,0.55) 0%, rgba(16,8,7,0) 22%, rgba(16,8,7,0) 78%, rgba(8,4,3,0.62) 100%);
   }
 
   /* SAFE ZONE content */
@@ -77,12 +77,12 @@
     color:var(--teal);
   }
   .ruler .line{flex:1;height:2px;background:linear-gradient(90deg,rgba(46,125,107,0) 0%,var(--teal) 50%,rgba(46,125,107,0) 100%)}
-  .ruler .dot{width:9px;height:9px;transform:rotate(45deg);background:var(--teal-bright);flex:none;box-shadow:0 0 14px rgba(67,201,168,0.8)}
+  .ruler .dot{width:9px;height:9px;transform:rotate(45deg);background:var(--teal-bright);flex:none;box-shadow:0 0 14px rgba(255,90,67,0.85)}
 
   .tagline{
     font-family:'Archivo',sans-serif;font-weight:400;
     font-size:38px;line-height:1.35;letter-spacing:0.01em;
-    color:#C6D2CD;
+    color:#D8C8C3;
     max-width:1180px;
   }
   .tagline b{color:var(--paper);font-weight:600}
@@ -105,7 +105,7 @@
   .meta.tr{right:70px;top:64px;text-align:right;line-height:1.8}
   .meta.bl{left:70px;bottom:60px;text-align:left;line-height:1.8}
   .meta.br{right:70px;bottom:60px;text-align:right;line-height:1.8}
-  .meta .k{color:rgba(67,201,168,0.6)}
+  .meta .k{color:rgba(255,90,67,0.62)}
   .corner{position:absolute;width:54px;height:54px;border-color:rgba(124,145,138,0.4);}
   .corner.tl{left:44px;top:44px;border-left:2px solid;border-top:2px solid}
   .corner.tr{right:44px;top:44px;border-right:2px solid;border-top:2px solid}
@@ -116,7 +116,7 @@
   .ghost{
     position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
     font-family:'Oswald',sans-serif;font-weight:700;font-size:560px;
-    letter-spacing:0.04em;color:rgba(46,125,107,0.045);
+    letter-spacing:0.04em;color:rgba(192,57,43,0.05);
     text-transform:uppercase;white-space:nowrap;pointer-events:none;
     filter:blur(1px);
   }
@@ -145,12 +145,12 @@
   <div class="safe">
     <div class="eyebrow">
       <svg class="aperture" viewBox="0 0 100 100" fill="none">
-        <circle cx="50" cy="50" r="44" stroke="#43C9A8" stroke-width="4"/>
-        <g stroke="#43C9A8" stroke-width="4" stroke-linecap="round">
+        <circle cx="50" cy="50" r="44" stroke="#FF5A43" stroke-width="4"/>
+        <g stroke="#FF5A43" stroke-width="4" stroke-linecap="round">
           <path d="M50 12 L50 30"/><path d="M50 70 L50 88"/>
           <path d="M12 50 L30 50"/><path d="M70 50 L88 50"/>
         </g>
-        <circle cx="50" cy="50" r="9" fill="#43C9A8"/>
+        <circle cx="50" cy="50" r="9" fill="#FF5A43"/>
       </svg>
       <span>Case&nbsp;File</span>
       <span class="dash">&mdash;</span>
@@ -178,9 +178,9 @@
   const W=2560, H=1440;
   // base gradient
   const g = x.createRadialGradient(W/2, H/2, 120, W/2, H/2, 1500);
-  g.addColorStop(0, '#12201C');
-  g.addColorStop(0.5, '#0D1512');
-  g.addColorStop(1, '#080B0A');
+  g.addColorStop(0, '#241110');
+  g.addColorStop(0.5, '#160A08');
+  g.addColorStop(1, '#0A0504');
   x.fillStyle=g; x.fillRect(0,0,W,H);
 
   // triangle mesh
@@ -202,11 +202,11 @@
     const dx=(cx-W/2)/W, dy=(cy-H/2)/H;
     const d=Math.sqrt(dx*dx+dy*dy); // 0..~0.6
     const t=Math.max(0,1-d*1.9);
-    const base=6+t*10;               // lightness base
+    const base=6+t*11;               // lightness base
     const n=rand(-3.5,3.5);
     const L=Math.max(3,base+n);
-    // teal-biased dark: rgb with green>blue>red
-    const r=Math.round(L*0.55), gg=Math.round(L*1.55+2), b=Math.round(L*1.15+1);
+    // red-biased dark: rgb with red>green>blue
+    const r=Math.round(L*1.75+3), gg=Math.round(L*0.62), b=Math.round(L*0.5);
     return 'rgb('+r+','+gg+','+b+')';
   }
   for(let r=0;r<rows;r++){
@@ -222,14 +222,14 @@
     x.moveTo(p1.x,p1.y); x.lineTo(p2.x,p2.y); x.lineTo(p3.x,p3.y); x.closePath();
     x.fillStyle=shade(mx,my);
     x.fill();
-    x.lineWidth=1; x.strokeStyle='rgba(8,12,11,0.5)'; x.stroke();
+    x.lineWidth=1; x.strokeStyle='rgba(10,5,4,0.5)'; x.stroke();
   }
 
   // subtle diagonal light sweep
   const sweep=x.createLinearGradient(0,0,W,H);
-  sweep.addColorStop(0,'rgba(67,201,168,0.05)');
-  sweep.addColorStop(0.5,'rgba(67,201,168,0)');
-  sweep.addColorStop(1,'rgba(0,0,0,0.14)');
+  sweep.addColorStop(0,'rgba(255,90,67,0.06)');
+  sweep.addColorStop(0.5,'rgba(255,90,67,0)');
+  sweep.addColorStop(1,'rgba(0,0,0,0.16)');
   x.fillStyle=sweep; x.fillRect(0,0,W,H);
 
   // ---------- film grain ----------

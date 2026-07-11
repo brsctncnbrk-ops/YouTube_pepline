@@ -3,9 +3,9 @@
 YouTube channel banner (channel art) for **The Arcavira Files**.
 
 - **Output:** `The_Arcavira_Files_banner.png` — 2560×1440, upload-ready.
-- **Design:** "Declassified dossier" treatment tied to the channel's teal-on-dark
-  avatar. Condensed *Oswald* wordmark, *Space Mono* case-file metadata, *Archivo*
-  tagline, over a low-poly triangular texture that echoes the avatar's banner.
+- **Design:** "Declassified dossier" treatment in a blood-red / charcoal palette.
+  Condensed *Oswald* wordmark, *Space Mono* case-file metadata, *Archivo*
+  tagline, over a low-poly triangular texture with a warm red glow.
 - **Safe zone:** wordmark and tagline are held inside YouTube's 1546×423
   centered mobile-safe area; corner metadata fills the wider desktop/TV crops.
 
@@ -13,12 +13,12 @@ YouTube channel banner (channel art) for **The Arcavira Files**.
 
 | Token | Hex | Use |
 |-------|-----|-----|
-| ink | `#0B0F0E` | ground (teal-biased near-black) |
-| teal | `#2E7D6B` | brand (from avatar) |
-| teal-bright | `#43C9A8` | accent / glow |
-| amber | `#C7A063` | single warm accent ("New Files Weekly") |
-| paper | `#EAEDE9` | wordmark / primary text |
-| muted | `#7C918A` | secondary text |
+| ink | `#100807` | ground (warm near-black charcoal) |
+| brand red | `#C0392B` | brand accent |
+| bright red | `#FF5A43` | accent / glow / aperture mark |
+| amber | `#E0A458` | single warm counterpoint ("New Files Weekly") |
+| paper | `#EDE7E4` | wordmark / primary text |
+| muted | `#9A817B` | secondary text |
 
 ## Regenerate
 
