@@ -71,6 +71,18 @@ jobs:
           cd "projects/$PROJECT_ID/remotion/render_ready_project"
           npx tsc --noEmit
 
+      - name: Resolve browser executable
+        run: |
+          set -euo pipefail
+          BROWSER="$(command -v google-chrome-stable || command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          if [ -z "$BROWSER" ]; then
+            echo "No supported browser found on GitHub runner"
+            exit 1
+          fi
+          echo "FACTFORGE_REMOTION_BROWSER_EXECUTABLE=$BROWSER" >> "$GITHUB_ENV"
+          echo "Using browser: $BROWSER"
+          "$BROWSER" --version
+
       - name: Render video
         run: |
           set -euo pipefail
