@@ -3,7 +3,7 @@ name: FactForge Compress Output Proof
 on:
   push:
     branches:
-      - agent/compress-output-proof-run-2
+      - agent/compress-output-proof-run-3
   pull_request:
     branches:
       - agent/render-output-proof-base
@@ -27,6 +27,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          ffmpeg -version | head -n 1
+          ffprobe -version | head -n 1
 
       - name: Download full render artifact
         run: |
