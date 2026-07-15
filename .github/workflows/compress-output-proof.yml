@@ -3,7 +3,7 @@ name: FactForge Compress Output Proof
 on:
   push:
     branches:
-      - agent/compress-output-proof-run
+      - agent/compress-output-proof-run-2
   pull_request:
     branches:
       - agent/render-output-proof-base
@@ -31,21 +31,25 @@ jobs:
       - name: Download full render artifact
         run: |
           set -euo pipefail
-          mkdir -p input
+          mkdir -p input output
           gh run download "$SOURCE_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$SOURCE_ARTIFACT" --dir input
           test -s input/final_video.mp4
+          ffprobe -hide_banner -v error -show_format -show_streams input/final_video.mp4 > output/source-info.txt
+          ls -lh input/final_video.mp4
 
       - name: Compress to downloadable 720p MP4
         run: |
-          set -euo pipefail
-          mkdir -p output
-          ffmpeg -hide_banner -y \
+          set -o pipefail
+          ffmpeg -nostdin -hide_banner -y \
             -i input/final_video.mp4 \
-            -vf "scale=-2:720" \
-            -c:v libx264 -preset medium -crf 28 \
-            -c:a aac -b:a 128k \
+            -map 0:v:0 -map 0:a:0? \
+            -vf "scale=1280:-2:flags=lanczos" \
+            -c:v libx264 -preset veryfast -crf 30 \
+            -pix_fmt yuv420p \
+            -c:a aac -b:a 96k -ac 2 \
             -movflags +faststart \
-            output/factforge-render-proof-720p.mp4
+            output/factforge-render-proof-720p.mp4 \
+            2>&1 | tee output/ffmpeg-compress.log
           test -s output/factforge-render-proof-720p.mp4
           ls -lh output/factforge-render-proof-720p.mp4
 
@@ -55,4 +59,15 @@ jobs:
           name: factforge-render-proof-720p-${{ github.run_id }}
           path: output/factforge-render-proof-720p.mp4
           if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload compression diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: factforge-render-proof-compression-diagnostics-${{ github.run_id }}
+          path: |
+            output/source-info.txt
+            output/ffmpeg-compress.log
+          if-no-files-found: warn
           retention-days: 30
