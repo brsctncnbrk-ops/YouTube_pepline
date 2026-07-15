@@ -1,0 +1,58 @@
+name: FactForge Compress Output Proof
+
+on:
+  push:
+    branches:
+      - agent/compress-output-proof-run
+  pull_request:
+    branches:
+      - agent/render-output-proof-base
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: compress-output-proof-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN_ID: "29443571268"
+      SOURCE_ARTIFACT: factforge-output-proof-29443571268
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download full render artifact
+        run: |
+          set -euo pipefail
+          mkdir -p input
+          gh run download "$SOURCE_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$SOURCE_ARTIFACT" --dir input
+          test -s input/final_video.mp4
+
+      - name: Compress to downloadable 720p MP4
+        run: |
+          set -euo pipefail
+          mkdir -p output
+          ffmpeg -hide_banner -y \
+            -i input/final_video.mp4 \
+            -vf "scale=-2:720" \
+            -c:v libx264 -preset medium -crf 28 \
+            -c:a aac -b:a 128k \
+            -movflags +faststart \
+            output/factforge-render-proof-720p.mp4
+          test -s output/factforge-render-proof-720p.mp4
+          ls -lh output/factforge-render-proof-720p.mp4
+
+      - name: Upload compressed video
+        uses: actions/upload-artifact@v4
+        with:
+          name: factforge-render-proof-720p-${{ github.run_id }}
+          path: output/factforge-render-proof-720p.mp4
+          if-no-files-found: error
+          retention-days: 30
