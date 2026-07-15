@@ -1,0 +1,66 @@
+name: FactForge Render Output Proof
+
+on:
+  push:
+    branches:
+      - agent/render-output-proof
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      PROJECT_ID: 001-the-voynich-manuscript-600-years-of-myst
+    steps:
+      - name: Checkout with LFS assets
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Pull LFS assets
+        run: git lfs pull
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install deterministic Remotion dependencies
+        run: |
+          set -euo pipefail
+          cd "projects/$PROJECT_ID/remotion/render_ready_project"
+          npm ci --no-audit --no-fund
+
+      - name: Type-check render project
+        run: |
+          set -euo pipefail
+          cd "projects/$PROJECT_ID/remotion/render_ready_project"
+          npx tsc --noEmit
+
+      - name: Render final video
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          mkdir -p "$APP/out"
+          cd "$APP"
+          npx remotion render src/index.ts FactForgeVideo out/final_video.mp4 --codec=h264 2>&1 | tee out/render_stdout.txt
+
+      - name: Upload final video
+        uses: actions/upload-artifact@v4
+        with:
+          name: factforge-output-proof-${{ github.run_id }}
+          path: projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/final_video.mp4
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: factforge-output-proof-diagnostics-${{ github.run_id }}
+          path: projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/render_stdout.txt
+          if-no-files-found: warn
+          retention-days: 30
