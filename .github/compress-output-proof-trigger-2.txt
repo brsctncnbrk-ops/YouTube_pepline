@@ -1,0 +1,1 @@
+Trigger robust compressed FactForge render artifact.
