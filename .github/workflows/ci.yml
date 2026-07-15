@@ -1,0 +1,40 @@
+name: FactForge CI
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Run pipeline smoke checks
+        run: npm run ci:smoke
+
+      - name: Check Node script syntax
+        run: find scripts -type f -name '*.mjs' -print0 | xargs -0 -n1 node --check
+
+      - name: Install deterministic Remotion dependencies
+        working-directory: templates/remotion
+        run: npm ci --no-audit --no-fund
+
+      - name: Type-check Remotion template
+        working-directory: templates/remotion
+        run: npx tsc --noEmit

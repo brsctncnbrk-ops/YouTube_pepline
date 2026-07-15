@@ -1,9 +1,8 @@
 name: FactForge Render
 
 # Full-duration Remotion renders happen only here, never on an author's
-# machine. Triggered explicitly (not on push) so a render only runs once the
-# render QA gate has confirmed the project is READY_FOR_RENDER - a push-based
-# trigger could fire on any incremental asset commit before that.
+# machine. The rendered MP4 is delivered as a GitHub Actions artifact and is
+# deliberately not committed back into the repository.
 on:
   workflow_dispatch:
     inputs:
@@ -13,9 +12,8 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
-# One render at a time per project; a newer dispatch cancels an in-flight one.
 concurrency:
   group: render-${{ inputs.project_id }}
   cancel-in-progress: true
@@ -23,6 +21,8 @@ concurrency:
 jobs:
   render:
     runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: ${{ inputs.project_id }}
     steps:
       - name: Checkout (with LFS assets)
         uses: actions/checkout@v4
@@ -36,62 +36,84 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: npm
 
-      - name: Install root tooling deps
+      - name: Install root tooling dependencies
         run: npm ci
 
-      - name: Render-readiness hard gate
-        # Defense in depth: re-run the same check the render QA gate ran, so a
-        # workflow dispatched out of band can't burn render minutes on a
-        # project that isn't actually ready. validate.mjs exits non-zero on fail.
-        run: node scripts/validate.mjs render-ready --project-id "${{ inputs.project_id }}"
+      - name: Validate project id
+        id: validate-project-id
+        run: |
+          node --input-type=module -e '
+            import {assertValidProjectId} from "./scripts/lib/fs-utils.mjs";
+            assertValidProjectId(process.env.PROJECT_ID);
+            console.log(`Validated project id: ${process.env.PROJECT_ID}`);
+          '
 
-      - name: Install Remotion project deps
-        working-directory: projects/${{ inputs.project_id }}/remotion/render_ready_project
-        run: npm install --no-audit --no-fund
+      - name: Rebuild render-ready Remotion project
+        run: |
+          set -euo pipefail
+          node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
+          node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
+
+      - name: Render-readiness hard gate
+        run: node scripts/validate.mjs render-ready --project-id "$PROJECT_ID"
+
+      - name: Install deterministic Remotion dependencies
+        run: |
+          set -euo pipefail
+          cd "projects/$PROJECT_ID/remotion/render_ready_project"
+          npm ci --no-audit --no-fund
+
+      - name: Type-check Remotion project
+        run: |
+          set -euo pipefail
+          cd "projects/$PROJECT_ID/remotion/render_ready_project"
+          npx tsc --noEmit
 
       - name: Render video
-        working-directory: projects/${{ inputs.project_id }}/remotion/render_ready_project
         run: |
           set -euo pipefail
-          mkdir -p out
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          mkdir -p "$APP/out"
+          cd "$APP"
           npx remotion render src/index.ts FactForgeVideo out/final_video.mp4 --codec=h264 2>&1 | tee out/render_stdout.txt
 
-      - name: Collect output
+      - name: Collect successful render output
         run: |
           set -euo pipefail
-          PID="${{ inputs.project_id }}"
-          SRC="projects/$PID/remotion/render_ready_project/out"
-          DEST="projects/$PID/output"
+          SRC="projects/$PROJECT_ID/remotion/render_ready_project/out"
+          DEST="projects/$PROJECT_ID/output"
           mkdir -p "$DEST"
           cp "$SRC/final_video.mp4" "$DEST/final_video.mp4"
           {
             echo "Rendered at: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo "Workflow run: ${{ github.run_id }}"
+            echo "Source commit: ${{ github.sha }}"
             echo "---"
-            tail -n 40 "$SRC/render_stdout.txt" || true
+            tail -n 80 "$SRC/render_stdout.txt" || true
           } > "$DEST/render_log.txt"
+          node scripts/manifest_cli.mjs render-complete --project-id "$PROJECT_ID" --output-file "output/final_video.mp4"
 
-      - name: Mark manifest RENDER_DONE
-        run: node scripts/manifest_cli.mjs render-complete --project-id "${{ inputs.project_id }}" --output-file "output/final_video.mp4"
-
-      - name: Upload video artifact
+      - name: Upload render bundle
         uses: actions/upload-artifact@v4
         with:
-          name: final_video-${{ inputs.project_id }}
-          path: projects/${{ inputs.project_id }}/output/final_video.mp4
+          name: factforge-render-${{ inputs.project_id }}-${{ github.run_id }}
+          path: |
+            projects/${{ inputs.project_id }}/output/final_video.mp4
+            projects/${{ inputs.project_id }}/output/render_log.txt
+            projects/${{ inputs.project_id }}/manifest.json
+            projects/${{ inputs.project_id }}/assets/asset_manifest.json
           if-no-files-found: error
+          retention-days: 30
 
-      - name: Commit rendered output back to the branch
-        run: |
-          set -euo pipefail
-          PID="${{ inputs.project_id }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add "projects/$PID/output/final_video.mp4" "projects/$PID/output/render_log.txt" "projects/$PID/manifest.json" "projects/$PID/assets/asset_manifest.json"
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "Render $PID: final_video.mp4 (run ${{ github.run_id }})"
-            git push origin HEAD:${{ github.ref_name }}
-          fi
+      - name: Upload render diagnostics
+        if: always() && steps.validate-project-id.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: factforge-render-diagnostics-${{ inputs.project_id }}-${{ github.run_id }}
+          path: |
+            projects/${{ inputs.project_id }}/remotion/render_ready_project/out/render_stdout.txt
+            projects/${{ inputs.project_id }}/output/render_log.txt
+          if-no-files-found: warn
+          retention-days: 30

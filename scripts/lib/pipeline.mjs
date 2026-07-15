@@ -5,15 +5,11 @@
  *
  * Stage ids follow the spec's own manifest.json example naming convention
  * (research_qa / script_qa / voice_qa suffix pattern). This is the
- * footage-primary (Aperture-style) migration's 19-stage graph - see
- * /root/.claude/plans/pipeline-migration-flickering-minsky.md for the full
- * rationale. Two stages were added relative to the original 17-stage list:
- * `fact_audit` (between script and script_qa - it can cut/replace claims in
- * place, so script_qa must review the post-audit text) and
- * `footage_retrieval` (between storyboard_qa and visual_style_bible - footage
- * must be selected before the style bible/AI-fallback prompts can reference
- * its color/tone). The `images` gate was renamed `visual_assets` since the
- * requirement is now per-scene conditional (footage clip vs. AI-fallback
+ * footage-primary (Aperture-style) migration's 19-stage graph. Two stages
+ * were added relative to the original 17-stage list: `fact_audit` (between
+ * script and script_qa) and `footage_retrieval` (between storyboard_qa and
+ * visual_style_bible). The `images` gate was renamed `visual_assets` because
+ * the requirement is now conditional per scene (footage clip vs. fallback
  * still) rather than always a PNG.
  */
 
@@ -39,7 +35,6 @@ export const STAGE_ORDER = [
   "final_qa",
 ];
 
-/** Files (relative to the project root) required before a stage may run. */
 export const STAGE_REQUIRED_FILES = {
   research: [],
   research_qa: ["research/research.json", "research/research.md", "research/sources.md"],
@@ -62,7 +57,6 @@ export const STAGE_REQUIRED_FILES = {
   final_qa: ["output/final_video.mp4", "storyboard/storyboard.json", "packaging/packaging.json", "packaging/title.md", "packaging/description.md", "fact_audit/claims.json"],
 };
 
-/** Output files/dirs (relative to the project root) a stage produces. Used by reset-stage --force-clean. */
 export const STAGE_OUTPUT_FILES = {
   research: ["research/research.json", "research/research.md", "research/sources.md"],
   research_qa: ["qa/research_qa.md"],
@@ -100,11 +94,6 @@ export const STAGE_OUTPUT_FILES = {
   final_qa: ["qa/final_qa_report.md"],
 };
 
-/**
- * Manual human gates. `beforeStage` is the first pipeline stage that must not
- * run until the gate is satisfied. `waitStatus` is the manifest status while
- * blocked.
- */
 export const GATES = {
   audio: {
     beforeStage: "storyboard",
@@ -113,13 +102,6 @@ export const GATES = {
     errorCode: "MISSING_AUDIO",
   },
   visual_assets: {
-    // Note: this gate sits before "director", *after* visual_qa. The
-    // visual_qa gate only checks that footage provenance/prompts/filenames
-    // are well-formed and fully cover the storyboard's scenes - it must not
-    // require the actual assets/footage/*.mp4 or assets/images/*.png bytes to
-    // exist yet. Per-scene requirement is conditional on asset_type
-    // (footage vs. ai_fallback), resolved by validateVisualAssets rather than
-    // a single requiredFile string.
     beforeStage: "director",
     waitStatus: "WAITING_FOR_VISUAL_ASSETS",
     errorCode: "MISSING_VISUAL_ASSET",
@@ -130,6 +112,7 @@ export const GATES = {
 export const ERROR_CODES = [
   "MISSING_AUDIO",
   "MISSING_VISUAL_ASSET",
+  "INVALID_PROJECT_ID",
   "INVALID_JSON",
   "SCHEMA_VALIDATION_FAILED",
   "BROKEN_ASSET_PATH",
@@ -154,7 +137,6 @@ export const STATUSES = [
   "ERROR",
 ];
 
-/** Current pipeline schema version, stamped into manifest.json and every schema-validated JSON artifact this pipeline authors. */
 export const SCHEMA_VERSION = "2.0";
 
 export function nextStage(currentStage) {
