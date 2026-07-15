@@ -4,9 +4,16 @@ on:
   push:
     branches:
       - agent/render-output-proof
+  pull_request:
+    branches:
+      - claude/factforge-video-quality-msil6y
 
 permissions:
   contents: read
+
+concurrency:
+  group: render-output-proof-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   render:
