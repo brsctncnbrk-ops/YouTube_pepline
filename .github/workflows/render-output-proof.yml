@@ -3,7 +3,7 @@ name: FactForge Render Output Proof
 on:
   push:
     branches:
-      - agent/render-output-proof
+      - agent/render-output-proof-run
   pull_request:
     branches:
       - agent/render-output-proof-base
