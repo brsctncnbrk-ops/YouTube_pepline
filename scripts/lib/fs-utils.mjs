@@ -7,8 +7,27 @@ export const PROJECTS_DIR = path.join(REPO_ROOT, "projects");
 export const TEMPLATES_DIR = path.join(REPO_ROOT, "templates");
 export const SCHEMAS_DIR = path.join(REPO_ROOT, "schemas");
 export const INDEX_PATH = path.join(PROJECTS_DIR, "_index.json");
+export const PROJECT_ID_PATTERN = /^[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+export function assertValidProjectId(projectId) {
+  if (typeof projectId !== "string" || !PROJECT_ID_PATTERN.test(projectId)) {
+    throw new CliError(
+      `Invalid project id "${projectId ?? ""}". Expected a value like 001-my-video.`,
+      "INVALID_PROJECT_ID"
+    );
+  }
+
+  const resolved = path.resolve(PROJECTS_DIR, projectId);
+  const projectsRoot = path.resolve(PROJECTS_DIR) + path.sep;
+  if (!resolved.startsWith(projectsRoot)) {
+    throw new CliError("Project path escapes the projects directory.", "INVALID_PROJECT_ID");
+  }
+
+  return projectId;
+}
 
 export function projectDir(projectId) {
+  assertValidProjectId(projectId);
   return path.join(PROJECTS_DIR, projectId);
 }
 
