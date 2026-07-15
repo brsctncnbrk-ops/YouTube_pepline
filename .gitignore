@@ -3,3 +3,7 @@ npm-debug.log*
 .DS_Store
 .env
 .env.local
+
+# Full renders are GitHub Actions artifacts, not repository history.
+projects/*/output/*.mp4
+projects/*/remotion/render_ready_project/out/
