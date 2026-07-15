@@ -57,6 +57,7 @@
             "enum": [
               "MISSING_AUDIO",
               "MISSING_VISUAL_ASSET",
+              "INVALID_PROJECT_ID",
               "INVALID_JSON",
               "SCHEMA_VALIDATION_FAILED",
               "BROKEN_ASSET_PATH",
