@@ -1,5 +1,11 @@
 import { Config } from "@remotion/cli/config";
 
+const factforgeBrowserExecutable = process.env.FACTFORGE_REMOTION_BROWSER_EXECUTABLE;
+if (!factforgeBrowserExecutable) {
+  throw new Error("FACTFORGE_REMOTION_BROWSER_EXECUTABLE is required; refusing Remotion auto-download fallback");
+}
+Config.setBrowserExecutable(factforgeBrowserExecutable);
+
 /**
  * The public dir is the per-project root (two levels up from this
  * render_ready_project/ folder: render_ready_project -> remotion -> project

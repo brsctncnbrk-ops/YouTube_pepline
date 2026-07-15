@@ -1,0 +1,23 @@
+{
+  "stable_asset_id": "027c22574ff746fa",
+  "scene_id": "scene_002",
+  "candidate_id": "55b0a8af17f137fd76d52766",
+  "provider": "pixabay",
+  "provider_asset_id": "39183",
+  "source_page_url": "https://pixabay.com/videos/id-39183/",
+  "final_media_hostname": "cdn.pixabay.com",
+  "final_media_path": "/video/2020/05/15/39183-421020269_large.mp4",
+  "license_url": "https://pixabay.com/service/license-summary/",
+  "attribution_required": false,
+  "creator": "movadspro",
+  "retrieval_timestamp": "2026-07-11T23:14:03.415Z",
+  "content_type": "video/mp4",
+  "byte_size": 3500178,
+  "duration": 5.625,
+  "width": 1920,
+  "height": 1080,
+  "codec": "h264",
+  "sha256": "fb521031b475ae8454d394c1e4983d7c5eecb59dabe996103c3071c3df7561e3",
+  "approved_for_final_edit": true,
+  "human_review_status": "NOT_REQUIRED"
+}

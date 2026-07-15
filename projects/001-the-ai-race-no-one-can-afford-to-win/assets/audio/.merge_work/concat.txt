@@ -1,0 +1,9 @@
+file /opt/youtube_pipeline/projects/001-the-ai-race-no-one-can-afford-to-win/assets/audio/segments/01_hook.mp3
+file /opt/youtube_pipeline/projects/001-the-ai-race-no-one-can-afford-to-win/assets/audio/segments/02_warning_signs.mp3
+file /opt/youtube_pipeline/projects/001-the-ai-race-no-one-can-afford-to-win/assets/audio/segments/03_the_race.mp3
+file /opt/youtube_pipeline/projects/001-the-ai-race-no-one-can-afford-to-win/assets/audio/segments/04_cyber_bio.mp3
+file /opt/youtube_pipeline/projects/001-the-ai-race-no-one-can-afford-to-win/assets/audio/segments/05_power_work.mp3
+file /opt/youtube_pipeline/projects/001-the-ai-race-no-one-can-afford-to-win/assets/audio/segments/06_control_paradox.mp3
+file /opt/youtube_pipeline/projects/001-the-ai-race-no-one-can-afford-to-win/assets/audio/segments/07_open_weight.mp3
+file /opt/youtube_pipeline/projects/001-the-ai-race-no-one-can-afford-to-win/assets/audio/segments/08_safeguards.mp3
+file /opt/youtube_pipeline/projects/001-the-ai-race-no-one-can-afford-to-win/assets/audio/segments/09_closing.mp3

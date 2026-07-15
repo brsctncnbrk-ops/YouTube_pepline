@@ -33,6 +33,31 @@ import {
   CliError,
 } from "./lib/fs-utils.mjs";
 
+
+function isPathInside(child, parent) {
+  const rel = path.relative(parent, child);
+  return rel !== "" && !rel.startsWith("..") && !path.isAbsolute(rel);
+}
+
+export async function assertSafeBundleOutput({ publicDir, outputDir, sourceRoot }) {
+  const resolvedPublic = path.resolve(publicDir);
+  const resolvedOutput = path.resolve(outputDir);
+  const resolvedSource = path.resolve(sourceRoot);
+  if (resolvedOutput === resolvedPublic) {
+    throw new CliError("Bundle output directory cannot equal the Remotion public directory", "RENDER_CONFIG_MISSING");
+  }
+  if (isPathInside(resolvedOutput, resolvedPublic)) {
+    throw new CliError("Bundle output directory cannot be inside the Remotion public directory", "RENDER_CONFIG_MISSING");
+  }
+  if (isPathInside(resolvedPublic, resolvedOutput)) {
+    throw new CliError("Remotion public directory cannot be inside the bundle output directory", "RENDER_CONFIG_MISSING");
+  }
+  if (resolvedOutput === resolvedSource || isPathInside(resolvedOutput, resolvedSource)) {
+    throw new CliError("Bundle output directory cannot be inside the source tree", "RENDER_CONFIG_MISSING");
+  }
+  return { public_dir: resolvedPublic, output_dir: resolvedOutput, source_root: resolvedSource };
+}
+
 async function loadComposition(projectId) {
   const compPath = path.join(projectDir(projectId), "remotion", "composition.json");
   if (!(await pathExists(compPath))) {
@@ -175,9 +200,19 @@ export async function buildProject({ projectId }) {
   };
 }
 
+async function validateBundleOutputCommand(args) {
+  const result = await assertSafeBundleOutput({
+    publicDir: args["public-dir"],
+    outputDir: args["output-dir"],
+    sourceRoot: args["source-root"] || process.cwd(),
+  });
+  return result;
+}
+
 const SUBCOMMANDS = {
   "derive-configs": deriveConfigs,
   "build-project": buildProject,
+  "validate-bundle-output": validateBundleOutputCommand,
 };
 
 async function main() {
@@ -190,7 +225,7 @@ async function main() {
   }
   const args = parseArgs(rest);
   try {
-    const result = await handler({ projectId: args["project-id"] });
+    const result = subcommand === "validate-bundle-output" ? await handler(args) : await handler({ projectId: args["project-id"] });
     printJson({ ok: true, ...result });
   } catch (err) {
     printJson({ ok: false, error_code: err.code || "UNKNOWN_ERROR", message: err.message });

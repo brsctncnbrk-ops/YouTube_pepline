@@ -1,0 +1,23 @@
+{
+  "stable_asset_id": "4885a99750ef83c5",
+  "scene_id": "scene_007",
+  "candidate_id": "6c8401e76cd6e2697fc70d7c",
+  "provider": "pexels",
+  "provider_asset_id": "8170427",
+  "source_page_url": "https://www.pexels.com/video/women-talking-in-the-office-8170427/",
+  "final_media_hostname": "videos.pexels.com",
+  "final_media_path": "/video-files/8170427/8170427-uhd_3840_2160_25fps.mp4",
+  "license_url": "https://www.pexels.com/license/",
+  "attribution_required": false,
+  "creator": "Kampus Production",
+  "retrieval_timestamp": "2026-07-12T01:43:33.547Z",
+  "content_type": "video/mp4",
+  "byte_size": 24476682,
+  "duration": 8.44,
+  "width": 3840,
+  "height": 2160,
+  "codec": "h264",
+  "sha256": "14f18ad64da6be5414279805d4fc4064ac57c4e345a7de3c044ba679308f8111",
+  "approved_for_final_edit": true,
+  "human_review_status": "NOT_REQUIRED"
+}

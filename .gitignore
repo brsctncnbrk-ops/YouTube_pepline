@@ -4,6 +4,11 @@ npm-debug.log*
 .env
 .env.local
 
-# Full renders are GitHub Actions artifacts, not repository history.
-projects/*/output/*.mp4
-projects/*/remotion/render_ready_project/out/
+# Generated runtime files
+fact_registry/
+projects/*/logs/*
+!projects/*/logs/.gitkeep
+projects/*/output/*
+!projects/*/output/.gitkeep
+projects/*/remotion/render_ready_project/node_modules/
+projects/*/remotion/render_ready_project/src/*.corrupt-*

@@ -1,0 +1,24 @@
+{
+  "human_notes": [
+    {
+      "id": "NB-004",
+      "scope": "global",
+      "title": "footage license spot-check",
+      "carried_forward": true,
+      "non_blocking": true,
+      "status": "open",
+      "implementation_mitigation": "Footage provenance and license fields remain preserved from approved footage_manifest; no new license evidence fabricated in editor stage. Human spot-check remains visible before packaging/final_qa.",
+      "human_review_timing": "before packaging/final_qa"
+    },
+    {
+      "id": "SCENE_001_OPTIONAL_SUPPLEMENTAL_MONTAGE",
+      "scope": "scene_001",
+      "title": "optional supplemental cross-cut montage",
+      "carried_forward": true,
+      "non_blocking": true,
+      "status": "open_disabled_by_default",
+      "implementation_mitigation": "No approved supplemental asset exists; editor uses primary approved scene_001 footage only and creates no fake supplemental path.",
+      "human_review_timing": "before packaging/final_qa if supplemental montage is desired"
+    }
+  ]
+}
