@@ -152,37 +152,50 @@ export async function validateFilenames({ projectId }) {
 
 /**
  * Resolves, per storyboard scene, whether the render pipeline expects a
- * footage clip (assets/footage/<id>.mp4) or an AI-fallback still
- * (assets/images/<id>.png), and checks the corresponding file exists. A
- * scene with no footage_manifest.json entry at all is treated as
- * fallback (defensive default - matches pre-footage-retrieval behavior for
- * any project state where the manifest hasn't been written yet).
+ * footage clip or an AI-fallback still. Modern footage manifests may carry
+ * project-relative `asset_path`/`canonical_asset_path` values (including
+ * reuse records); older manifests are resolved via scene_asset_map.json before
+ * falling back to the legacy assets/footage/<scene_id>.mp4 convention.
  */
-export async function validateVisualAssets({ projectId }) {
-  const dir = projectDir(projectId);
-  const storyboardPath = path.join(dir, "storyboard", "storyboard.json");
-  const footagePath = path.join(dir, "footage", "footage_manifest.json");
-
-  const storyboard = await readJsonSafe(storyboardPath, null);
-  if (!storyboard || !Array.isArray(storyboard.scenes)) {
-    return { valid: true, missing: [], note: "storyboard.json not present yet" };
-  }
-  const footageManifest = await readJsonSafe(footagePath, null);
-  const footageByScene = new Map((footageManifest?.scenes || []).map((s) => [s.scene_id, s]));
-
-  const missing = [];
-  for (const scene of storyboard.scenes) {
-    if (!/^scene_[0-9]{3}$/.test(scene.scene_id || "")) continue;
-    const entry = footageByScene.get(scene.scene_id);
-    const useFallback = !entry || entry.fallback_to_ai_visual;
-    const rel = useFallback ? `assets/images/${scene.scene_id}.png` : `assets/footage/${scene.scene_id}.mp4`;
-    if (!(await pathExists(path.join(dir, rel)))) missing.push(rel);
-  }
-
-  return { valid: missing.length === 0, missing };
+function isForbiddenProjectVisibleUrl(value) {
+  if (typeof value !== "string" || !value) return false;
+  return /[?&](token|signature|sig|expires|expires_at|key|apikey|api_key|X-Amz-|Policy|Credential)=/i.test(value);
 }
 
-export async function validateAssets({ projectId, check = "all" }) {
+function isProjectRelativeAssetPath(value) {
+  return typeof value === "string" &&
+    !isSuspiciousPath(value) &&
+    !isForbiddenProjectVisibleUrl(value) &&
+    /^(assets\/(footage|images)\/).+/.test(value);
+}
+
+async function loadSceneAssetMap(dir) {
+  const mapPath = path.join(dir, "footage", "scene_asset_map.json");
+  const sceneMap = await readJsonSafe(mapPath, null);
+  return new Map((sceneMap?.scenes || []).map((s) => [s.scene_id, s]));
+}
+
+function effectiveFootageAssetPath(entry, sceneAssetMapEntry = null) {
+  return entry?.asset_path ||
+    entry?.canonical_asset_path ||
+    sceneAssetMapEntry?.asset_path ||
+    sceneAssetMapEntry?.canonical_asset_path ||
+    null;
+}
+
+function hasSafeProvenanceEvidence(entry) {
+  if (entry.fallback_to_ai_visual) return true;
+  const hasSource = Boolean(entry.source);
+  const hasLicense = Boolean(entry.license) || entry.license_approved === true;
+  const hasReasoning = Boolean(entry.reasoning);
+  const safeSelectedRef = Boolean(entry.selected_rendition_id || entry.resolved_rendition_id || entry.source_page_url || entry.selected_url || entry.legacy_provenance_schema || entry.explicit_binding_status);
+  const legacyBindingOk = entry.explicit_binding_status === "NOT_RECORDED_PRE_SCHEMA" || entry.explicit_binding_status === "LEGACY_NOT_RECORDED" || entry.media_sha_ffprobe_valid === true || entry.legacy_provenance_schema === true;
+  const reuseOk = entry.asset_role === "reuse" && Boolean(entry.reuse_of_scene) && Boolean(entry.canonical_asset_path || entry.asset_path) && (entry.reuse_policy_passed === true || entry.duplicate_download_prevented === true);
+  if (isForbiddenProjectVisibleUrl(entry.selected_url) || isForbiddenProjectVisibleUrl(entry.source_page_url)) return false;
+  return hasSource && hasLicense && hasReasoning && (safeSelectedRef || legacyBindingOk || reuseOk);
+}
+
+export async function validateAssets({ projectId, check = "all" } = {}) {
   const dir = projectDir(projectId);
   const missing = [];
 
@@ -198,19 +211,48 @@ export async function validateAssets({ projectId, check = "all" }) {
 
   return {
     valid: missing.length === 0,
-    error_code: missing.length === 0 ? null : check === "audio" ? "MISSING_AUDIO" : "MISSING_VISUAL_ASSET",
+    error_code:
+      missing.length === 0
+        ? null
+        : check === "audio"
+          ? "MISSING_AUDIO"
+          : "MISSING_VISUAL_ASSET",
     missing,
   };
 }
 
+export async function validateVisualAssets({ projectId }) {
+  const dir = projectDir(projectId);
+  const storyboardPath = path.join(dir, "storyboard", "storyboard.json");
+  const footagePath = path.join(dir, "footage", "footage_manifest.json");
+
+  const storyboard = await readJsonSafe(storyboardPath, null);
+  if (!storyboard || !Array.isArray(storyboard.scenes)) {
+    return { valid: true, missing: [], note: "storyboard.json not present yet" };
+  }
+  const footageManifest = await readJsonSafe(footagePath, null);
+  const footageByScene = new Map((footageManifest?.scenes || []).map((s) => [s.scene_id, s]));
+  const sceneAssetMap = await loadSceneAssetMap(dir);
+
+  const missing = [];
+  for (const scene of storyboard.scenes) {
+    if (!/^scene_[0-9]{3}$/.test(scene.scene_id || "")) continue;
+    const entry = footageByScene.get(scene.scene_id);
+    const useFallback = !entry || entry.fallback_to_ai_visual;
+    const rel = useFallback ? `assets/images/${scene.scene_id}.png` : (effectiveFootageAssetPath(entry, sceneAssetMap.get(scene.scene_id)) || `assets/footage/${scene.scene_id}.mp4`);
+    if (!isProjectRelativeAssetPath(rel) || !(await pathExists(path.join(dir, rel)))) missing.push(rel);
+  }
+
+  return { valid: missing.length === 0, error_code: missing.length ? "BROKEN_ASSET_PATH" : null, missing };
+}
+
 /**
  * Checks that footage/footage_manifest.json fully covers the storyboard's
- * scenes, and that every non-fallback entry carries complete provenance
- * (source/license/selected_url/reasoning) - the "evidence of deliberate
- * editorial choice" record the migration plan requires, not just a
- * keyword-match log. Also confirms every entry either passed the duration/
- * resolution hard filters (has native_duration_sec/native_resolution) or is
- * flagged fallback_to_ai_visual - there's no third option.
+ * scenes, that non-fallback entries carry safe provenance evidence, and that
+ * any project-relative effective asset paths that are present resolve. Missing
+ * or invalid paths are BROKEN_ASSET_PATH. Provenance completeness failures use
+ * INCOMPLETE_FOOTAGE_PROVENANCE so path failures are not conflated with
+ * source/license/reasoning evidence gaps.
  */
 export async function validateFootageCoverage({ projectId }) {
   const dir = projectDir(projectId);
@@ -226,32 +268,40 @@ export async function validateFootageCoverage({ projectId }) {
     return { valid: false, error_code: "INVALID_JSON", issues: ["footage_manifest.json missing or has no scenes[]"] };
   }
 
-  const issues = [];
+  const pathIssues = [];
+  const provenanceIssues = [];
   const storyboardIds = new Set(storyboard.scenes.map((s) => s.scene_id));
   const footageById = new Map(footage.scenes.map((s) => [s.scene_id, s]));
+  const sceneAssetMap = await loadSceneAssetMap(dir);
 
   for (const id of storyboardIds) {
     const entry = footageById.get(id);
     if (!entry) {
-      issues.push({ scene_id: id, reason: "no matching entry in footage_manifest.json" });
+      pathIssues.push({ scene_id: id, reason: "no matching entry in footage_manifest.json" });
       continue;
     }
     if (!entry.fallback_to_ai_visual) {
-      if (!entry.source || !entry.license || !entry.selected_url || !entry.reasoning) {
-        issues.push({ scene_id: id, reason: "missing source/license/selected_url/reasoning provenance" });
+      const rel = effectiveFootageAssetPath(entry, sceneAssetMap.get(id));
+      if (rel && (!isProjectRelativeAssetPath(rel) || !(await pathExists(path.join(dir, rel))))) {
+        pathIssues.push({ scene_id: id, reason: "effective footage asset path does not resolve", path: rel });
+      }
+      if (!hasSafeProvenanceEvidence(entry)) {
+        provenanceIssues.push({ scene_id: id, reason: "incomplete safe source/license/selection/reasoning provenance" });
       }
       if (entry.native_duration_sec == null || !entry.native_resolution) {
-        issues.push({ scene_id: id, reason: "not fallback_to_ai_visual but missing native_duration_sec/native_resolution - did it actually pass the hard filters?" });
+        provenanceIssues.push({ scene_id: id, reason: "not fallback_to_ai_visual but missing native_duration_sec/native_resolution - did it actually pass the hard filters?" });
       }
     }
   }
   for (const id of footageById.keys()) {
     if (!storyboardIds.has(id)) {
-      issues.push({ scene_id: id, reason: "footage_manifest.json has an entry with no matching storyboard scene" });
+      pathIssues.push({ scene_id: id, reason: "footage_manifest.json has an entry with no matching storyboard scene" });
     }
   }
 
-  return { valid: issues.length === 0, error_code: issues.length ? "BROKEN_ASSET_PATH" : null, issues };
+  const issues = [...pathIssues, ...provenanceIssues];
+  const error_code = pathIssues.length ? "BROKEN_ASSET_PATH" : provenanceIssues.length ? "INCOMPLETE_FOOTAGE_PROVENANCE" : null;
+  return { valid: issues.length === 0, error_code, issues };
 }
 
 /**

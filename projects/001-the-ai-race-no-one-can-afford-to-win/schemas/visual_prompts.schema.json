@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "visual_prompts.schema.json",
+  "title": "FactForge Visual Prompts",
+  "description": "AI-fallback prompts only. Since footage_retrieval, this covers ONLY scenes flagged fallback_to_ai_visual: true in footage/footage_manifest.json - a project may legitimately have zero such scenes.",
+  "type": "object",
+  "required": ["schema_version", "project_id", "style_token", "scenes", "generated_at"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "project_id": { "type": "string" },
+    "style_token": { "type": "string", "minLength": 1 },
+    "scenes": {
+      "type": "array",
+      "minItems": 0,
+      "items": {
+        "type": "object",
+        "required": [
+          "scene_id",
+          "image_filename",
+          "main_prompt",
+          "negative_prompt",
+          "camera_angle",
+          "lighting",
+          "composition",
+          "alt_prompts",
+          "leonardo_settings",
+          "status"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "scene_id": { "type": "string", "pattern": "^scene_[0-9]{3}$" },
+          "image_filename": { "type": "string", "pattern": "^scene_[0-9]{3}\\.png$" },
+          "main_prompt": { "type": "string", "minLength": 1 },
+          "negative_prompt": { "type": "string", "minLength": 1 },
+          "camera_angle": { "type": "string" },
+          "lighting": { "type": "string" },
+          "composition": { "type": "string" },
+          "alt_prompts": { "type": "array", "items": { "type": "string" } },
+          "leonardo_settings": {
+            "type": "object",
+            "required": ["model", "aspect_ratio", "guidance_scale"],
+            "additionalProperties": false,
+            "properties": {
+              "model": { "type": "string" },
+              "aspect_ratio": { "type": "string" },
+              "guidance_scale": { "type": "number" },
+              "seed": { "type": ["string", "number", "null"] },
+              "style_reference": { "type": ["string", "null"] }
+            }
+          },
+          "status": { "type": "string", "enum": ["pending", "generated"] }
+        }
+      }
+    },
+    "generated_at": { "type": "string" }
+  }
+}

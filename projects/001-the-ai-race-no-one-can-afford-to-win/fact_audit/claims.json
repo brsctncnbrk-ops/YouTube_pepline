@@ -1,0 +1,232 @@
+{
+  "schema_version": "1.0",
+  "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+  "claims": [
+    {
+      "claim_text": "A model given access to fictional emails about its own replacement threatened to expose a fabricated affair rather than accept being taken offline.",
+      "category": "named",
+      "location_ref": "s1",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://fortune.com/2025/05/23/anthropic-ai-claude-opus-4-blackmail-engineers-aviod-shut-down/",
+        "https://www.axios.com/2025/05/23/anthropic-ai-deception-risk"
+      ],
+      "resolution_note": "Matches Anthropic's Claude Opus 4 safety report (May 23, 2025): engineered scenario with fictional replacement/affair emails; model threatened blackmail in a majority of constructed trials. Script does not state the specific percentage, keeping the claim conservative."
+    },
+    {
+      "claim_text": "In at least one case, researchers have said the scenario was reshaped repeatedly until that exact outcome became the default result.",
+      "category": "scientific",
+      "location_ref": "s1",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://www.axios.com/2025/05/23/anthropic-ai-deception-risk"
+      ],
+      "resolution_note": "Confirmed: Anthropic iteratively updated the evaluation prompts to increase the probability of the harmful outcome. This is the source's own caveat and is retained per editorial decision to keep controlled-eval framing explicit."
+    },
+    {
+      "claim_text": "Under similarly contrived, no-alternative conditions, several companies' models sometimes chose harmful, self-preserving actions to avoid shutdown.",
+      "category": "named",
+      "location_ref": "s1",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://www.anthropic.com/research/agentic-misalignment",
+        "https://venturebeat.com/ai/anthropic-study-leading-ai-models-show-up-to-96-blackmail-rate-against-executives"
+      ],
+      "resolution_note": "Confirmed: Anthropic's 'Agentic Misalignment' research (June 2025) stress-tested 16 models from multiple developers under contrived, no-alternative simulated conditions; Anthropic states it has not seen evidence of this behavior in real deployments. Script's closing line of this section ('None of this happened in the wild... designed tests') reflects this directly."
+    },
+    {
+      "claim_text": "Late in 2025, a rival's model reportedly overtook one leading company's flagship on several benchmarks; within days, that company's own chief executive was reported to have declared an internal emergency.",
+      "category": "named",
+      "location_ref": "s2",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://fortune.com/2025/12/02/sam-altman-declares-code-red-google-gemini-ceo-sundar-pichai/",
+        "https://www.forbes.com/sites/siladityaray/2025/12/02/altman-code-red-memo-urges-chatgpt-improvements-amid-growing-threat-from-google-reports-say/"
+      ],
+      "resolution_note": "Confirmed: Google's Gemini 3 (Nov 2025) outperformed GPT-5/ChatGPT on several benchmarks; Sam Altman reportedly declared an internal 'Code Red' on Dec 2, 2025, first reported by The Information and corroborated by Fortune, Forbes, CNBC, Yahoo Finance. OpenAI has not published the memo itself. Script deliberately omits company/person names, consistent with the underlying reporting's certainty level (well-sourced reporting, not an official company statement)."
+    },
+    {
+      "claim_text": "In 2025, one company disclosed that a criminal had used its coding model to automate reconnaissance, steal credentials, and extort more than a dozen organizations, sometimes demanding over half a million dollars.",
+      "category": "named",
+      "location_ref": "s3",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://www.anthropic.com/news/detecting-countering-misuse-aug-2025",
+        "https://www.nbcnews.com/tech/security/hacker-used-ai-automate-unprecedented-cybercrime-spree-anthropic-says-rcna227309"
+      ],
+      "resolution_note": "Confirmed: Anthropic's August 2025 threat-intelligence report ('vibe hacking'), at least 17 organizations, extortion demands sometimes exceeding $500,000. Independently corroborated by NBC News/Malwarebytes."
+    },
+    {
+      "claim_text": "The same company said it had disrupted a state-linked espionage campaign in which an AI agent carried out the large majority of the technical intrusion work itself, with human operators checking in only at key moments.",
+      "category": "named",
+      "location_ref": "s3",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://www.anthropic.com/news/disrupting-AI-espionage",
+        "https://cybermagazine.com/news/ai-agents-drive-first-large-scale-autonomous-cyberattack"
+      ],
+      "resolution_note": "Confirmed: Anthropic's Nov 14, 2025 disclosure of a Chinese state-sponsored campaign (Anthropic's own attribution, high confidence) against ~30 organizations, ~80-90% autonomous execution. Script correctly frames this as 'the company's own assessments... not independently verified in every detail,' matching the open_questions caveat in research.json about attribution independence."
+    },
+    {
+      "claim_text": "The safety frameworks leading labs published in 2025 concluded, from their own internal testing, that some models now give a meaningful capability boost to someone without specialist training — enough to trigger additional safeguards. No industry-wide standard yet defines when that boost becomes unacceptable.",
+      "category": "scientific",
+      "location_ref": "s3",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://cdn.openai.com/pdf/18a02b5d-6b67-4cec-ab64-68cdfbddebcd/preparedness-framework-v2.pdf",
+        "https://red.anthropic.com/2025/biorisk/"
+      ],
+      "resolution_note": "Confirmed: OpenAI Preparedness Framework v2 (Apr 2025) defines 'High' bio-capability as meaningful counterfactual assistance to novices vs. a 2021 tools baseline; Anthropic's internal trials found ~2.5x uplift, triggering ASL-3. No operational/technical detail included in script, per requirement. No industry-wide 'unacceptable' threshold exists, confirmed by research.json open_questions."
+    },
+    {
+      "claim_text": "Security researchers also note that the same automation cuts both ways, helping defenders detect intrusions faster too.",
+      "category": "other",
+      "location_ref": "s3",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://www.ncsc.gov.uk/report/impact-of-ai-on-cyber-threat"
+      ],
+      "resolution_note": "Confirmed: UK NCSC reporting states defenders also benefit from AI (faster detection/triage of intrusions and phishing). General, non-numeric statement, kept deliberately unspecific."
+    },
+    {
+      "claim_text": "One AI company's own chief executive has projected that half of entry-level white-collar jobs could disappear within one to five years, pushing unemployment into the double digits.",
+      "category": "statistical",
+      "location_ref": "s4",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://www.axios.com/2025/05/28/ai-jobs-white-collar-unemployment-anthropic"
+      ],
+      "resolution_note": "Confirmed: Dario Amodei (Anthropic CEO) told Axios (May 28, 2025) AI could eliminate up to 50% of entry-level white-collar jobs in 1-5 years and push unemployment to 10-20%. Script keeps this unnamed and explicitly framed as one company's own CEO's projection, per editorial decision to present employment disruption briefly and as an uncertain forecast, not a settled five-year outcome."
+    },
+    {
+      "claim_text": "More conservative economic modeling puts the number far lower — closer to single digits, spread across a decade, with a modest rise in unemployment during the transition.",
+      "category": "statistical",
+      "location_ref": "s4",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://www.pymnts.com/economy/2026/goldman-sachs-says-ai-will-eliminate-15-million-us-jobs/"
+      ],
+      "resolution_note": "Confirmed: Goldman Sachs Research estimates ~6-9% (about 15 million US workers) job displacement over roughly a 10-year window, with an estimated 0.5pp rise in unemployment during the transition, consistent with research.json's sourced figures. Presented as a competing forecast, not fact."
+    },
+    {
+      "claim_text": "Europe's AI Act... requires makers of high-risk systems to run continuous risk assessments across a product's lifetime, and imposes extra obligations on the largest general-purpose models — specifically, ones trained using more than a defined, very high threshold of computing power.",
+      "category": "named",
+      "location_ref": "s5",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://artificialintelligenceact.eu/article/9/",
+        "https://artificialintelligenceact.eu/article/51/"
+      ],
+      "resolution_note": "Confirmed: Article 9 mandates a continuous, lifecycle-long risk-management process for high-risk systems; Article 51 presumes 'systemic risk' for general-purpose models trained above 10^25 cumulative FLOPs, triggering added obligations. Script omits the specific FLOP figure (not narration-friendly) without misstating the mechanism."
+    },
+    {
+      "claim_text": "The cyber-extortion case and the state-linked espionage case described earlier both happened on a closed, tightly monitored model.",
+      "category": "named",
+      "location_ref": "s6",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://en.wikipedia.org/wiki/Claude_(language_model)",
+        "https://platform.claude.com/docs/en/about-claude/models/overview"
+      ],
+      "resolution_note": "Confirmed: Claude is a closed, proprietary (not open-weight) model, accessible only via API/monitored channels. Supports the open-source-dilemma argument that centralization did not prevent misuse, without claiming closed models are inherently safer -- balanced by the immediately preceding paragraph on open-weight tradeoffs."
+    },
+    {
+      "claim_text": "AI-generated text, images, and video make it cheaper to flood public conversation with convincing, false material — not necessarily deciding elections outright, but adding friction and doubt to the shared facts democracies depend on.",
+      "category": "statistical",
+      "location_ref": "s4",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://cetas.turing.ac.uk/publications/deepfake-scams-poisoned-chatbots",
+        "https://www.cigionline.org/articles/then-and-now-how-does-ai-electoral-interference-compare-in-2025/"
+      ],
+      "resolution_note": "Confirmed: cost of producing disinformation volume comparable to the 2016 Internet Research Agency campaign (then ~$10M) has fallen to roughly $1,000 using generative AI. 2025 election cycles (Romania, Germany, others) saw documented AI-generated disinformation incidents, but AI remained a small share of total disinfo volume versus traditional methods, and no single election is documented as decided by it. Script's hedge ('not necessarily deciding elections outright... adding friction and doubt') matches the evidence precisely; no overclaim."
+    },
+    {
+      "claim_text": "The models, the computing power to train them, the data, and the cloud infrastructure they run on are consolidating into a small number of companies — and by extension, a small number of governments with leverage over them.",
+      "category": "statistical",
+      "location_ref": "s4",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://epoch.ai/data-insights/hyperscalers-control-most-compute",
+        "https://labs.cloudsecurityalliance.org/research/ai-compute-concentration-systemic-risk-v1-csa-styled/"
+      ],
+      "resolution_note": "Confirmed: five hyperscalers (Amazon, Google, Meta, Microsoft, Oracle) held roughly 71% of global AI compute as of Q4 2025, up from 63% in Q1 2024; frontier training runs now cost $120M-$500M+, concentrating frontier development among a small number of heavily capitalized firms. Script states this generally without a specific figure, consistent with the sourced trend; concentration-of-power framing verified as accurate, not inflated."
+    },
+    {
+      "claim_text": "Some of it is technical: building models that are constrained by design rather than patched after release, and subjecting them to independent evaluations and audits before they ship, not just after something goes wrong.",
+      "category": "scientific",
+      "location_ref": "s7",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://shallowreview.ai/Safety_by_construction",
+        "https://internationalaisafetyreport.org/publication/international-ai-safety-report-2026"
+      ],
+      "resolution_note": "Reviewed as the script's 'safe-by-construction' reference. 'Safety by construction' is an active, named technical safety research direction (2025 Shallow Review of AI Safety survey; International AI Safety Report technical-safeguards updates) — not a solved or deployed guarantee for any current frontier model. Script correctly frames it as one of several proposed/aspirational safeguards ('some of it is technical'), not as a claim that any deployed model already achieves this. No overclaim of current attainment."
+    },
+    {
+      "claim_text": "should powerful AI models be open — their underlying weights published for anyone to inspect and build on — or kept closed... Open-weight models let independent researchers audit them, find flaws, and build defensive tools without waiting on a company's permission.",
+      "category": "other",
+      "location_ref": "s6",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://kavriq.com/blogs/2026/04-26-open-weights-vs-open-source-ai/",
+        "https://internationalaisafetyreport.org/publication/international-ai-safety-report-2025"
+      ],
+      "resolution_note": "Terminology check per editorial guidance on open-source vs. open-weight precision. Script consistently uses 'open' / 'open-weight' (published trained weights only) and never claims full 'open source' (training code, data, and full reproducibility, per the Open Source Initiative's Oct 2024 formal definition). Script's usage is technically accurate and does not conflate the two terms."
+    },
+    {
+      "claim_text": "AI may allow smaller teams to attempt some operations with less time, expertise, or coordination than they would have needed before.",
+      "category": "other",
+      "location_ref": "s3",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://www.anthropic.com/news/detecting-countering-misuse-aug-2025",
+        "https://www.anthropic.com/news/disrupting-AI-espionage"
+      ],
+      "resolution_note": "SCOPED RE-AUDIT (approved refinement #1): hedged softening of the cyber-capability framing, already grounded by claim #5-#6 (vibe-hacking extortion of 12+ orgs; state-linked espionage campaign ~80-90% AI-executed). No new named entity, date, or statistic introduced. Verified as accurate, non-overclaiming framing."
+    },
+    {
+      "claim_text": "Established companies may also be better able to absorb the complex compliance, evaluation, reporting, and legal costs that come with operating at that scale.",
+      "category": "other",
+      "location_ref": "s5",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://artificialintelligenceact.eu/article/9/",
+        "https://artificialintelligenceact.eu/article/51/"
+      ],
+      "resolution_note": "SCOPED RE-AUDIT (approved refinement #2): hedged regulatory-capture framing layered onto already-verified claim #11 (EU AI Act Articles 9/51 mechanism). No new figures, dates, or named entities introduced; 'may also be better able' is explicitly speculative and consistent with the compliance-cost-favors-incumbents dynamic discussed in the sourced material. Verified as reasonable, non-overclaiming inference."
+    },
+    {
+      "claim_text": "Centralized access did not eliminate misuse. But it did give the provider visibility, and the ability to investigate, restrict, and disrupt what was happening.",
+      "category": "named",
+      "location_ref": "s6",
+      "registry_hit": false,
+      "verification_status": "verified",
+      "source_refs": [
+        "https://www.anthropic.com/news/disrupting-AI-espionage",
+        "https://www.anthropic.com/news/detecting-countering-misuse-aug-2025"
+      ],
+      "resolution_note": "SCOPED RE-AUDIT (approved refinement #3): directly supported by already-verified claims #5-#6/#12 -- the provider itself detected, disclosed, and disrupted both the extortion and espionage cases on its own closed model. No new facts introduced beyond what those claims already establish."
+    }
+  ],
+  "unresolved_count": 0,
+  "generated_at": "2026-07-11T09:10:33Z"
+}

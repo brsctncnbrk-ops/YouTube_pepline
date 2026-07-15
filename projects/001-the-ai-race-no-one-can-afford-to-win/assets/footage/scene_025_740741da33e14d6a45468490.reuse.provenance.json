@@ -1,0 +1,20 @@
+{
+  "scene_id": "scene_025",
+  "asset_role": "reuse",
+  "canonical_asset_path": "assets/footage/scene_022_740741da33e14d6a45468490.mp4",
+  "canonical_provenance_path": "assets/footage/scene_022_740741da33e14d6a45468490.mp4.provenance.json",
+  "canonical_sha256": "a4c0e364b66752924dc0d13168ca4b3f3b467bf1b39269acb1efa867ef8a733c",
+  "reuse_of_scene": "scene_022",
+  "provider": "pexels",
+  "provider_asset_id": "6804117",
+  "production_candidate_id": "740741da33e14d6a45468490",
+  "selected_rendition_id": "78a87e9e937eb02de1b636d7",
+  "resolved_rendition_id": "78a87e9e937eb02de1b636d7",
+  "physical_download_performed": false,
+  "duplicate_download_prevented": true,
+  "editorial_reuse_approved": true,
+  "reuse_timeline_percent": 4.89,
+  "reuse_policy_passed": true,
+  "created_at": "2026-07-12T19:04:29.393203+00:00",
+  "quarantine_audit_directory": "/root/factforge-footage-cleanup-audits/20260712T190418Z"
+}

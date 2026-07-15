@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "fact_audit.schema.json",
+  "title": "FactForge Fact Audit Report",
+  "description": "Authored by factforge-fact-audit, which runs after script and before script_qa - the script must read confident and fluent with zero hedging; verification happens here, as a separate post-draft pass, not during writing. unresolved_count must be 0 before script_qa may approve the script; health/medical/psychological/scientific claims left unresolved hard-block via the non-waivable UNRESOLVED_CLAIM error code.",
+  "type": "object",
+  "required": ["schema_version", "project_id", "claims", "unresolved_count", "generated_at"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "project_id": { "type": "string" },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["claim_text", "category", "location_ref", "registry_hit", "verification_status", "source_refs", "resolution_note"],
+        "additionalProperties": false,
+        "properties": {
+          "claim_text": { "type": "string", "minLength": 1 },
+          "category": {
+            "type": "string",
+            "enum": ["health", "psychological", "scientific", "statistical", "named", "other"]
+          },
+          "location_ref": { "type": "string", "description": "Where in script.md this claim appears (e.g. a section id)." },
+          "registry_hit": {
+            "type": "boolean",
+            "description": "True if fact_registry/<claim_hash>.jsonl had a non-expired verified entry, so fresh external verification was not required."
+          },
+          "verification_status": { "type": "string", "enum": ["verified", "replaced", "cut", "escalated"] },
+          "source_refs": { "type": "array", "items": { "type": "string" } },
+          "resolution_note": { "type": "string" }
+        }
+      }
+    },
+    "unresolved_count": { "type": "integer", "minimum": 0 },
+    "generated_at": { "type": "string" }
+  }
+}

@@ -1,0 +1,216 @@
+{
+  "schema_version": "1.0",
+  "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+  "generated_at": "2026-07-11T15:34:06.668514Z",
+  "items": [
+    {
+      "scene_id": "scene_003",
+      "candidate_id": "3bdb0f430d70b077a27a4b87",
+      "reason": "LOW_RESOLUTION_REVIEW_REQUIRED: asset is licensed and technically valid, but 426x240 is below preferred final edit resolution; human quality review required for final visual use.",
+      "approved_for_final_edit": true,
+      "quality_review_status": "LOW_RESOLUTION_REVIEW_REQUIRED",
+      "license_review_status": "APPROVED_PROVIDER_LICENSE",
+      "updated_at": "2026-07-11T20:55:58.598910Z"
+    },
+    {
+      "scene_id": "scene_004",
+      "candidate_id": "3bdb0f430d70b077a27a4b87",
+      "reason": "LOW_RESOLUTION_REVIEW_REQUIRED: asset is licensed and technically valid, but 426x240 is below preferred final edit resolution; human quality review required for final visual use.",
+      "approved_for_final_edit": true,
+      "quality_review_status": "LOW_RESOLUTION_REVIEW_REQUIRED",
+      "license_review_status": "APPROVED_PROVIDER_LICENSE",
+      "updated_at": "2026-07-11T20:55:58.598910Z"
+    },
+    {
+      "scene_id": "scene_005",
+      "candidate_id": "3bdb0f430d70b077a27a4b87",
+      "reason": "LOW_RESOLUTION_REVIEW_REQUIRED: asset is licensed and technically valid, but 426x240 is below preferred final edit resolution; human quality review required for final visual use.",
+      "approved_for_final_edit": true,
+      "quality_review_status": "LOW_RESOLUTION_REVIEW_REQUIRED",
+      "license_review_status": "APPROVED_PROVIDER_LICENSE",
+      "updated_at": "2026-07-11T20:55:58.598910Z"
+    },
+    {
+      "scene_id": "scene_001",
+      "candidate_id": "3bdb0f430d70b077a27a4b87",
+      "reason": "LOW_RESOLUTION_REVIEW_REQUIRED: asset is licensed and technically valid, but 426x240 is below preferred final edit resolution; human quality review required for final visual use.",
+      "approved_for_final_edit": true,
+      "quality_review_status": "LOW_RESOLUTION_REVIEW_REQUIRED",
+      "license_review_status": "APPROVED_PROVIDER_LICENSE",
+      "updated_at": "2026-07-11T20:55:58.598910Z"
+    },
+    {
+      "scene_id": "scene_002",
+      "candidate_id": "3bdb0f430d70b077a27a4b87",
+      "reason": "LOW_RESOLUTION_REVIEW_REQUIRED: asset is licensed and technically valid, but 426x240 is below preferred final edit resolution; human quality review required for final visual use.",
+      "approved_for_final_edit": true,
+      "quality_review_status": "LOW_RESOLUTION_REVIEW_REQUIRED",
+      "license_review_status": "APPROVED_PROVIDER_LICENSE",
+      "updated_at": "2026-07-11T20:55:58.598910Z"
+    },
+    {
+      "scene_id": "scene_002",
+      "candidate_id": "bf3120bafd80bed52fe536ee",
+      "reason": "LOW_RESOLUTION_REVIEW_REQUIRED",
+      "approved_for_final_edit": false,
+      "license_approved": true,
+      "editorial_quality_approved": false,
+      "corrective_run_id": "20260711T214052Z"
+    },
+    {
+      "scene_id": "scene_003",
+      "candidate_id": "911dbbce2537426ba8a2a418",
+      "reason": "LOW_RESOLUTION_REVIEW_REQUIRED",
+      "approved_for_final_edit": false,
+      "license_approved": true,
+      "editorial_quality_approved": false,
+      "corrective_run_id": "20260711T214052Z"
+    },
+    {
+      "scene_id": "scene_004",
+      "candidate_id": "35e758d2b2c27ac3c7c997ae",
+      "reason": "LOW_RESOLUTION_REVIEW_REQUIRED",
+      "approved_for_final_edit": false,
+      "license_approved": true,
+      "editorial_quality_approved": false,
+      "corrective_run_id": "20260711T214052Z"
+    },
+    {
+      "scene_id": "scene_005",
+      "candidate_id": "eb04906d17178b8d691446c7",
+      "reason": "LOW_RESOLUTION_REVIEW_REQUIRED",
+      "approved_for_final_edit": false,
+      "license_approved": true,
+      "editorial_quality_approved": false,
+      "corrective_run_id": "20260711T214052Z"
+    },
+    {
+      "scene_id": "scene_022",
+      "candidate_id": "3bdb0f430d70b077a27a4b87",
+      "asset_path": "assets/footage/scene_001_3bdb0f430d70b077a27a4b87.mp4",
+      "reason": "OLD_FALLBACK_MAPPING_SUPERSEDED_LOW_RESOLUTION_REJECTED_FOR_EDITORIAL_QUALITY_REPLACED_BY_CORRECTIVE_SEARCH",
+      "completion_counted": false,
+      "approved_for_final_edit": false,
+      "license_approved": true,
+      "editorial_quality_approved": false,
+      "status": "superseded",
+      "superseded_by_corrective_batch": "20260712T163309Z_scene_022_025",
+      "notes": [
+        "low_resolution",
+        "rejected_for_editorial_quality",
+        "replaced_by_corrective_search"
+      ]
+    },
+    {
+      "scene_id": "scene_023",
+      "candidate_id": "3bdb0f430d70b077a27a4b87",
+      "asset_path": "assets/footage/scene_001_3bdb0f430d70b077a27a4b87.mp4",
+      "reason": "OLD_FALLBACK_MAPPING_SUPERSEDED_LOW_RESOLUTION_REJECTED_FOR_EDITORIAL_QUALITY_REPLACED_BY_CORRECTIVE_SEARCH",
+      "completion_counted": false,
+      "approved_for_final_edit": false,
+      "license_approved": true,
+      "editorial_quality_approved": false,
+      "status": "superseded",
+      "superseded_by_corrective_batch": "20260712T163309Z_scene_022_025",
+      "notes": [
+        "low_resolution",
+        "rejected_for_editorial_quality",
+        "replaced_by_corrective_search"
+      ]
+    },
+    {
+      "scene_id": "scene_024",
+      "candidate_id": "3bdb0f430d70b077a27a4b87",
+      "asset_path": "assets/footage/scene_001_3bdb0f430d70b077a27a4b87.mp4",
+      "reason": "OLD_FALLBACK_MAPPING_SUPERSEDED_LOW_RESOLUTION_REJECTED_FOR_EDITORIAL_QUALITY_REPLACED_BY_CORRECTIVE_SEARCH",
+      "completion_counted": false,
+      "approved_for_final_edit": false,
+      "license_approved": true,
+      "editorial_quality_approved": false,
+      "status": "superseded",
+      "superseded_by_corrective_batch": "20260712T163309Z_scene_022_025",
+      "notes": [
+        "low_resolution",
+        "rejected_for_editorial_quality",
+        "replaced_by_corrective_search"
+      ]
+    },
+    {
+      "scene_id": "scene_025",
+      "candidate_id": "3bdb0f430d70b077a27a4b87",
+      "asset_path": "assets/footage/scene_001_3bdb0f430d70b077a27a4b87.mp4",
+      "reason": "OLD_FALLBACK_MAPPING_SUPERSEDED_LOW_RESOLUTION_REJECTED_FOR_EDITORIAL_QUALITY_REPLACED_BY_CORRECTIVE_SEARCH",
+      "completion_counted": false,
+      "approved_for_final_edit": false,
+      "license_approved": true,
+      "editorial_quality_approved": false,
+      "status": "superseded",
+      "superseded_by_corrective_batch": "20260712T163309Z_scene_022_025",
+      "notes": [
+        "low_resolution",
+        "rejected_for_editorial_quality",
+        "replaced_by_corrective_search"
+      ]
+    },
+    {
+      "scene_id": "scene_032",
+      "candidate_id": "e312080768bdd277a7e1ea67",
+      "reason": "EDITORIAL_SAFETY_REJECTED_HUMANOID_ROBOT",
+      "approved_for_final_edit": false,
+      "license_approved": true,
+      "editorial_quality_approved": false,
+      "corrective_run_id": "20260712T165227Z_scene_030_033_editorial_correction"
+    },
+    {
+      "scene_id": "scene_032",
+      "candidate_id": "c7ed8b65d046ffde80c91f8d",
+      "reason": "DOWNLOAD_REJECTED_RESPONSE_TOO_LARGE",
+      "approved_for_final_edit": false,
+      "license_approved": true,
+      "editorial_quality_approved": false,
+      "corrective_run_id": "20260712T165227Z_scene_030_033_editorial_correction"
+    },
+    {
+      "scene_id": "scene_001",
+      "asset_path": "assets/footage/scene_001_3bdb0f430d70b077a27a4b87.mp4",
+      "sha256": "a32519868f8180f1206761fd189a67022a72ad2bc3e373b2e11e366c32b4d7af",
+      "status": "SUPERSEDED_HISTORY",
+      "reason": "LOW_RESOLUTION_REVIEW_REQUIRED_RESOLVED_BY_CORRECTIVE_SEARCH",
+      "superseded": true,
+      "low_resolution": true,
+      "rejected_for_editorial_quality": true,
+      "replaced_by_scene_001_corrective_search": true,
+      "completion_counted": false,
+      "approved_for_final_edit": false,
+      "replacement_asset_path": "assets/footage/scene_001_52c2ebe35b131555e20a5ab5.mp4",
+      "corrective_run_id": "20260712T185035Z_scene_001_replacement"
+    },
+    {
+      "asset_path": "assets/footage/scene_007_3b2e6984d22cd9de92cd6b5d.mp4",
+      "status": "QUARANTINED",
+      "quarantine_path": "/root/factforge-footage-cleanup-audits/20260712T190418Z/quarantine/scene_007_orphan/scene_007_3b2e6984d22cd9de92cd6b5d.mp4",
+      "reason": "unreferenced portrait orphan",
+      "cleanup_audit": "/root/factforge-footage-cleanup-audits/20260712T190418Z",
+      "approved_for_final_edit": null
+    },
+    {
+      "asset_path": "assets/footage/scene_032_e312080768bdd277a7e1ea67.mp4",
+      "status": "QUARANTINED",
+      "quarantine_path": "/root/factforge-footage-cleanup-audits/20260712T190418Z/quarantine/scene_032_rejected/scene_032_e312080768bdd277a7e1ea67.mp4",
+      "reason": "editorial rejected humanoid robot orphan",
+      "cleanup_audit": "/root/factforge-footage-cleanup-audits/20260712T190418Z",
+      "approved_for_final_edit": false
+    },
+    {
+      "asset_path": "assets/footage/scene_025_740741da33e14d6a45468490.mp4",
+      "status": "QUARANTINED",
+      "quarantine_path": "/root/factforge-footage-cleanup-audits/20260712T190418Z/quarantine/scene_025_duplicate/scene_025_740741da33e14d6a45468490.mp4",
+      "reason": "duplicate byte copy migrated to scene022 reuse",
+      "cleanup_audit": "/root/factforge-footage-cleanup-audits/20260712T190418Z",
+      "approved_for_final_edit": null
+    }
+  ],
+  "last_batch_update": "20260712T185035Z_scene_001_replacement",
+  "last_corrective_batch": "scene_001_replacement",
+  "last_cleanup_audit": "/root/factforge-footage-cleanup-audits/20260712T190418Z"
+}

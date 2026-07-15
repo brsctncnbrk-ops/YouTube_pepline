@@ -3,3 +3,12 @@ npm-debug.log*
 .DS_Store
 .env
 .env.local
+
+# Generated runtime files
+fact_registry/
+projects/*/logs/*
+!projects/*/logs/.gitkeep
+projects/*/output/*
+!projects/*/output/.gitkeep
+projects/*/remotion/render_ready_project/node_modules/
+projects/*/remotion/render_ready_project/src/*.corrupt-*

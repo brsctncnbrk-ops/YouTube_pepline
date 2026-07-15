@@ -1,0 +1,23 @@
+{
+  "stable_asset_id": "1a57651a4e54bbe1",
+  "scene_id": "scene_001",
+  "candidate_id": "3bdb0f430d70b077a27a4b87",
+  "provider": "pexels",
+  "provider_asset_id": "5028622",
+  "source_page_url": "https://www.pexels.com/video/database-storage-of-a-server-5028622/",
+  "final_media_hostname": "videos.pexels.com",
+  "final_media_path": "/video-files/5028622/5028622-sd_426_240_25fps.mp4",
+  "license_url": "https://www.pexels.com/license/",
+  "attribution_required": false,
+  "creator": "ALL IZ Well",
+  "retrieval_timestamp": "2026-07-11T15:34:06.544Z",
+  "content_type": "video/mp4",
+  "byte_size": 1433553,
+  "duration": 31.595,
+  "width": 426,
+  "height": 240,
+  "codec": "h264",
+  "sha256": "a32519868f8180f1206761fd189a67022a72ad2bc3e373b2e11e366c32b4d7af",
+  "approved_for_final_edit": true,
+  "human_review_status": "NOT_REQUIRED"
+}

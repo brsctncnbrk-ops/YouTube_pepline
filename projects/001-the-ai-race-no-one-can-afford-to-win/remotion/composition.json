@@ -1,0 +1,611 @@
+{
+  "schema_version": "2.0",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "duration_frames": 21598,
+  "audio_asset": "assets/audio/final_voice.mp3",
+  "scenes": [
+    {
+      "scene_id": "scene_001",
+      "start_frame": 0,
+      "end_frame": 863,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_001_52c2ebe35b131555e20a5ab5.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 23.786667,
+      "text_overlay": null,
+      "transition_in": "fade",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_002",
+      "start_frame": 863,
+      "end_frame": 1546,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_002_55b0a8af17f137fd76d52766.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 6,
+      "text_overlay": null,
+      "transition_in": "cut",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_003",
+      "start_frame": 1546,
+      "end_frame": 2113,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_003_d69cde76dfac1e29bd6f9946.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 18,
+      "text_overlay": null,
+      "transition_in": "dissolve",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_004",
+      "start_frame": 2113,
+      "end_frame": 2680,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_004_52abd7f745cc24b4ecad0215.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 10,
+      "text_overlay": "CONTROLLED EVALUATION",
+      "transition_in": "cut",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_005",
+      "start_frame": 2680,
+      "end_frame": 3338,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_005_e98a421f0d9c432e4d2036fb.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 12,
+      "text_overlay": "SIMULATED TEST SCENARIO",
+      "transition_in": "cut",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_006",
+      "start_frame": 3338,
+      "end_frame": 4201,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_006_7e0d77fb76615c10d441204a.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 10.687,
+      "text_overlay": "DESIGNED TEST — NOT AN ACTUAL EVENT",
+      "transition_in": "dissolve",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_007",
+      "start_frame": 4201,
+      "end_frame": 4742,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_007_6c8401e76cd6e2697fc70d7c.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 8.44,
+      "text_overlay": null,
+      "transition_in": "dissolve",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_008",
+      "start_frame": 4742,
+      "end_frame": 5361,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_008_42946788405d61ee3a28fa31.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 10.04,
+      "text_overlay": null,
+      "transition_in": "cut",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_009",
+      "start_frame": 5361,
+      "end_frame": 6108,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_009_8366baffbbfa53ec1a18715e.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 24.914,
+      "text_overlay": "REPORTED",
+      "transition_in": "cut",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_010",
+      "start_frame": 6108,
+      "end_frame": 6302,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_010_6f7bc11f2a696985af0db15f.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 6.444,
+      "text_overlay": null,
+      "transition_in": "dissolve",
+      "transition_out": "fade"
+    },
+    {
+      "scene_id": "scene_011",
+      "start_frame": 6302,
+      "end_frame": 6637,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_011_bff417a92fed9423fe0dd580.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 11.168,
+      "text_overlay": null,
+      "transition_in": "fade",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_012",
+      "start_frame": 6637,
+      "end_frame": 7642,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_012_d356fd9efe14c61c8594ff1f.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 33.505,
+      "text_overlay": "DISCLOSED BY THE COMPANY — REPORTED INCIDENT",
+      "transition_in": "cut",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_013",
+      "start_frame": 7642,
+      "end_frame": 8441,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_013_d8d3231e6f0b69b7def0fd48.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 26.632,
+      "text_overlay": "COMPANY'S OWN ASSESSMENT — NOT INDEPENDENTLY VERIFIED",
+      "transition_in": "cut",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_014",
+      "start_frame": 8441,
+      "end_frame": 9046,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_014_416086d1c7285d9e6a01fc67.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 20.189,
+      "text_overlay": null,
+      "transition_in": "dissolve",
+      "transition_out": "fade"
+    },
+    {
+      "scene_id": "scene_015",
+      "start_frame": 9046,
+      "end_frame": 9820,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_015_ed4bf30c1279d75b6cfe8187.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 19.68,
+      "text_overlay": null,
+      "transition_in": "fade",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_016",
+      "start_frame": 9820,
+      "end_frame": 10889,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_016_e324304f99b3502cad464d69.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 8.633,
+      "text_overlay": "FORECAST — NOT A CONFIRMED OUTCOME",
+      "transition_in": "cut",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_017",
+      "start_frame": 10889,
+      "end_frame": 11740,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_017_17388828bde9ac80bd22eb8e.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 19.8,
+      "text_overlay": null,
+      "transition_in": "dissolve",
+      "transition_out": "fade"
+    },
+    {
+      "scene_id": "scene_018",
+      "start_frame": 11740,
+      "end_frame": 12345,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_018_f681c3057e36f147005d2652.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 17,
+      "text_overlay": null,
+      "transition_in": "fade",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_019",
+      "start_frame": 12345,
+      "end_frame": 12990,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_019_bdc83a162db95b4b9eba43f9.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 21.478,
+      "text_overlay": "EU AI ACT — COMPUTE THRESHOLD",
+      "transition_in": "cut",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_020",
+      "start_frame": 12990,
+      "end_frame": 13570,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_020_820a251a5b10ad8f5a63266f.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 15.6,
+      "text_overlay": null,
+      "transition_in": "cut",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_021",
+      "start_frame": 13570,
+      "end_frame": 14175,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_021_d2e9e57773ef446f8e402456.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 15.467,
+      "text_overlay": null,
+      "transition_in": "cut",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_022",
+      "start_frame": 14175,
+      "end_frame": 14768,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_022_740741da33e14d6a45468490.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 19.76,
+      "text_overlay": null,
+      "transition_in": "dissolve",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_023",
+      "start_frame": 14768,
+      "end_frame": 15606,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_023_dbe758e1473aee29a155377a.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 14.96,
+      "text_overlay": null,
+      "transition_in": "cut",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_024",
+      "start_frame": 15606,
+      "end_frame": 16456,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_024_6e6f4af26cad60cc78930d6d.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 9.5,
+      "text_overlay": "SAME REPORTED INCIDENTS AS EARLIER — REAL, NOT SIMULATED",
+      "transition_in": "cut",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_025",
+      "start_frame": 16456,
+      "end_frame": 16920,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_022_740741da33e14d6a45468490.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 15.464,
+      "text_overlay": null,
+      "transition_in": "dissolve",
+      "transition_out": "fade"
+    },
+    {
+      "scene_id": "scene_026",
+      "start_frame": 16920,
+      "end_frame": 17165,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_026_8a460acd7183fb80baaa455e.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 8.161,
+      "text_overlay": null,
+      "transition_in": "fade",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_027",
+      "start_frame": 17165,
+      "end_frame": 18054,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_027_57a43a4f4b65321112dfb0bf.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 29.16,
+      "text_overlay": null,
+      "transition_in": "cut",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_028",
+      "start_frame": 18054,
+      "end_frame": 18917,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_028_d4c7a6d60c700cc3f1dddeff.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 10.2,
+      "text_overlay": null,
+      "transition_in": "cut",
+      "transition_out": "cut"
+    },
+    {
+      "scene_id": "scene_029",
+      "start_frame": 18917,
+      "end_frame": 19588,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_029_94d5bdac38165c3c273344f7.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 22.337,
+      "text_overlay": null,
+      "transition_in": "cut",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_030",
+      "start_frame": 19588,
+      "end_frame": 19781,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_030_3bee64eb585a0f8f6b6895c0.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 6.443,
+      "text_overlay": null,
+      "transition_in": "fade",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_031",
+      "start_frame": 19781,
+      "end_frame": 20528,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_031_12e168b42df0ef02be3b9707.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 12.36,
+      "text_overlay": null,
+      "transition_in": "dissolve",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_032",
+      "start_frame": 20528,
+      "end_frame": 21417,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_032_29ff7ef6ff7df132006f8e97.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 20.033333,
+      "text_overlay": null,
+      "transition_in": "dissolve",
+      "transition_out": "dissolve"
+    },
+    {
+      "scene_id": "scene_033",
+      "start_frame": 21417,
+      "end_frame": 21598,
+      "asset_type": "footage",
+      "video_asset": "assets/footage/scene_033_1b2f289c850d35e4a6e96dc4.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 6.014,
+      "text_overlay": null,
+      "transition_in": "dissolve",
+      "transition_out": "fade"
+    }
+  ],
+  "asset_map": {
+    "scene_001": {
+      "video": "assets/footage/scene_001_52c2ebe35b131555e20a5ab5.mp4",
+      "audio_offset_sec": 0,
+      "trim_in_sec": 0,
+      "trim_out_sec": 23.786667
+    },
+    "scene_002": {
+      "video": "assets/footage/scene_002_55b0a8af17f137fd76d52766.mp4",
+      "audio_offset_sec": 28.78,
+      "trim_in_sec": 0,
+      "trim_out_sec": 6
+    },
+    "scene_003": {
+      "video": "assets/footage/scene_003_d69cde76dfac1e29bd6f9946.mp4",
+      "audio_offset_sec": 51.546,
+      "trim_in_sec": 0,
+      "trim_out_sec": 18
+    },
+    "scene_004": {
+      "video": "assets/footage/scene_004_52abd7f745cc24b4ecad0215.mp4",
+      "audio_offset_sec": 70.446,
+      "trim_in_sec": 0,
+      "trim_out_sec": 10
+    },
+    "scene_005": {
+      "video": "assets/footage/scene_005_e98a421f0d9c432e4d2036fb.mp4",
+      "audio_offset_sec": 89.347,
+      "trim_in_sec": 0,
+      "trim_out_sec": 12
+    },
+    "scene_006": {
+      "video": "assets/footage/scene_006_7e0d77fb76615c10d441204a.mp4",
+      "audio_offset_sec": 111.254,
+      "trim_in_sec": 0,
+      "trim_out_sec": 10.687
+    },
+    "scene_007": {
+      "video": "assets/footage/scene_007_6c8401e76cd6e2697fc70d7c.mp4",
+      "audio_offset_sec": 140.034,
+      "trim_in_sec": 0,
+      "trim_out_sec": 8.44
+    },
+    "scene_008": {
+      "video": "assets/footage/scene_008_42946788405d61ee3a28fa31.mp4",
+      "audio_offset_sec": 158.075,
+      "trim_in_sec": 0,
+      "trim_out_sec": 10.04
+    },
+    "scene_009": {
+      "video": "assets/footage/scene_009_8366baffbbfa53ec1a18715e.mp4",
+      "audio_offset_sec": 178.693,
+      "trim_in_sec": 0,
+      "trim_out_sec": 24.914
+    },
+    "scene_010": {
+      "video": "assets/footage/scene_010_6f7bc11f2a696985af0db15f.mp4",
+      "audio_offset_sec": 203.607,
+      "trim_in_sec": 0,
+      "trim_out_sec": 6.444
+    },
+    "scene_011": {
+      "video": "assets/footage/scene_011_bff417a92fed9423fe0dd580.mp4",
+      "audio_offset_sec": 210.051,
+      "trim_in_sec": 0,
+      "trim_out_sec": 11.168
+    },
+    "scene_012": {
+      "video": "assets/footage/scene_012_d356fd9efe14c61c8594ff1f.mp4",
+      "audio_offset_sec": 221.219,
+      "trim_in_sec": 0,
+      "trim_out_sec": 33.505
+    },
+    "scene_013": {
+      "video": "assets/footage/scene_013_d8d3231e6f0b69b7def0fd48.mp4",
+      "audio_offset_sec": 254.724,
+      "trim_in_sec": 0,
+      "trim_out_sec": 26.632
+    },
+    "scene_014": {
+      "video": "assets/footage/scene_014_416086d1c7285d9e6a01fc67.mp4",
+      "audio_offset_sec": 281.356,
+      "trim_in_sec": 0,
+      "trim_out_sec": 20.189
+    },
+    "scene_015": {
+      "video": "assets/footage/scene_015_ed4bf30c1279d75b6cfe8187.mp4",
+      "audio_offset_sec": 301.545,
+      "trim_in_sec": 0,
+      "trim_out_sec": 19.68
+    },
+    "scene_016": {
+      "video": "assets/footage/scene_016_e324304f99b3502cad464d69.mp4",
+      "audio_offset_sec": 327.318,
+      "trim_in_sec": 0,
+      "trim_out_sec": 8.633
+    },
+    "scene_017": {
+      "video": "assets/footage/scene_017_17388828bde9ac80bd22eb8e.mp4",
+      "audio_offset_sec": 362.971,
+      "trim_in_sec": 0,
+      "trim_out_sec": 19.8
+    },
+    "scene_018": {
+      "video": "assets/footage/scene_018_f681c3057e36f147005d2652.mp4",
+      "audio_offset_sec": 391.321,
+      "trim_in_sec": 0,
+      "trim_out_sec": 17
+    },
+    "scene_019": {
+      "video": "assets/footage/scene_019_bdc83a162db95b4b9eba43f9.mp4",
+      "audio_offset_sec": 411.51,
+      "trim_in_sec": 0,
+      "trim_out_sec": 21.478
+    },
+    "scene_020": {
+      "video": "assets/footage/scene_020_820a251a5b10ad8f5a63266f.mp4",
+      "audio_offset_sec": 432.988,
+      "trim_in_sec": 0,
+      "trim_out_sec": 15.6
+    },
+    "scene_021": {
+      "video": "assets/footage/scene_021_d2e9e57773ef446f8e402456.mp4",
+      "audio_offset_sec": 452.318,
+      "trim_in_sec": 0,
+      "trim_out_sec": 15.467
+    },
+    "scene_022": {
+      "video": "assets/footage/scene_022_740741da33e14d6a45468490.mp4",
+      "audio_offset_sec": 472.506,
+      "trim_in_sec": 0,
+      "trim_out_sec": 19.76
+    },
+    "scene_023": {
+      "video": "assets/footage/scene_023_dbe758e1473aee29a155377a.mp4",
+      "audio_offset_sec": 492.266,
+      "trim_in_sec": 0,
+      "trim_out_sec": 14.96
+    },
+    "scene_024": {
+      "video": "assets/footage/scene_024_6e6f4af26cad60cc78930d6d.mp4",
+      "audio_offset_sec": 520.187,
+      "trim_in_sec": 0,
+      "trim_out_sec": 9.5
+    },
+    "scene_025": {
+      "video": "assets/footage/scene_022_740741da33e14d6a45468490.mp4",
+      "audio_offset_sec": 548.537,
+      "trim_in_sec": 0,
+      "trim_out_sec": 15.464
+    },
+    "scene_026": {
+      "video": "assets/footage/scene_026_8a460acd7183fb80baaa455e.mp4",
+      "audio_offset_sec": 564.001,
+      "trim_in_sec": 0,
+      "trim_out_sec": 8.161
+    },
+    "scene_027": {
+      "video": "assets/footage/scene_027_57a43a4f4b65321112dfb0bf.mp4",
+      "audio_offset_sec": 572.162,
+      "trim_in_sec": 0,
+      "trim_out_sec": 29.16
+    },
+    "scene_028": {
+      "video": "assets/footage/scene_028_d4c7a6d60c700cc3f1dddeff.mp4",
+      "audio_offset_sec": 601.801,
+      "trim_in_sec": 0,
+      "trim_out_sec": 10.2
+    },
+    "scene_029": {
+      "video": "assets/footage/scene_029_94d5bdac38165c3c273344f7.mp4",
+      "audio_offset_sec": 630.581,
+      "trim_in_sec": 0,
+      "trim_out_sec": 22.337
+    },
+    "scene_030": {
+      "video": "assets/footage/scene_030_3bee64eb585a0f8f6b6895c0.mp4",
+      "audio_offset_sec": 652.918,
+      "trim_in_sec": 0,
+      "trim_out_sec": 6.443
+    },
+    "scene_031": {
+      "video": "assets/footage/scene_031_12e168b42df0ef02be3b9707.mp4",
+      "audio_offset_sec": 659.361,
+      "trim_in_sec": 0,
+      "trim_out_sec": 12.36
+    },
+    "scene_032": {
+      "video": "assets/footage/scene_032_29ff7ef6ff7df132006f8e97.mp4",
+      "audio_offset_sec": 684.275,
+      "trim_in_sec": 0,
+      "trim_out_sec": 20.033333
+    },
+    "scene_033": {
+      "video": "assets/footage/scene_033_1b2f289c850d35e4a6e96dc4.mp4",
+      "audio_offset_sec": 713.914,
+      "trim_in_sec": 0,
+      "trim_out_sec": 6.014
+    }
+  },
+  "render": {
+    "codec": "h264",
+    "crf": 18,
+    "output_filename": "final_video.mp4"
+  }
+}

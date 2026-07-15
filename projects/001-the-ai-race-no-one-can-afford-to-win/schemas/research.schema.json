@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "research.schema.json",
+  "title": "FactForge Research Output",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "project_id",
+    "video_idea",
+    "target_duration_sec",
+    "target_audience",
+    "language",
+    "reference_channel_style",
+    "summary",
+    "key_facts",
+    "timeline",
+    "sources",
+    "open_questions",
+    "topic_discovery",
+    "source_structure_summary",
+    "generated_at"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "project_id": { "type": "string" },
+    "video_idea": { "type": "string", "minLength": 1 },
+    "target_duration_sec": { "type": "integer", "minimum": 1 },
+    "target_audience": { "type": "string" },
+    "language": { "type": "string" },
+    "reference_channel_style": { "type": "string" },
+    "summary": { "type": "string", "minLength": 1 },
+    "key_facts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["fact", "source_ref"],
+        "additionalProperties": false,
+        "properties": {
+          "fact": { "type": "string" },
+          "date": { "type": ["string", "null"] },
+          "source_ref": { "type": "string" }
+        }
+      }
+    },
+    "timeline": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "event", "source_ref"],
+        "additionalProperties": false,
+        "properties": {
+          "date": { "type": "string" },
+          "event": { "type": "string" },
+          "source_ref": { "type": "string" }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "url", "publisher", "accessed_date", "credibility_note"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "url": { "type": "string" },
+          "publisher": { "type": "string" },
+          "accessed_date": { "type": "string" },
+          "credibility_note": { "type": "string" }
+        }
+      }
+    },
+    "open_questions": { "type": "array", "items": { "type": "string" } },
+    "topic_discovery": {
+      "type": "object",
+      "description": "Extracted from the source podcast/episode material: core topic, thesis, notable claims, and unique angles. Strips personal anecdotes, verbatim phrasing, and narrative sequence from the source.",
+      "required": ["core_topic", "thesis", "notable_claims", "open_questions_angles", "unique_angles"],
+      "additionalProperties": false,
+      "properties": {
+        "core_topic": { "type": "string", "minLength": 1 },
+        "thesis": { "type": "string", "minLength": 1 },
+        "notable_claims": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 10,
+          "items": {
+            "type": "object",
+            "required": ["claim", "source_refs"],
+            "additionalProperties": false,
+            "properties": {
+              "claim": { "type": "string", "minLength": 1 },
+              "source_refs": { "type": "array", "minItems": 2, "items": { "type": "string" } }
+            }
+          }
+        },
+        "open_questions_angles": { "type": "array", "items": { "type": "string" } },
+        "unique_angles": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "source_structure_summary": {
+      "type": "object",
+      "description": "Retained ONLY for the reused-content check in factforge-final-qa. Does not feed factforge-script - the script must not mirror the source episode's topic order or argument sequence.",
+      "required": ["topic_order", "argument_sequence"],
+      "additionalProperties": false,
+      "properties": {
+        "topic_order": { "type": "array", "items": { "type": "string" } },
+        "argument_sequence": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "generated_at": { "type": "string" }
+  }
+}

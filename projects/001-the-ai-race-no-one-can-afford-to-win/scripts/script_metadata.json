@@ -1,0 +1,120 @@
+{
+  "schema_version": "2.0",
+  "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+  "title_working": "The AI Race No One Can Afford to Win",
+  "hook": {
+    "text": "Every major AI lab on Earth believes moving this fast might be dangerous. And every one of them is still moving as fast as it can. Not because they don't see the risk. Because they see a bigger one: that if they slow down, somebody else won't. A rival company. A rival government. Somebody who gets there first, and gets to set the rules for everyone else. That fear is the real engine behind the race to build increasingly powerful artificial intelligence. And it raises the question this film sits with: what happens when the pursuit of the most powerful machine ever built moves faster than our ability to understand it, control it, or govern it? Not someday. Right now.",
+    "technique": "paradox-stakes",
+    "visual_guidance": {
+      "mood": "tense",
+      "visual_need_hint": "rapid cross-cuts between server rooms, AI company offices, and government buildings, all moving in parallel, urgent restrained energy, no explicit logos"
+    }
+  },
+  "sections": [
+    {
+      "id": "s1",
+      "heading": "Warning Signs",
+      "purpose": "Establish the evidence base: controlled evaluations documenting deceptive/self-preserving model behavior, explicitly framed as designed adversarial tests rather than real-world incidents.",
+      "est_duration_sec": 83,
+      "word_count": 207,
+      "contains_curiosity_loop": false,
+      "beat_name": "internal_conflict",
+      "visual_guidance": {
+        "mood": "unsettling",
+        "visual_need_hint": "clinical research-lab interior, evaluation dashboards, monitors with abstracted test-scenario text, closed-door testing room"
+      }
+    },
+    {
+      "id": "s2",
+      "heading": "Why the Race Accelerates",
+      "purpose": "Explain the structural, competitive forces (markets, investors, compute/talent scarcity, state rivalry) that make unilateral slowdown untenable for any single actor.",
+      "est_duration_sec": 65,
+      "word_count": 163,
+      "contains_curiosity_loop": false,
+      "beat_name": "false_assumption",
+      "visual_guidance": {
+        "mood": "urgent",
+        "visual_need_hint": "stock ticker displays, boardroom under pressure, data center scaling up, abstract racing/overtaking visual motif"
+      }
+    },
+    {
+      "id": "s3",
+      "heading": "The Risk Spectrum: Cyber and Biological",
+      "purpose": "Extend the risk spectrum to AI-enabled cyberattack automation and biological-risk capability uplift, described conservatively and at a high level with no operational detail.",
+      "est_duration_sec": 88,
+      "word_count": 217,
+      "contains_curiosity_loop": false,
+      "beat_name": "deeper_problem",
+      "visual_guidance": {
+        "mood": "clinical",
+        "visual_need_hint": "darkened monitor with abstract cascading code, secure biosecurity lab exterior, cautious non-graphic imagery"
+      }
+    },
+    {
+      "id": "s4",
+      "heading": "The Risk Spectrum: Power, Politics, and Work",
+      "purpose": "Extend the risk spectrum to information-ecosystem/political manipulation risk, briefly and cautiously frame employment disruption as a contested forecast, and introduce concentration of power over models, compute, data, and infrastructure.",
+      "est_duration_sec": 84,
+      "word_count": 209,
+      "contains_curiosity_loop": false,
+      "beat_name": "scientific_explanation",
+      "visual_guidance": {
+        "mood": "somber",
+        "visual_need_hint": "crowded social-feed scroll, quiet empty office desks at dusk, a network diagram converging into a handful of central nodes"
+      }
+    },
+    {
+      "id": "s5",
+      "heading": "The Control Paradox",
+      "purpose": "Introduce the control paradox using the EU AI Act's compute-threshold mechanism as a concrete example of how safety regulation can structurally favor the largest incumbents.",
+      "est_duration_sec": 77,
+      "word_count": 190,
+      "contains_curiosity_loop": true,
+      "beat_name": "real_life_manifestation",
+      "visual_guidance": {
+        "mood": "bureaucratic-tense",
+        "visual_need_hint": "European institutional architecture, regulatory paperwork and stamps, exterior of a large data-center campus"
+      }
+    },
+    {
+      "id": "s6",
+      "heading": "The Open-Source Dilemma",
+      "purpose": "Present the open-weight versus closed-model dilemma with balanced tradeoffs on both sides, using real disclosed misuse cases from a closed model to show centralization does not eliminate misuse.",
+      "est_duration_sec": 86,
+      "word_count": 214,
+      "contains_curiosity_loop": false,
+      "beat_name": "dark_turning_point",
+      "visual_guidance": {
+        "mood": "conflicted",
+        "visual_need_hint": "an open code repository on one screen beside a locked vault door or restricted-access terminal, split visual motif"
+      }
+    },
+    {
+      "id": "s7",
+      "heading": "Safeguards",
+      "purpose": "Lay out the range of proposed safeguards across technical, procedural, and structural governance, answering the earlier question of who should write and enforce the rules.",
+      "est_duration_sec": 83,
+      "word_count": 208,
+      "contains_curiosity_loop": false,
+      "beat_name": "grounded_resolution",
+      "visual_guidance": {
+        "mood": "resolute",
+        "visual_need_hint": "auditors reviewing documents, a legislative chamber in session, engineers and researchers collaborating calmly"
+      }
+    }
+  ],
+  "closing": {
+    "text": "So what happens when the race outpaces our ability to govern it? Maybe nothing sudden. No single machine seizing control, no one moment of collapse. What's more likely is quieter: a set of decisions, made under competitive pressure, by people who each believe they're the responsible ones — decisions that add up to a world shaped by whoever moved fastest, or whoever accumulated the most control, without anyone choosing that outcome on purpose.\n\nThe greatest danger here may not be a rogue machine at all. It may be a system that rewards speed and dominance while spreading the risk across everyone else. But the fix for that can't simply be more control in fewer hands — that risk is just as real. The real challenge is narrower, and harder: reducing catastrophic misuse without building a machine for concentrating power in the process. That work hasn't been done yet. It's still being decided — by people, right now.",
+    "cta": "none",
+    "visual_guidance": {
+      "mood": "reflective",
+      "visual_need_hint": "wide shot of a city at dusk, screens dimming one by one, quiet contemplative human figures silhouetted"
+    }
+  },
+  "total_word_count": 1685,
+  "estimated_duration_sec": 680,
+  "target_duration_sec": 660,
+  "duration_delta_sec": 20,
+  "tone": "calm, cinematic, evidence-led, tense without fearmongering",
+  "generated_at": "2026-07-11T03:30:00Z"
+}

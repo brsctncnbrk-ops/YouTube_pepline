@@ -23,6 +23,7 @@ import {
 import { STAGE_ORDER, STAGE_REQUIRED_FILES, STAGE_OUTPUT_FILES, GATES, ERROR_CODES, nextStage } from "./lib/pipeline.mjs";
 import { scaffoldProject } from "./scaffold_project.mjs";
 import { validateAssets, validateAll, toHuman } from "./validate.mjs";
+import { reconcileProjectIndex } from "./index_reconciliation.mjs";
 
 function manifestPath(projectId) {
   return path.join(projectDir(projectId), "manifest.json");
@@ -344,6 +345,44 @@ async function cmdRenderComplete(args) {
   return { project_id: projectId, status: manifest.status, output: outRel };
 }
 
+async function cmdClearError(args) {
+  const { "project-id": projectId, stage, contains } = args;
+  if (!projectId || !stage || !contains) {
+    throw new CliError("--project-id, --stage, and --contains are required", "UNKNOWN_ERROR");
+  }
+  const manifest = await loadManifest(projectId);
+  const before = manifest.errors.length;
+  manifest.errors = manifest.errors.filter((entry) => {
+    const text = JSON.stringify(entry).toLowerCase();
+    return !(entry.stage === stage && text.includes(String(contains).toLowerCase()));
+  });
+  const removed = before - manifest.errors.length;
+  if (removed !== 1) {
+    throw new CliError(`Expected to clear exactly one active error, cleared ${removed}`, "UNKNOWN_ERROR");
+  }
+  if (manifest.errors.length === 0 && manifest.status === "ERROR") {
+    manifest.status = "IN_PROGRESS";
+  }
+  await saveManifest(projectId, manifest);
+  await logOrchestrator(projectId, `CLEAR_ERROR stage=${stage} removed=${removed}`);
+  return { project_id: projectId, removed, open_errors: manifest.errors.length, manifest_status: manifest.status };
+}
+
+async function cmdIndexCheck(args) {
+  return reconcileProjectIndex({
+    projectId: args["project-id"] || null,
+    apply: false,
+  });
+}
+
+async function cmdIndexSync(args) {
+  return reconcileProjectIndex({
+    projectId: args["project-id"] || null,
+    apply: true,
+    expectedIndexSha: args["expected-index-sha"] || null,
+  });
+}
+
 const SUBCOMMANDS = {
   init: cmdInit,
   status: cmdStatus,
@@ -358,6 +397,9 @@ const SUBCOMMANDS = {
   "reset-stage": cmdResetStage,
   "prepare-render": cmdPrepareRender,
   "render-complete": cmdRenderComplete,
+  "clear-error": cmdClearError,
+  "index-check": cmdIndexCheck,
+  "index-sync": cmdIndexSync,
 };
 
 function printUsage() {
