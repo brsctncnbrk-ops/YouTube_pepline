@@ -4,15 +4,12 @@ on:
   push:
     branches:
       - agent/render-output-proof-run
-  pull_request:
-    branches:
-      - agent/render-output-proof-base
 
 permissions:
   contents: read
 
 concurrency:
-  group: render-output-proof-${{ github.head_ref || github.ref }}
+  group: render-output-proof-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
