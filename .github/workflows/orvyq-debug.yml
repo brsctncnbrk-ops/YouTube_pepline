@@ -38,8 +38,28 @@ jobs:
           sudo apt-get install -y ffmpeg
           ffmpeg -version
 
-      - name: Build audio mix
-        run: node scripts/orvyq_audio_mix.mjs
+      - name: Build audio mix and capture diagnostics
+        run: |
+          set +e
+          node scripts/orvyq_audio_mix.mjs > audio-debug.log 2>&1
+          status=$?
+          echo "$status" > audio-status.txt
+          cat audio-debug.log
+          exit 0
+
+      - name: Upload audio diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-audio-debug-${{ github.run_id }}
+          path: |
+            audio-debug.log
+            audio-status.txt
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Stop when audio generation failed
+        run: test "$(cat audio-status.txt)" = "0"
 
       - name: Build captions
         run: node scripts/orvyq_caption_build.mjs
