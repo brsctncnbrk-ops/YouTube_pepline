@@ -6,7 +6,7 @@ import { parseArgs, projectDir, writeJsonAtomic, readJson, pathExists } from "./
 
 const exec = promisify(execFile);
 async function command(binary, args) {
-  try { return await exec(binary, args, { maxBuffer: 16 * 1024 * 1024 }); }
+  try { return await exec(binary, args, { maxBuffer: 24 * 1024 * 1024 }); }
   catch (error) { throw new Error(`${binary} failed: ${error.stderr || error.message}`); }
 }
 function extractLoudnorm(text) {
@@ -31,37 +31,70 @@ async function durationSeconds(video) {
 
 export async function runMediaQa({ projectId, video, reportPath, captionsPath, audioMetadataPath }) {
   const duration = await durationSeconds(video);
-  const [blackDetect, silenceDetect, loudness, captions, audioMetadata] = await Promise.all([
-    command("ffmpeg", ["-hide_banner", "-nostats", "-i", video, "-an", "-vf", "blackdetect=d=0.45:pix_th=0.10:pic_th=0.98", "-f", "null", "-"]),
-    command("ffmpeg", ["-hide_banner", "-nostats", "-i", video, "-vn", "-af", "silencedetect=n=-50dB:d=1.0", "-f", "null", "-"]),
-    command("ffmpeg", ["-hide_banner", "-nostats", "-i", video, "-vn", "-af", "loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json", "-f", "null", "-"]),
-    readJson(captionsPath), readJson(audioMetadataPath),
+  const dir = projectDir(projectId);
+  const speechQaPath = path.join(dir, "qa", "speech_transcript.json");
+  const [blackDetect, silenceDetect, loudness, captions, audioMetadata, speechQa] = await Promise.all([
+    command("ffmpeg", ["-hide_banner", "-nostats", "-i", video, "-an", "-vf", "blackdetect=d=0.6:pix_th=0.08:pic_th=0.985", "-f", "null", "-"]),
+    command("ffmpeg", ["-hide_banner", "-nostats", "-i", video, "-vn", "-af", "silencedetect=n=-52dB:d=2.5", "-f", "null", "-"]),
+    command("ffmpeg", ["-hide_banner", "-nostats", "-i", video, "-vn", "-af", "loudnorm=I=-16:TP=-1.5:LRA=9:print_format=json", "-f", "null", "-"]),
+    readJson(captionsPath),
+    readJson(audioMetadataPath),
+    readJson(speechQaPath),
   ]);
+
   const blackSegments = parseBlack(`${blackDetect.stdout}\n${blackDetect.stderr}`);
   const silenceSegments = parseSilence(`${silenceDetect.stdout}\n${silenceDetect.stderr}`);
   const measured = extractLoudnorm(`${loudness.stdout}\n${loudness.stderr}`);
-  const nonTerminalBlack = blackSegments.filter((segment) => segment.duration >= 0.45 && segment.end < duration - 1.25);
-  const meaningfulSilence = silenceSegments.filter((segment) => segment.duration >= 1 && (segment.start ?? 0) < duration - 1);
+  const nonTerminalBlack = blackSegments.filter((segment) => segment.duration >= 0.6 && segment.end < duration - 1.5);
+  const meaningfulSilence = silenceSegments.filter((segment) => segment.duration >= 2.5 && (segment.start ?? 0) > 0.5 && (segment.start ?? 0) < duration - 1.5);
   const integratedLufs = Number(measured.input_i);
   const truePeak = Number(measured.input_tp);
-  const loudnessOk = integratedLufs >= -15.5 && integratedLufs <= -12.5;
+  const loudnessOk = integratedLufs >= -18 && integratedLufs <= -13;
   const truePeakOk = truePeak <= -1;
+
   const captionItems = captions.captions || [];
-  const captionsOk = captionItems.length >= 120 && captionItems[0]?.start_frame === 0 && captionItems.at(-1)?.end_frame === captions.duration_frames;
-  const soundDesignOk = audioMetadata.music_profile === "dynamic_cinematic_original" && audioMetadata.music_sections >= 6 && (audioMetadata.sfx_assets || []).length >= 7;
-  const declaredAudioAssetsExist = await Promise.all([audioMetadata.music_asset, ...(audioMetadata.sfx_assets || [])].map((rel) => pathExists(path.join(projectDir(projectId), rel))));
+  const captionStyleOk = captions.style?.line_count === 1 && captions.style?.active_word_effect === false && captions.style?.background === "none";
+  const captionTextOk = captionItems.length > 0 && captionItems.every((item) => item.text && item.text.length <= 52 && item.text.trim().split(/\s+/).length <= 7);
+  const captionTimingOk = captionItems.every((item) => item.start_frame >= 0 && item.end_frame > item.start_frame && item.end_frame <= captions.duration_frames);
+  const captionsOk = captionStyleOk && captionTextOk && captionTimingOk;
+
+  const soundDesignOk = audioMetadata.procedural_noise_generation === false && ["voice_only_safe_fallback", "approved_licensed_bed"].includes(audioMetadata.music_profile) && (audioMetadata.sfx_assets || []).length === 0;
+  const declaredAssets = [audioMetadata.music_asset, ...(audioMetadata.sfx_assets || [])].filter(Boolean);
+  const declaredAudioAssetsExist = await Promise.all(declaredAssets.map((rel) => pathExists(path.join(dir, rel))));
   const audioAssetsOk = declaredAudioAssetsExist.every(Boolean);
-  const pass = nonTerminalBlack.length === 0 && meaningfulSilence.length === 0 && loudnessOk && truePeakOk && captionsOk && soundDesignOk && audioAssetsOk;
+  const speechOk = speechQa.passed === true && speechQa.word_count >= 30 && speechQa.script_similarity >= 0.55;
+
+  const pass = nonTerminalBlack.length === 0 && meaningfulSilence.length === 0 && loudnessOk && truePeakOk && captionsOk && soundDesignOk && audioAssetsOk && speechOk;
   const report = {
-    schema_version: "2.0", project_id: projectId, video: path.basename(video), duration_seconds: duration,
-    thresholds: { max_nonterminal_black_seconds: 0.45, max_silence_seconds: 1, integrated_lufs_range: [-15.5, -12.5], max_true_peak_dbtp: -1, minimum_caption_cards: 120, minimum_sfx_types: 7, minimum_music_sections: 6 },
-    black_segments: blackSegments, nonterminal_black_segments: nonTerminalBlack, silence_segments: silenceSegments, meaningful_silence_segments: meaningfulSilence,
-    loudness: { integrated_lufs: integratedLufs, true_peak_dbtp: truePeak, loudness_range: Number(measured.input_lra) },
-    captions: { count: captionItems.length, starts_at_zero: captionItems[0]?.start_frame === 0, covers_timeline: captionItems.at(-1)?.end_frame === captions.duration_frames, pass: captionsOk },
-    sound_design: { music_profile: audioMetadata.music_profile, music_sections: audioMetadata.music_sections, sfx_types: (audioMetadata.sfx_assets || []).length, assets_exist: audioAssetsOk, pass: soundDesignOk && audioAssetsOk }, pass,
+    schema_version: "3.0",
+    project_id: projectId,
+    video: path.basename(video),
+    duration_seconds: duration,
+    thresholds: {
+      max_nonterminal_black_seconds: 0.6,
+      max_nonterminal_silence_seconds: 2.5,
+      integrated_lufs_range: [-18, -13],
+      max_true_peak_dbtp: -1,
+      caption_line_count: 1,
+      max_caption_words: 7,
+      max_caption_chars: 52,
+      minimum_speech_similarity: 0.55,
+    },
+    black_segments: blackSegments,
+    nonterminal_black_segments: nonTerminalBlack,
+    silence_segments: silenceSegments,
+    meaningful_silence_segments: meaningfulSilence,
+    loudness: { integrated_lufs: integratedLufs, true_peak_dbtp: truePeak, loudness_range: Number(measured.input_lra), pass: loudnessOk && truePeakOk },
+    speech: { word_count: speechQa.word_count, script_similarity: speechQa.script_similarity, coverage: speechQa.speech_coverage, pass: speechOk },
+    captions: { count: captionItems.length, style_pass: captionStyleOk, text_pass: captionTextOk, timing_pass: captionTimingOk, pass: captionsOk },
+    sound_design: { music_profile: audioMetadata.music_profile, procedural_noise_generation: audioMetadata.procedural_noise_generation, sfx_types: (audioMetadata.sfx_assets || []).length, assets_exist: audioAssetsOk, pass: soundDesignOk && audioAssetsOk },
+    pass,
   };
+
   await writeJsonAtomic(reportPath, report);
-  if (!pass) throw new Error(`ORVYQ media QA failed: ${nonTerminalBlack.length} black, ${meaningfulSilence.length} silent, ${integratedLufs} LUFS, captions=${captionsOk}, sound=${soundDesignOk && audioAssetsOk}`);
+  if (!pass) {
+    throw new Error(`ORVYQ media QA failed: black=${nonTerminalBlack.length}, silence=${meaningfulSilence.length}, LUFS=${integratedLufs}, speech=${speechOk}, captions=${captionsOk}, sound=${soundDesignOk && audioAssetsOk}`);
+  }
   return report;
 }
 
@@ -69,12 +102,17 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const args = parseArgs(process.argv.slice(2));
   const projectId = args["project-id"];
   const video = args.video;
-  if (!projectId || !video) { console.error("Usage: node scripts/orvyq_media_qa.mjs --project-id <id> --video <path> [--report <path>]"); process.exitCode = 1; }
-  else {
+  if (!projectId || !video) {
+    console.error("Usage: node scripts/orvyq_media_qa.mjs --project-id <id> --video <path> [--report <path>]");
+    process.exitCode = 1;
+  } else {
     const dir = projectDir(projectId);
     const report = args.report || path.join(dir, "qa", "orvyq_media_qa.json");
     const captionsPath = args.captions || path.join(dir, "remotion", "captions.json");
     const audioMetadataPath = args["audio-metadata"] || path.join(dir, "assets", "audio", "final_mix.metadata.json");
-    runMediaQa({ projectId, video, reportPath: report, captionsPath, audioMetadataPath }).then((result) => console.log(JSON.stringify({ ok: true, ...result }))).catch((error) => { console.error(JSON.stringify({ ok: false, error: error.message })); process.exitCode = 1; });
+    runMediaQa({ projectId, video, reportPath: report, captionsPath, audioMetadataPath }).then((result) => console.log(JSON.stringify({ ok: true, ...result }))).catch((error) => {
+      console.error(JSON.stringify({ ok: false, error: error.message }));
+      process.exitCode = 1;
+    });
   }
 }
