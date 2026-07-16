@@ -20,6 +20,7 @@ jobs:
       PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
       ORVYQ_PREVIEW_FRAMES: "3600"
       ORVYQ_AUDIO_LIMIT_SECONDS: "125"
+      ORVYQ_CAPTION_START_SECONDS: "4"
     steps:
       - name: Checkout with LFS assets
         uses: actions/checkout@v4
@@ -76,11 +77,11 @@ jobs:
       - name: Stop when narration verification failed
         run: test "$(cat narration-qa.status)" = "0"
 
-      - name: Build single-line captions and preview edit plan
+      - name: Build single-line captions and curated preview edit
         run: |
           set -euo pipefail
           node scripts/orvyq_caption_build.mjs
-          node scripts/orvyq_edit_plan.mjs
+          node scripts/orvyq_preview_plan.mjs
 
       - name: Build render-ready project
         run: |
