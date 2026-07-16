@@ -27,10 +27,12 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
   const shots = plan.shots;
 
   assert.equal(plan.audio_mix_asset, "assets/audio/final_mix.mp3", "plan must use the verified final mix");
-  assert.equal(plan.captions_asset, "remotion/captions.json", "plan must declare speech-derived captions");
+  assert.equal(plan.captions_asset, "remotion/captions.json", "plan must declare speech-timed captions");
   assert.ok(await pathExists(path.join(dir, plan.audio_mix_asset)), "ORVYQ final mix is missing");
   assert.equal(audioMetadata.procedural_noise_generation, false, "procedural noise music must remain disabled");
-  assert.ok(["voice_only_safe_fallback", "approved_licensed_bed"].includes(audioMetadata.music_profile), "unapproved music profile");
+  assert.ok(["original_tonal_score", "approved_licensed_bed"].includes(audioMetadata.music_profile), "preview must include an approved clean music profile");
+  assert.ok(audioMetadata.music_asset, "a clean music bed is required");
+  assert.ok(await pathExists(path.join(dir, audioMetadata.music_asset)), "declared music bed is missing");
   assert.deepEqual(audioMetadata.sfx_assets, [], "noise-based procedural sound cues must not be generated");
   assert.equal(speechQa.passed, true, `speech QA failed: ${(speechQa.failures || []).join(", ")}`);
   assert.ok(speechQa.word_count >= 30, "speech QA did not detect enough spoken words");
@@ -45,10 +47,14 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
 
   const usage = new Map();
   const motionVariants = new Set();
+  const shotDurations = new Set();
   let previousFootage = null;
+  let previousWasGraphic = false;
+  let graphicFrames = 0;
   for (let index = 0; index < shots.length; index += 1) {
     const shot = shots[index];
     const frames = shot.end_frame - shot.start_frame;
+    shotDurations.add(frames);
     assert.ok(frames > 0 && frames <= 240, `${shot.shot_id} must be 0–8 seconds`);
     if (index > 0) assert.equal(shot.start_frame, shots[index - 1].end_frame, `${shot.shot_id} must be contiguous`);
     assert.ok(["cut", "fade", "dissolve"].includes(shot.transition_in), `${shot.shot_id} has an invalid in transition`);
@@ -56,12 +62,16 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
     assert.equal(shot.sound_cue ?? null, null, `${shot.shot_id} must not use unapproved procedural SFX`);
 
     if (shot.asset_type === "graphic") {
+      graphicFrames += frames;
+      assert.equal(previousWasGraphic, false, `${shot.shot_id} creates a presentation-like run of consecutive full-screen graphics`);
+      previousWasGraphic = true;
       assert.ok(shot.graphic?.title, `${shot.shot_id} graphic requires a title`);
       assert.ok(!FORBIDDEN_FAKE_GRAPH_TYPES.has(shot.graphic?.type), `${shot.shot_id} uses a decorative fake-data graphic`);
       assert.ok(shot.graphic?.subtitle || shot.graphic?.type?.startsWith("brand_"), `${shot.shot_id} graphic must explain its editorial meaning`);
       continue;
     }
 
+    previousWasGraphic = false;
     assert.notEqual(shot.video_asset, previousFootage, `${shot.shot_id} repeats the same footage consecutively`);
     previousFootage = shot.video_asset;
     usage.set(shot.video_asset, (usage.get(shot.video_asset) || 0) + 1);
@@ -78,11 +88,21 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
     assert.ok(shot.trim_out_sec <= sourceDuration + 0.02, `${shot.shot_id} trim would create a black clip tail`);
   }
 
-  assert.equal(captions.source, "qa/speech_transcript.json", "captions must come from verified final audio");
+  if (plan.preview) {
+    const graphicFraction = graphicFrames / plan.duration_frames;
+    const allowedFraction = plan.quality_policy?.full_screen_graphic_fraction_max ?? 0.22;
+    assert.ok(graphicFraction <= allowedFraction, `full-screen graphics occupy ${(graphicFraction * 100).toFixed(1)}%, above ${(allowedFraction * 100).toFixed(1)}%`);
+    assert.ok(shotDurations.size >= 3, "preview pacing is too mechanically uniform");
+  }
+
+  assert.equal(captions.source, "qa/speech_transcript.json", "caption timing must come from verified final audio");
+  assert.equal(captions.text_source, "voice/voice_script.txt", "caption wording must come from the approved narration script");
   assert.equal(captions.style?.line_count, 1, "captions must be single-line");
   assert.equal(captions.style?.active_word_effect, false, "active-word karaoke styling is forbidden");
   assert.equal(captions.style?.background, "none", "large caption boxes are forbidden");
   assert.ok(captions.captions.length > 0, "no captions were generated");
+  assert.ok(captions.captions[0].start_frame <= 3, "opening caption must begin with the narration");
+  assert.match(captions.captions[0].text, /^Every major AI lab\b/i, "opening caption must preserve the approved first sentence");
 
   let previousCaptionEnd = -1;
   for (const caption of captions.captions) {
@@ -99,12 +119,15 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
     preview: Boolean(plan.preview),
     shot_count: shots.length,
     graphic_count: shots.filter((shot) => shot.asset_type === "graphic").length,
+    graphic_fraction: graphicFrames / plan.duration_frames,
     unique_footage_count: usage.size,
     max_source_uses: Math.max(0, ...usage.values()),
     motion_variant_count: motionVariants.size,
+    shot_duration_variants: shotDurations.size,
     caption_count: captions.captions.length,
     duration_frames: plan.duration_frames,
     speech_similarity: speechQa.script_similarity,
+    music_profile: audioMetadata.music_profile,
   };
 }
 
