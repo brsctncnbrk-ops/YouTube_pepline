@@ -53,11 +53,13 @@ export async function buildOrvyqCaptions(projectId = PROJECT_ID) {
   const timedWords = speechQa.words.filter((word) => Number(word.start) < maxSeconds);
   const chunks = buildChunks(timedWords);
   const captions = [];
+  let previousEndFrame = 0;
 
   chunks.forEach((chunk, index) => {
-    const startFrame = Math.max(0, Math.floor(Number(chunk[0].start) * composition.fps));
+    const timestampStart = Math.max(0, Math.floor(Number(chunk[0].start) * composition.fps));
+    const startFrame = Math.max(timestampStart, previousEndFrame);
     const rawEnd = Math.ceil(Number(chunk.at(-1).end) * composition.fps);
-    const endFrame = Math.min(maxFrame, Math.max(startFrame + 8, rawEnd));
+    const endFrame = Math.min(maxFrame, Math.max(startFrame + 4, rawEnd));
     if (startFrame >= maxFrame || endFrame <= startFrame) return;
     captions.push({
       caption_id: `caption_${String(index + 1).padStart(3, "0")}`,
@@ -66,14 +68,16 @@ export async function buildOrvyqCaptions(projectId = PROJECT_ID) {
       end_frame: endFrame,
       text: chunk.map((item) => item.text).join(" ").replace(/\s+([,.;!?])/g, "$1"),
     });
+    previousEndFrame = endFrame;
   });
 
   const payload = {
-    schema_version: "2.0",
+    schema_version: "2.1",
     project_id: projectId,
     fps: composition.fps,
     duration_frames: maxFrame,
     source: "qa/speech_transcript.json",
+    timing_policy: "word timestamps rounded to frames; adjacent overlaps removed by monotonic start clamping",
     style: {
       placement: "bottom_safe",
       line_count: 1,
