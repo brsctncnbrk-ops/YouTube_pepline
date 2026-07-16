@@ -22,6 +22,9 @@ function parseSilence(text) {
   const ends = [...text.matchAll(/silence_end: ([\d.]+) \| silence_duration: ([\d.]+)/g)].map((match) => ({ end: Number(match[1]), duration: Number(match[2]) }));
   return ends.map((entry, index) => ({ start: starts[index] ?? null, ...entry }));
 }
+function normalize(text) {
+  return String(text || "").toLowerCase().replace(/[^a-z0-9']+/g, " ").trim();
+}
 async function durationSeconds(video) {
   const { stdout } = await command("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "default=nk=1:nw=1", video]);
   const duration = Number.parseFloat(stdout.trim());
@@ -54,19 +57,32 @@ export async function runMediaQa({ projectId, video, reportPath, captionsPath, a
 
   const captionItems = captions.captions || [];
   const captionStyleOk = captions.style?.line_count === 1 && captions.style?.active_word_effect === false && captions.style?.background === "none";
-  const captionTextOk = captionItems.length > 0 && captionItems.every((item) => item.text && item.text.length <= 52 && item.text.trim().split(/\s+/).length <= 7);
+  const captionSourceOk = captions.source === "qa/speech_transcript.json" && captions.text_source === "voice/voice_script.txt";
+  const captionTextOk = captionItems.length > 0
+    && /^Every major AI lab\b/i.test(captionItems[0]?.text || "")
+    && captionItems.every((item) => item.text && item.text.length <= 52 && item.text.trim().split(/\s+/).length <= 7);
   const captionTimingOk = captionItems.every((item) => item.start_frame >= 0 && item.end_frame > item.start_frame && item.end_frame <= captions.duration_frames);
-  const captionsOk = captionStyleOk && captionTextOk && captionTimingOk;
+  const captionsOk = captionStyleOk && captionSourceOk && captionTextOk && captionTimingOk;
 
-  const soundDesignOk = audioMetadata.procedural_noise_generation === false && ["voice_only_safe_fallback", "approved_licensed_bed"].includes(audioMetadata.music_profile) && (audioMetadata.sfx_assets || []).length === 0;
+  const approvedMusicProfiles = ["original_tonal_score", "approved_licensed_bed"];
+  const soundDesignOk = audioMetadata.procedural_noise_generation === false
+    && approvedMusicProfiles.includes(audioMetadata.music_profile)
+    && Boolean(audioMetadata.music_asset)
+    && (audioMetadata.sfx_assets || []).length === 0;
   const declaredAssets = [audioMetadata.music_asset, ...(audioMetadata.sfx_assets || [])].filter(Boolean);
   const declaredAudioAssetsExist = await Promise.all(declaredAssets.map((rel) => pathExists(path.join(dir, rel))));
   const audioAssetsOk = declaredAudioAssetsExist.every(Boolean);
-  const speechOk = speechQa.passed === true && speechQa.word_count >= 30 && speechQa.script_similarity >= 0.55;
+
+  const normalizedTranscript = normalize(speechQa.transcript);
+  const openingSpeechOk = normalizedTranscript.startsWith("every major ai lab");
+  const speechOk = speechQa.passed === true
+    && speechQa.word_count >= 30
+    && speechQa.script_similarity >= 0.85
+    && openingSpeechOk;
 
   const pass = nonTerminalBlack.length === 0 && meaningfulSilence.length === 0 && loudnessOk && truePeakOk && captionsOk && soundDesignOk && audioAssetsOk && speechOk;
   const report = {
-    schema_version: "3.0",
+    schema_version: "4.0",
     project_id: projectId,
     video: path.basename(video),
     duration_seconds: duration,
@@ -78,22 +94,24 @@ export async function runMediaQa({ projectId, video, reportPath, captionsPath, a
       caption_line_count: 1,
       max_caption_words: 7,
       max_caption_chars: 52,
-      minimum_speech_similarity: 0.55,
+      minimum_speech_similarity: 0.85,
+      required_opening_words: "Every major AI lab",
+      required_music_profiles: approvedMusicProfiles,
     },
     black_segments: blackSegments,
     nonterminal_black_segments: nonTerminalBlack,
     silence_segments: silenceSegments,
     meaningful_silence_segments: meaningfulSilence,
     loudness: { integrated_lufs: integratedLufs, true_peak_dbtp: truePeak, loudness_range: Number(measured.input_lra), pass: loudnessOk && truePeakOk },
-    speech: { word_count: speechQa.word_count, script_similarity: speechQa.script_similarity, coverage: speechQa.speech_coverage, pass: speechOk },
-    captions: { count: captionItems.length, style_pass: captionStyleOk, text_pass: captionTextOk, timing_pass: captionTimingOk, pass: captionsOk },
-    sound_design: { music_profile: audioMetadata.music_profile, procedural_noise_generation: audioMetadata.procedural_noise_generation, sfx_types: (audioMetadata.sfx_assets || []).length, assets_exist: audioAssetsOk, pass: soundDesignOk && audioAssetsOk },
+    speech: { word_count: speechQa.word_count, script_similarity: speechQa.script_similarity, coverage: speechQa.speech_coverage, opening_pass: openingSpeechOk, pass: speechOk },
+    captions: { count: captionItems.length, style_pass: captionStyleOk, source_pass: captionSourceOk, text_pass: captionTextOk, timing_pass: captionTimingOk, pass: captionsOk },
+    sound_design: { music_profile: audioMetadata.music_profile, music_asset: audioMetadata.music_asset, procedural_noise_generation: audioMetadata.procedural_noise_generation, sfx_types: (audioMetadata.sfx_assets || []).length, assets_exist: audioAssetsOk, pass: soundDesignOk && audioAssetsOk },
     pass,
   };
 
   await writeJsonAtomic(reportPath, report);
   if (!pass) {
-    throw new Error(`ORVYQ media QA failed: black=${nonTerminalBlack.length}, silence=${meaningfulSilence.length}, LUFS=${integratedLufs}, speech=${speechOk}, captions=${captionsOk}, sound=${soundDesignOk && audioAssetsOk}`);
+    throw new Error(`ORVYQ media QA failed: black=${nonTerminalBlack.length}, silence=${meaningfulSilence.length}, LUFS=${integratedLufs}, speech=${speechOk}, opening=${openingSpeechOk}, captions=${captionsOk}, sound=${soundDesignOk && audioAssetsOk}`);
   }
   return report;
 }
