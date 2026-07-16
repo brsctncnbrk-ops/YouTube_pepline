@@ -20,7 +20,7 @@ jobs:
       PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
       ORVYQ_PREVIEW_FRAMES: "3600"
       ORVYQ_AUDIO_LIMIT_SECONDS: "120"
-      ORVYQ_NARRATION_LIMIT_SECONDS: "113.6"
+      ORVYQ_NARRATION_LIMIT_SECONDS: "114.2"
     steps:
       - name: Checkout with LFS assets
         uses: actions/checkout@v4
