@@ -65,9 +65,9 @@ const Evidence: React.FC<{ spec: OrvyqGraphicSpec; p: number }> = ({ spec, p }) 
       <div style={{ color: blue, letterSpacing: ".2em", fontSize: 18, marginBottom: 28 }}>SOURCE CONTEXT</div>
       {rows.map((row, index) => {
         const show = interpolate(p, [0.08 + index * 0.1, 0.38 + index * 0.1], [0, 1], clamp);
-        return <div key={row} style={{ display: "grid", gridTemplateColumns: "46px 1fr", gap: 20, padding: "18px 0", borderTop: "1px solid rgba(245,240,231,.12)", opacity: show }}><span style={{ color: accent, fontSize: 20 }}>{String(index + 1).padStart(2, "0")}</span><span style={{ color: ink, fontSize: 27 }}>{row}</span></div>;
+        return <div key={row} style={{ display: "grid", gridTemplateColumns: "46px 1fr", gap: 20, padding: "18px 0", borderTop: "1px solid rgba(245,240,231,.12)", opacity: show }}><span style={{ color: accent, fontSize: 20 }}>{String(index + 1).padStart(2, "0")}</span><span style={{ color: ink, fontSize: 29, lineHeight: 1.2 }}>{row}</span></div>;
       })}
-      {spec.source ? <div style={{ marginTop: 26, color: muted, fontSize: 17 }}>Source: {spec.source}</div> : null}
+      {spec.source ? <div style={{ marginTop: 26, color: muted, fontSize: 19 }}>Source: {spec.source}</div> : null}
     </div>
   );
 };
@@ -84,13 +84,17 @@ const Process: React.FC<{ spec: OrvyqGraphicSpec; p: number }> = ({ spec, p }) =
   );
 };
 
-const Statement: React.FC<{ spec: OrvyqGraphicSpec; p: number }> = ({ spec, p }) => (
-  <div style={{ width: "100%", maxWidth: 1080 }}>
-    <div style={{ width: `${interpolate(p, [0.05, 0.55], [0, 100], clamp)}%`, height: 3, background: `linear-gradient(90deg,${blue},${accent})`, marginBottom: 34 }} />
-    <div style={{ color: ink, fontSize: 58, lineHeight: 1.08, fontWeight: 720, letterSpacing: "-.025em" }}>{spec.title}</div>
-    {spec.subtitle ? <div style={{ color: muted, fontSize: 28, lineHeight: 1.35, marginTop: 26, maxWidth: 980 }}>{spec.subtitle}</div> : null}
-  </div>
-);
+const Statement: React.FC<{ spec: OrvyqGraphicSpec; p: number }> = ({ spec, p }) => {
+  const signal = spec.labels?.[0] || "CONTEXT";
+  const reveal = interpolate(p, [0.06, 0.5], [0, 1], clamp);
+  return (
+    <div style={{ width: "100%", maxWidth: 1000, minHeight: 330, border: "1px solid rgba(245,240,231,.22)", background: "rgba(7,13,23,.5)", display: "grid", placeItems: "center", position: "relative", overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, opacity: 0.22, background: "radial-gradient(circle at center, rgba(134,169,204,.35), transparent 62%)" }} />
+      <div style={{ color: ink, fontSize: 138, lineHeight: 0.9, fontWeight: 760, letterSpacing: "-.055em", opacity: reveal, transform: `scale(${0.92 + reveal * 0.08})` }}>{signal}</div>
+      <div style={{ position: "absolute", left: 50, right: 50, bottom: 38, height: 3, background: `linear-gradient(90deg,${blue},${accent})`, transform: `scaleX(${reveal})`, transformOrigin: "left" }} />
+    </div>
+  );
+};
 
 export const OrvyqGraphic: React.FC<{ spec: OrvyqGraphicSpec; durationInFrames: number }> = ({ spec, durationInFrames }) => {
   const frame = useCurrentFrame();
@@ -106,11 +110,11 @@ export const OrvyqGraphic: React.FC<{ spec: OrvyqGraphicSpec; durationInFrames: 
   return (
     <AbsoluteFill style={{ background: "linear-gradient(135deg,#101A27 0%,#0C1320 48%,#151C23 100%)", color: ink, padding: "5.2% 6.4%", justifyContent: "space-between" }}>
       <Mark />
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(360px,.72fr) minmax(720px,1.28fr)", gap: 70, alignItems: "center", flex: 1 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(430px,.78fr) minmax(700px,1.22fr)", gap: 64, alignItems: "center", flex: 1 }}>
         <div style={{ opacity: reveal, transform: `translateX(${(1 - reveal) * -28}px)` }}>
           <div style={{ color: blue, letterSpacing: ".2em", fontSize: 18, marginBottom: 22 }}>{spec.kicker || "EDITORIAL CONTEXT"}</div>
-          <div style={{ color: ink, fontSize: 49, lineHeight: 1.08, fontWeight: 720, letterSpacing: "-.025em" }}>{spec.title}</div>
-          {spec.subtitle ? <div style={{ color: muted, fontSize: 25, lineHeight: 1.42, marginTop: 24 }}>{spec.subtitle}</div> : null}
+          <div style={{ color: ink, fontSize: 52, lineHeight: 1.06, fontWeight: 720, letterSpacing: "-.025em" }}>{spec.title}</div>
+          {spec.subtitle ? <div style={{ color: muted, fontSize: 26, lineHeight: 1.38, marginTop: 24 }}>{spec.subtitle}</div> : null}
         </div>
         <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
           {mode === "comparison" ? <Comparison spec={spec} p={p} /> : mode === "evidence" ? <Evidence spec={spec} p={p} /> : mode === "process" ? <Process spec={spec} p={p} /> : <Statement spec={spec} p={p} />}
