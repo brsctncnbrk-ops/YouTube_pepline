@@ -1,0 +1,3 @@
+ORVYQ diagnostic trigger
+Commit: 0a952ded4791315b2ffc8d438bd7b7e0017879f5
+Purpose: isolate the failing pre-render step before restarting the full render.
