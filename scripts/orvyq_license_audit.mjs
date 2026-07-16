@@ -39,19 +39,24 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
     {
       asset: audioMetadata.mix_asset,
       role: "final audio mix",
-      license: "Derived locally from the approved narration and, only when present, an approved licensed music bed.",
+      license: "Derived locally from the approved narration and the declared clean music bed.",
     },
   ];
   if (audioMetadata.music_asset) {
+    const originalScore = audioMetadata.music_profile === "original_tonal_score";
     audio.push({
       asset: audioMetadata.music_asset,
       role: "music bed",
-      license: "User-approved licensed music bed; licensing evidence must accompany the asset before final publication.",
+      profile: audioMetadata.music_profile,
+      origin: audioMetadata.music_origin || null,
+      license: originalScore
+        ? "Original ORVYQ tonal score generated locally from harmonic oscillators; no third-party recording or noise source is used."
+        : "User-approved licensed music bed; licensing evidence must accompany the asset before final publication.",
     });
   }
 
   const result = {
-    schema_version: "2.0",
+    schema_version: "3.0",
     project_id: projectId,
     purpose: plan.preview ? "Two-minute ORVYQ quality-control license record" : "Final ORVYQ edit license record",
     footage,
@@ -60,6 +65,7 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
     native_graphics: {
       count: plan.shots.filter((shot) => shot.asset_type === "graphic").length,
       license: "Original ORVYQ editorial graphics authored in this repository; no fabricated datasets are represented as factual charts.",
+      cited_sources: [...new Set(plan.shots.filter((shot) => shot.asset_type === "graphic" && shot.graphic?.source).map((shot) => shot.graphic.source))],
     },
     audio,
     procedural_noise_generation: audioMetadata.procedural_noise_generation,
@@ -72,6 +78,9 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
   if (result.procedural_noise_generation !== false || result.procedural_sfx_count !== 0) {
     throw new Error("Unapproved procedural noise or SFX remains in the audio manifest");
   }
+  if (!["original_tonal_score", "approved_licensed_bed"].includes(audioMetadata.music_profile)) {
+    throw new Error(`Unapproved music profile: ${audioMetadata.music_profile}`);
+  }
 
   await writeJsonAtomic(path.join(dir, "qa", "license_audit.json"), result);
   return result;
@@ -83,6 +92,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     unique_footage_assets: result.footage.length,
     maximum_source_uses: result.maximum_source_uses,
     procedural_noise_generation: result.procedural_noise_generation,
+    music_profile: result.audio.find((item) => item.role === "music bed")?.profile || null,
   }))).catch((error) => {
     console.error(JSON.stringify({ ok: false, error: error.message }));
     process.exitCode = 1;
