@@ -1,121 +1,94 @@
 #!/usr/bin/env node
 import path from "node:path";
-import { promises as fs } from "node:fs";
 import { projectDir, readJson, writeJsonAtomic } from "./lib/fs-utils.mjs";
 
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
-const MAX_WORDS = 8;
+const MAX_WORDS = 7;
+const MAX_CHARS = 52;
 
-function splitSentences(text) {
-  return text
-    .replace(/\s+/g, " ")
-    .trim()
-    .split(/(?<=[.!?…])\s+/)
-    .filter(Boolean);
+function cleanToken(token) {
+  return String(token || "").replace(/\s+/g, " ").trim();
 }
 
-function chunkSentence(sentence, maxWords = MAX_WORDS) {
-  const words = sentence.trim().split(/\s+/).filter(Boolean);
-  if (words.length <= maxWords) return [words.join(" ")];
+function shouldBreak(text, wordCount, nextWord) {
+  if (wordCount >= MAX_WORDS) return true;
+  if ((text + " " + nextWord).trim().length > MAX_CHARS) return true;
+  return /[.!?…]$/.test(text) && wordCount >= 3;
+}
+
+function buildChunks(words) {
   const chunks = [];
-  let cursor = 0;
-  while (cursor < words.length) {
-    let end = Math.min(words.length, cursor + maxWords);
-    if (end < words.length) {
-      for (let i = end; i > Math.max(cursor + 3, end - 3); i -= 1) {
-        if (/[,;:—-]$/.test(words[i - 1])) {
-          end = i;
-          break;
-        }
-      }
+  let current = [];
+  for (const word of words) {
+    const token = cleanToken(word.text);
+    if (!token) continue;
+    const currentText = current.map((item) => item.text).join(" ");
+    if (current.length && shouldBreak(currentText, current.length, token)) {
+      chunks.push(current);
+      current = [];
     }
-    chunks.push(words.slice(cursor, end).join(" "));
-    cursor = end;
+    current.push({ ...word, text: token });
+    if (/[.!?…]$/.test(token) && current.length >= 3) {
+      chunks.push(current);
+      current = [];
+    }
   }
+  if (current.length) chunks.push(current);
   return chunks;
-}
-
-function captionChunks(text) {
-  return splitSentences(text).flatMap((sentence) => chunkSentence(sentence));
-}
-
-function paragraphRange(ref) {
-  const match = String(ref || "").match(/para\s+(\d+)(?:\s*[-–]\s*(\d+))?/i);
-  if (!match) throw new Error(`Could not parse paragraph range from: ${ref}`);
-  const start = Number(match[1]);
-  const end = Number(match[2] || match[1]);
-  if (!Number.isInteger(start) || !Number.isInteger(end) || start < 1 || end < start) {
-    throw new Error(`Invalid paragraph range in: ${ref}`);
-  }
-  return { start, end };
-}
-
-function allocateFrames(chunks, startFrame, endFrame) {
-  const totalFrames = endFrame - startFrame;
-  const weights = chunks.map((text) => Math.max(1, text.split(/\s+/).length));
-  const totalWeight = weights.reduce((sum, value) => sum + value, 0);
-  const raw = weights.map((weight) => Math.max(1, Math.floor((totalFrames * weight) / totalWeight)));
-  let diff = totalFrames - raw.reduce((sum, value) => sum + value, 0);
-  let index = raw.length - 1;
-  while (diff > 0 && raw.length) {
-    raw[index] += 1;
-    diff -= 1;
-    index = index === 0 ? raw.length - 1 : index - 1;
-  }
-  return raw;
 }
 
 export async function buildOrvyqCaptions(projectId = PROJECT_ID) {
   const dir = projectDir(projectId);
-  const [composition, storyboard, voiceText] = await Promise.all([
+  const [composition, speechQa] = await Promise.all([
     readJson(path.join(dir, "remotion", "composition.json")),
-    readJson(path.join(dir, "storyboard", "storyboard.json")),
-    fs.readFile(path.join(dir, "voice", "voice_script.txt"), "utf8"),
+    readJson(path.join(dir, "qa", "speech_transcript.json")),
   ]);
-  const paragraphs = voiceText.split(/\r?\n\s*\r?\n/).map((p) => p.replace(/\s+/g, " ").trim()).filter(Boolean);
-  const sceneById = new Map(composition.scenes.map((scene) => [scene.scene_id, scene]));
-  const captions = [];
-  let captionNumber = 1;
 
-  for (const boardScene of storyboard.scenes) {
-    const scene = sceneById.get(boardScene.scene_id);
-    if (!scene) throw new Error(`Storyboard scene missing from composition: ${boardScene.scene_id}`);
-    const { start, end } = paragraphRange(boardScene.voice_line_ref);
-    const text = paragraphs.slice(start - 1, end).join(" ");
-    if (!text) throw new Error(`No voice text for ${boardScene.scene_id} paragraphs ${start}-${end}`);
-    const chunks = captionChunks(text);
-    const durations = allocateFrames(chunks, scene.start_frame, scene.end_frame);
-    let cursor = scene.start_frame;
-    chunks.forEach((chunk, index) => {
-      const endFrame = index === chunks.length - 1 ? scene.end_frame : cursor + durations[index];
-      captions.push({
-        caption_id: `caption_${String(captionNumber).padStart(3, "0")}`,
-        scene_id: scene.scene_id,
-        start_frame: cursor,
-        end_frame: endFrame,
-        text: chunk,
-      });
-      cursor = endFrame;
-      captionNumber += 1;
+  if (!speechQa.passed) throw new Error("Cannot build captions from a failed speech transcript");
+  if (!Array.isArray(speechQa.words) || !speechQa.words.length) throw new Error("Speech transcript has no word timestamps");
+
+  const previewFrames = Number.parseInt(process.env.ORVYQ_PREVIEW_FRAMES || "0", 10);
+  const maxFrame = previewFrames > 0 ? previewFrames : composition.duration_frames;
+  const maxSeconds = maxFrame / composition.fps;
+  const timedWords = speechQa.words.filter((word) => Number(word.start) < maxSeconds);
+  const chunks = buildChunks(timedWords);
+  const captions = [];
+
+  chunks.forEach((chunk, index) => {
+    const startFrame = Math.max(0, Math.floor(Number(chunk[0].start) * composition.fps));
+    const rawEnd = Math.ceil(Number(chunk.at(-1).end) * composition.fps);
+    const endFrame = Math.min(maxFrame, Math.max(startFrame + 8, rawEnd));
+    if (startFrame >= maxFrame || endFrame <= startFrame) return;
+    captions.push({
+      caption_id: `caption_${String(index + 1).padStart(3, "0")}`,
+      scene_id: null,
+      start_frame: startFrame,
+      end_frame: endFrame,
+      text: chunk.map((item) => item.text).join(" ").replace(/\s+([,.;!?])/g, "$1"),
     });
-  }
+  });
 
   const payload = {
-    schema_version: "1.0",
+    schema_version: "2.0",
     project_id: projectId,
     fps: composition.fps,
-    duration_frames: composition.duration_frames,
+    duration_frames: maxFrame,
+    source: "qa/speech_transcript.json",
     style: {
       placement: "bottom_safe",
+      line_count: 1,
       max_words: MAX_WORDS,
+      max_chars: MAX_CHARS,
       font_family: "Arial, Helvetica, sans-serif",
-      font_size_px: 48,
-      active_accent: "#F0A45D",
+      font_size_px: 36,
+      background: "none",
+      active_word_effect: false,
     },
     captions,
   };
+
   await writeJsonAtomic(path.join(dir, "remotion", "captions.json"), payload);
-  return { caption_count: captions.length, duration_frames: composition.duration_frames };
+  return { caption_count: captions.length, duration_frames: maxFrame, source: payload.source };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
