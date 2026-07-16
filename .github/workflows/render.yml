@@ -44,6 +44,13 @@ jobs:
       - name: Install root tooling dependencies
         run: npm ci
 
+      - name: Install media tooling
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          ffmpeg -version
+
       - name: Validate project id
         id: validate-project-id
         run: |
