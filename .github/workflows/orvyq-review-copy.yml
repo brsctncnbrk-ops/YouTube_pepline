@@ -30,22 +30,24 @@ jobs:
             --dir source
           find source -type f -maxdepth 8 -print
 
-      - name: Create compact review copy
+      - name: Create fast review package
         run: |
           set -euo pipefail
           INPUT="$(find source -type f -name 'final_video.mp4' -print -quit)"
           test -n "$INPUT"
           mkdir -p review
           ffmpeg -hide_banner -y -i "$INPUT" \
-            -vf "scale=-2:720" \
-            -c:v libx264 -preset veryfast -b:v 1400k -maxrate 1600k -bufsize 2800k \
+            -vf "fps=12,scale=-2:480" \
+            -c:v libx264 -preset ultrafast -b:v 900k -maxrate 1100k -bufsize 1800k \
             -pix_fmt yuv420p \
-            -c:a aac -b:a 128k \
+            -c:a aac -b:a 96k \
             -movflags +faststart \
-            review/orvyq_review_720p.mp4
-          ffmpeg -hide_banner -y -i "$INPUT" \
-            -vf "fps=1/30,scale=320:-1,tile=5x5" \
-            -frames:v 1 review/contact_sheet.jpg
+            review/orvyq_review_480p.mp4
+          for START in 0 180 360 540; do
+            ffmpeg -hide_banner -y -ss "$START" -t 180 -i "$INPUT" \
+              -vf "fps=1/5,scale=240:-1,tile=6x6" \
+              -frames:v 1 "review/contact_sheet_${START}.jpg"
+          done
           ffprobe -v error -show_format -show_streams -of json "$INPUT" > review/source_probe.json
           sha256sum "$INPUT" > review/source_sha256.txt
           ls -lh review
