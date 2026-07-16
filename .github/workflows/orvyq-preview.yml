@@ -2,9 +2,6 @@ name: ORVYQ 2-Minute Quality Control
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - "agent/orvyq-video-revision"
   pull_request:
     branches:
       - "claude/factforge-system-design-0pr3v3"
