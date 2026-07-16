@@ -1,0 +1,73 @@
+name: ORVYQ Pre-render Diagnostics
+
+on:
+  pull_request:
+    branches:
+      - "claude/factforge-system-design-0pr3v3"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+    steps:
+      - name: Checkout with LFS
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Pull LFS assets
+        run: git lfs pull
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          ffmpeg -version
+
+      - name: Build audio mix
+        run: node scripts/orvyq_audio_mix.mjs
+
+      - name: Build captions
+        run: node scripts/orvyq_caption_build.mjs
+
+      - name: Build edit plan
+        run: node scripts/orvyq_edit_plan.mjs
+
+      - name: Derive Remotion configs
+        run: node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
+
+      - name: Build Remotion project
+        run: node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
+
+      - name: Run editorial QA
+        run: node scripts/orvyq_edit_plan_tests.mjs
+
+      - name: Run license audit
+        run: node scripts/orvyq_license_audit.mjs
+
+      - name: Run render-ready validation
+        run: node scripts/validate.mjs render-ready --project-id "$PROJECT_ID"
+
+      - name: Install Remotion dependencies
+        run: |
+          cd "projects/$PROJECT_ID/remotion/render_ready_project"
+          npm ci --no-audit --no-fund
+
+      - name: Type-check Remotion project
+        run: |
+          cd "projects/$PROJECT_ID/remotion/render_ready_project"
+          npx tsc --noEmit
