@@ -55,9 +55,9 @@ function mixFilter(duration, loudnorm = null) {
     : "loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json";
   return [
     `[0:a]atrim=duration=${duration},volume=0.82[music]`,
-    "[1:a]aformat=channel_layouts=stereo[voice]",
-    "[music][voice]sidechaincompress=threshold=0.025:ratio=7:attack=18:release=420[ducked]",
-    `[voice][ducked]amix=inputs=2:normalize=0,${normalize}[mix]`,
+    "[1:a]aformat=channel_layouts=stereo,asplit=2[voice_side][voice_mix]",
+    "[music][voice_side]sidechaincompress=threshold=0.025:ratio=7:attack=18:release=420[ducked]",
+    `[voice_mix][ducked]amix=inputs=2:normalize=0,${normalize}[mix]`,
   ].join(";");
 }
 
