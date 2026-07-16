@@ -1,0 +1,143 @@
+name: ORVYQ 2-Minute Quality Control
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "agent/orvyq-video-revision"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: orvyq-two-minute-quality-control
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+      ORVYQ_PREVIEW_FRAMES: "3600"
+    steps:
+      - name: Checkout with LFS assets
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Pull LFS assets
+        run: git lfs pull
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install media and speech tooling
+        run: |
+          set -euo pipefail
+          npm ci
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --disable-pip-version-check faster-whisper==1.2.0
+
+      - name: Build clean voice-first audio
+        run: node scripts/orvyq_audio_mix.mjs
+
+      - name: Verify real narration and create word timestamps
+        run: python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --max-seconds 125
+
+      - name: Build single-line captions and preview edit plan
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_caption_build.mjs
+          node scripts/orvyq_edit_plan.mjs
+
+      - name: Build render-ready project
+        run: |
+          set -euo pipefail
+          node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
+          node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
+
+      - name: Editorial and source-reuse quality gate
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_edit_plan_tests.mjs
+          node scripts/orvyq_license_audit.mjs
+
+      - name: Install Remotion dependencies and type-check
+        run: |
+          set -euo pipefail
+          cd "projects/$PROJECT_ID/remotion/render_ready_project"
+          npm ci --no-audit --no-fund
+          npx tsc --noEmit
+
+      - name: Resolve browser executable
+        run: |
+          set -euo pipefail
+          BROWSER="$(command -v google-chrome-stable || command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          echo "FACTFORGE_REMOTION_BROWSER_EXECUTABLE=$BROWSER" >> "$GITHUB_ENV"
+          "$BROWSER" --version
+
+      - name: Render exactly two minutes
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          mkdir -p "$APP/out"
+          cd "$APP"
+          npx remotion render src/index.ts FactForgeVideo out/orvyq_quality_control_2min.mp4 \
+            --codec=h264 --frames=0-3599 2>&1 | tee out/preview_render_stdout.txt
+
+      - name: Verify speech in rendered preview
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          python scripts/orvyq_speech_qa.py \
+            --project-id "$PROJECT_ID" \
+            --media "$APP/out/orvyq_quality_control_2min.mp4" \
+            --max-seconds 120 \
+            --output-name speech_transcript.json
+
+      - name: Post-render media quality gate
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          node scripts/orvyq_media_qa.mjs \
+            --project-id "$PROJECT_ID" \
+            --video "$APP/out/orvyq_quality_control_2min.mp4" \
+            --report "projects/$PROJECT_ID/qa/orvyq_preview_media_qa.json"
+
+      - name: Create visual review contact sheet
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          ffmpeg -hide_banner -loglevel error -y \
+            -i "$APP/out/orvyq_quality_control_2min.mp4" \
+            -vf "fps=1/10,scale=480:-1,tile=4x3" \
+            -frames:v 1 "$APP/out/orvyq_quality_control_contact_sheet.jpg"
+          ffprobe -v error -show_format -show_streams -of json \
+            "$APP/out/orvyq_quality_control_2min.mp4" > "$APP/out/orvyq_quality_control_probe.json"
+
+      - name: Upload two-minute approval package
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-two-minute-quality-control-${{ github.run_id }}
+          path: |
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_2min.mp4
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_contact_sheet.jpg
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_probe.json
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/preview_render_stdout.txt
+            projects/${{ env.PROJECT_ID }}/qa/orvyq_preview_media_qa.json
+            projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
+            projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
+            projects/${{ env.PROJECT_ID }}/remotion/captions.json
+            projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
+          if-no-files-found: error
+          retention-days: 14
