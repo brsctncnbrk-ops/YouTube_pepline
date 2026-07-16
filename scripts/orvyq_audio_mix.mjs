@@ -44,8 +44,8 @@ function normalizeFilter(loudnorm = null) {
     : "loudnorm=I=-16:TP=-1.5:LRA=9:print_format=json";
 }
 
-function voiceOnlyFilter(loudnorm = null) {
-  return `[0:a]highpass=f=70,lowpass=f=15500,acompressor=threshold=-20dB:ratio=2.4:attack=15:release=180,${normalizeFilter(loudnorm)},aformat=channel_layouts=stereo[mix]`;
+function voiceOnlyFilter(duration, loudnorm = null) {
+  return `[0:a]atrim=duration=${duration},highpass=f=70,lowpass=f=15500,acompressor=threshold=-20dB:ratio=2.4:attack=15:release=180,${normalizeFilter(loudnorm)},aformat=channel_layouts=stereo[mix]`;
 }
 
 function voiceAndMusicFilter(duration, loudnorm = null) {
@@ -68,10 +68,12 @@ export async function buildOrvyqAudioMix(projectId = PROJECT_ID) {
   const mix = path.join(audioDir, "final_mix.mp3");
 
   if (!(await exists(voice))) throw new Error("Missing required narrator file: assets/audio/final_voice.mp3");
-  const duration = await durationSeconds(voice);
+  const sourceDuration = await durationSeconds(voice);
+  const requestedLimit = Number.parseFloat(process.env.ORVYQ_AUDIO_LIMIT_SECONDS || "0");
+  const duration = Number.isFinite(requestedLimit) && requestedLimit > 0 ? Math.min(sourceDuration, requestedLimit) : sourceDuration;
   const hasApprovedMusic = await exists(approvedMusic);
   const inputs = hasApprovedMusic ? ["-i", voice, "-stream_loop", "-1", "-i", approvedMusic] : ["-i", voice];
-  const firstFilter = hasApprovedMusic ? voiceAndMusicFilter(duration) : voiceOnlyFilter();
+  const firstFilter = hasApprovedMusic ? voiceAndMusicFilter(duration) : voiceOnlyFilter(duration);
 
   const firstPass = await command("ffmpeg", [
     "-hide_banner", "-nostats", ...inputs,
@@ -79,7 +81,7 @@ export async function buildOrvyqAudioMix(projectId = PROJECT_ID) {
     "-map", "[mix]", "-t", String(duration), "-f", "null", "-",
   ]);
   const analysis = extractLoudnorm(`${firstPass.stdout}\n${firstPass.stderr}`);
-  const secondFilter = hasApprovedMusic ? voiceAndMusicFilter(duration, analysis) : voiceOnlyFilter(analysis);
+  const secondFilter = hasApprovedMusic ? voiceAndMusicFilter(duration, analysis) : voiceOnlyFilter(duration, analysis);
 
   await command("ffmpeg", [
     "-hide_banner", "-nostats", "-y", ...inputs,
@@ -103,7 +105,9 @@ export async function buildOrvyqAudioMix(projectId = PROJECT_ID) {
     music_profile: hasApprovedMusic ? "approved_licensed_bed" : "voice_only_safe_fallback",
     procedural_noise_generation: false,
     sfx_assets: [],
+    source_duration_seconds: sourceDuration,
     duration_seconds: duration,
+    preview_limited: duration < sourceDuration,
     target: { integrated_lufs: -16, true_peak_dbtp: -1.5 },
     measured: {
       integrated_lufs: Number(measured.input_i),
@@ -115,7 +119,7 @@ export async function buildOrvyqAudioMix(projectId = PROJECT_ID) {
       : "Narration only. No generated noise, synthetic drone, or third-party music was added.",
   });
 
-  return { duration, measured, music_profile: hasApprovedMusic ? "approved_licensed_bed" : "voice_only_safe_fallback" };
+  return { duration, sourceDuration, measured, music_profile: hasApprovedMusic ? "approved_licensed_bed" : "voice_only_safe_fallback" };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
