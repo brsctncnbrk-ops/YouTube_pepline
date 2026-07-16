@@ -25,6 +25,11 @@ async function exists(file) {
   }
 }
 
+async function readOptionalJson(file) {
+  if (!(await exists(file))) return null;
+  return JSON.parse(await fs.readFile(file, "utf8"));
+}
+
 function extractLoudnorm(text) {
   const candidates = [...text.matchAll(/\{\s*"input_i"[\s\S]*?\n\}/g)].map((match) => match[0]);
   if (!candidates.length) throw new Error("FFmpeg loudnorm analysis did not return JSON");
@@ -57,22 +62,56 @@ function voiceAndMusicFilter(duration, loudnorm = null) {
   ].join(";");
 }
 
+async function prepareNarrator({ dir, audioDir, sourceVoice, sourceDuration }) {
+  const repairPath = path.join(dir, "voice", "audio_repair.json");
+  const repair = await readOptionalJson(repairPath);
+  if (!repair) return { voice: sourceVoice, repair: null };
+  if (repair.operation !== "rotate") throw new Error(`Unsupported narrator repair operation: ${repair.operation}`);
+
+  const rotateAt = Number(repair.rotate_at_seconds);
+  if (!Number.isFinite(rotateAt) || rotateAt <= 0 || rotateAt >= sourceDuration) {
+    throw new Error(`Invalid narrator rotate_at_seconds: ${repair.rotate_at_seconds}`);
+  }
+
+  const reorderedVoice = path.join(audioDir, "final_voice.reordered.wav");
+  const filter = [
+    `[0:a]atrim=start=${rotateAt},asetpts=PTS-STARTPTS[first]`,
+    `[0:a]atrim=end=${rotateAt},asetpts=PTS-STARTPTS[second]`,
+    "[first][second]concat=n=2:v=0:a=1[out]",
+  ].join(";");
+  await command("ffmpeg", [
+    "-hide_banner", "-nostats", "-y", "-i", sourceVoice,
+    "-filter_complex", filter, "-map", "[out]",
+    "-ac", "2", "-ar", "48000", "-c:a", "pcm_s16le", reorderedVoice,
+  ]);
+  return {
+    voice: reorderedVoice,
+    repair: {
+      operation: "rotate",
+      rotate_at_seconds: rotateAt,
+      config: "voice/audio_repair.json",
+      reason: repair.reason || null,
+    },
+  };
+}
+
 export async function buildOrvyqAudioMix(projectId = PROJECT_ID) {
   const dir = projectDir(projectId);
   const audioDir = path.join(dir, "assets", "audio");
   const musicDir = path.join(dir, "assets", "music");
   await Promise.all([fs.mkdir(audioDir, { recursive: true }), fs.mkdir(musicDir, { recursive: true })]);
 
-  const voice = path.join(audioDir, "final_voice.mp3");
+  const sourceVoice = path.join(audioDir, "final_voice.mp3");
   const approvedMusic = path.join(musicDir, "approved_bed.mp3");
   const mix = path.join(audioDir, "final_mix.mp3");
 
-  if (!(await exists(voice))) throw new Error("Missing required narrator file: assets/audio/final_voice.mp3");
-  const sourceDuration = await durationSeconds(voice);
+  if (!(await exists(sourceVoice))) throw new Error("Missing required narrator file: assets/audio/final_voice.mp3");
+  const sourceDuration = await durationSeconds(sourceVoice);
+  const prepared = await prepareNarrator({ dir, audioDir, sourceVoice, sourceDuration });
   const requestedLimit = Number.parseFloat(process.env.ORVYQ_AUDIO_LIMIT_SECONDS || "0");
   const duration = Number.isFinite(requestedLimit) && requestedLimit > 0 ? Math.min(sourceDuration, requestedLimit) : sourceDuration;
   const hasApprovedMusic = await exists(approvedMusic);
-  const inputs = hasApprovedMusic ? ["-i", voice, "-stream_loop", "-1", "-i", approvedMusic] : ["-i", voice];
+  const inputs = hasApprovedMusic ? ["-i", prepared.voice, "-stream_loop", "-1", "-i", approvedMusic] : ["-i", prepared.voice];
   const firstFilter = hasApprovedMusic ? voiceAndMusicFilter(duration) : voiceOnlyFilter(duration);
 
   const firstPass = await command("ffmpeg", [
@@ -100,6 +139,8 @@ export async function buildOrvyqAudioMix(projectId = PROJECT_ID) {
   await writeJsonAtomic(path.join(audioDir, "final_mix.metadata.json"), {
     generated_by: "scripts/orvyq_audio_mix.mjs",
     voice_source: "assets/audio/final_voice.mp3",
+    processed_voice_source: prepared.repair ? "assets/audio/final_voice.reordered.wav" : "assets/audio/final_voice.mp3",
+    voice_repair: prepared.repair,
     mix_asset: "assets/audio/final_mix.mp3",
     music_asset: hasApprovedMusic ? "assets/music/approved_bed.mp3" : null,
     music_profile: hasApprovedMusic ? "approved_licensed_bed" : "voice_only_safe_fallback",
@@ -119,7 +160,7 @@ export async function buildOrvyqAudioMix(projectId = PROJECT_ID) {
       : "Narration only. No generated noise, synthetic drone, or third-party music was added.",
   });
 
-  return { duration, sourceDuration, measured, music_profile: hasApprovedMusic ? "approved_licensed_bed" : "voice_only_safe_fallback" };
+  return { duration, sourceDuration, repair: prepared.repair, measured, music_profile: hasApprovedMusic ? "approved_licensed_bed" : "voice_only_safe_fallback" };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
