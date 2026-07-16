@@ -10,7 +10,9 @@
   "scripts": {
     "manifest": "node scripts/manifest_cli.mjs",
     "validate": "node scripts/validate.mjs",
-    "ci:smoke": "node scripts/ci_smoke.mjs"
+    "ci:smoke": "node scripts/ci_smoke.mjs",
+    "orvyq:audio": "node scripts/orvyq_audio_mix.mjs",
+    "orvyq:plan": "node scripts/orvyq_edit_plan.mjs && node scripts/orvyq_edit_plan_tests.mjs && node scripts/orvyq_license_audit.mjs"
   },
   "dependencies": {
     "ajv": "^8.17.1",

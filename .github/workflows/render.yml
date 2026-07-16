@@ -10,19 +10,22 @@ on:
         description: "Project id under projects/ (e.g. 001-my-video)"
         required: true
         type: string
+  push:
+    branches:
+      - "agent/orvyq-video-revision"
 
 permissions:
   contents: read
 
 concurrency:
-  group: render-${{ inputs.project_id }}
+  group: render-${{ inputs.project_id || '001-the-ai-race-no-one-can-afford-to-win' }}
   cancel-in-progress: true
 
 jobs:
   render:
     runs-on: ubuntu-latest
     env:
-      PROJECT_ID: ${{ inputs.project_id }}
+      PROJECT_ID: ${{ inputs.project_id || '001-the-ai-race-no-one-can-afford-to-win' }}
     steps:
       - name: Checkout (with LFS assets)
         uses: actions/checkout@v4
@@ -50,11 +53,24 @@ jobs:
             console.log(`Validated project id: ${process.env.PROJECT_ID}`);
           '
 
+      - name: Build ORVYQ audio mix
+        if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_audio_mix.mjs
+
       - name: Rebuild render-ready Remotion project
         run: |
           set -euo pipefail
           node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
           node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
+
+      - name: ORVYQ editorial plan gate
+        if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_edit_plan_tests.mjs
+          node scripts/orvyq_license_audit.mjs
 
       - name: Render-readiness hard gate
         run: node scripts/validate.mjs render-ready --project-id "$PROJECT_ID"
@@ -91,6 +107,15 @@ jobs:
           cd "$APP"
           npx remotion render src/index.ts FactForgeVideo out/final_video.mp4 --codec=h264 2>&1 | tee out/render_stdout.txt
 
+      - name: ORVYQ post-render media gate
+        if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          node scripts/orvyq_media_qa.mjs \
+            --project-id "$PROJECT_ID" \
+            --video "$APP/out/final_video.mp4"
+
       - name: Collect successful render output
         run: |
           set -euo pipefail
@@ -110,12 +135,23 @@ jobs:
       - name: Upload render bundle
         uses: actions/upload-artifact@v4
         with:
-          name: factforge-render-${{ inputs.project_id }}-${{ github.run_id }}
+          name: factforge-render-${{ env.PROJECT_ID }}-${{ github.run_id }}
           path: |
-            projects/${{ inputs.project_id }}/output/final_video.mp4
-            projects/${{ inputs.project_id }}/output/render_log.txt
-            projects/${{ inputs.project_id }}/manifest.json
-            projects/${{ inputs.project_id }}/assets/asset_manifest.json
+            projects/${{ env.PROJECT_ID }}/output/final_video.mp4
+            projects/${{ env.PROJECT_ID }}/output/render_log.txt
+            projects/${{ env.PROJECT_ID }}/manifest.json
+            projects/${{ env.PROJECT_ID }}/assets/asset_manifest.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload ORVYQ QA evidence
+        if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-qa-${{ github.run_id }}
+          path: |
+            projects/${{ env.PROJECT_ID }}/qa/orvyq_media_qa.json
+            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
           if-no-files-found: error
           retention-days: 30
 
@@ -123,9 +159,9 @@ jobs:
         if: always() && steps.validate-project-id.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
-          name: factforge-render-diagnostics-${{ inputs.project_id }}-${{ github.run_id }}
+          name: factforge-render-diagnostics-${{ env.PROJECT_ID }}-${{ github.run_id }}
           path: |
-            projects/${{ inputs.project_id }}/remotion/render_ready_project/out/render_stdout.txt
-            projects/${{ inputs.project_id }}/output/render_log.txt
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/render_stdout.txt
+            projects/${{ env.PROJECT_ID }}/output/render_log.txt
           if-no-files-found: warn
           retention-days: 30

@@ -168,12 +168,24 @@ export async function buildProject({ projectId }) {
     }
   }
 
+  const editPlanPath = path.join(dir, "direction", "edit_plan.json");
+  if (!(await pathExists(editPlanPath))) {
+    throw new CliError("direction/edit_plan.json missing - create the editorial shot plan before rendering", "RENDER_CONFIG_MISSING");
+  }
+
   const templateDir = path.join(TEMPLATES_DIR, "remotion");
   if (!(await pathExists(templateDir))) {
     throw new CliError("templates/remotion/ is missing from the repo", "RENDER_CONFIG_MISSING");
   }
 
   const dest = path.join(dir, "remotion", "render_ready_project");
+  // Project-specific review notes live beside generated app data. Preserve
+  // them across deterministic template rebuilds rather than silently dropping
+  // human review context when the render bundle is refreshed.
+  const previousHumanNotesPath = path.join(dest, "src", "data", "human_notes.json");
+  const previousHumanNotes = (await pathExists(previousHumanNotesPath))
+    ? await fs.readFile(previousHumanNotesPath)
+    : null;
   await fs.rm(dest, { recursive: true, force: true });
   await copyDir(templateDir, dest);
 
@@ -184,6 +196,8 @@ export async function buildProject({ projectId }) {
   await fs.mkdir(dataDir, { recursive: true });
   await fs.copyFile(path.join(dir, "remotion", "scene_config.json"), path.join(dataDir, "scene_config.json"));
   await fs.copyFile(path.join(dir, "remotion", "asset_map.json"), path.join(dataDir, "asset_map.json"));
+  await fs.copyFile(editPlanPath, path.join(dataDir, "edit_plan.json"));
+  if (previousHumanNotes) await fs.writeFile(path.join(dataDir, "human_notes.json"), previousHumanNotes);
 
   const assetManifest = await refreshAssetManifest(projectId, comp);
   const missingAssets = [
@@ -194,7 +208,7 @@ export async function buildProject({ projectId }) {
   return {
     project_id: projectId,
     render_ready_project: "remotion/render_ready_project",
-    copied_configs: ["src/data/scene_config.json", "src/data/asset_map.json"],
+    copied_configs: ["src/data/scene_config.json", "src/data/asset_map.json", "src/data/edit_plan.json"],
     asset_manifest_refreshed: true,
     missing_assets: missingAssets,
   };

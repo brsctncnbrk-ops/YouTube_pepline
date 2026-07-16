@@ -1,10 +1,11 @@
 import React from "react";
 import { AbsoluteFill, Img, OffthreadVideo, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { OrvyqGraphic, OrvyqGraphicSpec } from "./OrvyqGraphic";
 
 export type CameraMotion = { type: string; params: Record<string, number | string> };
 
 type SceneProps = {
-  assetType: "footage" | "ai_fallback";
+  assetType: "footage" | "ai_fallback" | "graphic";
   // ai_fallback only:
   imageSrc?: string;
   cameraMotion?: CameraMotion;
@@ -12,6 +13,8 @@ type SceneProps = {
   videoSrc?: string;
   trimInSec?: number;
   trimOutSec?: number;
+  // ORVYQ native graphic only:
+  graphic?: OrvyqGraphicSpec;
   durationInFrames: number;
   textOverlay: string | null;
   transitionIn: string;
@@ -62,6 +65,7 @@ export const Scene: React.FC<SceneProps> = ({
   videoSrc,
   trimInSec,
   trimOutSec,
+  graphic,
   durationInFrames,
   textOverlay,
   transitionIn,
@@ -90,7 +94,9 @@ export const Scene: React.FC<SceneProps> = ({
   return (
     <AbsoluteFill style={{ backgroundColor: "black" }}>
       <AbsoluteFill style={{ opacity }}>
-        {assetType === "footage" && videoSrc ? (
+        {assetType === "graphic" && graphic ? (
+          <OrvyqGraphic spec={graphic} durationInFrames={durationInFrames} />
+        ) : assetType === "footage" && videoSrc ? (
           // Real footage is the primary visual source since the migration -
           // no Ken Burns pan/zoom (that's scoped to ai_fallback stills only),
           // just a subtle hold scale to avoid edge artifacts from cover-fit.

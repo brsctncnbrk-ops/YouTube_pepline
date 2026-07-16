@@ -1,74 +1,86 @@
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
-import { Scene, CameraMotion } from "./Scene";
-import sceneConfig from "./data/scene_config.json";
+import { OrvyqGraphicSpec } from "./OrvyqGraphic";
+import { Scene } from "./Scene";
 import assetMap from "./data/asset_map.json";
+import editPlan from "./data/edit_plan.json";
 
-type ImageAssetMapEntry = { image: string; audio_offset_sec: number };
-type VideoAssetMapEntry = { video: string; audio_offset_sec: number; trim_in_sec: number; trim_out_sec: number };
-type AssetMapEntry = ImageAssetMapEntry | VideoAssetMapEntry;
-
-function isVideoEntry(entry: AssetMapEntry): entry is VideoAssetMapEntry {
-  return "video" in entry;
-}
-
-type SceneConfigEntryBase = {
+type FootageShot = {
+  shot_id: string;
   scene_id: string;
   start_frame: number;
   end_frame: number;
-  asset_type: "footage" | "ai_fallback";
-  text_overlay: string | null;
-  transition_in: string;
-  transition_out: string;
+  asset_type: "footage";
+  video_asset: string;
+  trim_in_sec: number;
+  trim_out_sec: number;
+  text_overlay?: string | null;
+  transition_in?: string;
+  transition_out?: string;
+  sound_cue?: string | null;
 };
-type FootageSceneConfigEntry = SceneConfigEntryBase & { asset_type: "footage"; trim_in_sec: number; trim_out_sec: number };
-type FallbackSceneConfigEntry = SceneConfigEntryBase & { asset_type: "ai_fallback"; camera_motion: CameraMotion };
-type SceneConfigEntry = FootageSceneConfigEntry | FallbackSceneConfigEntry;
+
+type GraphicShot = {
+  shot_id: string;
+  scene_id: string;
+  start_frame: number;
+  end_frame: number;
+  asset_type: "graphic";
+  graphic: OrvyqGraphicSpec;
+  text_overlay?: string | null;
+  transition_in?: string;
+  transition_out?: string;
+  sound_cue?: string | null;
+};
+
+type EditPlan = {
+  audio_mix_asset?: string;
+  shots: Array<FootageShot | GraphicShot>;
+};
 
 /**
- * Lays the narration audio across the whole timeline and places each scene as
- * an absolutely-positioned Sequence at its storyboard frame offset. Scenes
- * are contiguous and non-overlapping (transitions are done as opacity fades
- * inside each Scene), so the summed frames exactly equal duration_frames -
- * no transition-overlap math is needed here. Each scene's asset_type decides
- * whether it renders as trimmed footage or a Ken-Burns-panned fallback still.
+ * The editorial plan is intentionally shot-based rather than scene-based.
+ * Narration scenes can last 20–35 seconds; every visual plan is instead a
+ * 4–7.5 second unit with a validated source window or an ORVYQ native
+ * graphic. That removes black clip tails and gives the edit a documentary
+ * rhythm without altering narration timing.
  */
 export const FactForgeVideo: React.FC = () => {
-  const assetLookup = assetMap.asset_map as Record<string, AssetMapEntry>;
-  const scenes = sceneConfig.scenes as unknown as SceneConfigEntry[];
+  const plan = editPlan as unknown as EditPlan;
+  const audioSrc = plan.audio_mix_asset || assetMap.audio_asset;
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "black" }}>
-      <Audio src={staticFile(assetMap.audio_asset)} />
-      {scenes.map((scene) => {
-        const durationInFrames = Math.max(1, scene.end_frame - scene.start_frame);
-        const asset = assetLookup[scene.scene_id];
-        if (!asset) return null;
+    <AbsoluteFill style={{ backgroundColor: "#05070C" }}>
+      <Audio src={staticFile(audioSrc)} />
+      {plan.shots.map((shot) => {
+        const durationInFrames = Math.max(1, shot.end_frame - shot.start_frame);
+        const transitionIn = shot.transition_in || "cut";
+        const transitionOut = shot.transition_out || "cut";
 
         return (
-          <Sequence key={scene.scene_id} from={scene.start_frame} durationInFrames={durationInFrames}>
-            {isVideoEntry(asset) ? (
+          <Sequence key={shot.shot_id} from={shot.start_frame} durationInFrames={durationInFrames}>
+            {shot.asset_type === "graphic" ? (
               <Scene
-                assetType="footage"
-                videoSrc={staticFile(asset.video)}
-                trimInSec={asset.trim_in_sec}
-                trimOutSec={asset.trim_out_sec}
+                assetType="graphic"
+                graphic={shot.graphic}
                 durationInFrames={durationInFrames}
-                textOverlay={scene.text_overlay}
-                transitionIn={scene.transition_in}
-                transitionOut={scene.transition_out}
+                textOverlay={shot.text_overlay || null}
+                transitionIn={transitionIn}
+                transitionOut={transitionOut}
               />
             ) : (
               <Scene
-                assetType="ai_fallback"
-                imageSrc={staticFile(asset.image)}
-                cameraMotion={scene.asset_type === "ai_fallback" ? scene.camera_motion : undefined}
+                assetType="footage"
+                videoSrc={staticFile(shot.video_asset)}
+                trimInSec={shot.trim_in_sec}
+                trimOutSec={shot.trim_out_sec}
                 durationInFrames={durationInFrames}
-                textOverlay={scene.text_overlay}
-                transitionIn={scene.transition_in}
-                transitionOut={scene.transition_out}
+                textOverlay={shot.text_overlay || null}
+                transitionIn={transitionIn}
+                transitionOut={transitionOut}
               />
             )}
+            {shot.sound_cue === "pulse" ? <Audio src={staticFile("assets/sfx/orvyq-pulse.wav")} volume={0.035} /> : null}
           </Sequence>
         );
       })}
