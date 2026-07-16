@@ -1,0 +1,6 @@
+{
+  "schema_version": "1.0",
+  "operation": "rotate",
+  "rotate_at_seconds": 72.5,
+  "reason": "The supplied narrator file begins with the closing passage and returns to the approved opening at approximately 72.5 seconds. Rotate the audio so narration follows the approved script order."
+}
