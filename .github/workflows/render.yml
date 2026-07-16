@@ -60,11 +60,13 @@ jobs:
             console.log(`Validated project id: ${process.env.PROJECT_ID}`);
           '
 
-      - name: Build ORVYQ audio mix
+      - name: Build ORVYQ editorial assets
         if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
         run: |
           set -euo pipefail
           node scripts/orvyq_audio_mix.mjs
+          node scripts/orvyq_caption_build.mjs
+          node scripts/orvyq_edit_plan.mjs
 
       - name: Rebuild render-ready Remotion project
         run: |
@@ -72,7 +74,7 @@ jobs:
           node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
           node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
 
-      - name: ORVYQ editorial plan gate
+      - name: ORVYQ editorial quality gate
         if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
         run: |
           set -euo pipefail
@@ -159,6 +161,9 @@ jobs:
           path: |
             projects/${{ env.PROJECT_ID }}/qa/orvyq_media_qa.json
             projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
+            projects/${{ env.PROJECT_ID }}/remotion/captions.json
+            projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
           if-no-files-found: error
           retention-days: 30
 
