@@ -29,10 +29,23 @@ export async function deriveConfigs({ projectId }) {
   const comp = await loadComposition(projectId);
   const dir = projectDir(projectId);
   const sceneConfig = {
-    fps: comp.fps, width: comp.width, height: comp.height, duration_frames: comp.duration_frames,
+    fps: comp.fps,
+    width: comp.width,
+    height: comp.height,
+    duration_frames: comp.duration_frames,
     scenes: comp.scenes.map((scene) => {
-      const base = { scene_id: scene.scene_id, start_frame: scene.start_frame, end_frame: scene.end_frame, asset_type: scene.asset_type, text_overlay: scene.text_overlay ?? null, transition_in: scene.transition_in, transition_out: scene.transition_out };
-      return scene.asset_type === "footage" ? { ...base, trim_in_sec: scene.trim_in_sec, trim_out_sec: scene.trim_out_sec } : { ...base, camera_motion: scene.camera_motion };
+      const base = {
+        scene_id: scene.scene_id,
+        start_frame: scene.start_frame,
+        end_frame: scene.end_frame,
+        asset_type: scene.asset_type,
+        text_overlay: scene.text_overlay ?? null,
+        transition_in: scene.transition_in,
+        transition_out: scene.transition_out,
+      };
+      return scene.asset_type === "footage"
+        ? { ...base, trim_in_sec: scene.trim_in_sec, trim_out_sec: scene.trim_out_sec }
+        : { ...base, camera_motion: scene.camera_motion };
     }),
   };
   const assetMap = { audio_asset: comp.audio_asset, asset_map: comp.asset_map };
@@ -49,22 +62,51 @@ async function refreshAssetManifest(projectId, comp) {
   const footageById = new Map((footageManifest?.scenes || []).map((scene) => [scene.scene_id, scene]));
   const mixMetadataPath = path.join(dir, "assets", "audio", "final_mix.metadata.json");
   const mixMetadata = (await pathExists(mixMetadataPath)) ? await readJson(mixMetadataPath) : null;
+
+  const music = [];
+  if (mixMetadata?.music_asset) {
+    music.push({
+      file: mixMetadata.music_asset,
+      status: (await pathExists(path.join(dir, mixMetadata.music_asset))) ? "available" : "missing",
+      source: mixMetadata.music_profile === "approved_licensed_bed" ? "User-approved licensed music bed" : "Unknown",
+    });
+  }
+
+  const sfx = mixMetadata
+    ? await Promise.all((mixMetadata.sfx_assets || []).filter(Boolean).map(async (file) => ({
+        file,
+        status: (await pathExists(path.join(dir, file))) ? "available" : "missing",
+        source: "Approved sound design asset",
+      })))
+    : [];
+
   const manifest = {
     audio: {
       main_voice: { path: comp.audio_asset, status: (await pathExists(path.join(dir, comp.audio_asset))) ? "available" : "missing", duration_seconds: durationSeconds },
       final_mix: mixMetadata ? { path: mixMetadata.mix_asset, status: (await pathExists(path.join(dir, mixMetadata.mix_asset))) ? "available" : "missing" } : null,
     },
     visuals: [],
-    music: mixMetadata ? [{ file: mixMetadata.music_asset, status: (await pathExists(path.join(dir, mixMetadata.music_asset))) ? "available" : "missing", source: "ORVYQ original procedural score" }] : [],
-    sfx: mixMetadata ? await Promise.all((mixMetadata.sfx_assets || []).map(async (file) => ({ file, status: (await pathExists(path.join(dir, file))) ? "available" : "missing", source: "ORVYQ original sound design" }))) : [],
+    music,
+    sfx,
     captions: { file: "remotion/captions.json", status: (await pathExists(path.join(dir, "remotion", "captions.json"))) ? "available" : "missing" },
   };
+
   for (const scene of comp.scenes) {
     const isFootage = scene.asset_type === "footage";
     const rel = isFootage ? scene.video_asset : scene.image_asset;
     const footageEntry = footageById.get(scene.scene_id);
-    manifest.visuals.push({ scene_id: scene.scene_id, asset_type: scene.asset_type, file: rel, status: (await pathExists(path.join(dir, rel))) ? "available" : "missing", source: isFootage ? footageEntry?.source || "unknown" : "Leonardo AI", license: isFootage ? footageEntry?.license || null : null, seed: null, style_reference: null });
+    manifest.visuals.push({
+      scene_id: scene.scene_id,
+      asset_type: scene.asset_type,
+      file: rel,
+      status: (await pathExists(path.join(dir, rel))) ? "available" : "missing",
+      source: isFootage ? footageEntry?.source || "unknown" : "Leonardo AI",
+      license: isFootage ? footageEntry?.license || null : null,
+      seed: null,
+      style_reference: null,
+    });
   }
+
   await writeJsonAtomic(path.join(dir, "assets", "asset_manifest.json"), manifest);
   return manifest;
 }
@@ -111,10 +153,19 @@ const SUBCOMMANDS = { "derive-configs": deriveConfigs, "build-project": buildPro
 async function main() {
   const [subcommand, ...rest] = process.argv.slice(2);
   const handler = SUBCOMMANDS[subcommand];
-  if (!handler) { console.log("Usage: node scripts/remotion_build.mjs <derive-configs|build-project> --project-id <id>"); process.exitCode = subcommand ? 1 : 0; return; }
+  if (!handler) {
+    console.log("Usage: node scripts/remotion_build.mjs <derive-configs|build-project> --project-id <id>");
+    process.exitCode = subcommand ? 1 : 0;
+    return;
+  }
   const args = parseArgs(rest);
-  try { const result = subcommand === "validate-bundle-output" ? await handler(args) : await handler({ projectId: args["project-id"] }); printJson({ ok: true, ...result }); }
-  catch (error) { printJson({ ok: false, error_code: error.code || "UNKNOWN_ERROR", message: error.message }); process.exitCode = 1; }
+  try {
+    const result = subcommand === "validate-bundle-output" ? await handler(args) : await handler({ projectId: args["project-id"] });
+    printJson({ ok: true, ...result });
+  } catch (error) {
+    printJson({ ok: false, error_code: error.code || "UNKNOWN_ERROR", message: error.message });
+    process.exitCode = 1;
+  }
 }
 const isMain = process.argv[1] && import.meta.url === `file://${process.argv[1]}`;
 if (isMain) main();
