@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - "agent/orvyq-review-copy"
+  pull_request:
+    branches:
+      - "claude/factforge-system-design-0pr3v3"
 
 permissions:
   actions: read
