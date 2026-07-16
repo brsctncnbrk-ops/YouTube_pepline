@@ -50,10 +50,11 @@ export async function buildOrvyqCaptions(projectId = PROJECT_ID) {
   const previewFrames = Number.parseInt(process.env.ORVYQ_PREVIEW_FRAMES || "0", 10);
   const maxFrame = previewFrames > 0 ? previewFrames : composition.duration_frames;
   const maxSeconds = maxFrame / composition.fps;
-  const timedWords = speechQa.words.filter((word) => Number(word.start) < maxSeconds);
+  const captionStartSeconds = Math.max(0, Number.parseFloat(process.env.ORVYQ_CAPTION_START_SECONDS || "0") || 0);
+  const timedWords = speechQa.words.filter((word) => Number(word.start) >= captionStartSeconds && Number(word.start) < maxSeconds);
   const chunks = buildChunks(timedWords);
   const captions = [];
-  let previousEndFrame = 0;
+  let previousEndFrame = Math.round(captionStartSeconds * composition.fps);
 
   chunks.forEach((chunk, index) => {
     const timestampStart = Math.max(0, Math.floor(Number(chunk[0].start) * composition.fps));
@@ -72,11 +73,12 @@ export async function buildOrvyqCaptions(projectId = PROJECT_ID) {
   });
 
   const payload = {
-    schema_version: "2.1",
+    schema_version: "2.2",
     project_id: projectId,
     fps: composition.fps,
     duration_frames: maxFrame,
     source: "qa/speech_transcript.json",
+    caption_start_seconds: captionStartSeconds,
     timing_policy: "word timestamps rounded to frames; adjacent overlaps removed by monotonic start clamping",
     style: {
       placement: "bottom_safe",
@@ -92,7 +94,7 @@ export async function buildOrvyqCaptions(projectId = PROJECT_ID) {
   };
 
   await writeJsonAtomic(path.join(dir, "remotion", "captions.json"), payload);
-  return { caption_count: captions.length, duration_frames: maxFrame, source: payload.source };
+  return { caption_count: captions.length, duration_frames: maxFrame, caption_start_seconds: captionStartSeconds, source: payload.source };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
