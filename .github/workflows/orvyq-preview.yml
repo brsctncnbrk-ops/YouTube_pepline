@@ -91,11 +91,41 @@ jobs:
           node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
           node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
 
-      - name: Editorial and source-reuse quality gate
+      - name: Run editorial and license checks with diagnostics
         run: |
-          set -euo pipefail
-          node scripts/orvyq_edit_plan_tests.mjs
-          node scripts/orvyq_license_audit.mjs
+          set +e
+          node scripts/orvyq_edit_plan_tests.mjs > editorial-qa.log 2>&1
+          editorial_status=$?
+          node scripts/orvyq_license_audit.mjs > license-qa.log 2>&1
+          license_status=$?
+          echo "$editorial_status" > editorial-qa.status
+          echo "$license_status" > license-qa.status
+          echo "--- EDITORIAL QA ---"
+          cat editorial-qa.log
+          echo "--- LICENSE QA ---"
+          cat license-qa.log
+          exit 0
+
+      - name: Upload editorial diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-editorial-diagnostics-${{ github.run_id }}
+          path: |
+            editorial-qa.log
+            editorial-qa.status
+            license-qa.log
+            license-qa.status
+            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/remotion/captions.json
+            projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Stop when editorial quality gate failed
+        run: |
+          test "$(cat editorial-qa.status)" = "0"
+          test "$(cat license-qa.status)" = "0"
 
       - name: Install Remotion dependencies and type-check
         run: |
@@ -162,6 +192,7 @@ jobs:
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/preview_render_stdout.txt
             projects/${{ env.PROJECT_ID }}/qa/orvyq_preview_media_qa.json
             projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
+            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
             projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
             projects/${{ env.PROJECT_ID }}/remotion/captions.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
