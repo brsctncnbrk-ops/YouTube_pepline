@@ -1,9 +1,6 @@
 name: ORVYQ Review Copy
 
 on:
-  push:
-    branches:
-      - "agent/orvyq-review-copy"
   pull_request:
     branches:
       - "claude/factforge-system-design-0pr3v3"
@@ -41,7 +38,7 @@ jobs:
           mkdir -p review
           ffmpeg -hide_banner -y -i "$INPUT" \
             -vf "scale=-2:720" \
-            -c:v libx264 -preset medium -b:v 1600k -maxrate 1800k -bufsize 3200k \
+            -c:v libx264 -preset veryfast -b:v 1400k -maxrate 1600k -bufsize 2800k \
             -pix_fmt yuv420p \
             -c:a aac -b:a 128k \
             -movflags +faststart \
