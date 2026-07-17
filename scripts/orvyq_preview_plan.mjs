@@ -36,9 +36,9 @@ const graphic = (type, kicker, title, subtitle, labels = [], source = null) => (
 const footage = (duration, asset, trim, motion, reason, overlay = null) => ({ duration, asset, trim, motion, reason, overlay });
 const card = (duration, type, kicker, title, subtitle, labels = [], source = null) => ({ duration, graphic: graphic(type, kicker, title, subtitle, labels, source) });
 
-// Graphics are brief punctuation rather than presentation slides: every card is limited
-// to two seconds while evidence-led footage receives 4/5/6/8-second holds. The sequence
-// totals exactly 120 seconds and preserves varied narration-led pacing.
+// Graphics are brief punctuation rather than presentation slides. Three former
+// statement cards are now concise overlays on claim-relevant footage, cutting
+// full-screen slide density while preserving the exact 120-second structure.
 const previewTimeline = [
   card(2, "brand_open", "ORVYQ PRESENTS", "THE AI RACE", "What happens when capability moves faster than control?"),
   footage(6, A.server, 1.0, "push", "Frontier infrastructure grounds the opening claim in real technical scale."),
@@ -46,13 +46,13 @@ const previewTimeline = [
   card(2, "statement", "THE PARADOX", "EVERY LAB SEES THE RISK", "And every lab keeps accelerating.", ["ACCELERATION"]),
   footage(5, A.chamber, 1.0, "hold", "Governmental decision-making supports the rival-government line."),
   footage(5, A.cityNight, 1.5, "pull", "A moving city visualizes competitive momentum without pretending to be data."),
-  card(2, "evaluation", "THE INCENTIVE", "SLOW DOWN — AND A RIVAL MAY NOT", "The race is driven by fear of losing strategic control.", ["RIVAL COMPANY", "RIVAL GOVERNMENT"]),
+  footage(2, A.chamber, 7.0, "push", "A second governmental decision-making beat keeps the incentive claim cinematic instead of turning it into a slide.", "SLOW DOWN — AND A RIVAL MAY NOT"),
   footage(4, A.research, 0.5, "drift_right", "Research imagery supports the pursuit of increasingly capable systems."),
   footage(6, A.soc, 0.8, "hold", "A monitoring environment supports understanding and control."),
-  card(2, "statement", "THE PRIZE", "WHOEVER GETS THERE FIRST SETS THE RULES", "Technical leadership becomes political leverage.", ["CONTROL"]),
+  footage(2, A.network, 6.0, "push", "Institutional network imagery carries the political-leverage claim as a concise editorial overlay.", "WHOEVER GETS THERE FIRST SETS THE RULES"),
   footage(5, A.network, 0.5, "push", "A connected system represents governance across institutions."),
   footage(5, A.server, 7.0, "pull", "A second, non-overlapping server segment returns to the physical scale of the race."),
-  card(2, "statement", "THE TIME HORIZON", "NOT SOMEDAY. RIGHT NOW.", "The evidence is already being published and tested.", ["NOW"]),
+  footage(2, A.cityNight, 8.0, "drift_left", "Immediate real-world momentum carries the time-horizon line without another full-screen card.", "NOT SOMEDAY. RIGHT NOW."),
   footage(6, A.reportDesk, 0.5, "push", "Documents and analysis replace generic stock during the safety-report passage.", "PUBLIC SAFETY REPORTS"),
   footage(4, A.documents, 0.5, "drift_right", "Document imagery continues the evidence trail rather than switching to unrelated code footage.", "CONTROLLED EVALUATION RECORDS"),
   card(2, "report_scan", "SOURCE DOCUMENT", "AGENTIC MISALIGNMENT", "A controlled research program tested how models behaved when facing replacement or goal conflict.", ["Published June 20, 2025", "16 leading models tested", "Controlled simulations — not real incidents"], "Anthropic Research"),
@@ -121,12 +121,12 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
   if (cursorSeconds !== 120) throw new Error(`Preview timeline must total 120 seconds, got ${cursorSeconds}`);
   const graphicFrames = shots.filter((shot) => shot.asset_type === "graphic").reduce((sum, shot) => sum + shot.end_frame - shot.start_frame, 0);
   const plan = {
-    schema_version: "4.4-preview-cinematic-evidence-led",
+    schema_version: "4.5-preview-cinematic-overlay-led",
     project_id: projectId,
     fps: FPS,
     duration_frames: 120 * FPS,
     preview: true,
-    preview_strategy: "Brief two-second evidence cards punctuate longer 4/5/6/8-second footage holds, reducing slideshow density while preserving sourced context and narration-led rhythm.",
+    preview_strategy: "Seven brief evidence cards punctuate footage-led storytelling; three former full-screen statement cards now appear as concise overlays on claim-relevant footage.",
     audio_mix_asset: "assets/audio/final_mix.mp3",
     captions_asset: "remotion/captions.json",
     art_direction: {
@@ -140,7 +140,7 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
       fake_data_graphics_forbidden: true,
       source_crop_does_not_create_new_asset: true,
       unrelated_stock_fallback_forbidden: true,
-      full_screen_graphic_fraction_max: 0.25,
+      full_screen_graphic_fraction_max: 0.15,
       actual_full_screen_graphic_fraction: round(graphicFrames / (120 * FPS)),
       target_average_shot_seconds_max: 4.0,
       minimum_shot_duration_variants: 3,
