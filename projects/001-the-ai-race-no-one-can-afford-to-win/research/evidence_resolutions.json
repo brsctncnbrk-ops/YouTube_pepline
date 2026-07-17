@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "project_id": "001-the-ai-race-no-one-can-afford-to-win",
-  "note": "Resolves the four full-script research blockers identified during the ORVYQ evidence-led rebuild. The first two-minute proof narration is unchanged.",
+  "note": "Resolves full-script research blockers and narrows biological-risk, information-integrity, labour and AI Act wording to what authoritative sources support. The first two-minute proof narration is unchanged.",
   "source_additions": [
     {
       "source_id": "SRC_STANFORD_AI_INDEX_2025_ECONOMY",
@@ -46,6 +46,29 @@
       "official": true,
       "visual_evidence_candidates": ["Final-decision cover", "Market structure and concentration appendix"],
       "limitation": "This investigation concerns cloud infrastructure services broadly, not only frontier AI training."
+    },
+    {
+      "source_id": "SRC_INTERNATIONAL_AI_SAFETY_REPORT_2025",
+      "publisher": "International Scientific Report on the Safety of Advanced AI / UK Department for Science, Innovation and Technology",
+      "title": "International AI Safety Report 2025",
+      "publication_date": "2025-01-29",
+      "url": "https://www.gov.uk/government/publications/international-ai-safety-report-2025/international-ai-safety-report-2025",
+      "source_type": "international_scientific_report",
+      "official": true,
+      "visual_evidence_candidates": ["Public-opinion manipulation evidence chain", "Evidence-gap figure", "Detection and watermarking limitations"],
+      "limitation": "The report finds strong evidence that AI can generate persuasive content cheaply at scale, but limited evidence and no scientific consensus on broad societal or electoral effects."
+    }
+  ],
+  "claim_additions": [
+    {
+      "claim_id": "CLM_021_INFORMATION_INTEGRITY",
+      "section_id": "SEC_04_REAL_WORLD_MISUSE",
+      "importance": 4,
+      "narration_excerpt": "AI makes convincing synthetic content cheaper to produce at scale, while the broader societal effects remain uncertain.",
+      "status": "verified",
+      "source_ids": ["SRC_INTERNATIONAL_AI_SAFETY_REPORT_2025"],
+      "evidence_requirements": ["Show the evidence chain from content generation to distribution to possible societal effect.", "State that evidence becomes weaker at later stages and that election-level effects are not established."],
+      "visual_treatment": {"primary": "evidence_chain", "secondary": "report_frame", "metaphor": "friction_in_shared_reality"}
     }
   ],
   "claim_overrides": [
@@ -66,6 +89,14 @@
       "recommended_rewrite": "Use verified investment and frontier-convergence evidence instead of a reported internal emergency."
     },
     {
+      "claim_id": "CLM_011_BIO_SAFEGUARD_THRESHOLD",
+      "status": "verified",
+      "source_ids": ["SRC_ANTHROPIC_ASL3_2025"],
+      "narration_excerpt": "Anthropic activated additional ASL-3 safeguards as a precaution while saying it had not definitively determined that its capability threshold had been crossed.",
+      "evidence_requirements": ["Show the precautionary and provisional nature of the ASL-3 activation.", "Do not generalize one laboratory's internal testing into an industry-wide conclusion."],
+      "visual_treatment": {"primary": "safety_level_diagram", "secondary": "policy_document", "metaphor": "graduated_containment"}
+    },
+    {
       "claim_id": "CLM_012_JOB_FORECAST_DIVERGENCE",
       "status": "verified",
       "source_ids": ["SRC_ILO_JOBS_2025", "SRC_ILO_EXPOSURE_LIMITS_2026"],
@@ -80,6 +111,14 @@
       "narration_excerpt": "Frontier AI depends on costly compute, cloud infrastructure, data and capital.",
       "evidence_requirements": ["Show the CMA's identified risks around critical inputs, partnerships and routes to market.", "State that the cloud investigation is broader than frontier AI."],
       "visual_treatment": {"primary": "critical_inputs_map", "secondary": "cloud_market_evidence", "metaphor": "narrowing_gate"}
+    },
+    {
+      "claim_id": "CLM_015_EU_SYSTEMIC_RISK_THRESHOLD",
+      "status": "verified",
+      "source_ids": ["SRC_EU_GPAI_OBLIGATIONS_2025", "SRC_EU_GPAI_GUIDELINES_2025"],
+      "narration_excerpt": "The AI Act separates high-risk system duties from obligations for general-purpose model providers, with additional evaluation, incident-reporting and cybersecurity duties for systemic-risk models.",
+      "evidence_requirements": ["Separate AI-system and GPAI-model obligations visually and verbally.", "Show the 10^25 FLOP presumption as rebuttable and updateable, not an absolute definition."],
+      "visual_treatment": {"primary": "two_track_policy_matrix", "secondary": "systemic_risk_threshold", "metaphor": "different_gates"}
     }
   ]
 }
