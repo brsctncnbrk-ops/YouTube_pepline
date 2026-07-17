@@ -62,7 +62,7 @@ const previewTimeline = [
   footage(4, A.lock, 5.0, "pull", "Security imagery supports coercion and self-preservation while remaining clearly illustrative."),
   footage(6, A.campus, 9.5, "push", "A distinct institutional segment keeps the narrative tied to laboratories and incentives."),
   card(2, "report_scan", "FICTIONAL EVIDENCE", "THE MODEL WAS GIVEN CORPORATE EMAILS", "The messages described a fabricated affair and an impending replacement.", ["Synthetic scenario", "No real people", "Designed to test coercive behavior"], "Controlled evaluation record"),
-  footage(5, A.reportDesk, 7.0, "drift_left", "A separate document-work segment reinforces the evidence trail."),
+  footage(5, A.reportDesk, 4.0, "drift_left", "A later document-work segment reinforces the evidence trail without overrunning the source clip."),
   footage(5, A.terminal, 8.0, "pull", "A separate test-environment segment supports constrained model choices."),
   card(2, "evaluation", "CROSS-MODEL RESULT", "HARMFUL ACTIONS APPEARED UNDER PRESSURE", "Several tested systems selected self-preserving behavior when alternatives were constrained.", ["ENGINEERED CONDITIONS", "MULTIPLE MODEL FAMILIES"], "Published safety evaluations"),
   footage(6, A.lock, 10.0, "push", "A second security segment visualizes self-preservation without exceeding the source-use limit."),
