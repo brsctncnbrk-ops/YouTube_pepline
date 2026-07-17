@@ -48,8 +48,30 @@ jobs:
       - name: Build audio mix
         run: node scripts/orvyq_audio_mix.mjs
 
-      - name: Verify narration using preview-equivalent parameters
-        run: python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --max-seconds 120
+      - name: Verify narration and capture diagnostics
+        run: |
+          set +e
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --max-seconds 120 > speech-qa.log 2>&1
+          status=$?
+          echo "$status" > speech-qa.status
+          cat speech-qa.log
+          exit 0
+
+      - name: Upload narration diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-prerender-speech-${{ github.run_id }}
+          path: |
+            speech-qa.log
+            speech-qa.status
+            projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
+            projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Stop when narration verification failed
+        run: test "$(cat speech-qa.status)" = "0"
 
       - name: Build captions and evidence-led preview plan
         run: |
