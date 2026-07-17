@@ -36,9 +36,9 @@ const graphic = (type, kicker, title, subtitle, labels = [], source = null) => (
 const footage = (duration, asset, trim, motion, reason, overlay = null) => ({ duration, asset, trim, motion, reason, overlay });
 const card = (duration, type, kicker, title, subtitle, labels = [], source = null) => ({ duration, graphic: graphic(type, kicker, title, subtitle, labels, source) });
 
-// Graphics are now brief punctuation rather than presentation slides: every card is limited
-// to two seconds while evidence-led footage receives 4/5/6-second holds. The sequence remains
-// exactly 120 seconds and preserves four distinct shot durations for natural narration-led pacing.
+// Graphics are brief punctuation rather than presentation slides: every card is limited
+// to two seconds while evidence-led footage receives 4/5/6/8-second holds. The sequence
+// totals exactly 120 seconds and preserves varied narration-led pacing.
 const previewTimeline = [
   card(2, "brand_open", "ORVYQ PRESENTS", "THE AI RACE", "What happens when capability moves faster than control?"),
   footage(6, A.server, 1.0, "push", "Frontier infrastructure grounds the opening claim in real technical scale."),
@@ -68,7 +68,7 @@ const previewTimeline = [
   footage(6, A.lock, 10.0, "push", "A second security segment visualizes self-preservation without exceeding the source-use limit."),
   footage(4, A.documents, 7.5, "drift_left", "A second records segment prepares the critical distinction between behavior and events."),
   card(2, "statement", "THE IMPORTANT DISTINCTION", "EVIDENCE OF BEHAVIOR IS NOT EVIDENCE OF AN EVENT", "The tests reveal possible failure modes; they do not show these incidents happened in the wild.", ["CONTEXT"]),
-  footage(5, A.research, 8.0, "pull", "A distinct research segment returns the argument to measurement and verification."),
+  footage(8, A.research, 8.0, "pull", "A longer final research hold gives the evidence distinction room to land before the closing card."),
   card(2, "statement", "WHAT THE EVIDENCE SAYS", "THE WARNING CAME FROM A CONTROLLED TEST", "Serious evidence, carefully bounded.", ["DOCUMENTED"], "ORVYQ evidence note"),
 ];
 
@@ -126,7 +126,7 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
     fps: FPS,
     duration_frames: 120 * FPS,
     preview: true,
-    preview_strategy: "Brief two-second evidence cards punctuate longer 4/5/6-second footage holds, reducing slideshow density while preserving sourced context and narration-led rhythm.",
+    preview_strategy: "Brief two-second evidence cards punctuate longer 4/5/6/8-second footage holds, reducing slideshow density while preserving sourced context and narration-led rhythm.",
     audio_mix_asset: "assets/audio/final_mix.mp3",
     captions_asset: "remotion/captions.json",
     art_direction: {
