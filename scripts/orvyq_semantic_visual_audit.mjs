@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import path from "node:path";
 import { projectDir, readJson, writeJsonAtomic } from "./lib/fs-utils.mjs";
+import { loadResolvedEvidenceMap } from "./lib/orvyq-evidence.mjs";
 
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
 const VALID_ROLES = new Set(["evidence", "archive", "context", "metaphor", "graphic"]);
@@ -11,7 +12,7 @@ export async function runSemanticVisualAudit(projectId = PROJECT_ID) {
   const [plan, blueprint, evidenceMap] = await Promise.all([
     readJson(path.join(dir, "direction", "edit_plan.json")),
     readJson(path.join(dir, "direction", "editorial_blueprint.json")),
-    readJson(path.join(dir, "research", "evidence_map.json")),
+    loadResolvedEvidenceMap(dir),
   ]);
 
   const rules = blueprint.global_rules;
@@ -46,7 +47,7 @@ export async function runSemanticVisualAudit(projectId = PROJECT_ID) {
   if (evidenceFraction < rules.evidence_and_archive_fraction_min) failures.push(`evidence/archive occupies ${(evidenceFraction * 100).toFixed(1)}%, below ${(rules.evidence_and_archive_fraction_min * 100).toFixed(1)}%`);
   if (graphicFraction > rules.full_screen_graphic_fraction_max) failures.push(`full-screen graphics occupy ${(graphicFraction * 100).toFixed(1)}%, above ${(rules.full_screen_graphic_fraction_max * 100).toFixed(1)}%`);
 
-  for (const claim of evidenceMap.claims.filter((item) => item.importance >= CRITICAL_IMPORTANCE)) {
+  for (const claim of evidenceMap.claims.filter((item) => item.importance >= CRITICAL_IMPORTANCE && item.status !== "removed")) {
     const shots = plan.shots.filter((shot) => shot.claim_id === claim.claim_id);
     if (!shots.length) continue;
     const onlyGeneric = shots.every((shot) => shot.generic_stock === true || shot.visual_role === "context");
@@ -61,15 +62,14 @@ export async function runSemanticVisualAudit(projectId = PROJECT_ID) {
     const previous = plan.shots[index - 1];
     const current = plan.shots[index];
     if (previous.video_asset && previous.video_asset === current.video_asset) failures.push(`${current.shot_id} repeats the same source consecutively`);
-    if (previous.visual_role === "metaphor" && current.visual_role === "metaphor" && previous.claim_id === current.claim_id) {
-      warnings.push(`${previous.shot_id}/${current.shot_id} use consecutive metaphors for the same claim; confirm they add distinct meaning`);
-    }
+    if (previous.visual_role === "metaphor" && current.visual_role === "metaphor" && previous.claim_id === current.claim_id) warnings.push(`${previous.shot_id}/${current.shot_id} use consecutive metaphors for the same claim; confirm they add distinct meaning`);
   }
 
   const report = {
-    schema_version: "1.0",
+    schema_version: "1.1",
     project_id: projectId,
     preview: Boolean(plan.preview),
+    resolved_evidence_schema: evidenceMap.schema_version,
     role_fractions: Object.fromEntries(Object.entries(roleFrames).map(([role, frames]) => [role, frames / duration])),
     generic_stock_fraction: genericFraction,
     evidence_archive_fraction: evidenceFraction,
