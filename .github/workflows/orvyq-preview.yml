@@ -2,9 +2,6 @@ name: ORVYQ 2-Minute Quality Control
 
 on:
   workflow_dispatch:
-  pull_request:
-    branches:
-      - "claude/factforge-system-design-0pr3v3"
 
 permissions:
   contents: read
@@ -49,7 +46,7 @@ jobs:
           sudo apt-get install -y ffmpeg
           python -m pip install --disable-pip-version-check faster-whisper==1.2.0 requests==2.32.5
 
-      - name: Build clean narration and original tonal score
+      - name: Build clean narration and music structure
         run: node scripts/orvyq_audio_mix.mjs
 
       - name: Verify narration and capture diagnostics
@@ -78,11 +75,19 @@ jobs:
       - name: Stop when narration verification failed
         run: test "$(cat narration-qa.status)" = "0"
 
-      - name: Build script-exact captions and curated preview edit
+      - name: Build captions and evidence-led preview
         run: |
           set -euo pipefail
           node scripts/orvyq_caption_build.mjs
           node scripts/orvyq_preview_plan.mjs
+
+      - name: Run evidence, semantic, pacing and mobile audits
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_evidence_audit.mjs
+          node scripts/orvyq_semantic_visual_audit.mjs
+          node scripts/orvyq_pacing_audit.mjs
+          node scripts/orvyq_mobile_legibility_audit.mjs
 
       - name: Build render-ready project
         run: |
@@ -97,12 +102,17 @@ jobs:
           editorial_status=$?
           node scripts/orvyq_license_audit.mjs > license-qa.log 2>&1
           license_status=$?
+          node scripts/orvyq_alignment_score.mjs > alignment-qa.log 2>&1
+          alignment_status=$?
           echo "$editorial_status" > editorial-qa.status
           echo "$license_status" > license-qa.status
+          echo "$alignment_status" > alignment-qa.status
           echo "--- EDITORIAL QA ---"
           cat editorial-qa.log
           echo "--- LICENSE QA ---"
           cat license-qa.log
+          echo "--- ALIGNMENT READINESS ---"
+          cat alignment-qa.log
           exit 0
 
       - name: Upload editorial diagnostics
@@ -115,16 +125,24 @@ jobs:
             editorial-qa.status
             license-qa.log
             license-qa.status
+            alignment-qa.log
+            alignment-qa.status
             projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/evidence_coverage.json
+            projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/pacing_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/mobile_legibility_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
             projects/${{ env.PROJECT_ID }}/remotion/captions.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
           if-no-files-found: warn
           retention-days: 7
 
-      - name: Stop when editorial quality gate failed
+      - name: Stop when pre-render quality gates failed
         run: |
           test "$(cat editorial-qa.status)" = "0"
           test "$(cat license-qa.status)" = "0"
+          test "$(cat alignment-qa.status)" = "0"
 
       - name: Install Remotion dependencies and type-check
         run: |
@@ -174,7 +192,7 @@ jobs:
           cat media-qa.log
           exit 0
 
-      - name: Create visual review contact sheet
+      - name: Create visual review contact sheets
         if: always()
         run: |
           set -euo pipefail
@@ -184,6 +202,10 @@ jobs:
               -i "$APP/out/orvyq_quality_control_2min.mp4" \
               -vf "fps=1/10,scale=480:-1,tile=4x3" \
               -frames:v 1 "$APP/out/orvyq_quality_control_contact_sheet.jpg"
+            ffmpeg -hide_banner -loglevel error -y \
+              -i "$APP/out/orvyq_quality_control_2min.mp4" \
+              -vf "fps=1/4,scale=320:-1,tile=5x6" \
+              -frames:v 1 "$APP/out/orvyq_mobile_review_sheet.jpg"
             ffprobe -v error -show_format -show_streams -of json \
               "$APP/out/orvyq_quality_control_2min.mp4" > "$APP/out/orvyq_quality_control_probe.json"
           fi
@@ -198,13 +220,18 @@ jobs:
             media-qa.status
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_2min.mp4
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_contact_sheet.jpg
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_mobile_review_sheet.jpg
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_probe.json
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/preview_render_stdout.txt
             projects/${{ env.PROJECT_ID }}/qa/orvyq_preview_media_qa.json
             projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
             projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/evidence_coverage.json
+            projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/pacing_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/mobile_legibility_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
             projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
-            projects/${{ env.PROJECT_ID }}/assets/music/orvyq_original_tonal_bed.mp3
             projects/${{ env.PROJECT_ID }}/remotion/captions.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
           if-no-files-found: warn
