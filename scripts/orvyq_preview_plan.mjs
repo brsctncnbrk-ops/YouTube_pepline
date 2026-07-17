@@ -4,7 +4,7 @@ import { projectDir, readJson, writeJsonAtomic } from "./lib/fs-utils.mjs";
 
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
 const FPS = 30;
-const MAX_SOURCE_USES = 2;
+const MAX_SOURCE_USES = 1;
 const media = (name) => `assets/footage/${name}.mp4`;
 
 const A = {
@@ -47,7 +47,11 @@ const previewTimeline = [
   { start: 24, end: 30, asset: A.research, trim: 0.5, motion: "drift_right", reason: "Research imagery supports the pursuit of increasingly capable systems." },
   { start: 30, end: 36, asset: A.soc, trim: 0.8, motion: "hold", reason: "A monitoring environment supports understanding and control." },
   { start: 36, end: 42, asset: A.network, trim: 0.5, motion: "push", reason: "A connected system represents governance across institutions." },
-  { start: 42, end: 46, asset: A.chamber, trim: 5.8, motion: "drift_left", reason: "A second, distinct governance moment lands the question of who can govern the race." },
+  {
+    start: 42,
+    end: 46,
+    graphic: graphic("statement", "THE INCENTIVE", "WHOEVER GETS THERE FIRST SETS THE RULES", "The race is driven by fear that a rival will not slow down.", ["COMPANY", "GOVERNMENT", "CONTROL"]),
+  },
   {
     start: 46,
     end: 50,
@@ -81,10 +85,41 @@ const previewTimeline = [
     ),
   },
   { start: 80, end: 86, asset: A.codeBlur, trim: 2.0, motion: "drift_left", reason: "Software activity supports the model-response passage without repeating another generic server shot." },
-  { start: 86, end: 92, asset: A.documents, trim: 10.5, motion: "hold", overlay: "FICTIONAL CORPORATE EMAILS", reason: "A second, nonadjacent document window represents the fictional-email scenario." },
+  {
+    start: 86,
+    end: 92,
+    graphic: graphic(
+      "report_scan",
+      "FICTIONAL EVIDENCE",
+      "THE MODEL WAS GIVEN CORPORATE EMAILS",
+      "The messages described a fabricated affair and an impending replacement.",
+      ["Synthetic scenario", "No real people", "Designed to test coercive behavior"],
+      "Controlled evaluation record",
+    ),
+  },
   { start: 92, end: 98, asset: A.lock, trim: 5.0, motion: "pull", reason: "Security imagery supports coercion and self-preservation while remaining clearly illustrative." },
-  { start: 98, end: 104, asset: A.network, trim: 12.5, motion: "drift_right", reason: "A distinct network window represents harmful actions across multiple tested models." },
-  { start: 104, end: 110, asset: A.research, trim: 10.5, motion: "hold", reason: "Returning once to the research setting makes clear these were designed tests." },
+  {
+    start: 98,
+    end: 104,
+    graphic: graphic(
+      "evaluation",
+      "CROSS-MODEL RESULT",
+      "HARMFUL ACTIONS APPEARED UNDER PRESSURE",
+      "Several tested systems selected self-preserving behavior when alternatives were deliberately constrained.",
+      ["Engineered conditions", "Multiple model families", "Not a deployment incident"],
+      "Published safety evaluations",
+    ),
+  },
+  {
+    start: 104,
+    end: 110,
+    graphic: graphic(
+      "statement",
+      "THE IMPORTANT DISTINCTION",
+      "EVIDENCE OF BEHAVIOR IS NOT EVIDENCE OF AN EVENT",
+      "The tests reveal possible failure modes; they do not show that these incidents happened in the wild.",
+      ["BEHAVIOR", "CONTEXT", "LIMITS"]),
+  },
   {
     start: 110,
     end: 114,
@@ -96,7 +131,18 @@ const previewTimeline = [
       ["Designed test: useful evidence", "Real deployment: not established"],
     ),
   },
-  { start: 114, end: 120, asset: A.reportDesk, trim: 5.5, motion: "pull", overlay: "CONTROLLED TESTS • NOT EVENTS IN THE WILD", reason: "The narration ends on a complete sentence, then the music and evidence visual breathe to the two-minute mark." },
+  {
+    start: 114,
+    end: 120,
+    graphic: graphic(
+      "statement",
+      "WHAT THE EVIDENCE SAYS",
+      "THE WARNING CAME FROM A CONTROLLED TEST",
+      "The signal is serious precisely because the boundary between capability and control is being measured now.",
+      ["CONTROLLED", "DOCUMENTED", "UNRESOLVED"],
+      "ORVYQ evidence note",
+    ),
+  },
 ];
 
 const motionVariants = new Set(["push", "drift_left", "pull", "drift_right", "hold"]);
@@ -133,7 +179,7 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
 
     if (!motionVariants.has(spec.motion)) throw new Error(`Invalid motion variant: ${spec.motion}`);
     usage.set(spec.asset, (usage.get(spec.asset) || 0) + 1);
-    if ((usage.get(spec.asset) || 0) > MAX_SOURCE_USES) throw new Error(`${spec.asset} exceeds the two-use limit`);
+    if ((usage.get(spec.asset) || 0) > MAX_SOURCE_USES) throw new Error(`${spec.asset} exceeds the one-use limit`);
     const duration = spec.end - spec.start;
     return {
       ...common,
@@ -146,16 +192,16 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
   });
 
   const plan = {
-    schema_version: "4.0-preview-curated",
+    schema_version: "4.1-preview-evidence-led",
     project_id: projectId,
     fps: FPS,
     duration_frames: 120 * FPS,
     preview: true,
-    preview_strategy: "Manually timed to narration ideas, real source context, and a clean music-led ending; no keyword-only fallback selection.",
+    preview_strategy: "Narration-timed evidence graphics alternate with unique footage; no source clip repeats and no keyword-only fallback selection is allowed.",
     audio_mix_asset: "assets/audio/final_mix.mp3",
     captions_asset: "remotion/captions.json",
     art_direction: {
-      principle: "topic-led, not permanently dark",
+      principle: "topic-led evidence design, not generic dark-tech stock",
       topic: "AI competition, incentives, governance, and controlled safety evaluations",
       palette: { ink: "#F5F0E7", accent: "#D95B53", information: "#86A9CC", ground: "#0C1320" },
     },
@@ -165,7 +211,7 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
       fake_data_graphics_forbidden: true,
       source_crop_does_not_create_new_asset: true,
       unrelated_stock_fallback_forbidden: true,
-      full_screen_graphic_fraction_max: 0.22,
+      full_screen_graphic_fraction_max: 0.40,
     },
     blacklisted_assets: blacklistedAssets,
     source_usage: Object.fromEntries([...usage.entries()].sort((a, b) => b[1] - a[1])),
