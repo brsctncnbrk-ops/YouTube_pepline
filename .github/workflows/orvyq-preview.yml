@@ -160,31 +160,42 @@ jobs:
             --max-seconds 120 \
             --output-name speech_transcript.json
 
-      - name: Post-render media quality gate
+      - name: Run post-render media QA with diagnostics
         run: |
-          set -euo pipefail
+          set +e
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
           node scripts/orvyq_media_qa.mjs \
             --project-id "$PROJECT_ID" \
             --video "$APP/out/orvyq_quality_control_2min.mp4" \
-            --report "projects/$PROJECT_ID/qa/orvyq_preview_media_qa.json"
+            --report "projects/$PROJECT_ID/qa/orvyq_preview_media_qa.json" \
+            > media-qa.log 2>&1
+          status=$?
+          echo "$status" > media-qa.status
+          cat media-qa.log
+          exit 0
 
       - name: Create visual review contact sheet
+        if: always()
         run: |
           set -euo pipefail
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
-          ffmpeg -hide_banner -loglevel error -y \
-            -i "$APP/out/orvyq_quality_control_2min.mp4" \
-            -vf "fps=1/10,scale=480:-1,tile=4x3" \
-            -frames:v 1 "$APP/out/orvyq_quality_control_contact_sheet.jpg"
-          ffprobe -v error -show_format -show_streams -of json \
-            "$APP/out/orvyq_quality_control_2min.mp4" > "$APP/out/orvyq_quality_control_probe.json"
+          if [ -f "$APP/out/orvyq_quality_control_2min.mp4" ]; then
+            ffmpeg -hide_banner -loglevel error -y \
+              -i "$APP/out/orvyq_quality_control_2min.mp4" \
+              -vf "fps=1/10,scale=480:-1,tile=4x3" \
+              -frames:v 1 "$APP/out/orvyq_quality_control_contact_sheet.jpg"
+            ffprobe -v error -show_format -show_streams -of json \
+              "$APP/out/orvyq_quality_control_2min.mp4" > "$APP/out/orvyq_quality_control_probe.json"
+          fi
 
-      - name: Upload two-minute approval package
+      - name: Upload two-minute approval and diagnostic package
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: orvyq-two-minute-quality-control-${{ github.run_id }}
           path: |
+            media-qa.log
+            media-qa.status
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_2min.mp4
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_contact_sheet.jpg
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_probe.json
@@ -196,5 +207,8 @@ jobs:
             projects/${{ env.PROJECT_ID }}/assets/music/orvyq_original_tonal_bed.mp3
             projects/${{ env.PROJECT_ID }}/remotion/captions.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
+
+      - name: Stop when post-render media QA failed
+        run: test "$(cat media-qa.status)" = "0"
