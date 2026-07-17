@@ -1,8 +1,9 @@
 import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
+import { EvidenceDataPoint, EvidenceMatrixRow, EvidenceNode, EvidenceVisual } from "./EvidenceVisual";
 
 export type EditorialOverlaySpec = {
-  type: "source_mosaic" | "comparison" | "document" | "stat" | "process" | "email_recreation" | "quote" | "boundary";
+  type: "source_mosaic" | "comparison" | "document" | "stat" | "process" | "email_recreation" | "quote" | "boundary" | "timeline" | "bar_evidence" | "matrix" | "evidence_chain" | "node_map";
   eyebrow: string;
   title: string;
   body?: string;
@@ -14,6 +15,13 @@ export type EditorialOverlaySpec = {
   recreation_label?: string;
   source_ids?: string[];
   font_px?: number;
+  points?: EvidenceDataPoint[];
+  columns?: string[];
+  rows?: EvidenceMatrixRow[];
+  nodes?: EvidenceNode[];
+  center_label?: string;
+  max_value?: number;
+  unit?: string;
 };
 
 const ink = "#F5F0E7";
@@ -21,6 +29,7 @@ const muted = "#C9C4BA";
 const accent = "#D95B53";
 const blue = "#86A9CC";
 const clamp = { extrapolateLeft: "clamp" as const, extrapolateRight: "clamp" as const };
+const EVIDENCE_TYPES = new Set(["timeline", "bar_evidence", "matrix", "evidence_chain", "node_map"]);
 
 const SourceFooter: React.FC<{ spec: EditorialOverlaySpec }> = ({ spec }) => {
   const label = spec.recreation_label || ((spec.source_ids || []).length ? "PRIMARY SOURCE CONTEXT" : null);
@@ -89,9 +98,11 @@ export const EditorialOverlay: React.FC<{ spec: EditorialOverlaySpec; durationIn
   const fadeOut = interpolate(frame, [Math.max(1, durationInFrames - 13), durationInFrames], [1, 0], clamp);
   const opacity = reveal * fadeOut;
   const titleIsRepeatedInside = spec.type === "stat" || spec.type === "email_recreation";
+  const isEvidenceVisual = EVIDENCE_TYPES.has(spec.type);
+  const width = isEvidenceVisual ? 980 : 760;
 
   return (
-    <div style={{ position: "absolute", left: 70, top: 62, width: 760, maxHeight: 790, opacity, transform: `translateY(${(1 - reveal) * 24}px)`, fontFamily: "Arial, Helvetica, sans-serif", zIndex: 8 }}>
+    <div style={{ position: "absolute", left: 70, top: 62, width, maxHeight: 790, opacity, transform: `translateY(${(1 - reveal) * 24}px)`, fontFamily: "Arial, Helvetica, sans-serif", zIndex: 8 }}>
       <div style={{ position: "absolute", inset: -18, background: "linear-gradient(135deg,rgba(5,10,16,.94),rgba(12,22,32,.84))", border: "1px solid rgba(245,240,231,.2)", boxShadow: "0 28px 90px rgba(0,0,0,.52)", backdropFilter: "blur(15px)" }} />
       <div style={{ position: "relative", padding: "22px 25px 23px" }}>
         <div style={{ color: blue, fontSize: 18, lineHeight: 1.15, fontWeight: 800, letterSpacing: ".17em" }}>{spec.eyebrow}</div>
@@ -101,6 +112,7 @@ export const EditorialOverlay: React.FC<{ spec: EditorialOverlaySpec; durationIn
         {spec.type === "process" ? <Process spec={spec} /> : null}
         {spec.type === "email_recreation" ? <EmailRecreation spec={spec} /> : null}
         {["document", "stat", "quote", "boundary"].includes(spec.type) ? <DefaultBody spec={spec} /> : null}
+        {isEvidenceVisual ? <EvidenceVisual spec={spec} durationInFrames={durationInFrames} /> : null}
         {spec.limitation ? <div style={{ marginTop: 18, borderLeft: `4px solid ${accent}`, background: "rgba(217,91,83,.12)", color: ink, padding: "12px 15px", fontSize: 22, lineHeight: 1.22, fontWeight: 720 }}>{spec.limitation}</div> : null}
         <SourceFooter spec={spec} />
       </div>
