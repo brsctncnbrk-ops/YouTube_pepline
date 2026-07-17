@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+      ORVYQ_PREVIEW_FRAMES: "3600"
+      ORVYQ_AUDIO_LIMIT_SECONDS: "120"
+      ORVYQ_NARRATION_LIMIT_SECONDS: "114.2"
     steps:
       - name: Checkout with LFS
         uses: actions/checkout@v4
@@ -29,14 +32,18 @@ jobs:
           node-version: "20"
           cache: npm
 
-      - name: Install root dependencies
-        run: npm ci
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-      - name: Install FFmpeg
+      - name: Install root and speech dependencies
         run: |
+          set -euo pipefail
+          npm ci
           sudo apt-get update
           sudo apt-get install -y ffmpeg
-          ffmpeg -version
+          python -m pip install --disable-pip-version-check faster-whisper==1.2.0
 
       - name: Build audio mix and capture diagnostics
         run: |
@@ -61,11 +68,14 @@ jobs:
       - name: Stop when audio generation failed
         run: test "$(cat audio-status.txt)" = "0"
 
+      - name: Verify narration before captions
+        run: python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --max-seconds 120
+
       - name: Build captions
         run: node scripts/orvyq_caption_build.mjs
 
-      - name: Build edit plan
-        run: node scripts/orvyq_edit_plan.mjs
+      - name: Build curated preview edit plan
+        run: node scripts/orvyq_preview_plan.mjs
 
       - name: Derive Remotion configs
         run: node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
