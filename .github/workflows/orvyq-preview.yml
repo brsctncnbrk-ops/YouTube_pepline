@@ -2,6 +2,9 @@ name: ORVYQ 2-Minute Quality Control
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - "claude/factforge-system-design-0pr3v3"
 
 permissions:
   contents: read
