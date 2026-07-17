@@ -82,6 +82,7 @@ jobs:
           node scripts/orvyq_semantic_visual_audit.mjs
           node scripts/orvyq_pacing_audit.mjs
           node scripts/orvyq_mobile_legibility_audit.mjs
+          node scripts/orvyq_music_cue_audit.mjs
           node scripts/orvyq_edit_plan_tests.mjs
           node scripts/orvyq_license_audit.mjs
           node scripts/orvyq_alignment_score.mjs
@@ -117,6 +118,7 @@ jobs:
             projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
             projects/${{ env.PROJECT_ID }}/qa/pacing_audit.json
             projects/${{ env.PROJECT_ID }}/qa/mobile_legibility_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/music_cue_audit.json
             projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
             projects/${{ env.PROJECT_ID }}/qa/license_audit.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
