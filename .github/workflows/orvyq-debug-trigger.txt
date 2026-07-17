@@ -1,3 +1,3 @@
 ORVYQ diagnostic trigger
-Commit: 0a952ded4791315b2ffc8d438bd7b7e0017879f5
-Purpose: isolate the failing pre-render step before restarting the full render.
+Commit: 363e0fe21b09267e72b2cc0023352e963435ff7b
+Purpose: rerun the two-minute quality loop after upgrading evidence-led graphics.
