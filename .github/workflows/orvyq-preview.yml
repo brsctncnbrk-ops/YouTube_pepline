@@ -81,13 +81,15 @@ jobs:
           node scripts/orvyq_caption_build.mjs
           node scripts/orvyq_preview_plan.mjs
 
-      - name: Run evidence, semantic, pacing and mobile audits
+      - name: Run evidence, asset, semantic, pacing, mobile and music audits
         run: |
           set -euo pipefail
           node scripts/orvyq_evidence_audit.mjs
+          node scripts/orvyq_evidence_asset_audit.mjs
           node scripts/orvyq_semantic_visual_audit.mjs
           node scripts/orvyq_pacing_audit.mjs
           node scripts/orvyq_mobile_legibility_audit.mjs
+          node scripts/orvyq_music_cue_audit.mjs
 
       - name: Build render-ready project
         run: |
@@ -129,9 +131,11 @@ jobs:
             alignment-qa.status
             projects/${{ env.PROJECT_ID }}/qa/license_audit.json
             projects/${{ env.PROJECT_ID }}/qa/evidence_coverage.json
+            projects/${{ env.PROJECT_ID }}/qa/evidence_asset_audit.json
             projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
             projects/${{ env.PROJECT_ID }}/qa/pacing_audit.json
             projects/${{ env.PROJECT_ID }}/qa/mobile_legibility_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/music_cue_audit.json
             projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
             projects/${{ env.PROJECT_ID }}/remotion/captions.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
@@ -227,9 +231,11 @@ jobs:
             projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
             projects/${{ env.PROJECT_ID }}/qa/license_audit.json
             projects/${{ env.PROJECT_ID }}/qa/evidence_coverage.json
+            projects/${{ env.PROJECT_ID }}/qa/evidence_asset_audit.json
             projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
             projects/${{ env.PROJECT_ID }}/qa/pacing_audit.json
             projects/${{ env.PROJECT_ID }}/qa/mobile_legibility_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/music_cue_audit.json
             projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
             projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
             projects/${{ env.PROJECT_ID }}/remotion/captions.json
