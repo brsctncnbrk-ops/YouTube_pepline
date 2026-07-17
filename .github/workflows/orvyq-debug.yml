@@ -1,9 +1,6 @@
 name: ORVYQ Pre-render Diagnostics
 
 on:
-  pull_request:
-    branches:
-      - "claude/factforge-system-design-0pr3v3"
   workflow_dispatch:
 
 permissions:
@@ -45,49 +42,32 @@ jobs:
           sudo apt-get install -y ffmpeg
           python -m pip install --disable-pip-version-check faster-whisper==1.2.0
 
-      - name: Build audio mix and capture diagnostics
-        run: |
-          set +e
-          node scripts/orvyq_audio_mix.mjs > audio-debug.log 2>&1
-          status=$?
-          echo "$status" > audio-status.txt
-          cat audio-debug.log
-          exit 0
+      - name: Build audio mix
+        run: node scripts/orvyq_audio_mix.mjs
 
-      - name: Upload audio diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: orvyq-audio-debug-${{ github.run_id }}
-          path: |
-            audio-debug.log
-            audio-status.txt
-          if-no-files-found: error
-          retention-days: 7
-
-      - name: Stop when audio generation failed
-        run: test "$(cat audio-status.txt)" = "0"
-
-      - name: Verify narration before captions
+      - name: Verify narration using preview-equivalent parameters
         run: python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --max-seconds 120
 
-      - name: Build captions
-        run: node scripts/orvyq_caption_build.mjs
+      - name: Build captions and evidence-led preview plan
+        run: |
+          node scripts/orvyq_caption_build.mjs
+          node scripts/orvyq_preview_plan.mjs
 
-      - name: Build curated preview edit plan
-        run: node scripts/orvyq_preview_plan.mjs
+      - name: Run all pre-render editorial audits
+        run: |
+          node scripts/orvyq_evidence_audit.mjs
+          node scripts/orvyq_semantic_visual_audit.mjs
+          node scripts/orvyq_pacing_audit.mjs
+          node scripts/orvyq_mobile_legibility_audit.mjs
+          node scripts/orvyq_edit_plan_tests.mjs
+          node scripts/orvyq_license_audit.mjs
+          node scripts/orvyq_alignment_score.mjs
 
       - name: Derive Remotion configs
         run: node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
 
       - name: Build Remotion project
         run: node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
-
-      - name: Run editorial QA
-        run: node scripts/orvyq_edit_plan_tests.mjs
-
-      - name: Run license audit
-        run: node scripts/orvyq_license_audit.mjs
 
       - name: Run render-ready validation
         run: node scripts/validate.mjs render-ready --project-id "$PROJECT_ID"
@@ -101,3 +81,21 @@ jobs:
         run: |
           cd "projects/$PROJECT_ID/remotion/render_ready_project"
           npx tsc --noEmit
+
+      - name: Upload diagnostic reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-prerender-diagnostics-${{ github.run_id }}
+          path: |
+            projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
+            projects/${{ env.PROJECT_ID }}/qa/evidence_coverage.json
+            projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/pacing_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/mobile_legibility_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
+            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
+            projects/${{ env.PROJECT_ID }}/remotion/captions.json
+          if-no-files-found: warn
+          retention-days: 7
