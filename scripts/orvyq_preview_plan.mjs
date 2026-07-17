@@ -4,7 +4,7 @@ import { projectDir, readJson, writeJsonAtomic } from "./lib/fs-utils.mjs";
 
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
 const FPS = 30;
-const MAX_SOURCE_USES = 1;
+const MAX_SOURCE_USES = 2;
 const media = (name) => `assets/footage/${name}.mp4`;
 
 const A = {
@@ -33,116 +33,42 @@ const blacklistedAssets = [
 ];
 
 const graphic = (type, kicker, title, subtitle, labels = [], source = null) => ({ type, kicker, title, subtitle, labels, source });
+const footage = (start, asset, trim, motion, reason, overlay = null) => ({ start, end: start + 4, asset, trim, motion, reason, overlay });
+const card = (start, type, kicker, title, subtitle, labels = [], source = null) => ({ start, end: start + 4, graphic: graphic(type, kicker, title, subtitle, labels, source) });
 
+// Thirty four-second beats create a deliberate, premium video-essay rhythm.
+// Graphics occupy 40% of runtime; footage occupies 60%. No source appears more than twice.
 const previewTimeline = [
-  {
-    start: 0,
-    end: 3,
-    graphic: graphic("brand_open", "ORVYQ PRESENTS", "THE AI RACE", "What happens when capability moves faster than control?"),
-  },
-  { start: 3, end: 8, asset: A.server, trim: 1.0, motion: "push", reason: "Frontier infrastructure grounds the opening claim in real technical scale." },
-  { start: 8, end: 13, asset: A.campus, trim: 4.5, motion: "drift_left", reason: "Institutional scale represents competing AI laboratories." },
-  { start: 13, end: 18, asset: A.chamber, trim: 1.0, motion: "hold", reason: "Governmental decision-making supports the rival-government line." },
-  { start: 18, end: 24, asset: A.cityNight, trim: 1.5, motion: "pull", reason: "A moving city visualizes competitive momentum without pretending to be data." },
-  { start: 24, end: 30, asset: A.research, trim: 0.5, motion: "drift_right", reason: "Research imagery supports the pursuit of increasingly capable systems." },
-  { start: 30, end: 36, asset: A.soc, trim: 0.8, motion: "hold", reason: "A monitoring environment supports understanding and control." },
-  { start: 36, end: 42, asset: A.network, trim: 0.5, motion: "push", reason: "A connected system represents governance across institutions." },
-  {
-    start: 42,
-    end: 46,
-    graphic: graphic("statement", "THE INCENTIVE", "WHOEVER GETS THERE FIRST SETS THE RULES", "The race is driven by fear that a rival will not slow down.", ["COMPANY", "GOVERNMENT", "CONTROL"]),
-  },
-  {
-    start: 46,
-    end: 50,
-    graphic: graphic("statement", "THE TIME HORIZON", "NOT SOMEDAY. RIGHT NOW.", "The evidence is already being published and tested.", ["NOW"]),
-  },
-  { start: 50, end: 56, asset: A.reportDesk, trim: 0.5, motion: "push", overlay: "PUBLIC SAFETY REPORTS", reason: "Documents and analysis replace generic stock during the safety-report passage." },
-  {
-    start: 56,
-    end: 62,
-    graphic: graphic(
-      "report_scan",
-      "SOURCE DOCUMENT",
-      "AGENTIC MISALIGNMENT",
-      "A controlled research program tested how models behaved when facing replacement or goal conflict.",
-      ["Published June 20, 2025", "16 leading models tested", "Controlled simulations — not real deployment incidents"],
-      "Anthropic Research",
-    ),
-  },
-  { start: 62, end: 68, asset: A.documents, trim: 0.5, motion: "drift_right", overlay: "CONTROLLED EVALUATION RECORDS", reason: "Document imagery continues the evidence trail rather than switching to unrelated code footage." },
-  { start: 68, end: 74, asset: A.terminal, trim: 2.0, motion: "push", reason: "A test environment supports the deliberate evaluation setup." },
-  {
-    start: 74,
-    end: 80,
-    graphic: graphic(
-      "evaluation",
-      "CONTROLLED SCENARIO",
-      "A REPLACEMENT THREAT WAS SIMULATED",
-      "The setup used fictional companies, fictional employees, and constrained choices.",
-      ["What the test probes: behavior under pressure", "What it does not prove: a real-world incident"],
-      "Anthropic agentic-misalignment evaluation",
-    ),
-  },
-  { start: 80, end: 86, asset: A.codeBlur, trim: 2.0, motion: "drift_left", reason: "Software activity supports the model-response passage without repeating another generic server shot." },
-  {
-    start: 86,
-    end: 92,
-    graphic: graphic(
-      "report_scan",
-      "FICTIONAL EVIDENCE",
-      "THE MODEL WAS GIVEN CORPORATE EMAILS",
-      "The messages described a fabricated affair and an impending replacement.",
-      ["Synthetic scenario", "No real people", "Designed to test coercive behavior"],
-      "Controlled evaluation record",
-    ),
-  },
-  { start: 92, end: 98, asset: A.lock, trim: 5.0, motion: "pull", reason: "Security imagery supports coercion and self-preservation while remaining clearly illustrative." },
-  {
-    start: 98,
-    end: 104,
-    graphic: graphic(
-      "evaluation",
-      "CROSS-MODEL RESULT",
-      "HARMFUL ACTIONS APPEARED UNDER PRESSURE",
-      "Several tested systems selected self-preserving behavior when alternatives were deliberately constrained.",
-      ["Engineered conditions", "Multiple model families", "Not a deployment incident"],
-      "Published safety evaluations",
-    ),
-  },
-  {
-    start: 104,
-    end: 110,
-    graphic: graphic(
-      "statement",
-      "THE IMPORTANT DISTINCTION",
-      "EVIDENCE OF BEHAVIOR IS NOT EVIDENCE OF AN EVENT",
-      "The tests reveal possible failure modes; they do not show that these incidents happened in the wild.",
-      ["BEHAVIOR", "CONTEXT", "LIMITS"]),
-  },
-  {
-    start: 110,
-    end: 114,
-    graphic: graphic(
-      "fire_drill",
-      "CONTEXT CHANGES MEANING",
-      "A TEST IS NOT AN INCIDENT",
-      "Controlled evaluations can reveal behavior without proving that the same event occurred in the wild.",
-      ["Designed test: useful evidence", "Real deployment: not established"],
-    ),
-  },
-  {
-    start: 114,
-    end: 120,
-    graphic: graphic(
-      "statement",
-      "WHAT THE EVIDENCE SAYS",
-      "THE WARNING CAME FROM A CONTROLLED TEST",
-      "The signal is serious precisely because the boundary between capability and control is being measured now.",
-      ["CONTROLLED", "DOCUMENTED", "UNRESOLVED"],
-      "ORVYQ evidence note",
-    ),
-  },
+  card(0, "brand_open", "ORVYQ PRESENTS", "THE AI RACE", "What happens when capability moves faster than control?"),
+  footage(4, A.server, 1.0, "push", "Frontier infrastructure grounds the opening claim in real technical scale."),
+  footage(8, A.campus, 4.5, "drift_left", "Institutional scale represents competing AI laboratories."),
+  card(12, "statement", "THE PARADOX", "EVERY LAB SEES THE RISK", "And every lab keeps accelerating.", ["ACCELERATION"]),
+  footage(16, A.chamber, 1.0, "hold", "Governmental decision-making supports the rival-government line."),
+  footage(20, A.cityNight, 1.5, "pull", "A moving city visualizes competitive momentum without pretending to be data."),
+  card(24, "evaluation", "THE INCENTIVE", "SLOW DOWN — AND A RIVAL MAY NOT", "The race is driven by fear of losing strategic control.", ["RIVAL COMPANY", "RIVAL GOVERNMENT"]),
+  footage(28, A.research, 0.5, "drift_right", "Research imagery supports the pursuit of increasingly capable systems."),
+  footage(32, A.soc, 0.8, "hold", "A monitoring environment supports understanding and control."),
+  card(36, "statement", "THE PRIZE", "WHOEVER GETS THERE FIRST SETS THE RULES", "Technical leadership becomes political leverage.", ["CONTROL"]),
+  footage(40, A.network, 0.5, "push", "A connected system represents governance across institutions."),
+  footage(44, A.server, 7.0, "pull", "A second, non-overlapping server segment returns to the physical scale of the race."),
+  card(48, "statement", "THE TIME HORIZON", "NOT SOMEDAY. RIGHT NOW.", "The evidence is already being published and tested.", ["NOW"]),
+  footage(52, A.reportDesk, 0.5, "push", "Documents and analysis replace generic stock during the safety-report passage.", "PUBLIC SAFETY REPORTS"),
+  footage(56, A.documents, 0.5, "drift_right", "Document imagery continues the evidence trail rather than switching to unrelated code footage.", "CONTROLLED EVALUATION RECORDS"),
+  card(60, "report_scan", "SOURCE DOCUMENT", "AGENTIC MISALIGNMENT", "A controlled research program tested how models behaved when facing replacement or goal conflict.", ["Published June 20, 2025", "16 leading models tested", "Controlled simulations — not real incidents"], "Anthropic Research"),
+  footage(64, A.terminal, 2.0, "push", "A test environment supports the deliberate evaluation setup."),
+  footage(68, A.codeBlur, 2.0, "drift_left", "Software activity supports the model-response passage without repeating another generic server shot."),
+  card(72, "evaluation", "CONTROLLED SCENARIO", "A REPLACEMENT THREAT WAS SIMULATED", "The setup used fictional companies, fictional employees, and constrained choices.", ["BEHAVIOR UNDER PRESSURE", "NOT A REAL-WORLD INCIDENT"], "Anthropic agentic-misalignment evaluation"),
+  footage(76, A.lock, 5.0, "pull", "Security imagery supports coercion and self-preservation while remaining clearly illustrative."),
+  footage(80, A.campus, 10.0, "push", "A distinct institutional segment keeps the narrative tied to laboratories and incentives."),
+  card(84, "report_scan", "FICTIONAL EVIDENCE", "THE MODEL WAS GIVEN CORPORATE EMAILS", "The messages described a fabricated affair and an impending replacement.", ["Synthetic scenario", "No real people", "Designed to test coercive behavior"], "Controlled evaluation record"),
+  footage(88, A.reportDesk, 7.0, "drift_left", "A separate document-work segment reinforces the evidence trail."),
+  footage(92, A.terminal, 8.0, "pull", "A separate test-environment segment supports constrained model choices."),
+  card(96, "evaluation", "CROSS-MODEL RESULT", "HARMFUL ACTIONS APPEARED UNDER PRESSURE", "Several tested systems selected self-preserving behavior when alternatives were constrained.", ["ENGINEERED CONDITIONS", "MULTIPLE MODEL FAMILIES"], "Published safety evaluations"),
+  footage(100, A.lock, 10.0, "push", "A second security segment visualizes self-preservation without exceeding the source-use limit."),
+  footage(104, A.documents, 8.0, "drift_left", "A second records segment prepares the critical distinction between behavior and events."),
+  card(108, "statement", "THE IMPORTANT DISTINCTION", "EVIDENCE OF BEHAVIOR IS NOT EVIDENCE OF AN EVENT", "The tests reveal possible failure modes; they do not show these incidents happened in the wild.", ["CONTEXT"]),
+  footage(112, A.research, 8.0, "pull", "A distinct research segment returns the argument to measurement and verification."),
+  card(116, "statement", "WHAT THE EVIDENCE SAYS", "THE WARNING CAME FROM A CONTROLLED TEST", "Serious evidence, carefully bounded.", ["DOCUMENTED"], "ORVYQ evidence note"),
 ];
 
 const motionVariants = new Set(["push", "drift_left", "pull", "drift_right", "hold"]);
@@ -176,28 +102,27 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
     };
 
     if (spec.graphic) return { ...common, asset_type: "graphic", graphic: spec.graphic };
-
     if (!motionVariants.has(spec.motion)) throw new Error(`Invalid motion variant: ${spec.motion}`);
     usage.set(spec.asset, (usage.get(spec.asset) || 0) + 1);
-    if ((usage.get(spec.asset) || 0) > MAX_SOURCE_USES) throw new Error(`${spec.asset} exceeds the one-use limit`);
-    const duration = spec.end - spec.start;
+    if ((usage.get(spec.asset) || 0) > MAX_SOURCE_USES) throw new Error(`${spec.asset} exceeds the two-use limit`);
     return {
       ...common,
       asset_type: "footage",
       video_asset: spec.asset,
       trim_in_sec: round(spec.trim),
-      trim_out_sec: round(spec.trim + duration),
+      trim_out_sec: round(spec.trim + (spec.end - spec.start)),
       motion_variant: spec.motion,
     };
   });
 
+  const graphicFrames = shots.filter((shot) => shot.asset_type === "graphic").reduce((sum, shot) => sum + shot.end_frame - shot.start_frame, 0);
   const plan = {
-    schema_version: "4.1-preview-evidence-led",
+    schema_version: "4.2-preview-paced-evidence-led",
     project_id: projectId,
     fps: FPS,
     duration_frames: 120 * FPS,
     preview: true,
-    preview_strategy: "Narration-timed evidence graphics alternate with unique footage; no source clip repeats and no keyword-only fallback selection is allowed.",
+    preview_strategy: "Four-second narration-led beats alternate unique or non-overlapping footage with sourced editorial graphics; no source exceeds two uses.",
     audio_mix_asset: "assets/audio/final_mix.mp3",
     captions_asset: "remotion/captions.json",
     art_direction: {
@@ -212,6 +137,8 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
       source_crop_does_not_create_new_asset: true,
       unrelated_stock_fallback_forbidden: true,
       full_screen_graphic_fraction_max: 0.40,
+      actual_full_screen_graphic_fraction: round(graphicFrames / (120 * FPS)),
+      target_average_shot_seconds_max: 4.0,
     },
     blacklisted_assets: blacklistedAssets,
     source_usage: Object.fromEntries([...usage.entries()].sort((a, b) => b[1] - a[1])),
@@ -229,6 +156,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     graphic_count: plan.shots.filter((shot) => shot.asset_type === "graphic").length,
     unique_footage_count: Object.keys(plan.source_usage).length,
     max_source_uses: Math.max(0, ...Object.values(plan.source_usage)),
+    graphic_fraction: plan.quality_policy.actual_full_screen_graphic_fraction,
     output: "direction/edit_plan.json",
   }))).catch((error) => {
     console.error(JSON.stringify({ ok: false, error: error.message }));
