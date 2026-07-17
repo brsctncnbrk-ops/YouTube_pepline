@@ -98,8 +98,12 @@ def main() -> None:
         reference = script_path.read_text(encoding="utf-8")
         reference_words = normalize(reference).split()
         transcript_words = normalize(transcript).split()
-        reference_prefix = " ".join(reference_words[: max(len(transcript_words) + 30, 80)])
-        similarity = SequenceMatcher(None, normalize(transcript), reference_prefix).ratio()
+
+        # Compare the recognized preview against the same-length script prefix.
+        # The previous implementation appended 30 unspoken reference words, which
+        # artificially penalized every correctly clipped two-minute preview.
+        reference_prefix_words = reference_words[:len(transcript_words)]
+        similarity = SequenceMatcher(None, transcript_words, reference_prefix_words).ratio()
         speech_coverage = speech_seconds / analyzed_duration if analyzed_duration else 0.0
         average_probability = sum(w["probability"] for w in words) / len(words) if words else 0.0
 
@@ -115,7 +119,7 @@ def main() -> None:
             failures.append(f"word_probability:{average_probability:.3f}<0.450")
 
         payload = {
-            "schema_version": "1.0",
+            "schema_version": "1.1",
             "project_id": args.project_id,
             "media": str(media),
             "model": args.model,
@@ -124,6 +128,7 @@ def main() -> None:
             "analyzed_duration_seconds": round(analyzed_duration, 3),
             "transcript": transcript,
             "word_count": len(transcript_words),
+            "reference_word_count": len(reference_prefix_words),
             "speech_coverage": round(speech_coverage, 4),
             "average_word_probability": round(average_probability, 4),
             "script_similarity": round(similarity, 4),
