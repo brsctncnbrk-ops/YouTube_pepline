@@ -18,9 +18,9 @@ That distinction matters. It's the difference between a fire drill and a fire. B
 
 The natural response is to ask why anyone would keep building something they admit could be dangerous. Buried in that question is an assumption: that slowing down is a choice available to any one company or country, on its own. It isn't.
 
-Markets reward whoever ships the most capable model first. Investors price in leadership, not caution. The handful of labs with the computing power and the talent to compete at the frontier are locked in a race against each other — and increasingly, so are the governments backing them.
+Competition is visible in the money and in how narrow the frontier has become. Stanford's 2025 AI Index reported nearly thirty-four billion dollars in private generative-AI investment in 2024. It also found that the performance gap between the top two models on a prominent benchmark had narrowed to less than one percentage point.
 
-Late in 2025, a rival's model reportedly overtook one leading company's flagship on several benchmarks. Within days, that company's own chief executive was reported to have declared an internal emergency. Losing the lead, even briefly, can mean losing customers, capital, and leverage — the very resources a company would need to invest in safety in the first place.
+That closeness turns each major release into a strategic event. A laboratory that slows down cannot assume its rivals will do the same. And at the frontier, even a brief loss of momentum can redirect customers, talent, capital, and political attention.
 
 Slowing down alone doesn't remove the risk. It just hands the frontier to whoever doesn't.
 
@@ -34,9 +34,9 @@ On biological risk, the safety frameworks leading labs published in 2025 conclud
 
 Beyond cyber and bio, the risk spreads into subtler territory. AI-generated text, images, and video make it cheaper to flood public conversation with convincing, false material — not necessarily deciding elections outright, but adding friction and doubt to the shared facts democracies depend on. That's a real pressure on institutions, even without claiming any one technology can topple them alone.
 
-Then there's work. Predictions here diverge sharply, and the divergence itself is revealing. One AI company's own chief executive has projected that half of entry-level white-collar jobs could disappear within one to five years, pushing unemployment into the double digits. More conservative economic modeling puts the number far lower — closer to single digits, spread across a decade, with a modest rise in unemployment during the transition. Nobody actually knows yet. Both are forecasts, from parties with very different incentives to be right.
+Then there's work. The evidence measures exposure more reliably than it predicts unemployment. The International Labour Organization estimates that one in four workers is in an occupation with some degree of generative-AI exposure, while emphasizing that transformation is more likely than wholesale replacement. It also warns that exposure indicators do not, by themselves, predict job losses or labour-market outcomes. Nobody knows the final outcome yet.
 
-The quieter risk may be the most durable one: concentration. The models, the computing power to train them, the data, and the cloud infrastructure they run on are consolidating into a small number of companies — and by extension, a small number of governments with leverage over them. Power, in this story, isn't only about what the machine can do. It's about who gets to decide.
+The quieter risk may be the most durable one: concentration. Frontier AI depends on costly computing power, cloud infrastructure, data, and capital. The UK's Competition and Markets Authority has warned that control over critical inputs, partnerships, and routes to market could weaken open competition in foundation models. Power, in this story, isn't only about what the machine can do. It's about who gets to decide.
 
 Which brings us to the paradox at the center of this whole debate. If competition is the problem, the obvious answer is control — rules, licenses, oversight. And control is genuinely necessary. But control has to live somewhere, administered by somebody, and that somebody gains power too.
 
