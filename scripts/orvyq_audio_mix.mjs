@@ -10,10 +10,10 @@ const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
 const PREVIEW_SCORE_SECONDS = 120;
 const CROSSFADE_SECONDS = 1.5;
 const MUSIC_SECTIONS = [
-  { id: "controlled_tension", start: 0, end: 35, purpose: "Opening paradox and competitive pressure" },
-  { id: "analytical_unease", start: 35, end: 78, purpose: "Public reports and controlled evaluation setup" },
-  { id: "engineered_pressure", start: 78, end: 104, purpose: "Replacement threat and harmful-action result" },
-  { id: "reflective_release", start: 104, end: 120, purpose: "Test-versus-incident limitation and clean outro" },
+  { id: "controlled_tension", start: 0, end: 35, purpose: "Opening paradox and competitive pressure", energy_start: 0.28, energy_end: 0.44 },
+  { id: "analytical_unease", start: 35, end: 78, purpose: "Public reports and controlled evaluation setup", energy_start: 0.42, energy_end: 0.58 },
+  { id: "engineered_pressure", start: 78, end: 104, purpose: "Replacement threat and harmful-action result", energy_start: 0.58, energy_end: 0.86 },
+  { id: "reflective_release", start: 104, end: 120, purpose: "Test-versus-incident limitation and clean outro", energy_start: 0.42, energy_end: 0.18 },
 ];
 
 async function command(binary, args) {
@@ -38,9 +38,10 @@ function normalizeFilter(loudnorm = null) {
 }
 function voiceAndMusicFilter(narrationDuration, outputDuration, loudnorm = null) {
   const musicFadeOut = Math.max(0, outputDuration - 4);
+  const musicArc = "if(lt(t,35),0.15+0.035*t/35,if(lt(t,78),0.185+0.035*(t-35)/43,if(lt(t,104),0.22+0.07*(t-78)/26,0.16-0.05*(t-104)/16)))";
   return [
     `[0:a]atrim=duration=${narrationDuration},apad=pad_dur=${Math.max(0, outputDuration - narrationDuration)},atrim=duration=${outputDuration},highpass=f=70,lowpass=f=15500,acompressor=threshold=-20dB:ratio=2.4:attack=15:release=180,asplit=2[voice_sc][voice_mix]`,
-    `[1:a]atrim=duration=${outputDuration},volume=0.19,afade=t=in:st=0:d=2.2,afade=t=out:st=${musicFadeOut}:d=4[music]`,
+    `[1:a]atrim=duration=${outputDuration},volume='${musicArc}':eval=frame,afade=t=in:st=0:d=2.2,afade=t=out:st=${musicFadeOut}:d=4[music]`,
     "[music][voice_sc]sidechaincompress=threshold=0.015:ratio=9:attack=12:release=620[ducked]",
     `[voice_mix][ducked]amix=inputs=2:normalize=0,${normalizeFilter(loudnorm)},aformat=channel_layouts=stereo[mix]`,
   ].join(";");
@@ -58,10 +59,10 @@ async function generateOriginalSectionedScore(musicDir) {
   const output = path.join(musicDir, "orvyq_original_tonal_bed.mp3");
   const durations = sectionInputDurations();
   const sections = [
-    { frequencies: [55, 73.42, 82.41, 110], volumes: [0.19, 0.12, 0.075, 0.04], tremolo: [0.12, 0.16, 0.21, 0.27], depth: 0.16, lowpass: 1250, echo: "640|1280:0.12|0.06", gain: 0.86 },
-    { frequencies: [58.27, 87.31, 116.54, 174.61], volumes: [0.16, 0.105, 0.065, 0.035], tremolo: [0.18, 0.23, 0.31, 0.38], depth: 0.2, lowpass: 1850, echo: "430|860:0.13|0.07", gain: 0.82 },
-    { frequencies: [49, 73.42, 98, 146.83], volumes: [0.21, 0.13, 0.075, 0.035], tremolo: [1.5, 0.75, 0.38, 0.24], depth: 0.32, lowpass: 1500, echo: "360|720:0.11|0.055", gain: 0.93 },
-    { frequencies: [65.41, 82.41, 110, 164.81], volumes: [0.13, 0.09, 0.055, 0.032], tremolo: [0.1, 0.13, 0.17, 0.21], depth: 0.12, lowpass: 2100, echo: "720|1440:0.14|0.065", gain: 0.72 },
+    { frequencies: [55, 73.42, 82.41, 110], volumes: [0.19, 0.12, 0.075, 0.04], tremolo: [0.12, 0.16, 0.21, 0.27], depth: 0.16, lowpass: 1250, echo: "640|1280:0.12|0.06", gain: 0.72 },
+    { frequencies: [58.27, 87.31, 116.54, 174.61], volumes: [0.16, 0.105, 0.065, 0.035], tremolo: [0.18, 0.23, 0.31, 0.38], depth: 0.2, lowpass: 1850, echo: "430|860:0.13|0.07", gain: 0.85 },
+    { frequencies: [49, 73.42, 98, 146.83], volumes: [0.21, 0.13, 0.075, 0.035], tremolo: [1.5, 0.75, 0.38, 0.24], depth: 0.32, lowpass: 1500, echo: "360|720:0.11|0.055", gain: 1.08 },
+    { frequencies: [65.41, 82.41, 110, 164.81], volumes: [0.13, 0.09, 0.055, 0.032], tremolo: [0.1, 0.13, 0.17, 0.21], depth: 0.12, lowpass: 2100, echo: "720|1440:0.14|0.065", gain: 0.58 },
   ];
   const inputs = [];
   const filters = [];
@@ -124,7 +125,7 @@ export async function buildOrvyqAudioMix(projectId = PROJECT_ID) {
   const musicRelative = hasApprovedMusic ? "assets/music/approved_bed.mp3" : "assets/music/orvyq_original_tonal_bed.mp3";
   const musicProfile = hasApprovedMusic ? "approved_licensed_bed" : "original_tonal_score";
   await writeJsonAtomic(path.join(audioDir, "final_mix.metadata.json"), {
-    generated_by: "scripts/orvyq_audio_mix.mjs", voice_source: "assets/audio/final_voice.mp3", processed_voice_source: prepared.repair ? "assets/audio/final_voice.reordered.wav" : "assets/audio/final_voice.mp3", voice_repair: prepared.repair, mix_asset: "assets/audio/final_mix.mp3", music_asset: musicRelative, music_profile: musicProfile, music_origin: hasApprovedMusic ? "user-approved licensed asset" : "original sectioned ORVYQ score generated from harmonic oscillators only", music_sections: hasApprovedMusic ? [{ id: "approved_full_bed", start: 0, end: outputDuration, purpose: "User-approved full mix" }] : MUSIC_SECTIONS, procedural_noise_generation: false, sfx_assets: [], source_duration_seconds: sourceDuration, narration_duration_seconds: narrationDuration, duration_seconds: outputDuration, preview_limited: outputDuration < sourceDuration, target: { integrated_lufs: -16, true_peak_dbtp: -1.5 }, measured: { integrated_lufs: Number(measured.input_i), true_peak_dbtp: Number(measured.input_tp), loudness_range: Number(measured.input_lra) }, licensing: hasApprovedMusic ? "Narration plus user-approved licensed music bed." : "Narration plus an original four-movement ORVYQ score generated locally without noise sources or third-party audio."
+    generated_by: "scripts/orvyq_audio_mix.mjs", voice_source: "assets/audio/final_voice.mp3", processed_voice_source: prepared.repair ? "assets/audio/final_voice.reordered.wav" : "assets/audio/final_voice.mp3", voice_repair: prepared.repair, mix_asset: "assets/audio/final_mix.mp3", music_asset: musicRelative, music_profile: musicProfile, music_origin: hasApprovedMusic ? "user-approved licensed asset" : "original sectioned ORVYQ score generated from harmonic oscillators only", music_sections: hasApprovedMusic ? [{ id: "approved_full_bed", start: 0, end: outputDuration, purpose: "User-approved full mix" }] : MUSIC_SECTIONS, procedural_noise_generation: false, sfx_assets: [], source_duration_seconds: sourceDuration, narration_duration_seconds: narrationDuration, duration_seconds: outputDuration, preview_limited: outputDuration < sourceDuration, target: { integrated_lufs: -16, true_peak_dbtp: -1.5, loudness_range: 9 }, measured: { integrated_lufs: Number(measured.input_i), true_peak_dbtp: Number(measured.input_tp), loudness_range: Number(measured.input_lra) }, licensing: hasApprovedMusic ? "Narration plus user-approved licensed music bed." : "Narration plus an original four-movement ORVYQ score generated locally without noise sources or third-party audio."
   });
   return { outputDuration, narrationDuration, sourceDuration, repair: prepared.repair, measured, music_profile: musicProfile, music_sections: hasApprovedMusic ? 1 : MUSIC_SECTIONS.length };
 }
