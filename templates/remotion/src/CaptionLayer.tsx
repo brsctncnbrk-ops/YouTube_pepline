@@ -23,22 +23,27 @@ export const CaptionLayer: React.FC<{ captions: Caption[] }> = ({ captions }) =>
   );
 
   return (
-    <AbsoluteFill style={{ justifyContent: "flex-end", alignItems: "center", paddingBottom: 58, pointerEvents: "none" }}>
+    <AbsoluteFill style={{ justifyContent: "flex-end", alignItems: "center", paddingBottom: 72, pointerEvents: "none" }}>
       <div
         style={{
           opacity,
-          maxWidth: "86%",
+          maxWidth: "88%",
           whiteSpace: "nowrap",
           overflow: "hidden",
           textOverflow: "clip",
           textAlign: "center",
           fontFamily: "Arial, Helvetica, sans-serif",
-          fontSize: 36,
-          fontWeight: 600,
-          lineHeight: 1.08,
-          letterSpacing: "-0.01em",
+          fontSize: 44,
+          fontWeight: 650,
+          lineHeight: 1.06,
+          letterSpacing: "-0.015em",
           color: "#F8F5EE",
-          textShadow: "0 2px 4px rgba(0,0,0,.95), 0 0 18px rgba(0,0,0,.85)",
+          background: "rgba(4,8,14,.46)",
+          border: "1px solid rgba(248,245,238,.10)",
+          borderRadius: 8,
+          padding: "10px 18px 12px",
+          boxShadow: "0 10px 32px rgba(0,0,0,.34)",
+          textShadow: "0 2px 4px rgba(0,0,0,.98), 0 0 18px rgba(0,0,0,.82)",
         }}
       >
         {caption.text}
