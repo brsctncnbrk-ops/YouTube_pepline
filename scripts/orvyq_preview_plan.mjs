@@ -13,11 +13,13 @@ function sceneForFrame(composition, frame) {
     || composition.scenes.at(-1)?.scene_id
     || "scene_001";
 }
-
 function transitionFor(_spec, index) {
-  // These sequences do not overlap. A dissolve would fade the incoming scene up from black,
-  // so interior evidence changes use motivated hard cuts and fades are reserved for boundaries.
   return index === 0 ? "fade" : "cut";
+}
+function defaultFocus(evidence) {
+  if (evidence.focus) return evidence.focus;
+  if (evidence.kind === "official_document") return { scale: 1.12, x: 0, y: -3 };
+  return undefined;
 }
 
 export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
@@ -39,8 +41,8 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
   const assetUsage = new Map();
   const evidenceIdUsage = new Map();
   let cursorSeconds = 0;
-
   const shots = [];
+
   for (let index = 0; index < cut.shots.length; index += 1) {
     const spec = cut.shots[index];
     const startFrame = Math.round(cursorSeconds * FPS);
@@ -68,9 +70,7 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
     }
     if (spec.asset_type !== "evidence") throw new Error(`${common.shot_id} is not evidence/graphic; proof footage is forbidden`);
     const evidence = spec.evidence;
-    if (!evidence?.kind || (!IMAGE_KINDS.has(evidence.kind) && !NATIVE_KINDS.has(evidence.kind))) {
-      throw new Error(`${common.shot_id} has unsupported evidence kind ${evidence?.kind}`);
-    }
+    if (!evidence?.kind || (!IMAGE_KINDS.has(evidence.kind) && !NATIVE_KINDS.has(evidence.kind))) throw new Error(`${common.shot_id} has unsupported evidence kind ${evidence?.kind}`);
     if (!(evidence.source_ids || []).length || !evidence.source_label) throw new Error(`${common.shot_id} lacks visible source attribution`);
     if ((evidence.font_px || 0) < blueprint.global_rules.minimum_overlay_font_px) throw new Error(`${common.shot_id} evidence typography is too small`);
 
@@ -94,11 +94,13 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
       throw new Error(`${common.shot_id} native source-derived graphic cannot smuggle image assets`);
     }
 
+    const focus = defaultFocus(evidence);
     shots.push({
       ...common,
       asset_type: "evidence",
       evidence: {
         ...evidence,
+        ...(focus ? { focus } : {}),
         provenance_mode: IMAGE_KINDS.has(evidence.kind) ? "official_primary_capture" : "source_derived_graphic",
       },
       motif: evidence.kind,
@@ -114,7 +116,7 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
   for (const shot of shots) roleFrames[shot.visual_role] = (roleFrames[shot.visual_role] || 0) + shot.end_frame - shot.start_frame;
 
   const plan = {
-    schema_version: "6.1-primary-evidence-proof",
+    schema_version: "6.2-primary-evidence-proof",
     project_id: projectId,
     fps: FPS,
     duration_frames: cut.duration_seconds * FPS,
@@ -139,6 +141,7 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
       proof_stock_assets_forbidden: true,
       metadata_cannot_define_evidence: true,
       non_overlapping_dissolves_forbidden: true,
+      document_focus_required: true,
       actual_generic_stock_fraction: 0,
       actual_primary_evidence_fraction: round(evidenceFrames / (cut.duration_seconds * FPS)),
       actual_full_screen_graphic_fraction: round(fullScreenGraphicFrames / (cut.duration_seconds * FPS)),
