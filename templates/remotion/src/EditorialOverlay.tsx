@@ -1,6 +1,6 @@
 import React from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { EvidenceDataPoint, EvidenceMatrixRow, EvidenceNode, EvidenceVisual } from "./EvidenceVisual";
+import { EvidenceDataPoint, EvidenceMatrixRow, EvidenceNode, EvidenceVisual, EvidenceVisualSpec } from "./EvidenceVisual";
 
 export type EditorialOverlaySpec = {
   type: "source_mosaic" | "comparison" | "document" | "stat" | "process" | "email_recreation" | "quote" | "boundary" | "timeline" | "bar_evidence" | "matrix" | "evidence_chain" | "node_map";
@@ -112,7 +112,7 @@ export const EditorialOverlay: React.FC<{ spec: EditorialOverlaySpec; durationIn
         {spec.type === "process" ? <Process spec={spec} /> : null}
         {spec.type === "email_recreation" ? <EmailRecreation spec={spec} /> : null}
         {["document", "stat", "quote", "boundary"].includes(spec.type) ? <DefaultBody spec={spec} /> : null}
-        {isEvidenceVisual ? <EvidenceVisual spec={spec} durationInFrames={durationInFrames} /> : null}
+        {isEvidenceVisual ? <EvidenceVisual spec={spec as EvidenceVisualSpec} durationInFrames={durationInFrames} /> : null}
         {spec.limitation ? <div style={{ marginTop: 18, borderLeft: `4px solid ${accent}`, background: "rgba(217,91,83,.12)", color: ink, padding: "12px 15px", fontSize: 22, lineHeight: 1.22, fontWeight: 720 }}>{spec.limitation}</div> : null}
         <SourceFooter spec={spec} />
       </div>
