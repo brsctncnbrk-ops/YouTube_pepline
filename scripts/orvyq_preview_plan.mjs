@@ -36,9 +36,9 @@ const graphic = (type, kicker, title, subtitle, labels = [], source = null) => (
 const footage = (duration, asset, trim, motion, reason, overlay = null) => ({ duration, asset, trim, motion, reason, overlay });
 const card = (duration, type, kicker, title, subtitle, labels = [], source = null) => ({ duration, graphic: graphic(type, kicker, title, subtitle, labels, source) });
 
-// Graphics are brief punctuation rather than presentation slides. Three former
-// statement cards are now concise overlays on claim-relevant footage, cutting
-// full-screen slide density while preserving the exact 120-second structure.
+// Full-screen graphics are reserved for the brand open and one early thesis
+// punctuation. Evidence is carried by longer claim-relevant footage with concise,
+// source-aware overlays so the sequence reads as a premium film rather than slides.
 const previewTimeline = [
   card(2, "brand_open", "ORVYQ PRESENTS", "THE AI RACE", "What happens when capability moves faster than control?"),
   footage(6, A.server, 1.0, "push", "Frontier infrastructure grounds the opening claim in real technical scale."),
@@ -54,22 +54,16 @@ const previewTimeline = [
   footage(5, A.server, 7.0, "pull", "A second, non-overlapping server segment returns to the physical scale of the race."),
   footage(2, A.cityNight, 8.0, "drift_left", "Immediate real-world momentum carries the time-horizon line without another full-screen card.", "NOT SOMEDAY. RIGHT NOW."),
   footage(6, A.reportDesk, 0.5, "push", "Documents and analysis replace generic stock during the safety-report passage.", "PUBLIC SAFETY REPORTS"),
-  footage(4, A.documents, 0.5, "drift_right", "Document imagery continues the evidence trail rather than switching to unrelated code footage.", "CONTROLLED EVALUATION RECORDS"),
-  card(2, "report_scan", "SOURCE DOCUMENT", "AGENTIC MISALIGNMENT", "A controlled research program tested how models behaved when facing replacement or goal conflict.", ["Published June 20, 2025", "16 leading models tested", "Controlled simulations — not real incidents"], "Anthropic Research"),
+  footage(6, A.documents, 0.5, "drift_right", "The first controlled-evaluation claim stays anchored to records while a short sourced overlay replaces a full-screen report slide.", "ANTHROPIC · 16 MODELS · CONTROLLED SIMULATIONS"),
   footage(5, A.terminal, 2.0, "push", "A test environment supports the deliberate evaluation setup."),
-  footage(5, A.soc, 0.0, "drift_left", "A monitoring environment supports the model-response passage while preserving source diversity and avoiding consecutive repetition."),
-  card(2, "evaluation", "CONTROLLED SCENARIO", "A REPLACEMENT THREAT WAS SIMULATED", "The setup used fictional companies, fictional employees, and constrained choices.", ["BEHAVIOR UNDER PRESSURE", "NOT A REAL-WORLD INCIDENT"], "Anthropic agentic-misalignment evaluation"),
+  footage(7, A.soc, 0.0, "drift_left", "The replacement-threat setup remains within an observed evaluation environment instead of pausing for a presentation card.", "FICTIONAL COMPANY · REPLACEMENT THREAT SIMULATED"),
   footage(4, A.lock, 5.0, "pull", "Security imagery supports coercion and self-preservation while remaining clearly illustrative."),
-  footage(6, A.campus, 9.5, "push", "A distinct institutional segment keeps the narrative tied to laboratories and incentives."),
-  card(2, "report_scan", "FICTIONAL EVIDENCE", "THE MODEL WAS GIVEN CORPORATE EMAILS", "The messages described a fabricated affair and an impending replacement.", ["Synthetic scenario", "No real people", "Designed to test coercive behavior"], "Controlled evaluation record"),
+  footage(8, A.campus, 9.5, "push", "Institutional footage carries the fabricated-email detail with an explicit boundary overlay, preserving cinematic continuity.", "SYNTHETIC EMAILS · NO REAL PEOPLE"),
   footage(5, A.reportDesk, 4.0, "drift_left", "A later document-work segment reinforces the evidence trail without overrunning the source clip."),
-  footage(5, A.terminal, 8.0, "pull", "A separate test-environment segment supports constrained model choices."),
-  card(2, "evaluation", "CROSS-MODEL RESULT", "HARMFUL ACTIONS APPEARED UNDER PRESSURE", "Several tested systems selected self-preserving behavior when alternatives were constrained.", ["ENGINEERED CONDITIONS", "MULTIPLE MODEL FAMILIES"], "Published safety evaluations"),
+  footage(7, A.terminal, 8.0, "pull", "The cross-model result is presented over the controlled test environment, not as a detached data slide.", "MULTIPLE MODEL FAMILIES · ENGINEERED CONDITIONS"),
   footage(6, A.lock, 10.0, "push", "A second security segment visualizes self-preservation without exceeding the source-use limit."),
-  footage(4, A.documents, 7.5, "drift_left", "A second records segment prepares the critical distinction between behavior and events."),
-  card(2, "statement", "THE IMPORTANT DISTINCTION", "EVIDENCE OF BEHAVIOR IS NOT EVIDENCE OF AN EVENT", "The tests reveal possible failure modes; they do not show these incidents happened in the wild.", ["CONTEXT"]),
-  footage(8, A.research, 8.0, "pull", "A longer final research hold gives the evidence distinction room to land before the closing card."),
-  card(2, "statement", "WHAT THE EVIDENCE SAYS", "THE WARNING CAME FROM A CONTROLLED TEST", "Serious evidence, carefully bounded.", ["DOCUMENTED"], "ORVYQ evidence note"),
+  footage(6, A.documents, 7.5, "drift_left", "Records remain on screen for the crucial evidence boundary, replacing another statement card.", "BEHAVIOR IN TESTS ≠ REAL-WORLD INCIDENTS"),
+  footage(10, A.research, 8.0, "pull", "A sustained final research image lets the bounded conclusion land with documentary restraint.", "CONTROLLED TEST · SERIOUS WARNING · CAREFULLY BOUNDED"),
 ];
 
 const motionVariants = new Set(["push", "drift_left", "pull", "drift_right", "hold"]);
@@ -121,12 +115,12 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
   if (cursorSeconds !== 120) throw new Error(`Preview timeline must total 120 seconds, got ${cursorSeconds}`);
   const graphicFrames = shots.filter((shot) => shot.asset_type === "graphic").reduce((sum, shot) => sum + shot.end_frame - shot.start_frame, 0);
   const plan = {
-    schema_version: "4.5-preview-cinematic-overlay-led",
+    schema_version: "4.6-preview-footage-dominant-evidence-overlay",
     project_id: projectId,
     fps: FPS,
     duration_frames: 120 * FPS,
     preview: true,
-    preview_strategy: "Seven brief evidence cards punctuate footage-led storytelling; three former full-screen statement cards now appear as concise overlays on claim-relevant footage.",
+    preview_strategy: "Only the brand open and early thesis use full-screen graphics. Six evidence slides were removed; their time and claims now live on longer source-relevant footage with explicit boundary overlays.",
     audio_mix_asset: "assets/audio/final_mix.mp3",
     captions_asset: "remotion/captions.json",
     art_direction: {
@@ -140,9 +134,9 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
       fake_data_graphics_forbidden: true,
       source_crop_does_not_create_new_asset: true,
       unrelated_stock_fallback_forbidden: true,
-      full_screen_graphic_fraction_max: 0.15,
+      full_screen_graphic_fraction_max: 0.08,
       actual_full_screen_graphic_fraction: round(graphicFrames / (120 * FPS)),
-      target_average_shot_seconds_max: 4.0,
+      target_average_shot_seconds_max: 5.0,
       minimum_shot_duration_variants: 3,
     },
     blacklisted_assets: blacklistedAssets,
