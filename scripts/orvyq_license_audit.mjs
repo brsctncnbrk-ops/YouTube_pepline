@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import path from "node:path";
 import { projectDir, readJson, writeJsonAtomic, pathExists } from "./lib/fs-utils.mjs";
+import { loadResolvedEvidenceMap } from "./lib/orvyq-evidence.mjs";
 
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
 
@@ -13,7 +14,7 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
   const [plan, audioMetadata, evidenceMap] = await Promise.all([
     readJson(path.join(dir, "direction", "edit_plan.json")),
     readJson(path.join(dir, "assets", "audio", "final_mix.metadata.json")),
-    readJson(path.join(dir, "research", "evidence_map.json")),
+    loadResolvedEvidenceMap(dir),
   ]);
 
   const sourceById = new Map(evidenceMap.source_catalog.map((source) => [source.source_id, source]));
@@ -62,17 +63,8 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
   });
 
   const audio = [
-    {
-      asset: audioMetadata.voice_source,
-      role: "narration source",
-      license: "User-supplied/commissioned narrator audio for this ORVYQ production.",
-      repair: audioMetadata.voice_repair || null,
-    },
-    {
-      asset: audioMetadata.mix_asset,
-      role: "final audio mix",
-      license: "Derived locally from the approved narration and declared music structure.",
-    },
+    { asset: audioMetadata.voice_source, role: "narration source", license: "User-supplied/commissioned narrator audio for this ORVYQ production.", repair: audioMetadata.voice_repair || null },
+    { asset: audioMetadata.mix_asset, role: "final audio mix", license: "Derived locally from the approved narration and declared music structure." },
   ];
   if (audioMetadata.music_asset) {
     const originalScore = audioMetadata.music_profile === "original_tonal_score";
@@ -89,8 +81,9 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
   }
 
   const result = {
-    schema_version: "4.0",
+    schema_version: "4.1",
     project_id: projectId,
+    resolved_evidence_schema: evidenceMap.schema_version,
     purpose: plan.preview ? "Two-minute ORVYQ evidence-led proof license record" : "Final ORVYQ evidence-led edit license record",
     footage,
     evidence_sources: evidenceSources,
