@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, Img, OffthreadVideo, interpolate, useCurrentFrame, useVideoConfig } from "remotion";
+import { EditorialOverlay, EditorialOverlaySpec } from "./EditorialOverlay";
 import { OrvyqGraphic, OrvyqGraphicSpec } from "./OrvyqGraphic";
 
 export type CameraMotion = { type: string; params: Record<string, number | string> };
@@ -14,6 +15,7 @@ type SceneProps = {
   trimOutSec?: number;
   motionVariant?: FootageMotion;
   graphic?: OrvyqGraphicSpec;
+  editorialOverlay?: EditorialOverlaySpec | null;
   durationInFrames: number;
   textOverlay: string | null;
   transitionIn: string;
@@ -69,6 +71,7 @@ export const Scene: React.FC<SceneProps> = ({
   trimOutSec,
   motionVariant = "hold",
   graphic,
+  editorialOverlay = null,
   durationInFrames,
   textOverlay,
   transitionIn,
@@ -97,35 +100,42 @@ export const Scene: React.FC<SceneProps> = ({
             muted
             startFrom={Math.round((trimInSec ?? 0) * fps)}
             endAt={Math.round((trimOutSec ?? (trimInSec ?? 0) + durationInFrames / fps) * fps)}
-            style={{ width: "100%", height: "100%", objectFit: "cover", transform: footageTransform(motionVariant, progress) }}
+            style={{ width: "100%", height: "100%", objectFit: "cover", transform: footageTransform(motionVariant, progress), filter: "contrast(1.055) saturate(.9) brightness(.94)" }}
           />
         ) : (
           <Img
             src={imageSrc ?? ""}
-            style={{ width: "100%", height: "100%", objectFit: "cover", transform: computeTransform(cameraMotion ?? { type: "static", params: {} }, progress) }}
+            style={{ width: "100%", height: "100%", objectFit: "cover", transform: computeTransform(cameraMotion ?? { type: "static", params: {} }, progress), filter: "contrast(1.055) saturate(.9) brightness(.94)" }}
           />
         )}
       </AbsoluteFill>
-      {textOverlay ? (
+
+      {assetType !== "graphic" ? (
+        <AbsoluteFill style={{ opacity, pointerEvents: "none", background: editorialOverlay ? "linear-gradient(90deg,rgba(3,7,12,.42) 0%,rgba(3,7,12,.08) 52%,rgba(3,7,12,.2) 100%)" : "linear-gradient(180deg,rgba(3,7,12,.08),rgba(3,7,12,.2))" }} />
+      ) : null}
+
+      {editorialOverlay ? <EditorialOverlay spec={editorialOverlay} durationInFrames={durationInFrames} /> : null}
+
+      {textOverlay && !editorialOverlay ? (
         <div
           style={{
             position: "absolute",
             left: 68,
             top: 70,
             opacity,
-            backgroundColor: "rgba(8,14,22,0.56)",
+            backgroundColor: "rgba(8,14,22,0.72)",
             backdropFilter: "blur(12px)",
             color: "#F5F0E7",
             border: "1px solid rgba(245,240,231,0.18)",
-            borderLeft: "3px solid #86A9CC",
+            borderLeft: "4px solid #86A9CC",
             borderRadius: 4,
             fontFamily: "Arial, Helvetica, sans-serif",
-            fontSize: 18,
-            fontWeight: 680,
-            letterSpacing: "0.15em",
+            fontSize: 28,
+            fontWeight: 720,
+            letterSpacing: "0.08em",
             lineHeight: 1.2,
-            padding: "11px 15px",
-            maxWidth: 820,
+            padding: "14px 18px",
+            maxWidth: 920,
             textShadow: "0 2px 12px rgba(0,0,0,0.7)",
           }}
         >
