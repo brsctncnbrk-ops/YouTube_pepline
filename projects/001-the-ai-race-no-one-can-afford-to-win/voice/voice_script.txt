@@ -30,9 +30,9 @@ In cybersecurity, AI has already lowered the barrier to entry. In 2025, one comp
 
 These are the company's own assessments of its own product's misuse, not independently verified in every detail. But they point in a consistent direction: AI may allow smaller teams to attempt some operations with less time, expertise, or coordination than they would have needed before. Security researchers also note that the same automation cuts both ways, helping defenders detect intrusions faster too.
 
-On biological risk, the safety frameworks leading labs published in 2025 concluded, from their own internal testing, that some models now give a meaningful capability boost to someone without specialist training — enough to trigger additional safeguards. No industry-wide standard yet defines when that boost becomes unacceptable.
+On biological risk, Anthropic said its internal testing suggested Claude Opus 4 could provide a meaningful capability uplift to someone without specialist training. It activated additional ASL-3 safeguards as a precaution, while saying it had not definitively determined that the capability threshold had been crossed. Other frontier labs use their own thresholds and safeguard frameworks, but no industry-wide standard defines when that boost becomes unacceptable.
 
-Beyond cyber and bio, the risk spreads into subtler territory. AI-generated text, images, and video make it cheaper to flood public conversation with convincing, false material — not necessarily deciding elections outright, but adding friction and doubt to the shared facts democracies depend on. That's a real pressure on institutions, even without claiming any one technology can topple them alone.
+Beyond cyber and bio, the risk spreads into subtler territory. The 2025 International AI Safety Report found strong evidence that general-purpose AI can generate persuasive synthetic content cheaply and at scale. But it also found the evidence becomes weaker at each later step — from content creation, to distribution, to changed beliefs, to broad societal effects. That is a real pressure on information integrity without pretending the effect of any one election, campaign, or technology is already settled.
 
 Then there's work. The evidence measures exposure more reliably than it predicts unemployment. The International Labour Organization estimates that one in four workers is in an occupation with some degree of generative-AI exposure, while emphasizing that transformation is more likely than wholesale replacement. It also warns that exposure indicators do not, by themselves, predict job losses or labour-market outcomes. Nobody knows the final outcome yet.
 
@@ -40,7 +40,7 @@ The quieter risk may be the most durable one: concentration. Frontier AI depends
 
 Which brings us to the paradox at the center of this whole debate. If competition is the problem, the obvious answer is control — rules, licenses, oversight. And control is genuinely necessary. But control has to live somewhere, administered by somebody, and that somebody gains power too.
 
-Take Europe's AI Act. It requires makers of high-risk systems to run continuous risk assessments across a product's lifetime, and imposes extra obligations on the largest general-purpose models — specifically, ones trained using more than a defined, very high threshold of computing power. That threshold is a genuine safety mechanism.
+Take Europe's AI Act. It uses different rules for different systems. Providers of high-risk AI face lifecycle risk-management duties. Providers of general-purpose models face transparency and copyright-related obligations, with additional evaluation, incident-reporting, and cybersecurity duties for models classified as posing systemic risk. One legal presumption uses a very high training-compute threshold, but compute alone is not the only route to designation.
 
 Established companies may also be better able to absorb the complex compliance, evaluation, reporting, and legal costs that come with operating at that scale. A rule built to catch dangerous concentration can end up protecting the incumbents who triggered the concern in the first place.
 
