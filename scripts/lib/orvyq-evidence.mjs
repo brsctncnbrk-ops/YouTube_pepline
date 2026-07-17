@@ -11,6 +11,10 @@ export async function loadResolvedEvidenceMap(dir) {
   for (const source of resolutions.source_additions || []) sourceMap.set(source.source_id, source);
 
   const claimMap = new Map(base.claims.map((claim) => [claim.claim_id, claim]));
+  for (const claim of resolutions.claim_additions || []) {
+    if (claimMap.has(claim.claim_id)) throw new Error(`Evidence claim addition duplicates ${claim.claim_id}`);
+    claimMap.set(claim.claim_id, claim);
+  }
   for (const override of resolutions.claim_overrides || []) {
     const existing = claimMap.get(override.claim_id);
     if (!existing) throw new Error(`Evidence resolution references unknown claim ${override.claim_id}`);
