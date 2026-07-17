@@ -4,6 +4,7 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import path from "node:path";
 import { projectDir, readJson, pathExists } from "./lib/fs-utils.mjs";
+import { loadResolvedEvidenceMap } from "./lib/orvyq-evidence.mjs";
 
 const run = promisify(execFile);
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
@@ -24,14 +25,14 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
     readJson(path.join(dir, "assets", "audio", "final_mix.metadata.json")),
     readJson(path.join(dir, "qa", "speech_transcript.json")),
     readJson(path.join(dir, "direction", "editorial_blueprint.json")),
-    readJson(path.join(dir, "research", "evidence_map.json")),
+    loadResolvedEvidenceMap(dir),
     readJson(path.join(dir, "qa", "evidence_coverage.json")),
     readJson(path.join(dir, "qa", "semantic_visual_audit.json")),
     readJson(path.join(dir, "qa", "pacing_audit.json")),
     readJson(path.join(dir, "qa", "mobile_legibility_audit.json")),
   ]);
   const shots = plan.shots;
-  const claimIds = new Set(evidenceMap.claims.map((claim) => claim.claim_id));
+  const claimIds = new Set(evidenceMap.claims.filter((claim) => claim.status !== "removed").map((claim) => claim.claim_id));
   const sourceIds = new Set(evidenceMap.source_catalog.map((source) => source.source_id));
   const maxSourceUses = blueprint.global_rules.max_uses_per_source;
 
@@ -77,7 +78,7 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
     assert.ok(["cut", "fade", "dissolve"].includes(shot.transition_in), `${shot.shot_id} has an invalid in transition`);
     assert.ok(["cut", "fade", "dissolve"].includes(shot.transition_out), `${shot.shot_id} has an invalid out transition`);
     assert.equal(shot.sound_cue ?? null, null, `${shot.shot_id} must not use unapproved procedural SFX`);
-    assert.ok(claimIds.has(shot.claim_id), `${shot.shot_id} must map to a valid claim`);
+    assert.ok(claimIds.has(shot.claim_id), `${shot.shot_id} must map to a valid, active claim`);
     assert.ok(VALID_ROLES.has(shot.visual_role), `${shot.shot_id} must declare a valid visual role`);
     assert.ok(shot.editorial_purpose?.length >= 18, `${shot.shot_id} needs a specific editorial purpose`);
 
@@ -141,17 +142,21 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
   }
 
   if (!plan.preview) {
-    const approvalPath = path.join(dir, "qa", "proof_approval.json");
+    const [approvalPath, narrationStatusPath] = [path.join(dir, "qa", "proof_approval.json"), path.join(dir, "voice", "narration_status.json")];
     assert.ok(await pathExists(approvalPath), "full render requires proof_approval.json");
-    const approval = await readJson(approvalPath);
+    assert.ok(await pathExists(narrationStatusPath), "full render requires narration_status.json");
+    const [approval, narrationStatus] = await Promise.all([readJson(approvalPath), readJson(narrationStatusPath)]);
     assert.equal(approval.approved, true, "the two-minute proof has not been approved");
     assert.ok(approval.aperture_alignment_score >= 95, "the approved proof is below 95% Aperture alignment");
     assert.equal(approval.review_type, "human_rendered_video_review", "automatic scoring cannot approve the full render");
+    assert.equal(narrationStatus.full_narration_requires_regeneration, false, "the revised full-film narration has not been regenerated");
+    assert.equal(narrationStatus.full_narration_approved, true, "the revised full-film narration has not passed human listening review");
   }
 
   return {
     preview: Boolean(plan.preview),
     production_mode: plan.production_mode,
+    resolved_evidence_schema: evidenceMap.schema_version,
     shot_count: shots.length,
     graphic_count: shots.filter((shot) => shot.asset_type === "graphic").length,
     overlay_count: shots.filter((shot) => shot.editorial_overlay).length,
