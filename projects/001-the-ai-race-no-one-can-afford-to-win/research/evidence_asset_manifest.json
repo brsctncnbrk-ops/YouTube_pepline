@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "project_id": "001-the-ai-race-no-one-can-afford-to-win",
   "policy": {
     "allowed_modes": ["labelled_recreation", "official_page_capture", "official_figure_capture", "original_source_derived_diagram"],
@@ -129,6 +129,18 @@
       "limitation": "Anthropic did not definitively determine that the threshold had been crossed."
     },
     {
+      "evidence_asset_id": "EVID_INFORMATION_INTEGRITY_CHAIN",
+      "claim_ids": ["CLM_021_INFORMATION_INTEGRITY"],
+      "source_ids": ["SRC_INTERNATIONAL_AI_SAFETY_REPORT_2025"],
+      "mode": "original_source_derived_diagram",
+      "status": "spec_ready_asset_pending",
+      "required_for_proof": false,
+      "required_for_full": true,
+      "render_component": "EvidenceDiagram.evidence_chain",
+      "content": ["Synthetic content generation", "Distribution and exposure", "Belief or behaviour change", "Societal or electoral effect", "Evidence weakens at later stages"],
+      "limitation": "The report finds strong evidence for cheap persuasive content generation at scale, but limited evidence and no scientific consensus on broad societal or electoral effects."
+    },
+    {
       "evidence_asset_id": "EVID_ILO_EXPOSURE_VS_OUTCOME",
       "claim_ids": ["CLM_012_JOB_FORECAST_DIVERGENCE", "CLM_013_JOB_EXPOSURE"],
       "source_ids": ["SRC_ILO_JOBS_2025", "SRC_ILO_EXPOSURE_LIMITS_2026"],
@@ -160,9 +172,9 @@
       "status": "spec_ready_asset_pending",
       "required_for_proof": false,
       "required_for_full": true,
-      "render_component": "EvidenceDiagram.obligations_matrix",
-      "content": ["GPAI obligations", "Systemic-risk obligations", "10^25 FLOP presumption", "Incident reporting"],
-      "limitation": "The threshold is rebuttable, updateable and not the only designation route."
+      "render_component": "EvidenceDiagram.two_track_policy_matrix",
+      "content": ["High-risk AI-system lifecycle duties", "GPAI provider transparency obligations", "Systemic-risk model evaluation and incident reporting", "10^25 FLOP rebuttable presumption"],
+      "limitation": "High-risk AI systems and general-purpose AI models are separate legal tracks; compute is not the only route to systemic-risk designation."
     },
     {
       "evidence_asset_id": "EVID_NTIA_OPEN_WEIGHT_TRADEOFF",
