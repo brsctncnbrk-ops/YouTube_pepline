@@ -53,7 +53,7 @@ const previewTimeline = [
   footage(5, A.network, 0.5, "push", "A connected system represents governance across institutions."),
   footage(5, A.server, 7.0, "pull", "A second, non-overlapping server segment returns to the physical scale of the race."),
   footage(2, A.cityNight, 8.0, "drift_left", "Immediate real-world momentum carries the time-horizon line without another full-screen card.", "NOT SOMEDAY. RIGHT NOW."),
-  footage(6, A.reportDesk, 0.5, "push", "Documents and analysis replace generic stock during the safety-report passage.", "PUBLIC SAFETY REPORTS"),
+  footage(8, A.reportDesk, 0.5, "push", "Documents and analysis replace generic stock during the safety-report passage.", "PUBLIC SAFETY REPORTS"),
   footage(6, A.documents, 0.5, "drift_right", "The first controlled-evaluation claim stays anchored to records while a short sourced overlay replaces a full-screen report slide.", "ANTHROPIC · 16 MODELS · CONTROLLED SIMULATIONS"),
   footage(5, A.terminal, 2.0, "push", "A test environment supports the deliberate evaluation setup."),
   footage(7, A.soc, 0.0, "drift_left", "The replacement-threat setup remains within an observed evaluation environment instead of pausing for a presentation card.", "FICTIONAL COMPANY · REPLACEMENT THREAT SIMULATED"),
@@ -63,7 +63,7 @@ const previewTimeline = [
   footage(7, A.terminal, 8.0, "pull", "The cross-model result is presented over the controlled test environment, not as a detached data slide.", "MULTIPLE MODEL FAMILIES · ENGINEERED CONDITIONS"),
   footage(6, A.lock, 10.0, "push", "A second security segment visualizes self-preservation without exceeding the source-use limit."),
   footage(6, A.documents, 7.5, "drift_left", "Records remain on screen for the crucial evidence boundary, replacing another statement card.", "BEHAVIOR IN TESTS ≠ REAL-WORLD INCIDENTS"),
-  footage(10, A.research, 8.0, "pull", "A sustained final research image lets the bounded conclusion land with documentary restraint.", "CONTROLLED TEST · SERIOUS WARNING · CAREFULLY BOUNDED"),
+  footage(8, A.research, 8.0, "pull", "A sustained final research image lets the bounded conclusion land with documentary restraint.", "CONTROLLED TEST · SERIOUS WARNING · CAREFULLY BOUNDED"),
 ];
 
 const motionVariants = new Set(["push", "drift_left", "pull", "drift_right", "hold"]);
