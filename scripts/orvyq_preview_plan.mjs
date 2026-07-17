@@ -42,9 +42,10 @@ function sceneForFrame(composition, frame) {
 
 export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
   const dir = projectDir(projectId);
-  const [composition, blueprint] = await Promise.all([
+  const [composition, blueprint, cut] = await Promise.all([
     readJson(path.join(dir, "remotion", "composition.json")),
     readJson(path.join(dir, "direction", "editorial_blueprint.json")),
+    readJson(path.join(dir, "direction", "proof_preview_cut.json")),
   ]);
   if (composition.fps !== FPS) throw new Error(`Preview plan expects ${FPS} fps, got ${composition.fps}`);
 
@@ -52,7 +53,7 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
   const usage = new Map();
   let cursorSeconds = 0;
 
-  const shots = blueprint.proof_preview.shots.map((spec, index) => {
+  const shots = cut.shots.map((spec, index) => {
     const startFrame = Math.round(cursorSeconds * FPS);
     cursorSeconds += Number(spec.duration);
     const endFrame = Math.round(cursorSeconds * FPS);
@@ -67,23 +68,16 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
       editorial_purpose: spec.editorial_purpose,
       editorial_overlay: spec.overlay || null,
       transition_in: index === 0 ? "fade" : spec.asset_type === "graphic" ? "dissolve" : "cut",
-      transition_out: index === blueprint.proof_preview.shots.length - 1 ? "fade" : "cut",
+      transition_out: index === cut.shots.length - 1 ? "fade" : "cut",
       text_overlay: null,
       sound_cue: null,
     };
 
-    if (spec.asset_type === "graphic") {
-      return {
-        ...common,
-        asset_type: "graphic",
-        graphic: spec.graphic,
-        motif: spec.graphic.type,
-      };
-    }
+    if (spec.asset_type === "graphic") return { ...common, asset_type: "graphic", graphic: spec.graphic, motif: spec.graphic.type };
 
     const asset = ASSETS[spec.asset_key];
-    if (!asset) throw new Error(`Unknown editorial blueprint asset_key: ${spec.asset_key}`);
-    if (BLACKLISTED.includes(asset)) throw new Error(`Blueprint references blacklisted asset: ${asset}`);
+    if (!asset) throw new Error(`Unknown proof-cut asset_key: ${spec.asset_key}`);
+    if (BLACKLISTED.includes(asset)) throw new Error(`Proof cut references blacklisted asset: ${asset}`);
     usage.set(asset, (usage.get(asset) || 0) + 1);
     if ((usage.get(asset) || 0) > sourceLimit) throw new Error(`${asset} exceeds the ${sourceLimit}-use limit`);
 
@@ -98,26 +92,20 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
     };
   });
 
-  if (Math.abs(cursorSeconds - blueprint.proof_preview.duration_seconds) > 0.001) {
-    throw new Error(`Preview blueprint must total ${blueprint.proof_preview.duration_seconds}s, got ${cursorSeconds}s`);
-  }
+  if (Math.abs(cursorSeconds - cut.duration_seconds) > 0.001) throw new Error(`Proof cut must total ${cut.duration_seconds}s, got ${cursorSeconds}s`);
 
-  const fullScreenGraphicFrames = shots
-    .filter((shot) => shot.asset_type === "graphic")
-    .reduce((sum, shot) => sum + shot.end_frame - shot.start_frame, 0);
+  const fullScreenGraphicFrames = shots.filter((shot) => shot.asset_type === "graphic").reduce((sum, shot) => sum + shot.end_frame - shot.start_frame, 0);
   const roleFrames = {};
-  for (const shot of shots) {
-    roleFrames[shot.visual_role] = (roleFrames[shot.visual_role] || 0) + shot.end_frame - shot.start_frame;
-  }
+  for (const shot of shots) roleFrames[shot.visual_role] = (roleFrames[shot.visual_role] || 0) + shot.end_frame - shot.start_frame;
 
   const plan = {
-    schema_version: "5.0-evidence-led-proof",
+    schema_version: "5.1-evidence-led-proof",
     project_id: projectId,
     fps: FPS,
-    duration_frames: blueprint.proof_preview.duration_seconds * FPS,
+    duration_frames: cut.duration_seconds * FPS,
     preview: true,
     production_mode: blueprint.production_mode,
-    preview_strategy: blueprint.proof_preview.purpose,
+    preview_strategy: cut.purpose,
     audio_mix_asset: "assets/audio/final_mix.mp3",
     captions_asset: "remotion/captions.json",
     art_direction: {
@@ -132,11 +120,9 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
       fake_data_graphics_forbidden: true,
       source_crop_does_not_create_new_asset: true,
       unrelated_stock_fallback_forbidden: true,
-      actual_full_screen_graphic_fraction: round(fullScreenGraphicFrames / (blueprint.proof_preview.duration_seconds * FPS)),
+      actual_full_screen_graphic_fraction: round(fullScreenGraphicFrames / (cut.duration_seconds * FPS)),
     },
-    role_fractions: Object.fromEntries(
-      Object.entries(roleFrames).map(([role, frames]) => [role, round(frames / (blueprint.proof_preview.duration_seconds * FPS))]),
-    ),
+    role_fractions: Object.fromEntries(Object.entries(roleFrames).map(([role, frames]) => [role, round(frames / (cut.duration_seconds * FPS))])),
     blacklisted_assets: BLACKLISTED,
     source_usage: Object.fromEntries([...usage.entries()].sort((a, b) => b[1] - a[1])),
     shots,
