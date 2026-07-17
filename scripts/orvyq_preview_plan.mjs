@@ -11,6 +11,7 @@ const ASSETS = {
   campus: media("scene_001_52c2ebe35b131555e20a5ab5"),
   research: media("scene_003_d69cde76dfac1e29bd6f9946"),
   reportDesk: media("scene_005_e98a421f0d9c432e4d2036fb"),
+  fireDrill: media("scene_006_7e0d77fb76615c10d441204a"),
   cityNight: media("scene_011_bff417a92fed9423fe0dd580"),
   lock: media("scene_013_d8d3231e6f0b69b7def0fd48"),
   network: media("scene_017_17388828bde9ac80bd22eb8e"),
