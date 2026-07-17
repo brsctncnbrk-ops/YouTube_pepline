@@ -13,7 +13,7 @@ const MUSIC_SECTIONS = [
   { id: "controlled_tension", start: 0, end: 35, purpose: "Opening paradox and competitive pressure", energy_start: 0.28, energy_end: 0.44 },
   { id: "analytical_unease", start: 35, end: 78, purpose: "Public reports and controlled evaluation setup", energy_start: 0.42, energy_end: 0.58 },
   { id: "engineered_pressure", start: 78, end: 104, purpose: "Replacement threat and harmful-action result", energy_start: 0.58, energy_end: 0.86 },
-  { id: "reflective_release", start: 104, end: 120, purpose: "Test-versus-incident limitation and clean outro", energy_start: 0.42, energy_end: 0.18 },
+  { id: "reflective_release", start: 104, end: 120, purpose: "Test-versus-incident limitation and clean outro", energy_start: 0.48, energy_end: 0.26 },
 ];
 
 async function command(binary, args) {
@@ -37,11 +37,11 @@ function normalizeFilter(loudnorm = null) {
   return loudnorm ? `loudnorm=I=-16:TP=-1.5:LRA=9:measured_I=${loudnorm.input_i}:measured_TP=${loudnorm.input_tp}:measured_LRA=${loudnorm.input_lra}:measured_thresh=${loudnorm.input_thresh}:offset=${loudnorm.target_offset}:linear=true:print_format=summary` : "loudnorm=I=-16:TP=-1.5:LRA=9:print_format=json";
 }
 function voiceAndMusicFilter(narrationDuration, outputDuration, loudnorm = null) {
-  const musicFadeOut = Math.max(0, outputDuration - 4);
-  const musicArc = "if(lt(t,35),0.15+0.035*t/35,if(lt(t,78),0.185+0.035*(t-35)/43,if(lt(t,104),0.22+0.07*(t-78)/26,0.16-0.05*(t-104)/16)))";
+  const musicFadeOut = Math.max(0, outputDuration - 1.2);
+  const musicArc = "if(lt(t,35),0.15+0.035*t/35,if(lt(t,78),0.185+0.035*(t-35)/43,if(lt(t,104),0.22+0.07*(t-78)/26,0.18-0.035*(t-104)/16)))";
   return [
     `[0:a]atrim=duration=${narrationDuration},apad=pad_dur=${Math.max(0, outputDuration - narrationDuration)},atrim=duration=${outputDuration},highpass=f=70,lowpass=f=15500,acompressor=threshold=-20dB:ratio=2.4:attack=15:release=180,asplit=2[voice_sc][voice_mix]`,
-    `[1:a]atrim=duration=${outputDuration},volume='${musicArc}':eval=frame,afade=t=in:st=0:d=2.2,afade=t=out:st=${musicFadeOut}:d=4[music]`,
+    `[1:a]atrim=duration=${outputDuration},volume='${musicArc}':eval=frame,afade=t=in:st=0:d=2.2,afade=t=out:st=${musicFadeOut}:d=1.2[music]`,
     "[music][voice_sc]sidechaincompress=threshold=0.015:ratio=9:attack=12:release=620[ducked]",
     `[voice_mix][ducked]amix=inputs=2:normalize=0,${normalizeFilter(loudnorm)},aformat=channel_layouts=stereo[mix]`,
   ].join(";");
@@ -62,7 +62,7 @@ async function generateOriginalSectionedScore(musicDir) {
     { frequencies: [55, 73.42, 82.41, 110], volumes: [0.19, 0.12, 0.075, 0.04], tremolo: [0.12, 0.16, 0.21, 0.27], depth: 0.16, lowpass: 1250, echo: "640|1280:0.12|0.06", gain: 0.72 },
     { frequencies: [58.27, 87.31, 116.54, 174.61], volumes: [0.16, 0.105, 0.065, 0.035], tremolo: [0.18, 0.23, 0.31, 0.38], depth: 0.2, lowpass: 1850, echo: "430|860:0.13|0.07", gain: 0.85 },
     { frequencies: [49, 73.42, 98, 146.83], volumes: [0.21, 0.13, 0.075, 0.035], tremolo: [1.5, 0.75, 0.38, 0.24], depth: 0.32, lowpass: 1500, echo: "360|720:0.11|0.055", gain: 1.08 },
-    { frequencies: [65.41, 82.41, 110, 164.81], volumes: [0.13, 0.09, 0.055, 0.032], tremolo: [0.1, 0.13, 0.17, 0.21], depth: 0.12, lowpass: 2100, echo: "720|1440:0.14|0.065", gain: 0.58 },
+    { frequencies: [65.41, 82.41, 110, 164.81], volumes: [0.13, 0.09, 0.055, 0.032], tremolo: [0.1, 0.13, 0.17, 0.21], depth: 0.12, lowpass: 2100, echo: "720|1440:0.14|0.065", gain: 0.68 },
   ];
   const inputs = [];
   const filters = [];
@@ -80,7 +80,7 @@ async function generateOriginalSectionedScore(musicDir) {
   });
   filters.push(`[section0][section1]acrossfade=d=${CROSSFADE_SECONDS}:c1=tri:c2=tri[x01]`);
   filters.push(`[x01][section2]acrossfade=d=${CROSSFADE_SECONDS}:c1=tri:c2=tri[x012]`);
-  filters.push(`[x012][section3]acrossfade=d=${CROSSFADE_SECONDS}:c1=tri:c2=tri,afade=t=in:st=0:d=2,afade=t=out:st=116:d=4,alimiter=limit=0.82[bed]`);
+  filters.push(`[x012][section3]acrossfade=d=${CROSSFADE_SECONDS}:c1=tri:c2=tri,afade=t=in:st=0:d=2,afade=t=out:st=119:d=1,alimiter=limit=0.82[bed]`);
   await command("ffmpeg", ["-hide_banner", "-nostats", "-y", ...inputs, "-filter_complex", filters.join(";"), "-map", "[bed]", "-t", String(PREVIEW_SCORE_SECONDS), "-ac", "2", "-ar", "48000", "-c:a", "libmp3lame", "-b:a", "192k", output]);
   return output;
 }
