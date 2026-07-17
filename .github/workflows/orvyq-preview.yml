@@ -2,6 +2,9 @@ name: ORVYQ 2-Minute Quality Control
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - "claude/factforge-system-design-0pr3v3"
 
 permissions:
   contents: read
@@ -19,10 +22,17 @@ jobs:
       ORVYQ_AUDIO_LIMIT_SECONDS: "120"
       ORVYQ_NARRATION_LIMIT_SECONDS: "114.2"
     steps:
-      - name: Checkout with LFS assets
+      - name: Checkout exact source with LFS
         uses: actions/checkout@v4
         with:
           lfs: true
+
+      - name: Lock exact source commit
+        run: |
+          set -euo pipefail
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          test "$ACTUAL_SHA" = "$GITHUB_SHA"
+          printf '%s\n' "$ACTUAL_SHA" | tee render-source-sha.txt
 
       - name: Pull LFS assets
         run: git lfs pull
@@ -38,13 +48,16 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install media and speech tooling
+      - name: Install media, PDF and speech tooling
         run: |
           set -euo pipefail
           npm ci
           sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get install -y ffmpeg poppler-utils
           python -m pip install --disable-pip-version-check faster-whisper==1.2.0 requests==2.32.5
+
+      - name: Fetch and verify official primary evidence
+        run: node scripts/orvyq_fetch_primary_evidence.mjs
 
       - name: Build clean narration and music structure
         run: node scripts/orvyq_audio_mix.mjs
@@ -64,24 +77,26 @@ jobs:
         with:
           name: orvyq-narration-diagnostics-${{ github.run_id }}
           path: |
+            render-source-sha.txt
             narration-qa.log
             narration-qa.status
             projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
             projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
             projects/${{ env.PROJECT_ID }}/assets/music/orvyq_original_tonal_bed.mp3
+            projects/${{ env.PROJECT_ID }}/assets/evidence/primary_evidence.runtime.json
           if-no-files-found: warn
           retention-days: 7
 
       - name: Stop when narration verification failed
         run: test "$(cat narration-qa.status)" = "0"
 
-      - name: Build captions and evidence-led preview
+      - name: Build captions and zero-stock primary-evidence preview
         run: |
           set -euo pipefail
           node scripts/orvyq_caption_build.mjs
           node scripts/orvyq_preview_plan.mjs
 
-      - name: Run evidence, asset, semantic, pacing, mobile and music audits
+      - name: Run physical evidence, semantic, pacing, mobile and music audits
         run: |
           set -euo pipefail
           node scripts/orvyq_evidence_audit.mjs
@@ -97,7 +112,7 @@ jobs:
           node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
           node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
 
-      - name: Run editorial and license checks with diagnostics
+      - name: Run editorial and provenance checks with diagnostics
         run: |
           set +e
           node scripts/orvyq_edit_plan_tests.mjs > editorial-qa.log 2>&1
@@ -111,9 +126,9 @@ jobs:
           echo "$alignment_status" > alignment-qa.status
           echo "--- EDITORIAL QA ---"
           cat editorial-qa.log
-          echo "--- LICENSE QA ---"
+          echo "--- PROVENANCE QA ---"
           cat license-qa.log
-          echo "--- ALIGNMENT READINESS ---"
+          echo "--- PRE-RENDER READINESS (NOT FINAL ALIGNMENT) ---"
           cat alignment-qa.log
           exit 0
 
@@ -123,12 +138,15 @@ jobs:
         with:
           name: orvyq-editorial-diagnostics-${{ github.run_id }}
           path: |
+            render-source-sha.txt
             editorial-qa.log
             editorial-qa.status
             license-qa.log
             license-qa.status
             alignment-qa.log
             alignment-qa.status
+            projects/${{ env.PROJECT_ID }}/research/primary_evidence_manifest.json
+            projects/${{ env.PROJECT_ID }}/assets/evidence/primary_evidence.runtime.json
             projects/${{ env.PROJECT_ID }}/qa/license_audit.json
             projects/${{ env.PROJECT_ID }}/qa/evidence_coverage.json
             projects/${{ env.PROJECT_ID }}/qa/evidence_asset_audit.json
@@ -196,7 +214,7 @@ jobs:
           cat media-qa.log
           exit 0
 
-      - name: Create visual review contact sheets
+      - name: Create visual and mobile review sheets
         if: always()
         run: |
           set -euo pipefail
@@ -210,6 +228,10 @@ jobs:
               -i "$APP/out/orvyq_quality_control_2min.mp4" \
               -vf "fps=1/4,scale=320:-1,tile=5x6" \
               -frames:v 1 "$APP/out/orvyq_mobile_review_sheet.jpg"
+            ffmpeg -hide_banner -loglevel error -y \
+              -i "$APP/out/orvyq_quality_control_2min.mp4" \
+              -vf "fps=1/2,scale=640:-1,tile=5x12" \
+              -frames:v 1 "$APP/out/orvyq_primary_evidence_review_sheet.jpg"
             ffprobe -v error -show_format -show_streams -of json \
               "$APP/out/orvyq_quality_control_2min.mp4" > "$APP/out/orvyq_quality_control_probe.json"
           fi
@@ -220,13 +242,17 @@ jobs:
         with:
           name: orvyq-two-minute-quality-control-${{ github.run_id }}
           path: |
+            render-source-sha.txt
             media-qa.log
             media-qa.status
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_2min.mp4
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_contact_sheet.jpg
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_mobile_review_sheet.jpg
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_primary_evidence_review_sheet.jpg
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_probe.json
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/preview_render_stdout.txt
+            projects/${{ env.PROJECT_ID }}/research/primary_evidence_manifest.json
+            projects/${{ env.PROJECT_ID }}/assets/evidence/primary_evidence.runtime.json
             projects/${{ env.PROJECT_ID }}/qa/orvyq_preview_media_qa.json
             projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
             projects/${{ env.PROJECT_ID }}/qa/license_audit.json
