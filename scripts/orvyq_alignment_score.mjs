@@ -18,6 +18,26 @@ export async function buildAlignmentReadiness(projectId = PROJECT_ID) {
       readJson(path.join(dir, "direction", "edit_plan.json")),
     ]);
   const motionHook = auditMotionHook(plan);
+  const cinematicProof =
+    plan.preview && plan.quality_policy?.cinematic_body_footage === true;
+  const primaryEvidenceTargets = cinematicProof
+    ? { official_capture_fraction: 0.3, source_backed_fraction: 0.55 }
+    : { official_capture_fraction: 0.55, source_backed_fraction: null };
+  const primaryEvidenceReadiness = cinematicProof
+    ? Math.min(
+        clamp01(
+          semantic.official_primary_capture_fraction /
+            primaryEvidenceTargets.official_capture_fraction,
+        ),
+        clamp01(
+          semantic.evidence_archive_fraction /
+            primaryEvidenceTargets.source_backed_fraction,
+        ),
+      )
+    : clamp01(
+        semantic.official_primary_capture_fraction /
+          primaryEvidenceTargets.official_capture_fraction,
+      );
   const categories = {
     narration_integrity: {
       weight: 15,
@@ -25,9 +45,8 @@ export async function buildAlignmentReadiness(projectId = PROJECT_ID) {
     },
     physical_primary_evidence: {
       weight: 25,
-      score: assetAudit.pass
-        ? clamp01(semantic.official_primary_capture_fraction / 0.55) * 25
-        : 0,
+      score: assetAudit.pass ? primaryEvidenceReadiness * 25 : 0,
+      targets: primaryEvidenceTargets,
     },
     source_coverage: {
       weight: 15,
@@ -82,7 +101,7 @@ export async function buildAlignmentReadiness(projectId = PROJECT_ID) {
         (category) => category.score >= category.weight * 0.65,
       );
   const report = {
-    schema_version: "2.1-motion-hook-readiness-only",
+    schema_version: "2.2-cinematic-source-balance-readiness-only",
     project_id: projectId,
     preview: Boolean(plan.preview),
     categories,
