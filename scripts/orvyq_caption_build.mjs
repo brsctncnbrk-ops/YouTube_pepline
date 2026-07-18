@@ -6,6 +6,7 @@ import { projectDir, readJson, writeJsonAtomic } from "./lib/fs-utils.mjs";
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
 const MAX_WORDS = 7;
 const MAX_CHARS = 52;
+const MAX_SPEECH_GAP_SECONDS = 0.8;
 
 function cleanDisplayToken(token) {
   return String(token || "").replace(/\s+/g, " ").trim();
@@ -198,7 +199,14 @@ function buildChunks(words) {
   let current = [];
   for (const word of words) {
     const currentText = current.map((item) => item.text).join(" ");
-    if (current.length && shouldBreak(currentText, current.length, word.text)) {
+    const speechGap = current.length
+      ? Number(word.start) - Number(current.at(-1).end)
+      : 0;
+    if (
+      current.length &&
+      (speechGap > MAX_SPEECH_GAP_SECONDS ||
+        shouldBreak(currentText, current.length, word.text))
+    ) {
       chunks.push(current);
       current = [];
     }
@@ -228,6 +236,11 @@ export async function buildOrvyqCaptions(projectId = PROJECT_ID) {
   const previewFrames = Number.parseInt(process.env.ORVYQ_PREVIEW_FRAMES || "0", 10);
   const maxFrame = previewFrames > 0 ? previewFrames : composition.duration_frames;
   const maxSeconds = maxFrame / composition.fps;
+  const pauseFrames = (audioMetadata.pause_windows || []).map((pause) => ({
+    id: pause.pause_id,
+    start: Math.ceil(Number(pause.start) * composition.fps),
+    end: Math.floor(Number(pause.end) * composition.fps),
+  }));
   const approvedWords = scriptWords(approvedScript);
   const alignment = alignScriptToSpeech(approvedWords, speechWords.filter((word) => word.start < maxSeconds));
   const timedScript = interpolateUnmatched(alignment.target, alignment.mapping, speechWords)
@@ -236,14 +249,22 @@ export async function buildOrvyqCaptions(projectId = PROJECT_ID) {
   const captions = [];
   let previousEndFrame = 0;
 
-  chunks.forEach((chunk, index) => {
+  chunks.forEach((chunk) => {
     const timestampStart = Math.max(0, Math.floor(Number(chunk[0].start) * composition.fps));
-    const startFrame = Math.max(timestampStart, previousEndFrame);
+    let startFrame = Math.max(timestampStart, previousEndFrame);
     const rawEnd = Math.ceil((Number(chunk.at(-1).end) + 0.08) * composition.fps);
-    const endFrame = Math.min(maxFrame, Math.max(startFrame + 4, rawEnd));
+    let endFrame = Math.min(maxFrame, Math.max(startFrame + 4, rawEnd));
+    for (const pause of pauseFrames) {
+      if (startFrame < pause.start && endFrame > pause.end)
+        throw new Error(`Caption chunk spans editorial pause ${pause.id}`);
+      if (startFrame < pause.start && endFrame > pause.start)
+        endFrame = pause.start;
+      else if (startFrame < pause.end && endFrame > pause.end)
+        startFrame = pause.end;
+    }
     if (startFrame >= maxFrame || endFrame <= startFrame) return;
     captions.push({
-      caption_id: `caption_${String(index + 1).padStart(3, "0")}`,
+      caption_id: `caption_${String(captions.length + 1).padStart(3, "0")}`,
       scene_id: null,
       start_frame: startFrame,
       end_frame: endFrame,
@@ -253,14 +274,14 @@ export async function buildOrvyqCaptions(projectId = PROJECT_ID) {
   });
 
   const payload = {
-    schema_version: "3.0",
+    schema_version: "3.1-editorial-pause-aware",
     project_id: projectId,
     fps: composition.fps,
     duration_frames: maxFrame,
     source: "qa/speech_transcript.json",
     text_source: "voice/voice_script.txt",
     alignment_method: "dynamic-programming forced alignment of approved script words to verified final-audio word timestamps",
-    timing_policy: "approved script text with speech-derived timings; overlaps removed by monotonic frame clamping",
+    timing_policy: "approved script text with speech-derived timings; long speech gaps split captions; editorial pauses remain caption-free",
     alignment: {
       recognized_words: speechWords.length,
       aligned_script_words: timedScript.length,
@@ -272,6 +293,7 @@ export async function buildOrvyqCaptions(projectId = PROJECT_ID) {
       line_count: 1,
       max_words: MAX_WORDS,
       max_chars: MAX_CHARS,
+      max_speech_gap_seconds: MAX_SPEECH_GAP_SECONDS,
       font_family: "Arial, Helvetica, sans-serif",
       font_size_px: 36,
       background: "none",

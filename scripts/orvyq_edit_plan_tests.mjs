@@ -278,6 +278,8 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
   assert.equal(captions.style?.line_count, 1);
   assert.equal(captions.style?.active_word_effect, false);
   assert.equal(captions.style?.background, "none");
+  if (plan.quality_policy?.cinematic_body_footage)
+    assert.ok(captions.style?.max_speech_gap_seconds <= 0.8);
   assert.ok(captions.captions.length);
   assert.ok(captions.captions[0].start_frame <= 3);
   assert.match(captions.captions[0].text, /^Every major AI lab\b/i);
@@ -289,6 +291,22 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
     assert.ok(caption.end_frame > caption.start_frame);
     assert.ok(caption.start_frame >= previousCaptionEnd);
     previousCaptionEnd = caption.end_frame;
+  }
+  if (plan.quality_policy?.cinematic_body_footage) {
+    for (const pause of audioMetadata.pause_windows || []) {
+      const pauseStartFrame = Math.ceil(Number(pause.start) * plan.fps),
+        pauseEndFrame = Math.floor(Number(pause.end) * plan.fps),
+        overlappingCaptions = captions.captions.filter(
+          (caption) =>
+            caption.start_frame < pauseEndFrame &&
+            caption.end_frame > pauseStartFrame,
+        );
+      assert.deepEqual(
+        overlappingCaptions,
+        [],
+        `${pause.pause_id} must remain caption-free`,
+      );
+    }
   }
   if (!plan.preview) {
     const approvalPath = path.join(dir, "qa", "proof_approval.json"),
