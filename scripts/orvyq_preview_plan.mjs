@@ -49,10 +49,12 @@ function defaultFocus(evidence) {
 
 export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
   const dir = projectDir(projectId);
+  const cinematicProof = process.env.ORVYQ_CINEMATIC_PROOF === "1";
   const [
     composition,
     blueprint,
-    cut,
+    proofCut,
+    cinematicCut,
     motionHook,
     evidenceManifest,
     runtimeManifest,
@@ -60,15 +62,20 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
     readJson(path.join(dir, "remotion", "composition.json")),
     readJson(path.join(dir, "direction", "editorial_blueprint.json")),
     readJson(path.join(dir, "direction", "proof_preview_cut.json")),
+    readJson(path.join(dir, "direction", "cinematic_proof_cut.json")),
     readJson(path.join(dir, "direction", "motion_hook.json")),
     readJson(path.join(dir, "research", "primary_evidence_manifest.json")),
     readJson(
       path.join(dir, "assets", "evidence", "primary_evidence.runtime.json"),
     ),
   ]);
+  const cut = cinematicProof ? cinematicCut : proofCut;
   if (composition.fps !== FPS)
     throw new Error(`Preview plan expects ${FPS} fps, got ${composition.fps}`);
-  if (!evidenceManifest.policy?.proof_body_forbids_legacy_footage)
+  if (
+    !cinematicProof &&
+    !evidenceManifest.policy?.proof_body_forbids_legacy_footage
+  )
     throw new Error(
       "Primary evidence policy must restrict footage to the opening hook",
     );
@@ -76,7 +83,7 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
     throw new Error("Primary evidence runtime manifest did not pass");
 
   const evidenceBridge = (motionHook.evidence_bridge || []).map((entry) => {
-    const source = cut.shots[entry.source_shot_index];
+    const source = proofCut.shots[entry.source_shot_index];
     if (!source || source.asset_type !== "evidence")
       throw new Error(
         `Invalid evidence bridge source ${entry.source_shot_index}`,
@@ -87,11 +94,43 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
       transition_in: entry.transition_in || "cut",
     };
   });
-  const cutShots = [
-    ...(motionHook.shots || []),
-    ...evidenceBridge,
-    ...cut.shots.slice(Number(motionHook.replace_opening_shot_count || 0)),
-  ];
+  const resolvedCinematicShots = (cinematicCut.shots || []).map((entry) => {
+    let source = null;
+    if (Number.isInteger(entry.source_motion_hook_index))
+      source = motionHook.shots?.[entry.source_motion_hook_index];
+    if (Number.isInteger(entry.source_evidence_index))
+      source = proofCut.shots?.[entry.source_evidence_index];
+    if (
+      (entry.source_motion_hook_index !== undefined ||
+        entry.source_evidence_index !== undefined) &&
+      !source
+    )
+      throw new Error("Cinematic proof references a missing source shot");
+    const resolved = source
+      ? {
+          ...source,
+          ...entry,
+          ...(source.evidence || entry.evidence
+            ? { evidence: { ...(source.evidence || {}), ...(entry.evidence || {}) } }
+            : {}),
+          ...(source.graphic || entry.graphic
+            ? { graphic: { ...(source.graphic || {}), ...(entry.graphic || {}) } }
+            : {}),
+        }
+      : { ...entry };
+    delete resolved.source_motion_hook_index;
+    delete resolved.source_evidence_index;
+    return resolved;
+  });
+  const cutShots = cinematicProof
+    ? resolvedCinematicShots
+    : [
+        ...(motionHook.shots || []),
+        ...evidenceBridge,
+        ...proofCut.shots.slice(
+          Number(motionHook.replace_opening_shot_count || 0),
+        ),
+      ];
 
   const manifestById = new Map(
     (evidenceManifest.assets || []).map((asset) => [
@@ -130,7 +169,8 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
       transition_out:
         spec.transition_out || (index === cutShots.length - 1 ? "fade" : "cut"),
       text_overlay: null,
-      sound_cue: null,
+      sound_cue: spec.sound_cue || null,
+      emphasis_card: spec.emphasis_card || null,
     };
 
     if (spec.asset_type === "graphic") {
@@ -143,9 +183,14 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
       continue;
     }
     if (spec.asset_type === "footage") {
-      if (spec.hook_footage !== true)
+      const isHookFootage = spec.hook_footage === true;
+      const isContextualFootage = spec.contextual_footage === true;
+      if (
+        !isHookFootage &&
+        !(cinematicProof && isContextualFootage)
+      )
         throw new Error(
-          `${common.shot_id} footage is not approved hook footage`,
+          `${common.shot_id} footage is not approved for this proof mode`,
         );
       const absoluteVideo = path.join(dir, spec.video_asset || "");
       const provenancePath = path.join(
@@ -188,8 +233,11 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
         trim_in_sec: spec.trim_in_sec,
         trim_out_sec: spec.trim_out_sec,
         motion_variant: spec.motion_variant || "hold",
-        hook_footage: true,
-        provenance_mode: "approved_motion_hook",
+        hook_footage: isHookFootage,
+        contextual_footage: isContextualFootage,
+        provenance_mode: isHookFootage
+          ? "approved_motion_hook"
+          : "approved_contextual_footage",
         motif: spec.video_asset,
       });
       continue;
@@ -291,25 +339,38 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
   const footageFrames = shots
     .filter((shot) => shot.asset_type === "footage")
     .reduce((sum, shot) => sum + shot.end_frame - shot.start_frame, 0);
+  const hookFrames = shots
+    .filter((shot) => shot.hook_footage === true)
+    .reduce((sum, shot) => sum + shot.end_frame - shot.start_frame, 0);
+  const contextualBodyFrames = shots
+    .filter((shot) => shot.contextual_footage === true)
+    .reduce((sum, shot) => sum + shot.end_frame - shot.start_frame, 0);
+  const genericStockFrames = shots
+    .filter((shot) => shot.generic_stock === true)
+    .reduce((sum, shot) => sum + shot.end_frame - shot.start_frame, 0);
   const roleFrames = {};
   for (const shot of shots)
     roleFrames[shot.visual_role] =
       (roleFrames[shot.visual_role] || 0) + shot.end_frame - shot.start_frame;
 
   const plan = {
-    schema_version: "6.3-motion-hook-evidence-proof",
+    schema_version: cinematicProof
+      ? "7.0-cinematic-proof"
+      : "6.3-motion-hook-evidence-proof",
     project_id: projectId,
     fps: FPS,
     duration_frames: cut.duration_seconds * FPS,
     preview: true,
     production_mode: blueprint.production_mode,
-    preview_strategy: motionHook.purpose,
+    preview_strategy: cinematicProof ? cinematicCut.strategy : motionHook.purpose,
     render_source_sha: process.env.GITHUB_SHA || null,
     audio_mix_asset: "assets/audio/final_mix.mp3",
     captions_asset: "remotion/captions.json",
     art_direction: {
       principle:
-        "short licensed motion hook first; official primary evidence and source-derived graphics throughout the body",
+        cinematicProof
+          ? "short licensed motion hook first; then alternate source-backed evidence with semantically relevant licensed context footage and deliberate emphasis beats"
+          : "short licensed motion hook first; official primary evidence and source-derived graphics throughout the body",
       topic:
         "AI competition, safety frameworks, governance, and controlled agentic-misalignment evaluations",
       palette: {
@@ -328,7 +389,11 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
       automatic_asset_fallback_forbidden: true,
       unrelated_stock_fallback_forbidden: true,
       proof_stock_assets_forbidden: false,
-      proof_body_stock_assets_forbidden: true,
+      proof_body_stock_assets_forbidden: !cinematicProof,
+      cinematic_body_footage: cinematicProof,
+      contextual_footage_must_not_claim_literal_evidence: cinematicProof,
+      minimum_emphasis_beats: cinematicProof ? 4 : 0,
+      maximum_uninterrupted_evidence_seconds: cinematicProof ? 15 : null,
       motion_hook_required: true,
       motion_hook_min_seconds: motionHook.minimum_seconds,
       motion_hook_max_seconds: motionHook.maximum_seconds,
@@ -336,10 +401,16 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
       non_overlapping_dissolves_forbidden: true,
       document_focus_required: true,
       actual_generic_stock_fraction: round(
-        footageFrames / (cut.duration_seconds * FPS),
+        genericStockFrames / (cut.duration_seconds * FPS),
       ),
       actual_motion_hook_fraction: round(
+        hookFrames / (cut.duration_seconds * FPS),
+      ),
+      actual_total_footage_fraction: round(
         footageFrames / (cut.duration_seconds * FPS),
+      ),
+      actual_contextual_body_footage_fraction: round(
+        contextualBodyFrames / (cut.duration_seconds * FPS),
       ),
       actual_primary_evidence_fraction: round(
         evidenceFrames / (cut.duration_seconds * FPS),

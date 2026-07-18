@@ -284,8 +284,12 @@ export async function runMediaQa({
   );
   const integratedLufs = Number(measured.input_i);
   const truePeak = Number(measured.input_tp);
+  const loudnessRange = Number(measured.input_lra);
   const loudnessOk = integratedLufs >= -18 && integratedLufs <= -13;
   const truePeakOk = truePeak <= -1;
+  const dynamicsOk = loudnessRange >= 2;
+  const durationOk =
+    Math.abs(duration - Number(audioMetadata.duration_seconds || duration)) <= 0.15;
 
   const captionItems = captions.captions || [];
   const captionStyleOk =
@@ -317,11 +321,18 @@ export async function runMediaQa({
     "original_tonal_score",
     "approved_licensed_bed",
   ];
+  const sfxAssets = audioMetadata.sfx_assets || [];
+  const sfxOk =
+    sfxAssets.length === 0 ||
+    (audioMetadata.sfx_origin === "original_synthesized_sfx" &&
+      sfxAssets.length >= 3);
   const soundDesignOk =
     audioMetadata.procedural_noise_generation === false &&
     approvedMusicProfiles.includes(audioMetadata.music_profile) &&
     Boolean(audioMetadata.music_asset) &&
-    (audioMetadata.sfx_assets || []).length === 0;
+    sfxOk &&
+    Number(audioMetadata.music_mix_target_lufs ?? -23) >= -26 &&
+    Number(audioMetadata.music_mix_target_lufs ?? -23) <= -20;
   const declaredAssets = [
     audioMetadata.music_asset,
     ...(audioMetadata.sfx_assets || []),
@@ -343,8 +354,10 @@ export async function runMediaQa({
     nonTerminalBlack.length === 0 &&
     brightnessDrops.length === 0 &&
     meaningfulSilence.length === 0 &&
+    durationOk &&
     loudnessOk &&
     truePeakOk &&
+    dynamicsOk &&
     captionsOk &&
     soundDesignOk &&
     audioAssetsOk &&
@@ -364,6 +377,7 @@ export async function runMediaQa({
       max_nonterminal_silence_seconds: 2.5,
       integrated_lufs_range: [-18, -13],
       max_true_peak_dbtp: -1,
+      minimum_loudness_range: 2,
       caption_line_count: 1,
       max_caption_words: 7,
       max_caption_chars: 52,
@@ -380,8 +394,13 @@ export async function runMediaQa({
     loudness: {
       integrated_lufs: integratedLufs,
       true_peak_dbtp: truePeak,
-      loudness_range: Number(measured.input_lra),
-      pass: loudnessOk && truePeakOk,
+      loudness_range: loudnessRange,
+      pass: loudnessOk && truePeakOk && dynamicsOk,
+    },
+    duration: {
+      actual_seconds: duration,
+      expected_seconds: Number(audioMetadata.duration_seconds),
+      pass: durationOk,
     },
     speech: {
       word_count: speechQa.word_count,
@@ -402,7 +421,8 @@ export async function runMediaQa({
       music_profile: audioMetadata.music_profile,
       music_asset: audioMetadata.music_asset,
       procedural_noise_generation: audioMetadata.procedural_noise_generation,
-      sfx_types: (audioMetadata.sfx_assets || []).length,
+      sfx_types: sfxAssets.length,
+      sfx_origin: audioMetadata.sfx_origin || null,
       assets_exist: audioAssetsOk,
       pass: soundDesignOk && audioAssetsOk,
     },
@@ -412,7 +432,7 @@ export async function runMediaQa({
   await writeJsonAtomic(reportPath, report);
   if (!pass) {
     throw new Error(
-      `ORVYQ media QA failed: black=${nonTerminalBlack.length}, brightness_drops=${brightnessDrops.length}, silence=${meaningfulSilence.length}, LUFS=${integratedLufs}, speech=${speechOk}, opening=${openingSpeechOk}, captions=${captionsOk}, sound=${soundDesignOk && audioAssetsOk}`,
+      `ORVYQ media QA failed: black=${nonTerminalBlack.length}, brightness_drops=${brightnessDrops.length}, silence=${meaningfulSilence.length}, duration=${durationOk}, LUFS=${integratedLufs}, LRA=${loudnessRange}, speech=${speechOk}, opening=${openingSpeechOk}, captions=${captionsOk}, sound=${soundDesignOk && audioAssetsOk}`,
     );
   }
   return report;

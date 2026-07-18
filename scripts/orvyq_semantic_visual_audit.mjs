@@ -39,9 +39,14 @@ export async function runSemanticVisualAudit(projectId = PROJECT_ID) {
   const failures = [],
     warnings = [];
   let footageFrames = 0,
+    genericStockFrames = 0,
+    contextualBodyFrames = 0,
     officialFrames = 0,
     derivedFrames = 0,
-    pureGraphicFrames = 0;
+    pureGraphicFrames = 0,
+    emphasisBeats = 0,
+    currentEvidenceRunFrames = 0,
+    maximumEvidenceRunFrames = 0;
   const roleFrames = {},
     motifUses = new Map(),
     imageUses = new Map();
@@ -54,9 +59,26 @@ export async function runSemanticVisualAudit(projectId = PROJECT_ID) {
     roleFrames[shot.visual_role] = (roleFrames[shot.visual_role] || 0) + frames;
     if (shot.asset_type === "footage") {
       footageFrames += frames;
-      if (plan.preview && shot.hook_footage !== true)
-        failures.push(`${shot.shot_id} uses footage outside the approved hook`);
+      if (shot.generic_stock === true) genericStockFrames += frames;
+      if (shot.contextual_footage === true) contextualBodyFrames += frames;
+      if (shot.emphasis_card) emphasisBeats += 1;
+      if (
+        plan.preview &&
+        shot.hook_footage !== true &&
+        !(
+          plan.quality_policy?.cinematic_body_footage === true &&
+          shot.contextual_footage === true &&
+          shot.provenance_mode === "approved_contextual_footage"
+        )
+      )
+        failures.push(`${shot.shot_id} uses unapproved body footage`);
+      currentEvidenceRunFrames = 0;
     } else if (shot.asset_type === "evidence") {
+      currentEvidenceRunFrames += frames;
+      maximumEvidenceRunFrames = Math.max(
+        maximumEvidenceRunFrames,
+        currentEvidenceRunFrames,
+      );
       const kind = shot.evidence?.kind;
       if (OFFICIAL.has(kind)) officialFrames += frames;
       else if (DERIVED.has(kind)) derivedFrames += frames;
@@ -65,7 +87,10 @@ export async function runSemanticVisualAudit(projectId = PROJECT_ID) {
         failures.push(`${shot.shot_id} evidence has no source IDs`);
       for (const image of shot.evidence?.image_assets || [])
         imageUses.set(image, (imageUses.get(image) || 0) + 1);
-    } else if (shot.asset_type === "graphic") pureGraphicFrames += frames;
+    } else if (shot.asset_type === "graphic") {
+      pureGraphicFrames += frames;
+      currentEvidenceRunFrames = 0;
+    }
     const motif =
       shot.asset_type === "evidence"
         ? `evidence:${shot.evidence?.kind}:${shot.evidence?.title}`
@@ -73,27 +98,59 @@ export async function runSemanticVisualAudit(projectId = PROJECT_ID) {
     if (motif) motifUses.set(motif, (motifUses.get(motif) || 0) + 1);
   }
   const duration = plan.duration_frames || 1;
-  const genericFraction = footageFrames / duration,
+  const genericFraction = genericStockFrames / duration,
+    totalFootageFraction = footageFrames / duration,
+    contextualBodyFraction = contextualBodyFrames / duration,
     officialFraction = officialFrames / duration,
     derivedFraction = derivedFrames / duration,
     graphicFraction = pureGraphicFrames / duration,
     totalEvidenceFraction = (officialFrames + derivedFrames) / duration;
   const motionHook = auditMotionHook(plan);
+  const cinematicProof =
+    plan.preview && plan.quality_policy?.cinematic_body_footage === true;
   if (plan.preview && !motionHook.pass) failures.push(...motionHook.failures);
-  if (plan.preview && genericFraction > 0.12)
+  if (plan.preview && !cinematicProof && totalFootageFraction > 0.12)
     failures.push(
-      `proof hook footage ${(genericFraction * 100).toFixed(1)}%; maximum 12%`,
+      `proof hook footage ${(totalFootageFraction * 100).toFixed(1)}%; maximum 12%`,
     );
-  if (plan.preview && officialFraction < 0.55)
+  if (plan.preview && !cinematicProof && officialFraction < 0.55)
     failures.push(
       `official captures ${(officialFraction * 100).toFixed(1)}%; required 55%`,
     );
+  if (cinematicProof && contextualBodyFraction < 0.25)
+    failures.push(
+      `contextual body footage ${(contextualBodyFraction * 100).toFixed(1)}%; minimum 25%`,
+    );
+  if (cinematicProof && contextualBodyFraction > 0.4)
+    failures.push(
+      `contextual body footage ${(contextualBodyFraction * 100).toFixed(1)}%; maximum 40%`,
+    );
+  if (cinematicProof && officialFraction < 0.3)
+    failures.push(
+      `official captures ${(officialFraction * 100).toFixed(1)}%; required 30%`,
+    );
+  if (cinematicProof && emphasisBeats < 4)
+    failures.push(`cinematic proof contains ${emphasisBeats} emphasis beats; 4 required`);
   if (
+    cinematicProof &&
+    maximumEvidenceRunFrames / plan.fps >
+      Number(plan.quality_policy?.maximum_uninterrupted_evidence_seconds || 15) +
+        0.001
+  )
+    failures.push(
+      `uninterrupted evidence run ${(maximumEvidenceRunFrames / plan.fps).toFixed(2)}s exceeds 15s`,
+    );
+  if (
+    !cinematicProof &&
     totalEvidenceFraction <
     Math.max(0.75, Number(rules.evidence_and_archive_fraction_min || 0))
   )
     failures.push(
       `evidence/source-derived scenes ${(totalEvidenceFraction * 100).toFixed(1)}%; required 75%`,
+    );
+  if (cinematicProof && totalEvidenceFraction < 0.55)
+    failures.push(
+      `evidence/source-derived scenes ${(totalEvidenceFraction * 100).toFixed(1)}%; required 55%`,
     );
   if (graphicFraction > Number(rules.full_screen_graphic_fraction_max || 0.1))
     failures.push(`pure graphics ${(graphicFraction * 100).toFixed(1)}%`);
@@ -148,10 +205,15 @@ export async function runSemanticVisualAudit(projectId = PROJECT_ID) {
       ]),
     ),
     generic_stock_fraction: genericFraction,
+    total_footage_fraction: totalFootageFraction,
+    contextual_body_footage_fraction: contextualBodyFraction,
     official_primary_capture_fraction: officialFraction,
     source_derived_graphic_fraction: derivedFraction,
     evidence_archive_fraction: totalEvidenceFraction,
     full_screen_graphic_fraction: graphicFraction,
+    emphasis_beat_count: emphasisBeats,
+    maximum_uninterrupted_evidence_seconds:
+      maximumEvidenceRunFrames / plan.fps,
     image_uses: Object.fromEntries(
       [...imageUses.entries()].sort((a, b) => b[1] - a[1]),
     ),

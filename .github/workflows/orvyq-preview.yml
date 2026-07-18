@@ -1,4 +1,4 @@
-name: ORVYQ 2-Minute Quality Control
+name: ORVYQ 150-Second Cinematic Proof
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: orvyq-two-minute-quality-control
+  group: orvyq-150-second-cinematic-proof
   cancel-in-progress: true
 
 jobs:
@@ -18,9 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
-      ORVYQ_PREVIEW_FRAMES: "3600"
-      ORVYQ_AUDIO_LIMIT_SECONDS: "120"
+      ORVYQ_PREVIEW_FRAMES: "4500"
+      ORVYQ_AUDIO_LIMIT_SECONDS: "150"
       ORVYQ_NARRATION_LIMIT_SECONDS: "114.2"
+      ORVYQ_EDITORIAL_PAUSES: "1"
+      ORVYQ_CINEMATIC_PROOF: "1"
+      ORVYQ_REQUIRE_APPROVED_MUSIC: "1"
     steps:
       - name: Checkout exact source with LFS
         uses: actions/checkout@v4
@@ -59,13 +62,16 @@ jobs:
       - name: Fetch and verify official primary evidence
         run: node scripts/orvyq_fetch_primary_evidence.mjs
 
-      - name: Build clean narration and music structure
+      - name: Fetch licensed cinematic proof music
+        run: node scripts/orvyq_fetch_proof_music.mjs
+
+      - name: Build paused narration, music and restrained sound design
         run: node scripts/orvyq_audio_mix.mjs
 
       - name: Verify narration and capture diagnostics
         run: |
           set +e
-          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --max-seconds 120 > narration-qa.log 2>&1
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --max-seconds 150 > narration-qa.log 2>&1
           status=$?
           echo "$status" > narration-qa.status
           cat narration-qa.log
@@ -82,7 +88,9 @@ jobs:
             narration-qa.status
             projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
             projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
-            projects/${{ env.PROJECT_ID }}/assets/music/orvyq_original_tonal_bed.mp3
+            projects/${{ env.PROJECT_ID }}/assets/music/approved_bed.mp3
+            projects/${{ env.PROJECT_ID }}/assets/music/approved_bed.provenance.json
+            projects/${{ env.PROJECT_ID }}/assets/sfx/*.wav
             projects/${{ env.PROJECT_ID }}/assets/evidence/primary_evidence.runtime.json
           if-no-files-found: warn
           retention-days: 7
@@ -90,7 +98,7 @@ jobs:
       - name: Stop when narration verification failed
         run: test "$(cat narration-qa.status)" = "0"
 
-      - name: Build captions and motion-hook primary-evidence preview
+      - name: Build captions and cinematic proof edit
         run: |
           set -euo pipefail
           node scripts/orvyq_caption_build.mjs
@@ -158,6 +166,8 @@ jobs:
             projects/${{ env.PROJECT_ID }}/remotion/captions.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
             projects/${{ env.PROJECT_ID }}/direction/motion_hook.json
+            projects/${{ env.PROJECT_ID }}/direction/cinematic_proof_cut.json
+            projects/${{ env.PROJECT_ID }}/direction/editorial_pause_map.json
           if-no-files-found: warn
           retention-days: 7
 
@@ -182,14 +192,14 @@ jobs:
           echo "FACTFORGE_REMOTION_BROWSER_EXECUTABLE=$BROWSER" >> "$GITHUB_ENV"
           "$BROWSER" --version
 
-      - name: Render exactly two minutes
+      - name: Render 150-second cinematic proof
         run: |
           set -euo pipefail
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
           mkdir -p "$APP/out"
           cd "$APP"
-          npx remotion render src/index.ts FactForgeVideo out/orvyq_quality_control_2min.mp4 \
-            --codec=h264 --frames=0-3599 --concurrency=1 --image-format=png \
+          npx remotion render src/index.ts FactForgeVideo out/orvyq_cinematic_proof_150s.mp4 \
+            --codec=h264 --frames=0-4499 --concurrency=1 --image-format=png \
             2>&1 | tee out/preview_render_stdout.txt
 
       - name: Repair isolated renderer brightness corruption
@@ -198,7 +208,7 @@ jobs:
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
           node scripts/orvyq_brightness_repair.mjs \
             --project-id "$PROJECT_ID" \
-            --video "$APP/out/orvyq_quality_control_2min.mp4"
+            --video "$APP/out/orvyq_cinematic_proof_150s.mp4"
 
       - name: Verify speech in rendered preview
         run: |
@@ -206,8 +216,8 @@ jobs:
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
           python scripts/orvyq_speech_qa.py \
             --project-id "$PROJECT_ID" \
-            --media "$APP/out/orvyq_quality_control_2min.mp4" \
-            --max-seconds 120 \
+            --media "$APP/out/orvyq_cinematic_proof_150s.mp4" \
+            --max-seconds 150 \
             --output-name speech_transcript.json
 
       - name: Run post-render media QA with diagnostics
@@ -216,7 +226,7 @@ jobs:
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
           node scripts/orvyq_media_qa.mjs \
             --project-id "$PROJECT_ID" \
-            --video "$APP/out/orvyq_quality_control_2min.mp4" \
+            --video "$APP/out/orvyq_cinematic_proof_150s.mp4" \
             --report "projects/$PROJECT_ID/qa/orvyq_preview_media_qa.json" \
             > media-qa.log 2>&1
           status=$?
@@ -229,37 +239,37 @@ jobs:
         run: |
           set -euo pipefail
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
-          if [ -f "$APP/out/orvyq_quality_control_2min.mp4" ]; then
+          if [ -f "$APP/out/orvyq_cinematic_proof_150s.mp4" ]; then
             ffmpeg -hide_banner -loglevel error -y \
-              -t 20 -i "$APP/out/orvyq_quality_control_2min.mp4" \
+              -t 20 -i "$APP/out/orvyq_cinematic_proof_150s.mp4" \
               -vf "fps=1,scale=480:-1,tile=5x4" \
               -frames:v 1 "$APP/out/orvyq_intro_review_sheet.jpg"
             ffmpeg -hide_banner -loglevel error -y \
-              -i "$APP/out/orvyq_quality_control_2min.mp4" \
-              -vf "fps=1/10,scale=480:-1,tile=4x3" \
+              -i "$APP/out/orvyq_cinematic_proof_150s.mp4" \
+              -vf "fps=1/10,scale=480:-1,tile=5x3" \
               -frames:v 1 "$APP/out/orvyq_quality_control_contact_sheet.jpg"
             ffmpeg -hide_banner -loglevel error -y \
-              -i "$APP/out/orvyq_quality_control_2min.mp4" \
-              -vf "fps=1/4,scale=320:-1,tile=5x6" \
+              -i "$APP/out/orvyq_cinematic_proof_150s.mp4" \
+              -vf "fps=1/5,scale=320:-1,tile=5x6" \
               -frames:v 1 "$APP/out/orvyq_mobile_review_sheet.jpg"
             ffmpeg -hide_banner -loglevel error -y \
-              -i "$APP/out/orvyq_quality_control_2min.mp4" \
-              -vf "fps=1/2,scale=640:-1,tile=5x12" \
+              -i "$APP/out/orvyq_cinematic_proof_150s.mp4" \
+              -vf "fps=1/3,scale=640:-1,tile=5x10" \
               -frames:v 1 "$APP/out/orvyq_primary_evidence_review_sheet.jpg"
             ffprobe -v error -show_format -show_streams -of json \
-              "$APP/out/orvyq_quality_control_2min.mp4" > "$APP/out/orvyq_quality_control_probe.json"
+              "$APP/out/orvyq_cinematic_proof_150s.mp4" > "$APP/out/orvyq_quality_control_probe.json"
           fi
 
-      - name: Upload two-minute approval and diagnostic package
+      - name: Upload cinematic proof approval and diagnostic package
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: orvyq-two-minute-quality-control-${{ github.run_id }}
+          name: orvyq-cinematic-proof-150s-${{ github.run_id }}
           path: |
             render-source-sha.txt
             media-qa.log
             media-qa.status
-            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_2min.mp4
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_cinematic_proof_150s.mp4
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_intro_review_sheet.jpg
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_contact_sheet.jpg
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_mobile_review_sheet.jpg
@@ -280,9 +290,13 @@ jobs:
             projects/${{ env.PROJECT_ID }}/qa/music_cue_audit.json
             projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
             projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
+            projects/${{ env.PROJECT_ID }}/assets/music/approved_bed.provenance.json
             projects/${{ env.PROJECT_ID }}/remotion/captions.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
             projects/${{ env.PROJECT_ID }}/direction/motion_hook.json
+            projects/${{ env.PROJECT_ID }}/direction/cinematic_proof_cut.json
+            projects/${{ env.PROJECT_ID }}/direction/cinematic_revision_plan.json
+            projects/${{ env.PROJECT_ID }}/direction/editorial_pause_map.json
           if-no-files-found: warn
           retention-days: 14
 

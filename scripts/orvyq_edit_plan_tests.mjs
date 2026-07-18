@@ -106,7 +106,14 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
       audioMetadata.music_profile,
     ),
   );
-  assert.deepEqual(audioMetadata.sfx_assets, []);
+  if (plan.quality_policy?.cinematic_body_footage) {
+    assert.equal(audioMetadata.sfx_origin, "original_synthesized_sfx");
+    assert.ok((audioMetadata.sfx_assets || []).length >= 3);
+    assert.ok((audioMetadata.pause_windows || []).length >= 4);
+    assert.ok(audioMetadata.editorial_pause_seconds >= 20);
+  } else {
+    assert.deepEqual(audioMetadata.sfx_assets, []);
+  }
   assert.equal(speechQa.passed, true);
   assert.ok(speechQa.script_similarity >= 0.85);
   for (const audit of [
@@ -127,7 +134,10 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
   assert.ok(plan.duration_frames <= composition.duration_frames);
   const motionHook = auditMotionHook(plan);
   if (plan.preview) {
-    assert.equal(plan.quality_policy?.proof_body_stock_assets_forbidden, true);
+    assert.equal(
+      plan.quality_policy?.proof_body_stock_assets_forbidden,
+      !plan.quality_policy?.cinematic_body_footage,
+    );
     assert.equal(plan.quality_policy?.motion_hook_required, true);
     assert.equal(plan.quality_policy?.metadata_cannot_define_evidence, true);
     assert.equal(motionHook.pass, true, motionHook.failures.join(", "));
@@ -138,6 +148,8 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
     shotDurations = new Set();
   let pureGraphicFrames = 0,
     evidenceFrames = 0,
+    contextualFootageFrames = 0,
+    emphasisBeats = 0,
     previousSignature = null;
   for (let index = 0; index < shots.length; index++) {
     const shot = shots[index],
@@ -152,7 +164,15 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
     if (index > 0) assert.equal(shot.start_frame, shots[index - 1].end_frame);
     assert.ok(["cut", "fade", "dissolve"].includes(shot.transition_in));
     assert.ok(["cut", "fade", "dissolve"].includes(shot.transition_out));
-    assert.equal(shot.sound_cue ?? null, null);
+    if (shot.emphasis_card) {
+      emphasisBeats += 1;
+      assert.equal(shot.asset_type, "footage");
+      assert.ok(shot.emphasis_card.title?.length >= 8);
+      assert.ok(shot.emphasis_card.eyebrow?.length >= 5);
+      assert.ok(["low_impact", "tonal_bloom"].includes(shot.sound_cue));
+    } else {
+      assert.equal(shot.sound_cue ?? null, null);
+    }
     assert.ok(claimIds.has(shot.claim_id));
     assert.ok(VALID_ROLES.has(shot.visual_role));
     assert.ok(shot.editorial_purpose?.length >= 18);
@@ -215,7 +235,15 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
       continue;
     }
     assert.equal(shot.asset_type, "footage");
-    if (plan.preview) assert.equal(shot.hook_footage, true);
+    if (plan.preview) {
+      const approvedHook = shot.hook_footage === true;
+      const approvedContext =
+        plan.quality_policy?.cinematic_body_footage === true &&
+        shot.contextual_footage === true &&
+        shot.provenance_mode === "approved_contextual_footage";
+      assert.ok(approvedHook || approvedContext);
+      if (approvedContext) contextualFootageFrames += frames;
+    }
     footageUsage.set(
       shot.video_asset,
       (footageUsage.get(shot.video_asset) || 0) + 1,
@@ -230,12 +258,20 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
     previousSignature = `footage:${shot.video_asset}`;
   }
   const graphicFraction = pureGraphicFrames / plan.duration_frames,
-    evidenceFraction = evidenceFrames / plan.duration_frames;
+    evidenceFraction = evidenceFrames / plan.duration_frames,
+    contextualFootageFraction = contextualFootageFrames / plan.duration_frames;
   assert.ok(
     graphicFraction <=
       Number(blueprint.global_rules.full_screen_graphic_fraction_max || 0.1),
   );
-  if (plan.preview) assert.ok(evidenceFraction >= 0.85);
+  if (plan.preview && plan.quality_policy?.cinematic_body_footage) {
+    assert.ok(evidenceFraction >= 0.55);
+    assert.ok(contextualFootageFraction >= 0.25);
+    assert.ok(contextualFootageFraction <= 0.4);
+    assert.ok(emphasisBeats >= 4);
+  } else if (plan.preview) {
+    assert.ok(evidenceFraction >= 0.85);
+  }
   assert.ok(shotDurations.size >= 5);
   assert.equal(captions.source, "qa/speech_transcript.json");
   assert.equal(captions.text_source, "voice/voice_script.txt");
@@ -279,8 +315,15 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
       (shot) => shot.asset_type === "footage" && shot.hook_footage === true,
     ).length,
     legacy_footage_count: shots.filter(
-      (shot) => shot.asset_type === "footage" && shot.hook_footage !== true,
+      (shot) =>
+        shot.asset_type === "footage" &&
+        shot.hook_footage !== true &&
+        shot.contextual_footage !== true,
     ).length,
+    contextual_footage_count: shots.filter(
+      (shot) => shot.asset_type === "footage" && shot.contextual_footage === true,
+    ).length,
+    emphasis_beat_count: shots.filter((shot) => shot.emphasis_card).length,
     motion_hook: motionHook,
     pure_graphic_count: shots.filter((shot) => shot.asset_type === "graphic")
       .length,

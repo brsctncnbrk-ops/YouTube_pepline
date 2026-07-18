@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import path from "node:path";
+import { promises as fs } from "node:fs";
+import { createHash } from "node:crypto";
 import {
   projectDir,
   readJson,
@@ -152,11 +154,46 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
       license:
         audioMetadata.music_profile === "original_tonal_score"
           ? "Original ORVYQ tonal score generated locally; no third-party recording."
-          : "Approved licensed bed; evidence required.",
+          : audioMetadata.music_attribution || "Approved licensed bed; evidence required.",
     });
+  let musicProvenance = null;
+  if (audioMetadata.music_profile === "approved_licensed_bed") {
+    if (!audioMetadata.music_provenance)
+      throw new Error("Approved music does not declare a provenance record");
+    const provenancePath = path.join(dir, audioMetadata.music_provenance);
+    if (!(await pathExists(provenancePath)))
+      throw new Error("Approved music provenance file is missing");
+    musicProvenance = await readJson(provenancePath);
+    if (
+      musicProvenance.asset !== audioMetadata.music_asset ||
+      musicProvenance.approved_for_final_edit !== true ||
+      !String(musicProvenance.license_url || "").includes("/licenses/by/4.0") ||
+      !musicProvenance.attribution
+    )
+      throw new Error("Approved music provenance is incomplete");
+    const musicBytes = await fs.readFile(path.join(dir, audioMetadata.music_asset));
+    const actualMusicHash = createHash("sha256").update(musicBytes).digest("hex");
+    if (actualMusicHash !== musicProvenance.sha256)
+      throw new Error("Approved music SHA-256 does not match its provenance record");
+  }
+  const cinematicProof =
+    plan.preview && plan.quality_policy?.cinematic_body_footage === true;
+  const soundEffects = [];
+  for (const asset of audioMetadata.sfx_assets || []) {
+    if (!(await pathExists(path.join(dir, asset))))
+      throw new Error(`Declared SFX is missing: ${asset}`);
+    soundEffects.push({
+      asset,
+      origin: audioMetadata.sfx_origin,
+      license: "Original synthesized sound effect generated locally for ORVYQ.",
+      placements: (audioMetadata.sfx_placements || []).filter(
+        (placement) => placement.asset === asset,
+      ),
+    });
+  }
   const maximum = Math.max(0, ...usage.values());
   const result = {
-    schema_version: "5.1-motion-hook-provenance",
+    schema_version: "6.0-cinematic-proof-provenance",
     project_id: projectId,
     preview: Boolean(plan.preview),
     purpose:
@@ -169,16 +206,25 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
     maximum_primary_capture_uses: maximum,
     source_use_limit: plan.quality_policy?.max_uses_per_source ?? 2,
     audio,
+    music_provenance: musicProvenance,
+    sound_effects: soundEffects,
     procedural_noise_generation: audioMetadata.procedural_noise_generation,
     procedural_sfx_count: (audioMetadata.sfx_assets || []).length,
+    sfx_origin: audioMetadata.sfx_origin || null,
   };
   if (maximum > result.source_use_limit)
     throw new Error(`Primary capture use limit exceeded: ${maximum}`);
+  if (result.procedural_noise_generation !== false)
+    throw new Error("Unapproved procedural noise remains");
   if (
-    result.procedural_noise_generation !== false ||
-    result.procedural_sfx_count !== 0
+    result.procedural_sfx_count > 0 &&
+    !(
+      cinematicProof &&
+      result.sfx_origin === "original_synthesized_sfx" &&
+      result.procedural_sfx_count >= 3
+    )
   )
-    throw new Error("Unapproved procedural noise or SFX remains");
+    throw new Error("SFX assets are not approved original cinematic-proof effects");
   await writeJsonAtomic(path.join(dir, "qa", "license_audit.json"), result);
   return result;
 }

@@ -21,10 +21,38 @@ export async function runMusicCueAudit(projectId = PROJECT_ID) {
   ]);
   const failures = [];
   const warnings = [];
+  const cinematicProof =
+    plan.preview && plan.quality_policy?.cinematic_body_footage === true;
 
   if (audioMetadata.procedural_noise_generation !== false) failures.push("procedural noise generation must remain disabled");
-  if ((audioMetadata.sfx_assets || []).length) failures.push("unapproved SFX assets are present");
+  if (cinematicProof) {
+    if (audioMetadata.sfx_origin !== "original_synthesized_sfx")
+      failures.push("cinematic proof SFX must be original synthesized assets");
+    if ((audioMetadata.sfx_assets || []).length < 3)
+      failures.push("cinematic proof requires at least three restrained SFX types");
+    if ((audioMetadata.pause_windows || []).length < 4)
+      failures.push("cinematic proof requires four editorial audio pauses");
+    if (!audioMetadata.narration_ducking?.enabled)
+      failures.push("narration ducking is not enabled");
+    if (!audioMetadata.narration_ducking?.music_rises_during_editorial_pauses)
+      failures.push("music does not rise during editorial pauses");
+    if (
+      Number(audioMetadata.music_mix_target_lufs) < -26 ||
+      Number(audioMetadata.music_mix_target_lufs) > -20
+    )
+      failures.push("music mix target must remain audible between -26 and -20 LUFS");
+  } else if ((audioMetadata.sfx_assets || []).length) {
+    failures.push("unapproved SFX assets are present");
+  }
   if (!audioMetadata.music_asset || !(await pathExists(path.join(dir, audioMetadata.music_asset)))) failures.push("declared music asset is missing");
+  for (const asset of audioMetadata.sfx_assets || [])
+    if (!(await pathExists(path.join(dir, asset)))) failures.push(`declared SFX asset is missing: ${asset}`);
+  if (audioMetadata.music_profile === "approved_licensed_bed") {
+    if (!audioMetadata.music_provenance || !(await pathExists(path.join(dir, audioMetadata.music_provenance))))
+      failures.push("approved music provenance is missing");
+    if (!audioMetadata.music_attribution)
+      failures.push("approved music attribution is missing");
+  }
 
   let activeCues;
   if (plan.preview) {
@@ -51,6 +79,9 @@ export async function runMusicCueAudit(projectId = PROJECT_ID) {
     music_profile: audioMetadata.music_profile,
     cue_count: activeCues.length,
     distinct_states: new Set(activeCues.map((cue) => cue.id || cue.state)).size,
+    music_mix_target_lufs: audioMetadata.music_mix_target_lufs ?? null,
+    sfx_count: (audioMetadata.sfx_assets || []).length,
+    editorial_pause_count: (audioMetadata.pause_windows || []).length,
     continuous_coverage: contiguous(activeCues, plan.preview ? plan.duration_frames / plan.fps : cueSheet.duration_seconds),
     warnings,
     failures,

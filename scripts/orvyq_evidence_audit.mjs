@@ -53,10 +53,15 @@ export async function runEvidenceAudit(projectId = PROJECT_ID) {
     if (
       plan.preview &&
       shot.asset_type === "footage" &&
-      shot.hook_footage !== true
+      shot.hook_footage !== true &&
+      !(
+        plan.quality_policy?.cinematic_body_footage === true &&
+        shot.contextual_footage === true &&
+        shot.provenance_mode === "approved_contextual_footage"
+      )
     )
       failures.push(
-        `${shot.shot_id} uses footage outside the approved opening hook`,
+        `${shot.shot_id} uses unapproved footage outside the opening hook`,
       );
   }
   const motionHook = auditMotionHook(plan);

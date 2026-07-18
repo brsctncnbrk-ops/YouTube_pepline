@@ -17,6 +17,8 @@ export function auditMotionHook(plan, options = {}) {
   const failures = [];
   const hookShots = shots.filter((shot) => shot.hook_footage === true);
   const footageShots = shots.filter((shot) => shot.asset_type === "footage");
+  const allowsContextualBodyFootage =
+    plan.quality_policy?.cinematic_body_footage === true;
 
   if (!plan.preview) {
     return {
@@ -31,7 +33,17 @@ export function auditMotionHook(plan, options = {}) {
 
   if (!hookShots.length)
     failures.push("Preview requires a 10–14 second motion-video hook");
-  if (footageShots.some((shot) => shot.hook_footage !== true))
+  if (
+    footageShots.some(
+      (shot) =>
+        shot.hook_footage !== true &&
+        !(
+          allowsContextualBodyFootage &&
+          shot.contextual_footage === true &&
+          shot.provenance_mode === "approved_contextual_footage"
+        ),
+    )
+  )
     failures.push("Footage is allowed only inside the approved opening hook");
 
   const firstNonHookIndex = shots.findIndex(
