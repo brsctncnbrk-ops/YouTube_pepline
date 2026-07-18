@@ -189,7 +189,16 @@ jobs:
           mkdir -p "$APP/out"
           cd "$APP"
           npx remotion render src/index.ts FactForgeVideo out/orvyq_quality_control_2min.mp4 \
-            --codec=h264 --frames=0-3599 2>&1 | tee out/preview_render_stdout.txt
+            --codec=h264 --frames=0-3599 --concurrency=1 --image-format=png \
+            2>&1 | tee out/preview_render_stdout.txt
+
+      - name: Repair isolated renderer brightness corruption
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          node scripts/orvyq_brightness_repair.mjs \
+            --project-id "$PROJECT_ID" \
+            --video "$APP/out/orvyq_quality_control_2min.mp4"
 
       - name: Verify speech in rendered preview
         run: |
@@ -260,6 +269,7 @@ jobs:
             projects/${{ env.PROJECT_ID }}/research/primary_evidence_manifest.json
             projects/${{ env.PROJECT_ID }}/assets/evidence/primary_evidence.runtime.json
             projects/${{ env.PROJECT_ID }}/qa/orvyq_preview_media_qa.json
+            projects/${{ env.PROJECT_ID }}/qa/orvyq_brightness_repair.json
             projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
             projects/${{ env.PROJECT_ID }}/qa/license_audit.json
             projects/${{ env.PROJECT_ID }}/qa/evidence_coverage.json

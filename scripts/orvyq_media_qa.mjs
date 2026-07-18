@@ -68,34 +68,74 @@ function average(values) {
     ? values.reduce((sum, value) => sum + value, 0) / values.length
     : null;
 }
+function median(values) {
+  if (!values.length) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const midpoint = Math.floor(sorted.length / 2);
+  return sorted.length % 2
+    ? sorted[midpoint]
+    : (sorted[midpoint - 1] + sorted[midpoint]) / 2;
+}
+function inferSampleInterval(samples) {
+  const intervals = samples
+    .slice(1, 121)
+    .map((sample, index) => sample.time - samples[index].time)
+    .filter((value) => value > 0 && value < 1);
+  return median(intervals) || 1 / 30;
+}
 export function detectTransientBrightnessDrops(
   samples,
   duration,
   options = {},
 ) {
-  const sampleInterval = Number(options.sampleInterval || 0.1);
+  const sampleInterval = Number(
+    options.sampleInterval || inferSampleInterval(samples),
+  );
   const maximumLuma = Number(options.maximumLuma || 28);
-  const minimumNeighborLuma = Number(options.minimumNeighborLuma || 32);
-  const maximumRelativeLuma = Number(options.maximumRelativeLuma || 0.55);
-  const maximumDuration = Number(options.maximumDuration || 0.8);
-  const groups = [];
-  let group = [];
+  const minimumNeighborLuma = Number(options.minimumNeighborLuma || 12);
+  const maximumRelativeLuma = Number(options.maximumRelativeLuma || 0.6);
+  const maximumDuration = Number(options.maximumDuration || 0.5);
+  const neighborWindow = Number(options.neighborWindow || 0.35);
+  const candidates = [];
   for (const sample of samples) {
-    if (sample.yavg <= maximumLuma) {
-      if (
-        group.length &&
-        sample.time - group.at(-1).time > sampleInterval * 1.6
-      ) {
-        groups.push(group);
-        group = [];
-      }
-      group.push(sample);
-    } else if (group.length) {
-      groups.push(group);
-      group = [];
+    if (sample.yavg > maximumLuma) continue;
+    const beforeLuma = median(
+      samples
+        .filter(
+          (neighbor) =>
+            neighbor.time >= sample.time - neighborWindow &&
+            neighbor.time < sample.time - sampleInterval / 2,
+        )
+        .map((neighbor) => neighbor.yavg),
+    );
+    const afterLuma = median(
+      samples
+        .filter(
+          (neighbor) =>
+            neighbor.time > sample.time + sampleInterval / 2 &&
+            neighbor.time <= sample.time + neighborWindow,
+        )
+        .map((neighbor) => neighbor.yavg),
+    );
+    if (beforeLuma === null || afterLuma === null) continue;
+    const neighborLuma = Math.min(beforeLuma, afterLuma);
+    if (
+      neighborLuma >= minimumNeighborLuma &&
+      sample.yavg / neighborLuma <= maximumRelativeLuma
+    ) {
+      candidates.push({ ...sample, beforeLuma, afterLuma });
     }
   }
-  if (group.length) groups.push(group);
+
+  const groups = [];
+  for (const candidate of candidates) {
+    const group = groups.at(-1);
+    if (!group || candidate.time - group.at(-1).time > sampleInterval * 1.6) {
+      groups.push([candidate]);
+    } else {
+      group.push(candidate);
+    }
+  }
 
   return groups.flatMap((lowSamples) => {
     const start = lowSamples[0].time;
@@ -108,29 +148,9 @@ export function detectTransientBrightnessDrops(
     )
       return [];
 
-    const before = samples
-      .filter(
-        (sample) =>
-          sample.time >= start - 0.8 &&
-          sample.time < start - sampleInterval / 2,
-      )
-      .map((sample) => sample.yavg);
-    const after = samples
-      .filter(
-        (sample) =>
-          sample.time > end - sampleInterval / 2 && sample.time <= end + 0.8,
-      )
-      .map((sample) => sample.yavg);
-    const beforeLuma = average(before);
-    const afterLuma = average(after);
-    if (beforeLuma === null || afterLuma === null) return [];
-    const neighborLuma = Math.min(beforeLuma, afterLuma);
+    const beforeLuma = median(lowSamples.map((sample) => sample.beforeLuma));
+    const afterLuma = median(lowSamples.map((sample) => sample.afterLuma));
     const lowestLuma = Math.min(...lowSamples.map((sample) => sample.yavg));
-    if (
-      neighborLuma < minimumNeighborLuma ||
-      lowestLuma / neighborLuma > maximumRelativeLuma
-    )
-      return [];
 
     return [
       {
@@ -143,6 +163,7 @@ export function detectTransientBrightnessDrops(
           100,
         before_luma: Math.round(beforeLuma * 100) / 100,
         after_luma: Math.round(afterLuma * 100) / 100,
+        sample_count: lowSamples.length,
       },
     ];
   });
@@ -207,7 +228,7 @@ export async function runMediaQa({
       video,
       "-an",
       "-vf",
-      "fps=10,signalstats,metadata=print:key=lavfi.signalstats.YAVG",
+      "fps=30,signalstats,metadata=print:key=lavfi.signalstats.YAVG",
       "-f",
       "null",
       "-",
@@ -335,11 +356,11 @@ export async function runMediaQa({
     duration_seconds: duration,
     thresholds: {
       max_nonterminal_black_seconds: 0.6,
-      brightness_sample_rate_fps: 10,
-      maximum_transient_brightness_drop_seconds: 0.8,
+      brightness_sample_rate_fps: 30,
+      maximum_transient_brightness_drop_seconds: 0.5,
       near_black_average_luma: 28,
-      minimum_neighbor_average_luma: 32,
-      maximum_relative_luma: 0.55,
+      minimum_neighbor_average_luma: 12,
+      maximum_relative_luma: 0.6,
       max_nonterminal_silence_seconds: 2.5,
       integrated_lufs_range: [-18, -13],
       max_true_peak_dbtp: -1,
