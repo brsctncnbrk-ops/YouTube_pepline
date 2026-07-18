@@ -325,6 +325,7 @@ export async function buildOrvyqPreviewPlan(projectId = PROJECT_ID) {
     quality_policy: {
       motion_hook_min_seconds: motionHook.minimum_seconds,
       motion_hook_max_seconds: motionHook.maximum_seconds,
+      cinematic_body_footage: cinematicProof,
     },
   });
   if (!hookAudit.pass)
