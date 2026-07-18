@@ -1,13 +1,21 @@
 name: FactForge Render
 
-# Full-duration Remotion renders happen only here, never on an author's
-# machine. The rendered MP4 is delivered as a GitHub Actions artifact and is
-# deliberately not committed back into the repository.
+# Full-duration renders are manual and blocked until a two-minute ORVYQ
+# quality-control render has been reviewed and explicitly approved.
 on:
   workflow_dispatch:
     inputs:
       project_id:
         description: "Project id under projects/ (e.g. 001-my-video)"
+        required: true
+        type: string
+      quality_control_approved:
+        description: "I confirm the two-minute quality-control render was reviewed and approved"
+        required: true
+        default: false
+        type: boolean
+      approved_preview_run_id:
+        description: "GitHub Actions run id of the approved two-minute preview"
         required: true
         type: string
 
@@ -20,9 +28,11 @@ concurrency:
 
 jobs:
   render:
+    if: ${{ inputs.quality_control_approved == true && inputs.approved_preview_run_id != '' }}
     runs-on: ubuntu-latest
     env:
       PROJECT_ID: ${{ inputs.project_id }}
+      APPROVED_PREVIEW_RUN_ID: ${{ inputs.approved_preview_run_id }}
     steps:
       - name: Checkout (with LFS assets)
         uses: actions/checkout@v4
@@ -38,23 +48,50 @@ jobs:
           node-version: "20"
           cache: npm
 
-      - name: Install root tooling dependencies
-        run: npm ci
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-      - name: Validate project id
-        id: validate-project-id
+      - name: Install tooling
         run: |
+          set -euo pipefail
+          npm ci
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --disable-pip-version-check faster-whisper==1.2.0
+
+      - name: Validate approval and project id
+        run: |
+          set -euo pipefail
+          test -n "$APPROVED_PREVIEW_RUN_ID"
           node --input-type=module -e '
             import {assertValidProjectId} from "./scripts/lib/fs-utils.mjs";
             assertValidProjectId(process.env.PROJECT_ID);
             console.log(`Validated project id: ${process.env.PROJECT_ID}`);
           '
 
+      - name: Build voice-first audio and verified captions
+        if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_audio_mix.mjs
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID"
+          node scripts/orvyq_caption_build.mjs
+          node scripts/orvyq_edit_plan.mjs
+
       - name: Rebuild render-ready Remotion project
         run: |
           set -euo pipefail
           node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
           node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
+
+      - name: ORVYQ editorial quality gate
+        if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_edit_plan_tests.mjs
+          node scripts/orvyq_license_audit.mjs
 
       - name: Render-readiness hard gate
         run: node scripts/validate.mjs render-ready --project-id "$PROJECT_ID"
@@ -64,32 +101,31 @@ jobs:
           set -euo pipefail
           cd "projects/$PROJECT_ID/remotion/render_ready_project"
           npm ci --no-audit --no-fund
-
-      - name: Type-check Remotion project
-        run: |
-          set -euo pipefail
-          cd "projects/$PROJECT_ID/remotion/render_ready_project"
           npx tsc --noEmit
 
       - name: Resolve browser executable
         run: |
           set -euo pipefail
           BROWSER="$(command -v google-chrome-stable || command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
-          if [ -z "$BROWSER" ]; then
-            echo "No supported browser found on GitHub runner"
-            exit 1
-          fi
+          test -n "$BROWSER"
           echo "FACTFORGE_REMOTION_BROWSER_EXECUTABLE=$BROWSER" >> "$GITHUB_ENV"
-          echo "Using browser: $BROWSER"
           "$BROWSER" --version
 
-      - name: Render video
+      - name: Render full video
         run: |
           set -euo pipefail
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
           mkdir -p "$APP/out"
           cd "$APP"
           npx remotion render src/index.ts FactForgeVideo out/final_video.mp4 --codec=h264 2>&1 | tee out/render_stdout.txt
+
+      - name: ORVYQ post-render media gate
+        if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          node scripts/orvyq_media_qa.mjs --project-id "$PROJECT_ID" --video "$APP/out/final_video.mp4"
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --media "$APP/out/final_video.mp4" --output-name final_video_speech_qa.json
 
       - name: Collect successful render output
         run: |
@@ -101,6 +137,7 @@ jobs:
           {
             echo "Rendered at: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo "Workflow run: ${{ github.run_id }}"
+            echo "Approved preview run: $APPROVED_PREVIEW_RUN_ID"
             echo "Source commit: ${{ github.sha }}"
             echo "---"
             tail -n 80 "$SRC/render_stdout.txt" || true
@@ -110,22 +147,38 @@ jobs:
       - name: Upload render bundle
         uses: actions/upload-artifact@v4
         with:
-          name: factforge-render-${{ inputs.project_id }}-${{ github.run_id }}
+          name: factforge-render-${{ env.PROJECT_ID }}-${{ github.run_id }}
           path: |
-            projects/${{ inputs.project_id }}/output/final_video.mp4
-            projects/${{ inputs.project_id }}/output/render_log.txt
-            projects/${{ inputs.project_id }}/manifest.json
-            projects/${{ inputs.project_id }}/assets/asset_manifest.json
+            projects/${{ env.PROJECT_ID }}/output/final_video.mp4
+            projects/${{ env.PROJECT_ID }}/output/render_log.txt
+            projects/${{ env.PROJECT_ID }}/manifest.json
+            projects/${{ env.PROJECT_ID }}/assets/asset_manifest.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload ORVYQ QA evidence
+        if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-qa-${{ github.run_id }}
+          path: |
+            projects/${{ env.PROJECT_ID }}/qa/orvyq_media_qa.json
+            projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
+            projects/${{ env.PROJECT_ID }}/qa/final_video_speech_qa.json
+            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
+            projects/${{ env.PROJECT_ID }}/remotion/captions.json
+            projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
           if-no-files-found: error
           retention-days: 30
 
       - name: Upload render diagnostics
-        if: always() && steps.validate-project-id.outcome == 'success'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: factforge-render-diagnostics-${{ inputs.project_id }}-${{ github.run_id }}
+          name: factforge-render-diagnostics-${{ env.PROJECT_ID }}-${{ github.run_id }}
           path: |
-            projects/${{ inputs.project_id }}/remotion/render_ready_project/out/render_stdout.txt
-            projects/${{ inputs.project_id }}/output/render_log.txt
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/render_stdout.txt
+            projects/${{ env.PROJECT_ID }}/output/render_log.txt
           if-no-files-found: warn
           retention-days: 30

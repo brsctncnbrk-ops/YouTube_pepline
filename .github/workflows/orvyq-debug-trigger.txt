@@ -1,0 +1,3 @@
+ORVYQ diagnostic trigger
+Commit: 363e0fe21b09267e72b2cc0023352e963435ff7b
+Purpose: rerun the two-minute quality loop after upgrading evidence-led graphics.

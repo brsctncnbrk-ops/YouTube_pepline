@@ -2,10 +2,9 @@ import { Config } from "@remotion/cli/config";
 
 const factforgeBrowserExecutable = process.env.FACTFORGE_REMOTION_BROWSER_EXECUTABLE;
 if (!factforgeBrowserExecutable) {
-  console.warn("FACTFORGE_REMOTION_BROWSER_EXECUTABLE not set, using default browser download fallback");
-  // Allow auto-download fallback since we had issues with the specific executable
+  throw new Error("FACTFORGE_REMOTION_BROWSER_EXECUTABLE is required; refusing Remotion auto-download fallback");
 }
-Config.setBrowserExecutable(factforgeBrowserExecutable ? factforgeBrowserExecutable : undefined);
+Config.setBrowserExecutable(factforgeBrowserExecutable);
 
 /**
  * The public dir is the per-project root (two levels up from this

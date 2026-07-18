@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "revision": "orvyq-editorial-v2",
+  "status": "ready_for_render",
+  "source_revision_sha": "1deef7b356f45b99eae3ddc577ad404b1f8a44c6",
+  "requirements": {
+    "full_timeline_captions": true,
+    "maximum_caption_words": 8,
+    "graphic_families": 8,
+    "footage_motion_variants": 5,
+    "sound_cue_types": 7,
+    "dynamic_music_sections": 7,
+    "expanded_editorial_qa": true
+  }
+}

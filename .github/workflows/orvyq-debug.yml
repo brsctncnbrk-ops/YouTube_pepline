@@ -1,0 +1,138 @@
+name: ORVYQ Pre-render Diagnostics
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+      ORVYQ_PREVIEW_FRAMES: "3600"
+      ORVYQ_AUDIO_LIMIT_SECONDS: "120"
+      ORVYQ_NARRATION_LIMIT_SECONDS: "114.2"
+    steps:
+      - name: Checkout exact source with LFS
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Lock exact source commit
+        run: |
+          set -euo pipefail
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          test "$ACTUAL_SHA" = "$GITHUB_SHA"
+          printf '%s\n' "$ACTUAL_SHA" | tee render-source-sha.txt
+
+      - name: Pull LFS assets
+        run: git lfs pull
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install root, media, PDF and speech dependencies
+        run: |
+          set -euo pipefail
+          npm ci
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg poppler-utils
+          python -m pip install --disable-pip-version-check faster-whisper==1.2.0 requests==2.32.5
+
+      - name: Fetch and verify official primary evidence
+        run: node scripts/orvyq_fetch_primary_evidence.mjs
+
+      - name: Build audio mix
+        run: node scripts/orvyq_audio_mix.mjs
+
+      - name: Verify narration and capture diagnostics
+        run: |
+          set +e
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --max-seconds 120 > speech-qa.log 2>&1
+          status=$?
+          echo "$status" > speech-qa.status
+          cat speech-qa.log
+          exit 0
+
+      - name: Upload narration diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-prerender-speech-${{ github.run_id }}
+          path: |
+            render-source-sha.txt
+            speech-qa.log
+            speech-qa.status
+            projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
+            projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
+            projects/${{ env.PROJECT_ID }}/assets/evidence/primary_evidence.runtime.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Stop when narration verification failed
+        run: test "$(cat speech-qa.status)" = "0"
+
+      - name: Build captions and zero-stock primary-evidence preview plan
+        run: |
+          node scripts/orvyq_caption_build.mjs
+          node scripts/orvyq_preview_plan.mjs
+
+      - name: Run all pre-render editorial audits
+        run: |
+          node scripts/orvyq_evidence_audit.mjs
+          node scripts/orvyq_evidence_asset_audit.mjs
+          node scripts/orvyq_semantic_visual_audit.mjs
+          node scripts/orvyq_pacing_audit.mjs
+          node scripts/orvyq_mobile_legibility_audit.mjs
+          node scripts/orvyq_music_cue_audit.mjs
+          node scripts/orvyq_edit_plan_tests.mjs
+          node scripts/orvyq_license_audit.mjs
+          node scripts/orvyq_alignment_score.mjs
+
+      - name: Derive Remotion configs
+        run: node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
+
+      - name: Build Remotion project
+        run: node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
+
+      - name: Run render-ready validation
+        run: node scripts/validate.mjs render-ready --project-id "$PROJECT_ID"
+
+      - name: Install Remotion dependencies and type-check
+        run: |
+          cd "projects/$PROJECT_ID/remotion/render_ready_project"
+          npm ci --no-audit --no-fund
+          npx tsc --noEmit
+
+      - name: Upload diagnostic reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-prerender-diagnostics-${{ github.run_id }}
+          path: |
+            render-source-sha.txt
+            projects/${{ env.PROJECT_ID }}/research/primary_evidence_manifest.json
+            projects/${{ env.PROJECT_ID }}/assets/evidence/primary_evidence.runtime.json
+            projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
+            projects/${{ env.PROJECT_ID }}/qa/evidence_coverage.json
+            projects/${{ env.PROJECT_ID }}/qa/evidence_asset_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/pacing_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/mobile_legibility_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/music_cue_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
+            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
+            projects/${{ env.PROJECT_ID }}/remotion/captions.json
+          if-no-files-found: warn
+          retention-days: 7

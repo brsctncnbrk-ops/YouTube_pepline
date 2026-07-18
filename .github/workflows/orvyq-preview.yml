@@ -1,0 +1,304 @@
+name: ORVYQ 150-Second Cinematic Proof
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - "claude/factforge-system-design-0pr3v3"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: orvyq-150-second-cinematic-proof
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+      ORVYQ_PREVIEW_FRAMES: "4500"
+      ORVYQ_AUDIO_LIMIT_SECONDS: "150"
+      ORVYQ_NARRATION_LIMIT_SECONDS: "114.2"
+      ORVYQ_EDITORIAL_PAUSES: "1"
+      ORVYQ_CINEMATIC_PROOF: "1"
+      ORVYQ_REQUIRE_APPROVED_MUSIC: "1"
+    steps:
+      - name: Checkout exact source with LFS
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Lock exact source commit
+        run: |
+          set -euo pipefail
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          test "$ACTUAL_SHA" = "$GITHUB_SHA"
+          printf '%s\n' "$ACTUAL_SHA" | tee render-source-sha.txt
+
+      - name: Pull LFS assets
+        run: git lfs pull
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install media, PDF and speech tooling
+        run: |
+          set -euo pipefail
+          npm ci
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg poppler-utils
+          python -m pip install --disable-pip-version-check faster-whisper==1.2.0 requests==2.32.5
+
+      - name: Fetch and verify official primary evidence
+        run: node scripts/orvyq_fetch_primary_evidence.mjs
+
+      - name: Fetch licensed cinematic proof music
+        run: node scripts/orvyq_fetch_proof_music.mjs
+
+      - name: Build paused narration, music and restrained sound design
+        run: node scripts/orvyq_audio_mix.mjs
+
+      - name: Verify narration and capture diagnostics
+        run: |
+          set +e
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --max-seconds 150 > narration-qa.log 2>&1
+          status=$?
+          echo "$status" > narration-qa.status
+          cat narration-qa.log
+          exit 0
+
+      - name: Upload narration diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-narration-diagnostics-${{ github.run_id }}
+          path: |
+            render-source-sha.txt
+            narration-qa.log
+            narration-qa.status
+            projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
+            projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
+            projects/${{ env.PROJECT_ID }}/assets/music/approved_bed.mp3
+            projects/${{ env.PROJECT_ID }}/assets/music/approved_bed.provenance.json
+            projects/${{ env.PROJECT_ID }}/assets/sfx/*.wav
+            projects/${{ env.PROJECT_ID }}/assets/evidence/primary_evidence.runtime.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Stop when narration verification failed
+        run: test "$(cat narration-qa.status)" = "0"
+
+      - name: Build captions and cinematic proof edit
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_caption_build.mjs
+          node scripts/orvyq_preview_plan.mjs
+
+      - name: Run physical evidence, semantic, pacing, mobile and music audits
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_evidence_audit.mjs
+          node scripts/orvyq_evidence_asset_audit.mjs
+          node scripts/orvyq_semantic_visual_audit.mjs
+          node scripts/orvyq_pacing_audit.mjs
+          node scripts/orvyq_mobile_legibility_audit.mjs
+          node scripts/orvyq_music_cue_audit.mjs
+
+      - name: Build render-ready project
+        run: |
+          set -euo pipefail
+          node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
+          node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
+
+      - name: Run editorial and provenance checks with diagnostics
+        run: |
+          set +e
+          node scripts/orvyq_edit_plan_tests.mjs > editorial-qa.log 2>&1
+          editorial_status=$?
+          node scripts/orvyq_license_audit.mjs > license-qa.log 2>&1
+          license_status=$?
+          node scripts/orvyq_alignment_score.mjs > alignment-qa.log 2>&1
+          alignment_status=$?
+          echo "$editorial_status" > editorial-qa.status
+          echo "$license_status" > license-qa.status
+          echo "$alignment_status" > alignment-qa.status
+          echo "--- EDITORIAL QA ---"
+          cat editorial-qa.log
+          echo "--- PROVENANCE QA ---"
+          cat license-qa.log
+          echo "--- PRE-RENDER READINESS (NOT FINAL ALIGNMENT) ---"
+          cat alignment-qa.log
+          exit 0
+
+      - name: Upload editorial diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-editorial-diagnostics-${{ github.run_id }}
+          path: |
+            render-source-sha.txt
+            editorial-qa.log
+            editorial-qa.status
+            license-qa.log
+            license-qa.status
+            alignment-qa.log
+            alignment-qa.status
+            projects/${{ env.PROJECT_ID }}/research/primary_evidence_manifest.json
+            projects/${{ env.PROJECT_ID }}/assets/evidence/primary_evidence.runtime.json
+            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/evidence_coverage.json
+            projects/${{ env.PROJECT_ID }}/qa/evidence_asset_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/pacing_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/mobile_legibility_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/music_cue_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
+            projects/${{ env.PROJECT_ID }}/remotion/captions.json
+            projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
+            projects/${{ env.PROJECT_ID }}/direction/motion_hook.json
+            projects/${{ env.PROJECT_ID }}/direction/cinematic_proof_cut.json
+            projects/${{ env.PROJECT_ID }}/direction/editorial_pause_map.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Stop when pre-render quality gates failed
+        run: |
+          test "$(cat editorial-qa.status)" = "0"
+          test "$(cat license-qa.status)" = "0"
+          test "$(cat alignment-qa.status)" = "0"
+
+      - name: Install Remotion dependencies and type-check
+        run: |
+          set -euo pipefail
+          cd "projects/$PROJECT_ID/remotion/render_ready_project"
+          npm ci --no-audit --no-fund
+          npx tsc --noEmit
+
+      - name: Resolve browser executable
+        run: |
+          set -euo pipefail
+          BROWSER="$(command -v google-chrome-stable || command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          echo "FACTFORGE_REMOTION_BROWSER_EXECUTABLE=$BROWSER" >> "$GITHUB_ENV"
+          "$BROWSER" --version
+
+      - name: Render 150-second cinematic proof
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          mkdir -p "$APP/out"
+          cd "$APP"
+          npx remotion render src/index.ts FactForgeVideo out/orvyq_cinematic_proof_150s.mp4 \
+            --codec=h264 --frames=0-4499 --concurrency=1 --image-format=png \
+            2>&1 | tee out/preview_render_stdout.txt
+
+      - name: Repair isolated renderer brightness corruption
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          node scripts/orvyq_brightness_repair.mjs \
+            --project-id "$PROJECT_ID" \
+            --video "$APP/out/orvyq_cinematic_proof_150s.mp4"
+
+      - name: Verify speech in rendered preview
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          python scripts/orvyq_speech_qa.py \
+            --project-id "$PROJECT_ID" \
+            --media "$APP/out/orvyq_cinematic_proof_150s.mp4" \
+            --max-seconds 150 \
+            --output-name speech_transcript.json
+
+      - name: Run post-render media QA with diagnostics
+        run: |
+          set +e
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          node scripts/orvyq_media_qa.mjs \
+            --project-id "$PROJECT_ID" \
+            --video "$APP/out/orvyq_cinematic_proof_150s.mp4" \
+            --report "projects/$PROJECT_ID/qa/orvyq_preview_media_qa.json" \
+            > media-qa.log 2>&1
+          status=$?
+          echo "$status" > media-qa.status
+          cat media-qa.log
+          exit 0
+
+      - name: Create visual and mobile review sheets
+        if: always()
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          if [ -f "$APP/out/orvyq_cinematic_proof_150s.mp4" ]; then
+            ffmpeg -hide_banner -loglevel error -y \
+              -t 20 -i "$APP/out/orvyq_cinematic_proof_150s.mp4" \
+              -vf "fps=1,scale=480:-1,tile=5x4" \
+              -frames:v 1 "$APP/out/orvyq_intro_review_sheet.jpg"
+            ffmpeg -hide_banner -loglevel error -y \
+              -i "$APP/out/orvyq_cinematic_proof_150s.mp4" \
+              -vf "fps=1/10,scale=480:-1,tile=5x3" \
+              -frames:v 1 "$APP/out/orvyq_quality_control_contact_sheet.jpg"
+            ffmpeg -hide_banner -loglevel error -y \
+              -i "$APP/out/orvyq_cinematic_proof_150s.mp4" \
+              -vf "fps=1/5,scale=320:-1,tile=5x6" \
+              -frames:v 1 "$APP/out/orvyq_mobile_review_sheet.jpg"
+            ffmpeg -hide_banner -loglevel error -y \
+              -i "$APP/out/orvyq_cinematic_proof_150s.mp4" \
+              -vf "fps=1/3,scale=640:-1,tile=5x10" \
+              -frames:v 1 "$APP/out/orvyq_primary_evidence_review_sheet.jpg"
+            ffprobe -v error -show_format -show_streams -of json \
+              "$APP/out/orvyq_cinematic_proof_150s.mp4" > "$APP/out/orvyq_quality_control_probe.json"
+          fi
+
+      - name: Upload cinematic proof approval and diagnostic package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-cinematic-proof-150s-${{ github.run_id }}
+          path: |
+            render-source-sha.txt
+            media-qa.log
+            media-qa.status
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_cinematic_proof_150s.mp4
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_intro_review_sheet.jpg
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_contact_sheet.jpg
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_mobile_review_sheet.jpg
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_primary_evidence_review_sheet.jpg
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_probe.json
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/preview_render_stdout.txt
+            projects/${{ env.PROJECT_ID }}/research/primary_evidence_manifest.json
+            projects/${{ env.PROJECT_ID }}/assets/evidence/primary_evidence.runtime.json
+            projects/${{ env.PROJECT_ID }}/qa/orvyq_preview_media_qa.json
+            projects/${{ env.PROJECT_ID }}/qa/orvyq_brightness_repair.json
+            projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
+            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/evidence_coverage.json
+            projects/${{ env.PROJECT_ID }}/qa/evidence_asset_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/pacing_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/mobile_legibility_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/music_cue_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
+            projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
+            projects/${{ env.PROJECT_ID }}/assets/music/approved_bed.provenance.json
+            projects/${{ env.PROJECT_ID }}/remotion/captions.json
+            projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
+            projects/${{ env.PROJECT_ID }}/direction/motion_hook.json
+            projects/${{ env.PROJECT_ID }}/direction/cinematic_proof_cut.json
+            projects/${{ env.PROJECT_ID }}/direction/cinematic_revision_plan.json
+            projects/${{ env.PROJECT_ID }}/direction/editorial_pause_map.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Stop when post-render media QA failed
+        run: test "$(cat media-qa.status)" = "0"

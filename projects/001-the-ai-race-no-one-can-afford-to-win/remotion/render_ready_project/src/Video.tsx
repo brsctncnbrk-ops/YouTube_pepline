@@ -1,77 +1,48 @@
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, staticFile } from "remotion";
-import { Scene, CameraMotion } from "./Scene";
-import sceneConfig from "./data/scene_config.json";
+import { CaptionLayer } from "./CaptionLayer";
+import { EditorialOverlaySpec } from "./EditorialOverlay";
+import { OrvyqGraphicSpec } from "./OrvyqGraphic";
+import { FootageMotion, Scene } from "./Scene";
 import assetMap from "./data/asset_map.json";
+import captionsData from "./data/captions.json";
+import editPlan from "./data/edit_plan.json";
 
-type ImageAssetMapEntry = { image: string; audio_offset_sec: number };
-type VideoAssetMapEntry = { video: string; audio_offset_sec: number; trim_in_sec: number; trim_out_sec: number };
-type AssetMapEntry = ImageAssetMapEntry | VideoAssetMapEntry;
-
-function isVideoEntry(entry: AssetMapEntry): entry is VideoAssetMapEntry {
-  return "video" in entry;
-}
-
-type SceneConfigEntryBase = {
+type BaseShot = {
+  shot_id: string;
   scene_id: string;
   start_frame: number;
   end_frame: number;
-  asset_type: "footage" | "ai_fallback";
-  text_overlay: string | null;
-  transition_in: string;
-  transition_out: string;
+  claim_id?: string;
+  visual_role?: string;
+  editorial_purpose?: string;
+  editorial_overlay?: EditorialOverlaySpec | null;
+  text_overlay?: string | null;
+  transition_in?: string;
+  transition_out?: string;
+  sound_cue?: null;
 };
-type FootageSceneConfigEntry = SceneConfigEntryBase & { asset_type: "footage"; trim_in_sec: number; trim_out_sec: number };
-type FallbackSceneConfigEntry = SceneConfigEntryBase & { asset_type: "ai_fallback"; camera_motion: CameraMotion };
-type SceneConfigEntry = FootageSceneConfigEntry | FallbackSceneConfigEntry;
 
-/**
- * Lays the narration audio across the whole timeline and places each scene as
- * an absolutely-positioned Sequence at its storyboard frame offset. Scenes
- * are contiguous and non-overlapping (transitions are done as opacity fades
- * inside each Scene), so the summed frames exactly equal duration_frames -
- * no transition-overlap math is needed here. Each scene's asset_type decides
- * whether it renders as trimmed footage or a Ken-Burns-panned fallback still.
- */
+type FootageShot = BaseShot & { asset_type: "footage"; video_asset: string; trim_in_sec: number; trim_out_sec: number; motion_variant?: FootageMotion };
+type GraphicShot = BaseShot & { asset_type: "graphic"; graphic: OrvyqGraphicSpec };
+type EditPlan = { audio_mix_asset?: string; shots: Array<FootageShot | GraphicShot> };
+type CaptionsFile = { captions: Array<{ caption_id: string; scene_id: string; start_frame: number; end_frame: number; text: string }> };
+
 export const FactForgeVideo: React.FC = () => {
-  const assetLookup = assetMap.asset_map as Record<string, AssetMapEntry>;
-  const scenes = sceneConfig.scenes as unknown as SceneConfigEntry[];
+  const plan = editPlan as unknown as EditPlan;
+  const captions = captionsData as unknown as CaptionsFile;
+  const audioSrc = plan.audio_mix_asset || assetMap.audio_asset;
 
-  return (
-    <AbsoluteFill style={{ backgroundColor: "black" }}>
-      <Audio src={staticFile(assetMap.audio_asset)} />
-      {scenes.map((scene) => {
-        const durationInFrames = Math.max(1, scene.end_frame - scene.start_frame);
-        const asset = assetLookup[scene.scene_id];
-        if (!asset) return null;
-
-        return (
-          <Sequence key={scene.scene_id} from={scene.start_frame} durationInFrames={durationInFrames}>
-            {isVideoEntry(asset) ? (
-              <Scene
-                assetType="footage"
-                videoSrc={staticFile(asset.video)}
-                trimInSec={asset.trim_in_sec}
-                trimOutSec={asset.trim_out_sec}
-                durationInFrames={durationInFrames}
-                textOverlay={scene.text_overlay}
-                transitionIn={scene.transition_in}
-                transitionOut={scene.transition_out}
-              />
-            ) : (
-              <Scene
-                assetType="ai_fallback"
-                imageSrc={staticFile(asset.image)}
-                cameraMotion={scene.asset_type === "ai_fallback" ? scene.camera_motion : undefined}
-                durationInFrames={durationInFrames}
-                textOverlay={scene.text_overlay}
-                transitionIn={scene.transition_in}
-                transitionOut={scene.transition_out}
-              />
-            )}
-          </Sequence>
-        );
-      })}
-    </AbsoluteFill>
-  );
+  return <AbsoluteFill style={{ backgroundColor: "#05070C" }}>
+    <Audio src={staticFile(audioSrc)} />
+    {plan.shots.map((shot) => {
+      const durationInFrames = Math.max(1, shot.end_frame - shot.start_frame);
+      const transitionIn = shot.transition_in || "cut";
+      const transitionOut = shot.transition_out || "cut";
+      return <Sequence key={shot.shot_id} from={shot.start_frame} durationInFrames={durationInFrames}>
+        {shot.asset_type === "graphic" ? <Scene assetType="graphic" graphic={shot.graphic} editorialOverlay={shot.editorial_overlay || null} durationInFrames={durationInFrames} textOverlay={shot.text_overlay || null} transitionIn={transitionIn} transitionOut={transitionOut} /> : <Scene assetType="footage" videoSrc={staticFile(shot.video_asset)} trimInSec={shot.trim_in_sec} trimOutSec={shot.trim_out_sec} motionVariant={shot.motion_variant || "hold"} editorialOverlay={shot.editorial_overlay || null} durationInFrames={durationInFrames} textOverlay={shot.text_overlay || null} transitionIn={transitionIn} transitionOut={transitionOut} />}
+      </Sequence>;
+    })}
+    <CaptionLayer captions={captions.captions} />
+  </AbsoluteFill>;
 };
