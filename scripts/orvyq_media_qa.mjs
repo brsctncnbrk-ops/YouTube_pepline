@@ -2,92 +2,344 @@
 import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { parseArgs, projectDir, writeJsonAtomic, readJson, pathExists } from "./lib/fs-utils.mjs";
+import {
+  parseArgs,
+  projectDir,
+  writeJsonAtomic,
+  readJson,
+  pathExists,
+} from "./lib/fs-utils.mjs";
 
 const exec = promisify(execFile);
 async function command(binary, args) {
-  try { return await exec(binary, args, { maxBuffer: 24 * 1024 * 1024 }); }
-  catch (error) { throw new Error(`${binary} failed: ${error.stderr || error.message}`); }
+  try {
+    return await exec(binary, args, { maxBuffer: 24 * 1024 * 1024 });
+  } catch (error) {
+    throw new Error(`${binary} failed: ${error.stderr || error.message}`);
+  }
 }
 function extractLoudnorm(text) {
-  const candidates = [...text.matchAll(/\{\s*"input_i"[\s\S]*?\n\}/g)].map((match) => match[0]);
+  const candidates = [...text.matchAll(/\{\s*"input_i"[\s\S]*?\n\}/g)].map(
+    (match) => match[0],
+  );
   if (!candidates.length) throw new Error("Loudness analysis returned no JSON");
   return JSON.parse(candidates.at(-1));
 }
 function parseBlack(text) {
-  return [...text.matchAll(/black_start:([\d.]+)\s+black_end:([\d.]+)\s+black_duration:([\d.]+)/g)].map((match) => ({ start: Number(match[1]), end: Number(match[2]), duration: Number(match[3]) }));
+  return [
+    ...text.matchAll(
+      /black_start:([\d.]+)\s+black_end:([\d.]+)\s+black_duration:([\d.]+)/g,
+    ),
+  ].map((match) => ({
+    start: Number(match[1]),
+    end: Number(match[2]),
+    duration: Number(match[3]),
+  }));
 }
 function parseSilence(text) {
-  const starts = [...text.matchAll(/silence_start: ([\d.]+)/g)].map((match) => Number(match[1]));
-  const ends = [...text.matchAll(/silence_end: ([\d.]+) \| silence_duration: ([\d.]+)/g)].map((match) => ({ end: Number(match[1]), duration: Number(match[2]) }));
-  return ends.map((entry, index) => ({ start: starts[index] ?? null, ...entry }));
+  const starts = [...text.matchAll(/silence_start: ([\d.]+)/g)].map((match) =>
+    Number(match[1]),
+  );
+  const ends = [
+    ...text.matchAll(/silence_end: ([\d.]+) \| silence_duration: ([\d.]+)/g),
+  ].map((match) => ({ end: Number(match[1]), duration: Number(match[2]) }));
+  return ends.map((entry, index) => ({
+    start: starts[index] ?? null,
+    ...entry,
+  }));
+}
+export function parseLumaSamples(text) {
+  const samples = [];
+  const lines = String(text || "").split(/\r?\n/);
+  let time = null;
+  for (const line of lines) {
+    const timeMatch = line.match(/pts_time:([\d.]+)/);
+    if (timeMatch) time = Number(timeMatch[1]);
+    const lumaMatch = line.match(/lavfi\.signalstats\.YAVG=([\d.]+)/);
+    if (lumaMatch && Number.isFinite(time)) {
+      samples.push({ time, yavg: Number(lumaMatch[1]) });
+      time = null;
+    }
+  }
+  return samples;
+}
+function average(values) {
+  return values.length
+    ? values.reduce((sum, value) => sum + value, 0) / values.length
+    : null;
+}
+export function detectTransientBrightnessDrops(
+  samples,
+  duration,
+  options = {},
+) {
+  const sampleInterval = Number(options.sampleInterval || 0.1);
+  const maximumLuma = Number(options.maximumLuma || 28);
+  const minimumNeighborLuma = Number(options.minimumNeighborLuma || 32);
+  const maximumRelativeLuma = Number(options.maximumRelativeLuma || 0.55);
+  const maximumDuration = Number(options.maximumDuration || 0.8);
+  const groups = [];
+  let group = [];
+  for (const sample of samples) {
+    if (sample.yavg <= maximumLuma) {
+      if (
+        group.length &&
+        sample.time - group.at(-1).time > sampleInterval * 1.6
+      ) {
+        groups.push(group);
+        group = [];
+      }
+      group.push(sample);
+    } else if (group.length) {
+      groups.push(group);
+      group = [];
+    }
+  }
+  if (group.length) groups.push(group);
+
+  return groups.flatMap((lowSamples) => {
+    const start = lowSamples[0].time;
+    const end = lowSamples.at(-1).time + sampleInterval;
+    const dropDuration = end - start;
+    if (
+      dropDuration > maximumDuration + sampleInterval / 2 ||
+      start < sampleInterval ||
+      end >= duration - 1.5
+    )
+      return [];
+
+    const before = samples
+      .filter(
+        (sample) =>
+          sample.time >= start - 0.8 &&
+          sample.time < start - sampleInterval / 2,
+      )
+      .map((sample) => sample.yavg);
+    const after = samples
+      .filter(
+        (sample) =>
+          sample.time > end - sampleInterval / 2 && sample.time <= end + 0.8,
+      )
+      .map((sample) => sample.yavg);
+    const beforeLuma = average(before);
+    const afterLuma = average(after);
+    if (beforeLuma === null || afterLuma === null) return [];
+    const neighborLuma = Math.min(beforeLuma, afterLuma);
+    const lowestLuma = Math.min(...lowSamples.map((sample) => sample.yavg));
+    if (
+      neighborLuma < minimumNeighborLuma ||
+      lowestLuma / neighborLuma > maximumRelativeLuma
+    )
+      return [];
+
+    return [
+      {
+        start: Math.round(start * 1000) / 1000,
+        end: Math.round(end * 1000) / 1000,
+        duration: Math.round(dropDuration * 1000) / 1000,
+        minimum_luma: Math.round(lowestLuma * 100) / 100,
+        average_luma:
+          Math.round(average(lowSamples.map((sample) => sample.yavg)) * 100) /
+          100,
+        before_luma: Math.round(beforeLuma * 100) / 100,
+        after_luma: Math.round(afterLuma * 100) / 100,
+      },
+    ];
+  });
 }
 function normalize(text) {
-  return String(text || "").toLowerCase().replace(/[^a-z0-9']+/g, " ").trim();
+  return String(text || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9']+/g, " ")
+    .trim();
 }
 async function durationSeconds(video) {
-  const { stdout } = await command("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "default=nk=1:nw=1", video]);
+  const { stdout } = await command("ffprobe", [
+    "-v",
+    "error",
+    "-show_entries",
+    "format=duration",
+    "-of",
+    "default=nk=1:nw=1",
+    video,
+  ]);
   const duration = Number.parseFloat(stdout.trim());
-  if (!Number.isFinite(duration) || duration <= 0) throw new Error(`Invalid video duration for ${video}`);
+  if (!Number.isFinite(duration) || duration <= 0)
+    throw new Error(`Invalid video duration for ${video}`);
   return duration;
 }
 
-export async function runMediaQa({ projectId, video, reportPath, captionsPath, audioMetadataPath }) {
+export async function runMediaQa({
+  projectId,
+  video,
+  reportPath,
+  captionsPath,
+  audioMetadataPath,
+}) {
   const duration = await durationSeconds(video);
   const dir = projectDir(projectId);
   const speechQaPath = path.join(dir, "qa", "speech_transcript.json");
-  const [blackDetect, silenceDetect, loudness, captions, audioMetadata, speechQa] = await Promise.all([
-    command("ffmpeg", ["-hide_banner", "-nostats", "-i", video, "-an", "-vf", "blackdetect=d=0.6:pix_th=0.08:pic_th=0.985", "-f", "null", "-"]),
-    command("ffmpeg", ["-hide_banner", "-nostats", "-i", video, "-vn", "-af", "silencedetect=n=-52dB:d=2.5", "-f", "null", "-"]),
-    command("ffmpeg", ["-hide_banner", "-nostats", "-i", video, "-vn", "-af", "loudnorm=I=-16:TP=-1.5:LRA=9:print_format=json", "-f", "null", "-"]),
+  const [
+    blackDetect,
+    brightnessDetect,
+    silenceDetect,
+    loudness,
+    captions,
+    audioMetadata,
+    speechQa,
+  ] = await Promise.all([
+    command("ffmpeg", [
+      "-hide_banner",
+      "-nostats",
+      "-i",
+      video,
+      "-an",
+      "-vf",
+      "blackdetect=d=0.6:pix_th=0.08:pic_th=0.985",
+      "-f",
+      "null",
+      "-",
+    ]),
+    command("ffmpeg", [
+      "-hide_banner",
+      "-nostats",
+      "-i",
+      video,
+      "-an",
+      "-vf",
+      "fps=10,signalstats,metadata=print:key=lavfi.signalstats.YAVG",
+      "-f",
+      "null",
+      "-",
+    ]),
+    command("ffmpeg", [
+      "-hide_banner",
+      "-nostats",
+      "-i",
+      video,
+      "-vn",
+      "-af",
+      "silencedetect=n=-52dB:d=2.5",
+      "-f",
+      "null",
+      "-",
+    ]),
+    command("ffmpeg", [
+      "-hide_banner",
+      "-nostats",
+      "-i",
+      video,
+      "-vn",
+      "-af",
+      "loudnorm=I=-16:TP=-1.5:LRA=9:print_format=json",
+      "-f",
+      "null",
+      "-",
+    ]),
     readJson(captionsPath),
     readJson(audioMetadataPath),
     readJson(speechQaPath),
   ]);
 
-  const blackSegments = parseBlack(`${blackDetect.stdout}\n${blackDetect.stderr}`);
-  const silenceSegments = parseSilence(`${silenceDetect.stdout}\n${silenceDetect.stderr}`);
+  const blackSegments = parseBlack(
+    `${blackDetect.stdout}\n${blackDetect.stderr}`,
+  );
+  const lumaSamples = parseLumaSamples(
+    `${brightnessDetect.stdout}\n${brightnessDetect.stderr}`,
+  );
+  const brightnessDrops = detectTransientBrightnessDrops(lumaSamples, duration);
+  const silenceSegments = parseSilence(
+    `${silenceDetect.stdout}\n${silenceDetect.stderr}`,
+  );
   const measured = extractLoudnorm(`${loudness.stdout}\n${loudness.stderr}`);
-  const nonTerminalBlack = blackSegments.filter((segment) => segment.duration >= 0.6 && segment.end < duration - 1.5);
-  const meaningfulSilence = silenceSegments.filter((segment) => segment.duration >= 2.5 && (segment.start ?? 0) > 0.5 && (segment.start ?? 0) < duration - 1.5);
+  const nonTerminalBlack = blackSegments.filter(
+    (segment) => segment.duration >= 0.6 && segment.end < duration - 1.5,
+  );
+  const meaningfulSilence = silenceSegments.filter(
+    (segment) =>
+      segment.duration >= 2.5 &&
+      (segment.start ?? 0) > 0.5 &&
+      (segment.start ?? 0) < duration - 1.5,
+  );
   const integratedLufs = Number(measured.input_i);
   const truePeak = Number(measured.input_tp);
   const loudnessOk = integratedLufs >= -18 && integratedLufs <= -13;
   const truePeakOk = truePeak <= -1;
 
   const captionItems = captions.captions || [];
-  const captionStyleOk = captions.style?.line_count === 1 && captions.style?.active_word_effect === false && captions.style?.background === "none";
-  const captionSourceOk = captions.source === "qa/speech_transcript.json" && captions.text_source === "voice/voice_script.txt";
-  const captionTextOk = captionItems.length > 0
-    && /^Every major AI lab\b/i.test(captionItems[0]?.text || "")
-    && captionItems.every((item) => item.text && item.text.length <= 52 && item.text.trim().split(/\s+/).length <= 7);
-  const captionTimingOk = captionItems.every((item) => item.start_frame >= 0 && item.end_frame > item.start_frame && item.end_frame <= captions.duration_frames);
-  const captionsOk = captionStyleOk && captionSourceOk && captionTextOk && captionTimingOk;
+  const captionStyleOk =
+    captions.style?.line_count === 1 &&
+    captions.style?.active_word_effect === false &&
+    captions.style?.background === "none";
+  const captionSourceOk =
+    captions.source === "qa/speech_transcript.json" &&
+    captions.text_source === "voice/voice_script.txt";
+  const captionTextOk =
+    captionItems.length > 0 &&
+    /^Every major AI lab\b/i.test(captionItems[0]?.text || "") &&
+    captionItems.every(
+      (item) =>
+        item.text &&
+        item.text.length <= 52 &&
+        item.text.trim().split(/\s+/).length <= 7,
+    );
+  const captionTimingOk = captionItems.every(
+    (item) =>
+      item.start_frame >= 0 &&
+      item.end_frame > item.start_frame &&
+      item.end_frame <= captions.duration_frames,
+  );
+  const captionsOk =
+    captionStyleOk && captionSourceOk && captionTextOk && captionTimingOk;
 
-  const approvedMusicProfiles = ["original_tonal_score", "approved_licensed_bed"];
-  const soundDesignOk = audioMetadata.procedural_noise_generation === false
-    && approvedMusicProfiles.includes(audioMetadata.music_profile)
-    && Boolean(audioMetadata.music_asset)
-    && (audioMetadata.sfx_assets || []).length === 0;
-  const declaredAssets = [audioMetadata.music_asset, ...(audioMetadata.sfx_assets || [])].filter(Boolean);
-  const declaredAudioAssetsExist = await Promise.all(declaredAssets.map((rel) => pathExists(path.join(dir, rel))));
+  const approvedMusicProfiles = [
+    "original_tonal_score",
+    "approved_licensed_bed",
+  ];
+  const soundDesignOk =
+    audioMetadata.procedural_noise_generation === false &&
+    approvedMusicProfiles.includes(audioMetadata.music_profile) &&
+    Boolean(audioMetadata.music_asset) &&
+    (audioMetadata.sfx_assets || []).length === 0;
+  const declaredAssets = [
+    audioMetadata.music_asset,
+    ...(audioMetadata.sfx_assets || []),
+  ].filter(Boolean);
+  const declaredAudioAssetsExist = await Promise.all(
+    declaredAssets.map((rel) => pathExists(path.join(dir, rel))),
+  );
   const audioAssetsOk = declaredAudioAssetsExist.every(Boolean);
 
   const normalizedTranscript = normalize(speechQa.transcript);
   const openingSpeechOk = normalizedTranscript.startsWith("every major ai lab");
-  const speechOk = speechQa.passed === true
-    && speechQa.word_count >= 30
-    && speechQa.script_similarity >= 0.85
-    && openingSpeechOk;
+  const speechOk =
+    speechQa.passed === true &&
+    speechQa.word_count >= 30 &&
+    speechQa.script_similarity >= 0.85 &&
+    openingSpeechOk;
 
-  const pass = nonTerminalBlack.length === 0 && meaningfulSilence.length === 0 && loudnessOk && truePeakOk && captionsOk && soundDesignOk && audioAssetsOk && speechOk;
+  const pass =
+    nonTerminalBlack.length === 0 &&
+    brightnessDrops.length === 0 &&
+    meaningfulSilence.length === 0 &&
+    loudnessOk &&
+    truePeakOk &&
+    captionsOk &&
+    soundDesignOk &&
+    audioAssetsOk &&
+    speechOk;
   const report = {
-    schema_version: "4.0",
+    schema_version: "4.1-brightness-drop",
     project_id: projectId,
     video: path.basename(video),
     duration_seconds: duration,
     thresholds: {
       max_nonterminal_black_seconds: 0.6,
+      brightness_sample_rate_fps: 10,
+      maximum_transient_brightness_drop_seconds: 0.8,
+      near_black_average_luma: 28,
+      minimum_neighbor_average_luma: 32,
+      maximum_relative_luma: 0.55,
       max_nonterminal_silence_seconds: 2.5,
       integrated_lufs_range: [-18, -13],
       max_true_peak_dbtp: -1,
@@ -100,18 +352,47 @@ export async function runMediaQa({ projectId, video, reportPath, captionsPath, a
     },
     black_segments: blackSegments,
     nonterminal_black_segments: nonTerminalBlack,
+    brightness_samples: lumaSamples.length,
+    transient_brightness_drops: brightnessDrops,
     silence_segments: silenceSegments,
     meaningful_silence_segments: meaningfulSilence,
-    loudness: { integrated_lufs: integratedLufs, true_peak_dbtp: truePeak, loudness_range: Number(measured.input_lra), pass: loudnessOk && truePeakOk },
-    speech: { word_count: speechQa.word_count, script_similarity: speechQa.script_similarity, coverage: speechQa.speech_coverage, opening_pass: openingSpeechOk, pass: speechOk },
-    captions: { count: captionItems.length, style_pass: captionStyleOk, source_pass: captionSourceOk, text_pass: captionTextOk, timing_pass: captionTimingOk, pass: captionsOk },
-    sound_design: { music_profile: audioMetadata.music_profile, music_asset: audioMetadata.music_asset, procedural_noise_generation: audioMetadata.procedural_noise_generation, sfx_types: (audioMetadata.sfx_assets || []).length, assets_exist: audioAssetsOk, pass: soundDesignOk && audioAssetsOk },
+    loudness: {
+      integrated_lufs: integratedLufs,
+      true_peak_dbtp: truePeak,
+      loudness_range: Number(measured.input_lra),
+      pass: loudnessOk && truePeakOk,
+    },
+    speech: {
+      word_count: speechQa.word_count,
+      script_similarity: speechQa.script_similarity,
+      coverage: speechQa.speech_coverage,
+      opening_pass: openingSpeechOk,
+      pass: speechOk,
+    },
+    captions: {
+      count: captionItems.length,
+      style_pass: captionStyleOk,
+      source_pass: captionSourceOk,
+      text_pass: captionTextOk,
+      timing_pass: captionTimingOk,
+      pass: captionsOk,
+    },
+    sound_design: {
+      music_profile: audioMetadata.music_profile,
+      music_asset: audioMetadata.music_asset,
+      procedural_noise_generation: audioMetadata.procedural_noise_generation,
+      sfx_types: (audioMetadata.sfx_assets || []).length,
+      assets_exist: audioAssetsOk,
+      pass: soundDesignOk && audioAssetsOk,
+    },
     pass,
   };
 
   await writeJsonAtomic(reportPath, report);
   if (!pass) {
-    throw new Error(`ORVYQ media QA failed: black=${nonTerminalBlack.length}, silence=${meaningfulSilence.length}, LUFS=${integratedLufs}, speech=${speechOk}, opening=${openingSpeechOk}, captions=${captionsOk}, sound=${soundDesignOk && audioAssetsOk}`);
+    throw new Error(
+      `ORVYQ media QA failed: black=${nonTerminalBlack.length}, brightness_drops=${brightnessDrops.length}, silence=${meaningfulSilence.length}, LUFS=${integratedLufs}, speech=${speechOk}, opening=${openingSpeechOk}, captions=${captionsOk}, sound=${soundDesignOk && audioAssetsOk}`,
+    );
   }
   return report;
 }
@@ -121,16 +402,29 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const projectId = args["project-id"];
   const video = args.video;
   if (!projectId || !video) {
-    console.error("Usage: node scripts/orvyq_media_qa.mjs --project-id <id> --video <path> [--report <path>]");
+    console.error(
+      "Usage: node scripts/orvyq_media_qa.mjs --project-id <id> --video <path> [--report <path>]",
+    );
     process.exitCode = 1;
   } else {
     const dir = projectDir(projectId);
     const report = args.report || path.join(dir, "qa", "orvyq_media_qa.json");
-    const captionsPath = args.captions || path.join(dir, "remotion", "captions.json");
-    const audioMetadataPath = args["audio-metadata"] || path.join(dir, "assets", "audio", "final_mix.metadata.json");
-    runMediaQa({ projectId, video, reportPath: report, captionsPath, audioMetadataPath }).then((result) => console.log(JSON.stringify({ ok: true, ...result }))).catch((error) => {
-      console.error(JSON.stringify({ ok: false, error: error.message }));
-      process.exitCode = 1;
-    });
+    const captionsPath =
+      args.captions || path.join(dir, "remotion", "captions.json");
+    const audioMetadataPath =
+      args["audio-metadata"] ||
+      path.join(dir, "assets", "audio", "final_mix.metadata.json");
+    runMediaQa({
+      projectId,
+      video,
+      reportPath: report,
+      captionsPath,
+      audioMetadataPath,
+    })
+      .then((result) => console.log(JSON.stringify({ ok: true, ...result })))
+      .catch((error) => {
+        console.error(JSON.stringify({ ok: false, error: error.message }));
+        process.exitCode = 1;
+      });
   }
 }

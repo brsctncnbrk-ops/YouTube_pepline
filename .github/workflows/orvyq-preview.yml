@@ -90,7 +90,7 @@ jobs:
       - name: Stop when narration verification failed
         run: test "$(cat narration-qa.status)" = "0"
 
-      - name: Build captions and zero-stock primary-evidence preview
+      - name: Build captions and motion-hook primary-evidence preview
         run: |
           set -euo pipefail
           node scripts/orvyq_caption_build.mjs
@@ -157,6 +157,7 @@ jobs:
             projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
             projects/${{ env.PROJECT_ID }}/remotion/captions.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
+            projects/${{ env.PROJECT_ID }}/direction/motion_hook.json
           if-no-files-found: warn
           retention-days: 7
 
@@ -221,6 +222,10 @@ jobs:
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
           if [ -f "$APP/out/orvyq_quality_control_2min.mp4" ]; then
             ffmpeg -hide_banner -loglevel error -y \
+              -t 20 -i "$APP/out/orvyq_quality_control_2min.mp4" \
+              -vf "fps=1,scale=480:-1,tile=5x4" \
+              -frames:v 1 "$APP/out/orvyq_intro_review_sheet.jpg"
+            ffmpeg -hide_banner -loglevel error -y \
               -i "$APP/out/orvyq_quality_control_2min.mp4" \
               -vf "fps=1/10,scale=480:-1,tile=4x3" \
               -frames:v 1 "$APP/out/orvyq_quality_control_contact_sheet.jpg"
@@ -246,6 +251,7 @@ jobs:
             media-qa.log
             media-qa.status
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_2min.mp4
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_intro_review_sheet.jpg
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_quality_control_contact_sheet.jpg
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_mobile_review_sheet.jpg
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_primary_evidence_review_sheet.jpg
@@ -266,6 +272,7 @@ jobs:
             projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
             projects/${{ env.PROJECT_ID }}/remotion/captions.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
+            projects/${{ env.PROJECT_ID }}/direction/motion_hook.json
           if-no-files-found: warn
           retention-days: 14
 

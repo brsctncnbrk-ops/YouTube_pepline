@@ -3,6 +3,7 @@ import path from "node:path";
 import { promises as fs } from "node:fs";
 import { projectDir, readJson, writeJsonAtomic, pathExists } from "./lib/fs-utils.mjs";
 import { loadResolvedEvidenceMap } from "./lib/orvyq-evidence.mjs";
+import { auditMotionHook } from "./lib/orvyq-motion-hook.mjs";
 
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
 const OFFICIAL_CAPTURE_KINDS = new Set(["split_documents", "official_document", "official_figure", "official_screen", "image_sequence", "recap"]);
@@ -26,9 +27,8 @@ export async function runEvidenceAssetAudit(projectId = PROJECT_ID) {
   const usedAssetIds = unique(plan.shots.flatMap((shot) => shot.evidence?.evidence_asset_ids || []));
   const usedImageAssets = unique(plan.shots.flatMap((shot) => shot.evidence?.image_assets || []));
 
-  if (plan.preview && plan.shots.some((shot) => shot.asset_type === "footage")) {
-    failures.push("Preview contains footage; zero-legacy-footage proof requires official captures and source-derived graphics only");
-  }
+  const motionHook = auditMotionHook(plan);
+  if (plan.preview && !motionHook.pass) failures.push(...motionHook.failures);
 
   for (const shot of plan.shots.filter((item) => item.asset_type === "evidence")) {
     const spec = shot.evidence || {};
@@ -81,7 +81,9 @@ export async function runEvidenceAssetAudit(projectId = PROJECT_ID) {
     schema_version: "2.1-runtime-primary-evidence",
     project_id: projectId,
     preview: Boolean(plan.preview),
-    legacy_footage_count: plan.shots.filter((shot) => shot.asset_type === "footage").length,
+    legacy_footage_count: plan.shots.filter((shot) => shot.asset_type === "footage" && shot.hook_footage !== true).length,
+    approved_hook_footage_count: plan.shots.filter((shot) => shot.asset_type === "footage" && shot.hook_footage === true).length,
+    motion_hook: motionHook,
     used_official_capture_count: reports.length,
     used_source_derived_graphic_count: plan.shots.filter((shot) => shot.asset_type === "evidence" && SOURCE_DERIVED_KINDS.has(shot.evidence?.kind)).length,
     used_asset_ids: usedAssetIds,
