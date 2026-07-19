@@ -6,6 +6,7 @@ import { auditMotionHook } from "./lib/orvyq-motion-hook.mjs";
 import {
   isApprovedContextualFootage,
   isOpeningHookFootage,
+  isSourceBackedGraphic,
   resolveVisualThresholds,
 } from "./lib/orvyq-visual-policy.mjs";
 
@@ -55,6 +56,7 @@ export async function runSemanticVisualAudit(projectId = PROJECT_ID) {
   let contextualBodyFrames = 0;
   let officialFrames = 0;
   let derivedFrames = 0;
+  let sourceBackedGraphicFrames = 0;
   let pureGraphicFrames = 0;
   let emphasisBeats = 0;
   let currentEvidenceRunFrames = 0;
@@ -62,6 +64,9 @@ export async function runSemanticVisualAudit(projectId = PROJECT_ID) {
   const roleFrames = {};
   const motifUses = new Map();
   const imageUses = new Map();
+  const knownSourceIds = new Set(
+    (evidenceMap.source_catalog || []).map((source) => source.source_id),
+  );
 
   if (!editorial.declaration_matches_timeline) {
     failures.push(
@@ -106,11 +111,29 @@ export async function runSemanticVisualAudit(projectId = PROJECT_ID) {
       else failures.push(`${shot.shot_id} unknown evidence kind ${kind}`);
       if (!(shot.evidence?.source_ids || []).length)
         failures.push(`${shot.shot_id} evidence has no source IDs`);
+      for (const sourceId of shot.evidence?.source_ids || []) {
+        if (!knownSourceIds.has(sourceId))
+          failures.push(`${shot.shot_id} references unknown source ${sourceId}`);
+      }
       for (const image of shot.evidence?.image_assets || [])
         imageUses.set(image, (imageUses.get(image) || 0) + 1);
     } else if (shot.asset_type === "graphic") {
       pureGraphicFrames += frames;
       currentEvidenceRunFrames = 0;
+      if (isSourceBackedGraphic(shot)) {
+        derivedFrames += frames;
+        sourceBackedGraphicFrames += frames;
+        for (const sourceId of shot.graphic.source_ids) {
+          if (!knownSourceIds.has(sourceId))
+            failures.push(
+              `${shot.shot_id} source-backed graphic references unknown source ${sourceId}`,
+            );
+        }
+      } else if (shot.graphic?.source_backed === true) {
+        failures.push(
+          `${shot.shot_id} claims source-backed graphic status without visible source, source IDs and provenance`,
+        );
+      }
     } else {
       currentEvidenceRunFrames = 0;
     }
@@ -129,6 +152,7 @@ export async function runSemanticVisualAudit(projectId = PROJECT_ID) {
   const contextualBodyFraction = contextualBodyFrames / duration;
   const officialFraction = officialFrames / duration;
   const derivedFraction = derivedFrames / duration;
+  const sourceBackedGraphicFraction = sourceBackedGraphicFrames / duration;
   const graphicFraction = pureGraphicFrames / duration;
   const totalEvidenceFraction = (officialFrames + derivedFrames) / duration;
   const motionHook = auditMotionHook(plan);
@@ -229,7 +253,7 @@ export async function runSemanticVisualAudit(projectId = PROJECT_ID) {
   }
 
   const report = {
-    schema_version: "3.0-compatible-visual-policy",
+    schema_version: "3.1-source-backed-graphic-policy",
     project_id: projectId,
     preview: Boolean(plan.preview),
     editorial_mode: editorial.mode,
@@ -257,6 +281,7 @@ export async function runSemanticVisualAudit(projectId = PROJECT_ID) {
     contextual_body_footage_fraction: contextualBodyFraction,
     official_primary_capture_fraction: officialFraction,
     source_derived_graphic_fraction: derivedFraction,
+    source_backed_graphic_fraction: sourceBackedGraphicFraction,
     evidence_archive_fraction: totalEvidenceFraction,
     full_screen_graphic_fraction: graphicFraction,
     emphasis_beat_count: emphasisBeats,
@@ -265,6 +290,7 @@ export async function runSemanticVisualAudit(projectId = PROJECT_ID) {
     image_uses: Object.fromEntries(
       [...imageUses.entries()].sort((a, b) => b[1] - a[1]),
     ),
+    source_backed_graphic_requires_visible_source: true,
     metadata_cannot_override_asset_class: true,
     motion_hook: motionHook,
     warnings,
