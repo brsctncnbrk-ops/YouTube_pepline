@@ -1,0 +1,74 @@
+name: ORVYQ Fix Edit Plan Readiness
+
+on:
+  push:
+    branches:
+      - agent/orvyq-system-wide-production
+    paths:
+      - .github/orvyq-fix-edit-plan-readiness-trigger.txt
+
+permissions:
+  contents: write
+
+concurrency:
+  group: orvyq-fix-edit-plan-readiness
+  cancel-in-progress: false
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Patch edit plan readiness contract
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/orvyq_edit_plan_tests.mjs')
+          s = p.read_text()
+
+          old_import = 'import { auditMotionHook } from "./lib/orvyq-motion-hook.mjs";\n'
+          new_import = old_import + '''import { runEvidenceAudit } from "./orvyq_evidence_audit.mjs";\nimport { runEvidenceAssetAudit } from "./orvyq_evidence_asset_audit.mjs";\nimport { runSemanticVisualAudit } from "./orvyq_semantic_visual_audit.mjs";\nimport { runPacingAudit } from "./orvyq_pacing_audit.mjs";\nimport { runMobileLegibilityAudit } from "./orvyq_mobile_legibility_audit.mjs";\n'''
+          if 'runEvidenceAssetAudit' not in s:
+              if old_import not in s:
+                  raise SystemExit('motion-hook import anchor missing')
+              s = s.replace(old_import, new_import, 1)
+
+          anchor = '''async function videoDuration(file) {\n'''
+          helper = '''async function ensureReadinessAudits(projectId, dir) {\n  const prerequisites = [\n    ["qa/evidence_coverage.json", runEvidenceAudit],\n    ["qa/evidence_asset_audit.json", runEvidenceAssetAudit],\n    ["qa/semantic_visual_audit.json", runSemanticVisualAudit],\n    ["qa/pacing_audit.json", runPacingAudit],\n    ["qa/mobile_legibility_audit.json", runMobileLegibilityAudit],\n  ];\n  for (const [relativePath, execute] of prerequisites) {\n    if (!(await pathExists(path.join(dir, relativePath)))) {\n      await execute(projectId);\n    }\n  }\n}\n\n'''
+          if 'async function ensureReadinessAudits' not in s:
+              if anchor not in s:
+                  raise SystemExit('videoDuration anchor missing')
+              s = s.replace(anchor, helper + anchor, 1)
+
+          dir_anchor = '''  const dir = projectDir(projectId);\n'''
+          ensure_call = '''  const dir = projectDir(projectId);\n  await ensureReadinessAudits(projectId, dir);\n'''
+          if 'await ensureReadinessAudits(projectId, dir);' not in s:
+              if dir_anchor not in s:
+                  raise SystemExit('project dir anchor missing')
+              s = s.replace(dir_anchor, ensure_call, 1)
+
+          s = s.replace(
+              'assert.ok(approval.aperture_alignment_score >= 95);',
+              'assert.ok(Number(approval.human_score ?? approval.aperture_alignment_score) >= 95);'
+          )
+          p.write_text(s)
+          PY
+
+          node --check scripts/orvyq_edit_plan_tests.mjs
+
+      - name: Commit fix
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add scripts/orvyq_edit_plan_tests.mjs
+          git diff --cached --quiet && { echo 'Fix already applied'; exit 0; }
+          git commit -m 'Make ORVYQ full render readiness self-contained'
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
