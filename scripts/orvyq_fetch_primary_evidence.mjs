@@ -10,25 +10,54 @@ import { projectDir, readJson, writeJsonAtomic, pathExists } from "./lib/fs-util
 const run = promisify(execFile);
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
 const sha256 = (buffer) => crypto.createHash("sha256").update(buffer).digest("hex");
+const sleep = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 function assertMagic(buffer, mime, assetId) {
   if (mime === "application/pdf" && buffer.subarray(0, 4).toString("ascii") !== "%PDF") throw new Error(`${assetId} did not download as a PDF`);
   if (mime === "image/png" && buffer.subarray(0, 8).toString("hex") !== "89504e470d0a1a0a") throw new Error(`${assetId} did not download as a PNG`);
   if (mime === "text/html") {
-    const head = buffer.subarray(0, Math.min(buffer.length, 4096)).toString("utf8").toLowerCase();
+    const head = buffer.subarray(0, Math.min(buffer.length, 8192)).toString("utf8").toLowerCase();
     if (!head.includes("<html") && !head.includes("<!doctype")) throw new Error(`${assetId} did not download as HTML`);
   }
 }
 
-async function fetchBuffer(url, allowedHosts) {
+async function fetchBuffer(url, allowedHosts, assetId) {
   const parsed = new URL(url);
   if (parsed.protocol !== "https:") throw new Error(`Evidence URL must use HTTPS: ${url}`);
   if (!allowedHosts.includes(parsed.hostname)) throw new Error(`Evidence host is not allowlisted: ${parsed.hostname}`);
-  const response = await fetch(parsed, { redirect: "follow", headers: { "user-agent": "Mozilla/5.0 ORVYQ-primary-evidence-fetch/3.0" }, signal: AbortSignal.timeout(90000) });
-  if (!response.ok) throw new Error(`Evidence download failed ${response.status}: ${url}`);
-  const finalUrl = new URL(response.url);
-  if (!allowedHosts.includes(finalUrl.hostname)) throw new Error(`Evidence redirect escaped allowlist: ${finalUrl.hostname}`);
-  return { buffer: Buffer.from(await response.arrayBuffer()), final_url: finalUrl.toString(), content_type: response.headers.get("content-type") || null };
+  let lastError = null;
+  for (let attempt = 1; attempt <= 4; attempt += 1) {
+    try {
+      const response = await fetch(parsed, {
+        redirect: "follow",
+        headers: {
+          "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/150 Safari/537.36 ORVYQ-primary-evidence-fetch/3.1",
+          accept: "text/html,application/pdf,image/png,image/*;q=0.9,*/*;q=0.8",
+          "accept-language": "en-US,en;q=0.9",
+        },
+        signal: AbortSignal.timeout(120000),
+      });
+      if (!response.ok) {
+        const retryable = response.status === 408 || response.status === 429 || response.status >= 500;
+        if (retryable && attempt < 4) {
+          lastError = new Error(`HTTP ${response.status}`);
+          await sleep(attempt * 1500);
+          continue;
+        }
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const finalUrl = new URL(response.url);
+      if (!allowedHosts.includes(finalUrl.hostname)) throw new Error(`redirect escaped allowlist to ${finalUrl.hostname}`);
+      return { buffer: Buffer.from(await response.arrayBuffer()), final_url: finalUrl.toString(), content_type: response.headers.get("content-type") || null };
+    } catch (error) {
+      lastError = error;
+      if (attempt < 4) {
+        await sleep(attempt * 1500);
+        continue;
+      }
+    }
+  }
+  throw new Error(`${assetId} evidence fetch failed after 4 attempts: ${url} (${lastError?.message || "unknown network error"})`);
 }
 
 async function resolveBrowser() {
@@ -61,6 +90,8 @@ async function captureWebpage(url, output, assetId) {
       `--screenshot=${output}`,
       url,
     ], { timeout: 90000, maxBuffer: 20 * 1024 * 1024 });
+  } catch (error) {
+    throw new Error(`${assetId} official webpage capture failed: ${url} (${error.message})`);
   } finally {
     await fs.rm(profile, { recursive: true, force: true });
   }
@@ -82,8 +113,8 @@ export async function fetchPrimaryEvidence(projectId = PROJECT_ID) {
   for (const [relativePath, asset] of downloadGroups.entries()) {
     const target = path.join(dir, relativePath);
     await fs.mkdir(path.dirname(target), { recursive: true });
-    const { buffer, final_url, content_type } = await fetchBuffer(asset.source_url, allowedHosts);
-    if (buffer.length < Number(asset.min_bytes || 1)) throw new Error(`${asset.evidence_asset_id} downloaded only ${buffer.length} bytes`);
+    const { buffer, final_url, content_type } = await fetchBuffer(asset.source_url, allowedHosts, asset.evidence_asset_id);
+    if (buffer.length < Number(asset.min_bytes || 1)) throw new Error(`${asset.evidence_asset_id} downloaded only ${buffer.length} bytes from ${asset.source_url}`);
     assertMagic(buffer, asset.mime, asset.evidence_asset_id);
     await fs.writeFile(target, buffer);
     downloadRecords.set(relativePath, { source_url: asset.source_url, final_url, content_type, bytes: buffer.length, sha256: sha256(buffer) });
@@ -108,7 +139,7 @@ export async function fetchPrimaryEvidence(projectId = PROJECT_ID) {
     runtimeAssets.push({ evidence_asset_id: asset.evidence_asset_id, source_ids: asset.source_ids, source_url: asset.source_url, final_url: downloadRecords.get(asset.download_asset)?.final_url || asset.source_url, local_asset: asset.local_asset, download_asset: asset.download_asset, page_number: asset.page_number || null, capture_type: asset.capture_type || null, provenance_mode: asset.provenance_mode, caption: asset.caption, bytes: localBuffer.length, sha256: sha256(localBuffer) });
   }
 
-  const runtime = { schema_version: "3.0-web-capture", project_id: projectId, generated_at: new Date().toISOString(), policy: manifest.policy, downloads: Object.fromEntries(downloadRecords), assets: runtimeAssets, pass: runtimeAssets.length === (manifest.assets || []).length };
+  const runtime = { schema_version: "3.1-retry-web-capture", project_id: projectId, generated_at: new Date().toISOString(), policy: manifest.policy, downloads: Object.fromEntries(downloadRecords), assets: runtimeAssets, pass: runtimeAssets.length === (manifest.assets || []).length };
   await writeJsonAtomic(path.join(dir, manifest.policy.runtime_manifest), runtime);
   return runtime;
 }
