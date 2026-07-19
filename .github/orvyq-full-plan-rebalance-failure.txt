@@ -1,52 +1,8 @@
-2026-07-19T23:29:11.6023430Z 
-2026-07-19T23:29:11.6024292Z Running kernel seems to be up-to-date.
-2026-07-19T23:29:11.6031764Z 
-2026-07-19T23:29:11.6032198Z No services need to be restarted.
-2026-07-19T23:29:11.6032518Z 
-2026-07-19T23:29:11.6032742Z No containers need to be restarted.
-2026-07-19T23:29:11.6033125Z 
-2026-07-19T23:29:11.6033576Z No user sessions are running outdated binaries.
-2026-07-19T23:29:11.6033916Z 
-2026-07-19T23:29:11.6034354Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
-2026-07-19T23:29:15.0961771Z Collecting faster-whisper==1.2.0
-2026-07-19T23:29:15.1695983Z   Downloading faster_whisper-1.2.0-py3-none-any.whl.metadata (16 kB)
-2026-07-19T23:29:15.2133841Z Collecting requests==2.32.5
-2026-07-19T23:29:15.2249510Z   Downloading requests-2.32.5-py3-none-any.whl.metadata (4.9 kB)
-2026-07-19T23:29:15.3364781Z Collecting ctranslate2<5,>=4.0 (from faster-whisper==1.2.0)
-2026-07-19T23:29:15.3481747Z   Downloading ctranslate2-4.8.1-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (11 kB)
-2026-07-19T23:29:15.3965745Z Collecting huggingface-hub>=0.13 (from faster-whisper==1.2.0)
-2026-07-19T23:29:15.4082508Z   Downloading huggingface_hub-1.24.0-py3-none-any.whl.metadata (16 kB)
-2026-07-19T23:29:15.5596493Z Collecting tokenizers<1,>=0.13 (from faster-whisper==1.2.0)
-2026-07-19T23:29:15.5710366Z   Downloading tokenizers-0.23.1-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.8 kB)
-2026-07-19T23:29:15.6322301Z Collecting onnxruntime<2,>=1.14 (from faster-whisper==1.2.0)
-2026-07-19T23:29:15.6437196Z   Downloading onnxruntime-1.27.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (5.4 kB)
-2026-07-19T23:29:15.6939152Z Collecting av>=11 (from faster-whisper==1.2.0)
-2026-07-19T23:29:15.7051699Z   Downloading av-18.0.0-cp311-abi3-manylinux_2_28_x86_64.whl.metadata (4.5 kB)
-2026-07-19T23:29:15.7403389Z Collecting tqdm (from faster-whisper==1.2.0)
-2026-07-19T23:29:15.7518960Z   Downloading tqdm-4.69.0-py3-none-any.whl.metadata (57 kB)
-2026-07-19T23:29:15.8602316Z Collecting charset_normalizer<4,>=2 (from requests==2.32.5)
-2026-07-19T23:29:15.8717236Z   Downloading charset_normalizer-3.4.9-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (41 kB)
-2026-07-19T23:29:15.8971321Z Collecting idna<4,>=2.5 (from requests==2.32.5)
-2026-07-19T23:29:15.9083578Z   Downloading idna-3.18-py3-none-any.whl.metadata (6.1 kB)
-2026-07-19T23:29:15.9380218Z Collecting urllib3<3,>=1.21.1 (from requests==2.32.5)
-2026-07-19T23:29:15.9493255Z   Downloading urllib3-2.7.0-py3-none-any.whl.metadata (6.9 kB)
-2026-07-19T23:29:15.9961178Z Collecting certifi>=2017.4.17 (from requests==2.32.5)
-2026-07-19T23:29:16.0073495Z   Downloading certifi-2026.6.17-py3-none-any.whl.metadata (2.5 kB)
-2026-07-19T23:29:16.0115351Z Requirement already satisfied: setuptools in /opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages (from ctranslate2<5,>=4.0->faster-whisper==1.2.0) (79.0.1)
-2026-07-19T23:29:16.1820184Z Collecting numpy (from ctranslate2<5,>=4.0->faster-whisper==1.2.0)
-2026-07-19T23:29:16.1933368Z   Downloading numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
-2026-07-19T23:29:16.2335883Z Collecting pyyaml<7,>=5.3 (from ctranslate2<5,>=4.0->faster-whisper==1.2.0)
-2026-07-19T23:29:16.2448618Z   Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
-2026-07-19T23:29:16.2674215Z Collecting flatbuffers (from onnxruntime<2,>=1.14->faster-whisper==1.2.0)
-2026-07-19T23:29:16.2787572Z   Downloading flatbuffers-25.12.19-py2.py3-none-any.whl.metadata (1.0 kB)
-2026-07-19T23:29:16.3056919Z Collecting packaging (from onnxruntime<2,>=1.14->faster-whisper==1.2.0)
-2026-07-19T23:29:16.3167626Z   Downloading packaging-26.2-py3-none-any.whl.metadata (3.5 kB)
-2026-07-19T23:29:16.4443577Z Collecting protobuf>=4.25.8 (from onnxruntime<2,>=1.14->faster-whisper==1.2.0)
-2026-07-19T23:29:16.4562230Z   Downloading protobuf-7.35.1-cp310-abi3-manylinux2014_x86_64.whl.metadata (595 bytes)
-2026-07-19T23:29:16.4899113Z Collecting click<9.0.0,>=8.4.2 (from huggingface-hub>=0.13->faster-whisper==1.2.0)
-2026-07-19T23:29:16.5011398Z   Downloading click-8.4.2-py3-none-any.whl.metadata (2.6 kB)
-2026-07-19T23:29:16.5293242Z Collecting filelock>=3.10.0 (from huggingface-hub>=0.13->faster-whisper==1.2.0)
-2026-07-19T23:29:16.5408277Z   Downloading filelock-3.31.0-py3-none-any.whl.metadata (2.0 kB)
+2026-07-19T23:29:41.7018984Z {"ok":false,"error":"EVID_WEB_NTIA_OPEN_WEIGHTS_2024 evidence fetch failed after 4 attempts: https://www.ntia.gov/programs-and-initiatives/artificial-intelligence/open-model-weights-report (fetch failed)"}
+2026-07-19T23:29:41.7095878Z ##[error]Process completed with exit code 1.
+2026-07-19T23:29:41.7018940Z {"ok":false,"error":"EVID_WEB_NTIA_OPEN_WEIGHTS_2024 evidence fetch failed after 4 attempts: https://www.ntia.gov/programs-and-initiatives/artificial-intelligence/open-model-weights-report (fetch failed)"}
+2026-07-19T23:29:41.7095417Z ##[error]Process completed with exit code 1.
+--- LAST 80 LINES ---
 2026-07-19T23:29:16.5675398Z Collecting fsspec>=2023.5.0 (from huggingface-hub>=0.13->faster-whisper==1.2.0)
 2026-07-19T23:29:16.5787929Z   Downloading fsspec-2026.6.0-py3-none-any.whl.metadata (10 kB)
 2026-07-19T23:29:16.6636575Z Collecting hf-xet<2.0.0,>=1.5.1 (from huggingface-hub>=0.13->faster-whisper==1.2.0)
@@ -119,3 +75,11 @@
 2026-07-19T23:29:23.8112472Z {"ok":true,"project_id":"001-the-ai-race-no-one-can-afford-to-win","active_source_count":17,"added_count":14,"total_assets":26,"allowed_hosts":["digital-strategy.ec.europa.eu","hai.stanford.edu","storage.googleapis.com","www-cdn.anthropic.com","www.anthropic.com","www.gov.uk","www.ilo.org","www.ntia.gov"],"added_assets":[{"evidence_asset_id":"EVID_WEB_ANTHROPIC_CYBER_MISUSE_2025","source_ids":["SRC_ANTHROPIC_CYBER_MISUSE_2025"],"local_asset":"assets/evidence/anthropic_cyber_misuse_2025.png"},{"evidence_asset_id":"EVID_WEB_ANTHROPIC_ESPIONAGE_2025","source_ids":["SRC_ANTHROPIC_ESPIONAGE_2025"],"local_asset":"assets/evidence/anthropic_espionage_2025.png"},{"evidence_asset_id":"EVID_WEB_ANTHROPIC_ASL3_2025","source_ids":["SRC_ANTHROPIC_ASL3_2025"],"local_asset":"assets/evidence/anthropic_asl3_2025.png"},{"evidence_asset_id":"EVID_WEB_ILO_JOBS_2025","source_ids":["SRC_ILO_JOBS_2025"],"local_asset":"assets/evidence/ilo_jobs_2025.png"},{"evidence_asset_id":"EVID_WEB_ILO_EXPOSURE_LIMITS_2026","source_ids":["SRC_ILO_EXPOSURE_LIMITS_2026"],"local_asset":"assets/evidence/ilo_exposure_limits_2026.png"},{"evidence_asset_id":"EVID_WEB_EU_GPAI_OBLIGATIONS_2025","source_ids":["SRC_EU_GPAI_OBLIGATIONS_2025"],"local_asset":"assets/evidence/eu_gpai_obligations_2025.png"},{"evidence_asset_id":"EVID_WEB_EU_GPAI_GUIDELINES_2025","source_ids":["SRC_EU_GPAI_GUIDELINES_2025"],"local_asset":"assets/evidence/eu_gpai_guidelines_2025.png"},{"evidence_asset_id":"EVID_WEB_NTIA_OPEN_WEIGHTS_2024","source_ids":["SRC_NTIA_OPEN_WEIGHTS_2024"],"local_asset":"assets/evidence/ntia_open_weights_2024.png"},{"evidence_asset_id":"EVID_WEB_UK_AISI_EVALS_2024","source_ids":["SRC_UK_AISI_EVALS_2024"],"local_asset":"assets/evidence/uk_aisi_evals_2024.png"},{"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_ECONOMY","source_ids":["SRC_STANFORD_AI_INDEX_2025_ECONOMY"],"local_asset":"assets/evidence/stanford_ai_index_2025_economy.png"},{"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_TECHNICAL","source_ids":["SRC_STANFORD_AI_INDEX_2025_TECHNICAL"],"local_asset":"assets/evidence/stanford_ai_index_2025_technical.png"},{"evidence_asset_id":"EVID_WEB_CMA_FOUNDATION_MODELS_UPDATE_2024","source_ids":["SRC_CMA_FOUNDATION_MODELS_UPDATE_2024"],"local_asset":"assets/evidence/cma_foundation_models_update_2024.png"},{"evidence_asset_id":"EVID_WEB_CMA_CLOUD_MARKET_2025","source_ids":["SRC_CMA_CLOUD_MARKET_2025"],"local_asset":"assets/evidence/cma_cloud_market_2025.png"},{"evidence_asset_id":"EVID_WEB_INTERNATIONAL_AI_SAFETY_REPORT_2025","source_ids":["SRC_INTERNATIONAL_AI_SAFETY_REPORT_2025"],"local_asset":"assets/evidence/international_ai_safety_report_2025.png"}]}
 2026-07-19T23:29:41.7018940Z {"ok":false,"error":"EVID_WEB_NTIA_OPEN_WEIGHTS_2024 evidence fetch failed after 4 attempts: https://www.ntia.gov/programs-and-initiatives/artificial-intelligence/open-model-weights-report (fetch failed)"}
 2026-07-19T23:29:41.7095417Z ##[error]Process completed with exit code 1.
+2026-07-19T23:28:27.4660000Z Requested labels: ubuntu-latest
+2026-07-19T23:28:27.4660000Z Job defined at: brsctncnbrk-ops/YouTube_pepline/.github/workflows/orvyq-full-plan-rebalance.yml@refs/heads/agent/orvyq-system-wide-production
+2026-07-19T23:28:27.4660000Z Waiting for a runner to pick up this job...
+2026-07-19T23:28:27.4680000Z Job is about to start running on the hosted runner: GitHub Actions 1000001476
+2026-07-19T23:28:27.4650000Z Evaluating rebalance.if
+2026-07-19T23:28:27.4650000Z Evaluating: success()
+2026-07-19T23:28:27.4650000Z Result: true
+2026-07-19T23:28:27.4670000Z Job is waiting for a hosted runner to come online.
