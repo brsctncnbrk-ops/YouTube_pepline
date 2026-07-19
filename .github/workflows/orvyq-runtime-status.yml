@@ -12,16 +12,18 @@ permissions:
 jobs:
   status:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          show-progress: false
       - name: Locate longest uninterrupted proof evidence run
         run: |
+          set -euo pipefail
+          gh api -H 'Accept: application/vnd.github+json' \
+            "/repos/${GITHUB_REPOSITORY}/contents/projects/001-the-ai-race-no-one-can-afford-to-win/direction/production_plan.json?ref=agent%2Forvyq-system-wide-production" \
+            --jq '.content' | base64 -d > production_plan.json
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          const project = '001-the-ai-race-no-one-can-afford-to-win';
-          const plan = JSON.parse(fs.readFileSync(`projects/${project}/direction/production_plan.json`, 'utf8'));
+          const plan = JSON.parse(fs.readFileSync('production_plan.json', 'utf8'));
           const proofEnd = 5361;
           const shots = plan.shots.filter((shot) => shot.start_frame < proofEnd && shot.end_frame <= proofEnd);
           const runs = [];
