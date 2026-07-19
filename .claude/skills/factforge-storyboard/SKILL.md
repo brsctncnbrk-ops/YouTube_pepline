@@ -1,94 +1,102 @@
 ---
 name: factforge-storyboard
-description: Breaks an approved FactForge script into timed, purpose-tagged scenes. Use when a FactForge project's manifest current_stage is "storyboard".
+description: Breaks an approved ORVYQ / FactForge script into timed, section-bound scenes that can be expanded deterministically into a canonical full-duration production plan. Use when current_stage is storyboard.
 ---
 
-# FactForge Storyboard
+# ORVYQ / FactForge Storyboard
 
-You turn the approved script into a scene-by-scene shot list the visual
-pipeline will build on. You do not design the visual style or write image
-prompts — that's `factforge-visual-style-bible` and `factforge-visual-prompt`.
+You turn the approved script into a scene-by-scene narrative structure. The storyboard must preserve section identity because the later `production_plan` stage expands every scene into explicit evidence, footage, context, metaphor, and graphic shots across the complete film.
+
+You do not design final shot-level visuals here. That belongs to footage retrieval, direction, and canonical production planning.
 
 ## Inputs
 
-`scripts/script.md`, `scripts/script_metadata.json` (for each beat's
-`visual_guidance: {mood, visual_need_hint}` — your scenes should carry this
-forward, not invent mood/visual-need from scratch), `voice/voice_script.txt`,
-`assets/audio/final_voice.mp3` (now a real recorded file — this stage only
-runs after the audio gate has passed), and `config/video_config.json`
-(`target_duration_sec`).
+- `scripts/script.md`
+- `scripts/script_metadata.json`, including beat/section ids and `visual_guidance`
+- `voice/voice_script.txt`
+- `assets/audio/final_voice.mp3`
+- `config/video_config.json`
 
-**Use the real audio duration as ground truth if you can get it.** If
-`ffprobe` (part of ffmpeg) is available in the environment, run something
-like:
+Use the real narration duration as ground truth when `ffprobe` is available:
 
-```
+```bash
 ffprobe -v error -show_entries format=duration -of csv=p=0 projects/<project_id>/assets/audio/final_voice.mp3
 ```
 
-and use that value for `total_duration_sec` instead of the original
-`target_duration_sec` estimate — the recorded narration is more accurate than
-the pre-recording word-count guess. If `ffprobe` isn't available, fall back to
-`target_duration_sec`; don't block on this.
-
 ## Task
 
-Break the script into scenes:
+Break the script into contiguous scenes. Every scene must declare:
 
-- Assign each scene a **purpose** (what story beat it serves).
-- Define its **visual need** (what should be on screen — a description, not
-  a Leonardo prompt) and a controlled **`mood`** tag (one of `calm | tense |
-  hopeful | melancholic | curious | triumphant | somber | reflective |
-  neutral`). Both should carry forward the beat's `visual_guidance` from
-  `script_metadata.json` (`mood` and `visual_need_hint`) — refine/split it
-  per scene rather than inventing an unrelated mood, since this is what
-  `factforge-footage-retrieval` builds its search queries from next.
-- Note any **on-screen text** (or `null` if none).
-- Set **transitions** in and out (e.g. `fade`, `cut`, `dissolve`).
-- Set `start_sec`/`end_sec`/`duration_sec` so scenes are contiguous and sum
-  to `total_duration_sec` with no gaps or overlaps.
-- Give each scene a short `voice_line_ref` pointing back to the relevant
-  part of `voice_script.txt` (e.g. a short quoted phrase or paragraph
-  number) so later stages can trace a scene back to its narration.
+- `scene_id`, sequential from `scene_001`;
+- `section_id`, copied from the corresponding script/evidence section and stable across downstream stages;
+- exact start, end, and duration;
+- narrative purpose;
+- visual need;
+- controlled mood;
+- on-screen text or `null`;
+- transitions;
+- a traceable narration reference.
 
-Scene granularity is a judgment call — usually one scene per script section
-or per major beat within a section, not one scene per sentence. Aim for
-scenes long enough to be visually meaningful (a few seconds at minimum).
+The `section_id` is mandatory. It is the bridge between:
+
+- script and evidence claims;
+- storyboard scenes;
+- section-level music and dramatic function;
+- the full-duration canonical production plan;
+- final shot-level QA.
+
+Do not invent generic section identifiers after the fact. Reuse the ids already established by research/script metadata. Each scene belongs to exactly one section. Section changes must occur on scene boundaries.
+
+Scene granularity is a narrative decision, not the final shot duration. A storyboard scene may last 20–35 seconds; `factforge-production-plan` later divides it into varied shots of no more than the configured maximum, normally eight seconds.
 
 ## Output
 
-**`storyboard.json`** — must validate against `schemas/storyboard.schema.json`
-and use sequential, zero-padded, gap-free scene ids starting at `scene_001`:
+`storyboard/storyboard.json` must validate against `schemas/storyboard.schema.json`:
 
 ```json
 {
-  "schema_version": "2.0",
-  "project_id": "...",
-  "target_duration_sec": 300,
-  "total_duration_sec": 300,
-  "scene_count": 6,
+  "schema_version": "3.0",
+  "project_id": "001-example",
+  "target_duration_sec": 600,
+  "total_duration_sec": 612.4,
+  "scene_count": 2,
   "scenes": [
     {
       "scene_id": "scene_001",
-      "start_sec": 0, "end_sec": 15, "duration_sec": 15,
-      "purpose": "...", "visual_need": "...", "mood": "curious", "on_screen_text": null,
-      "transition_in": "fade", "transition_out": "cut",
-      "voice_line_ref": "..."
+      "section_id": "SEC_01_OPENING_PARADOX",
+      "start_sec": 0,
+      "end_sec": 24.2,
+      "duration_sec": 24.2,
+      "purpose": "Establish the governing contradiction.",
+      "visual_need": "Physical infrastructure, primary source context, and human-scale decisions.",
+      "mood": "tense",
+      "on_screen_text": null,
+      "transition_in": "fade",
+      "transition_out": "cut",
+      "voice_line_ref": "voice_script paragraph 1"
     }
   ],
-  "generated_at": "<ISO 8601 timestamp>"
+  "generated_at": "<ISO 8601>"
 }
 ```
 
-**`storyboard.md`** — human-readable scene list in order, one entry per
-scene with its timing, purpose, visual need, on-screen text, and
-transitions.
+Also write `storyboard/storyboard.md`, including section id, timing, purpose, visual need, text, and transitions for every scene.
 
 ## Before finishing
 
-1. Validate the schema: `node scripts/validate.mjs schema --file projects/<project_id>/storyboard/storyboard.json --schema storyboard`.
-2. Validate scene numbering/filenames: `node scripts/validate.mjs filenames --project-id <project_id>`. Fix any gap/duplicate/pattern issues before proceeding.
-3. Advance: `node scripts/manifest_cli.mjs advance --project-id <project_id> --stage storyboard --result success`.
-4. If the script genuinely can't be broken into a coherent scene sequence (e.g. it's too short or too abstract), don't force it — run `node scripts/manifest_cli.mjs error --project-id <project_id> --code USER_APPROVAL_REQUIRED --stage storyboard --message "<why>" --action "<what's needed>"`.
+1. Confirm section ids are known to the project's evidence/script structure.
+2. Confirm scenes are contiguous with no gaps or overlaps.
+3. Validate:
 
-Never hand-edit `manifest.json` directly.
+```bash
+node scripts/validate.mjs schema --file projects/<project_id>/storyboard/storyboard.json --schema storyboard
+node scripts/validate.mjs filenames --project-id <project_id>
+```
+
+4. Advance:
+
+```bash
+node scripts/manifest_cli.mjs advance --project-id <project_id> --stage storyboard --result success
+```
+
+If coherent section binding is impossible, stop with `USER_APPROVAL_REQUIRED`. Never leave `section_id` blank and never hand-edit `manifest.json`.
