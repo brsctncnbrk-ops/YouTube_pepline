@@ -7,31 +7,15 @@ on:
       - .github/workflows/orvyq-runtime-status.yml
 
 permissions:
-  actions: read
   contents: read
 
 jobs:
   status:
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ github.token }}
     steps:
-      - name: Checkout current branch
-        uses: actions/checkout@v4
-
-      - name: Inspect latest canonical proof run
-        run: |
-          set -euo pipefail
-          RUN="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-proof.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=1")"
-          echo "$RUN" | jq '{latest: (.workflow_runs[0] | {id,name,event,status,conclusion,head_sha,run_number,created_at,updated_at,html_url})}'
-          RUN_ID="$(echo "$RUN" | jq -r '.workflow_runs[0].id')"
-          echo "RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
-          gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs?per_page=100" \
-            --jq '{jobs: [.jobs[] | {id,name,status,conclusion,started_at,completed_at,steps: [.steps[] | {name,status,conclusion,number}]}]}'
-
+      - uses: actions/checkout@v4
       - name: Locate uninterrupted proof evidence runs
         run: |
-          set -euo pipefail
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const project = '001-the-ai-race-no-one-can-afford-to-win';
@@ -66,16 +50,5 @@ jobs:
           }
           flush();
           runs.sort((a, b) => b.seconds - a.seconds);
-          console.log('--- EVIDENCE RUNS ---');
           console.log(JSON.stringify({ proof_end_frame: proofEnd, runs }, null, 2));
           NODE
-
-      - name: Extract exact proof failure
-        run: |
-          set -euo pipefail
-          mkdir -p proof-logs
-          gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > proof-logs.zip
-          unzip -q proof-logs.zip -d proof-logs
-          find proof-logs -type f -print0 | sort -z | xargs -0 cat > proof-all.log
-          echo "--- EXACT FAILURE LINES ---"
-          grep -nE '\{"ok":false|##\[error\]|AssertionError|ERR_ASSERTION|audit failed|Process completed with exit code|Error:|failed:' proof-all.log | tail -n 60 || true
