@@ -1307,28 +1307,16 @@
       "sound_cue": null,
       "emphasis_card": null,
       "editorial_overlay": null,
-      "asset_type": "evidence",
-      "visual_role": "evidence",
-      "editorial_purpose": "Explain market and investor pressure driving the race between labs and states. Anchor the narration to an attributed source-derived visual before any metaphorical treatment.",
-      "evidence": {
-        "kind": "evidence_chain",
-        "eyebrow": "SOURCE-BACKED EVIDENCE",
-        "title": "Competition is visible in the money and in how narrow the frontier has become.",
-        "subtitle": "Explain market and investor pressure driving the race between labs and states.",
-        "source_label": "Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Stanford Institute for Human-Centered Artificial Intelligence · 2025",
-        "source_ids": [
-          "SRC_STANFORD_AI_INDEX_2025_ECONOMY",
-          "SRC_STANFORD_AI_INDEX_2025_TECHNICAL"
-        ],
-        "limitation": "Investment levels show the scale of competition; they do not directly prove that every investor rewards speed over caution.",
-        "font_px": 32,
-        "steps": [
-          "Show 2024 generative-AI investment and frontier-perfo…",
-          "Do not state that investment figures prove every acto…"
-        ],
-        "provenance_mode": "source_derived_graphic"
-      },
-      "motif": "CLM_007_MARKET_PRESSURE:evidence_chain:0"
+      "asset_type": "footage",
+      "visual_role": "context",
+      "editorial_purpose": "Break the source-graphic sequence with licensed market movement, without presenting the clip as literal evidence of a named company, investor or event.",
+      "motif": "assets/footage/scene_008_42946788405d61ee3a28fa31.mp4",
+      "video_asset": "assets/footage/scene_008_42946788405d61ee3a28fa31.mp4",
+      "trim_in_sec": 0,
+      "trim_out_sec": 7,
+      "motion_variant": "push",
+      "contextual_footage": true,
+      "provenance_mode": "approved_contextual_footage"
     },
     {
       "shot_id": "shot_035",

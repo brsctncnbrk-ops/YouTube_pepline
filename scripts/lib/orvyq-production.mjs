@@ -846,6 +846,10 @@ export async function buildEditPlanFromProduction({
   const compiled = {
     schema_version: "8.1-canonical-production-plan",
     project_id: projectId,
+    production_mode:
+      plan.production_mode ||
+      plan.art_direction?.production_mode ||
+      "evidence_led_video_essay",
     fps: plan.fps,
     duration_frames: durationFrames,
     preview: mode === "proof",

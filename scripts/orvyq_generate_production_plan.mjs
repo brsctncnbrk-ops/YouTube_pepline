@@ -26,6 +26,7 @@ const CAMERA_MOTIONS = [
   { type: "pan_right", params: { magnitude: 3 } },
   { type: "static", params: {} },
 ];
+const MAX_UNINTERRUPTED_EVIDENCE_SECONDS = 16;
 const MUSIC_STATES = {
   SEC_01_RACE_PARADOX: "controlled_tension",
   SEC_02_CONTROLLED_EVIDENCE: "analytical_unease",
@@ -84,6 +85,16 @@ function splitFrames(totalFrames, maxFrames = 240) {
     }
   }
   return chunks;
+}
+
+function trailingEvidenceFrames(shots) {
+  let frames = 0;
+  for (let index = shots.length - 1; index >= 0; index -= 1) {
+    const shot = shots[index];
+    if (shot.asset_type !== "evidence") break;
+    frames += Number(shot.end_frame) - Number(shot.start_frame);
+  }
+  return frames;
 }
 
 function buildSectionRanges(projectId, composition, storyboard, evidenceMap) {
@@ -624,18 +635,30 @@ export async function generateProductionPlan(
       const duration = frames / composition.fps;
       const claim = claims[generatedOrdinal % claims.length];
       const patternIndex = generatedOrdinal % 5;
+      const evidenceRunLimitFrames = Math.round(
+        composition.fps * MAX_UNINTERRUPTED_EVIDENCE_SECONDS,
+      );
+      const shouldBreakEvidenceRun =
+        trailingEvidenceFrames(shots) + frames > evidenceRunLimitFrames;
       const wantsEvidence = patternIndex === 0 || patternIndex === 3;
       const currentFootageUses = footageAsset
         ? assetUsage.get(footageAsset) || 0
         : 0;
-      const availableStart = footageAsset
+      const sequentialStart = footageAsset
         ? Math.max(
             Number(scene.trim_in_sec || 0),
             trimCursor.get(footageAsset) || Number(scene.trim_in_sec || 0),
           )
         : 0;
+      const reusableStart = Number(scene.trim_in_sec || 0);
+      const canRestartFootage = Boolean(
+        shouldBreakEvidenceRun &&
+          footageInfo &&
+          reusableStart + duration <= footageInfo.duration + 0.001,
+      );
+      const availableStart = canRestartFootage ? reusableStart : sequentialStart;
       const canUseFootage = Boolean(
-        !wantsEvidence &&
+        (!wantsEvidence || shouldBreakEvidenceRun) &&
           footageInfo &&
           currentFootageUses < maxUses &&
           availableStart + duration <= footageInfo.duration + 0.001,
@@ -644,7 +667,7 @@ export async function generateProductionPlan(
         ? assetUsage.get(imageAsset) || 0
         : 0;
       const canUseImage = Boolean(
-        !wantsEvidence &&
+        (!wantsEvidence || shouldBreakEvidenceRun) &&
           !canUseFootage &&
           imageAvailable &&
           currentImageUses < maxUses,
@@ -787,6 +810,7 @@ export async function generateProductionPlan(
       minimum_human_score: 95,
     },
     art_direction: preservedProof?.art_direction || {
+      production_mode: "evidence_led_video_essay",
       principle:
         "alternate claim-specific evidence with licensed context and restrained metaphor; never auto-fill a timeline from an asset pool",
       palette: {

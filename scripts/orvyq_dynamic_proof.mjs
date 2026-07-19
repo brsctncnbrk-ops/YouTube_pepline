@@ -105,6 +105,10 @@ export async function buildDynamicProofEditPlan(projectId) {
   const compiled = {
     schema_version: "8.3-compatible-dynamic-canonical-proof",
     project_id: projectId,
+    production_mode:
+      plan.production_mode ||
+      plan.art_direction?.production_mode ||
+      "evidence_led_video_essay",
     fps: plan.fps,
     duration_frames: durationFrames,
     preview: true,
