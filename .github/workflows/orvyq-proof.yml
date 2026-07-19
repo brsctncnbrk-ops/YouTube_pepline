@@ -133,6 +133,8 @@ jobs:
           set -euo pipefail
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
           if [ "$PROJECT_ID" = "001-the-ai-race-no-one-can-afford-to-win" ]; then
+            npm run orvyq:audits
+            node scripts/orvyq_edit_plan_tests.mjs
             node scripts/orvyq_license_audit.mjs
             node scripts/orvyq_alignment_score.mjs
           fi
