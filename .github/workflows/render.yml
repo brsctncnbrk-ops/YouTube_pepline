@@ -77,6 +77,25 @@ jobs:
             console.log(`Validated project id: ${process.env.PROJECT_ID}`);
           '
 
+      - name: Resolve and verify canonical narration timeline
+        run: |
+          set -euo pipefail
+          python scripts/orvyq_narration_timeline.py --project-id "$PROJECT_ID"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          const dir = `projects/${process.env.PROJECT_ID}`;
+          const plan = JSON.parse(fs.readFileSync(`${dir}/direction/production_plan.json`, 'utf8'));
+          const timelineRaw = fs.readFileSync(`${dir}/direction/narration_timeline.json`, 'utf8');
+          const timeline = JSON.parse(timelineRaw);
+          const actual = crypto.createHash('sha256').update(timelineRaw).digest('hex');
+          const expected = plan.quality_policy?.narration_timeline_sha256;
+          if (!expected || actual !== expected) throw new Error(`Narration timeline drift: ${actual} != ${expected || 'missing'}`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_NARRATION_LIMIT_SECONDS=${timeline.source_duration_seconds}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_AUDIO_LIMIT_SECONDS=${timeline.full_output_duration_seconds}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, 'ORVYQ_EDITORIAL_PAUSES=1\n');
+          NODE
+
       - name: Canonical full-production and proof-approval hard gate
         run: |
           set -euo pipefail
@@ -84,11 +103,9 @@ jobs:
           node scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
+          import {productionPlanSha256} from './scripts/lib/orvyq-production.mjs';
           const plan = JSON.parse(fs.readFileSync(`projects/${process.env.PROJECT_ID}/direction/production_plan.json`, 'utf8'));
-          const seconds = plan.duration_frames / plan.fps;
-          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_AUDIO_LIMIT_SECONDS=${seconds}\n`);
-          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_EDITORIAL_PAUSES=1\n`);
-          fs.writeFileSync('production-plan-sha256.txt', `${(await import('./scripts/lib/orvyq-production.mjs')).productionPlanSha256(plan)}\n`);
+          fs.writeFileSync('production-plan-sha256.txt', `${productionPlanSha256(plan)}\n`);
           NODE
 
       - name: Fetch and verify official primary evidence
@@ -123,22 +140,23 @@ jobs:
           set -euo pipefail
           node scripts/orvyq_production_plan.mjs build-full --project-id "$PROJECT_ID"
 
-      - name: Rebuild render-ready Remotion project
-        run: |
-          set -euo pipefail
-          node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
-          node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
-
-      - name: Editorial, provenance and render-readiness gates
+      - name: Editorial provenance timeline and render-readiness gates
         run: |
           set -euo pipefail
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
           node scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"
           if [ "$PROJECT_ID" = "001-the-ai-race-no-one-can-afford-to-win" ]; then
+            node scripts/orvyq_timeline_audit.mjs "$PROJECT_ID"
             node scripts/orvyq_edit_plan_tests.mjs
             node scripts/orvyq_license_audit.mjs
           fi
           node scripts/validate.mjs render-ready --project-id "$PROJECT_ID"
+
+      - name: Rebuild render-ready Remotion project
+        run: |
+          set -euo pipefail
+          node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
+          node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
 
       - name: Install deterministic Remotion dependencies and type-check
         run: |
@@ -163,12 +181,18 @@ jobs:
           cd "$APP"
           npx remotion render src/index.ts FactForgeVideo out/final_video.mp4 --codec=h264 --concurrency=1 2>&1 | tee out/render_stdout.txt
 
-      - name: Post-render media and speech gates
+      - name: Post-render media speech and complete-ending gates
         run: |
           set -euo pipefail
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
           node scripts/orvyq_media_qa.mjs --project-id "$PROJECT_ID" --video "$APP/out/final_video.mp4"
           python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --media "$APP/out/final_video.mp4" --output-name final_video_speech_qa.json
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const qa = JSON.parse(fs.readFileSync(`projects/${process.env.PROJECT_ID}/qa/final_video_speech_qa.json`, 'utf8'));
+          const token = qa.words?.at(-1)?.text || qa.transcript?.trim().split(/\s+/).at(-1) || '';
+          if (!/[.!?…]["')\]]*$/.test(token) || /-$/.test(token)) throw new Error(`Full render narration ends incompletely: ${token || '<empty>'}`);
+          NODE
 
       - name: Collect successful render output
         run: |
@@ -200,9 +224,11 @@ jobs:
             projects/${{ env.PROJECT_ID }}/output/render_log.txt
             projects/${{ env.PROJECT_ID }}/manifest.json
             projects/${{ env.PROJECT_ID }}/direction/production_plan.json
+            projects/${{ env.PROJECT_ID }}/direction/narration_timeline.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
             projects/${{ env.PROJECT_ID }}/qa/proof_approval.json
             projects/${{ env.PROJECT_ID }}/qa/production_plan_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/timeline_audit.json
             projects/${{ env.PROJECT_ID }}/qa/orvyq_media_qa.json
             projects/${{ env.PROJECT_ID }}/qa/final_video_speech_qa.json
             projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
@@ -221,5 +247,6 @@ jobs:
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/render_stdout.txt
             projects/${{ env.PROJECT_ID }}/output/render_log.txt
             projects/${{ env.PROJECT_ID }}/qa/production_plan_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/timeline_audit.json
           if-no-files-found: warn
           retention-days: 30
