@@ -1,3 +1,3 @@
-requested_at=2026-07-20T04:06:00+03:00
+requested_at=2026-07-20T04:20:00+03:00
 project_id=001-the-ai-race-no-one-can-afford-to-win
-reason=Run full official capture and evidence-break rebalance with source-specific verified redirect hosts
+reason=Run full official capture and evidence-break rebalance at the exact 30 percent quality gate
