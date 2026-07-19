@@ -1,6 +1,6 @@
 {
   "name": "factforge",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "ORVYQ evidence-led cinematic documentary production system",
   "type": "module",
@@ -12,10 +12,14 @@
     "orvyq:audio": "node scripts/orvyq_audio_mix.mjs",
     "orvyq:captions": "node scripts/orvyq_caption_build.mjs",
     "orvyq:fetch-evidence": "node scripts/orvyq_fetch_primary_evidence.mjs",
-    "orvyq:preview-plan": "node scripts/orvyq_preview_plan.mjs",
+    "orvyq:production-plan": "node scripts/orvyq_production_plan.mjs",
+    "orvyq:production-plan:validate": "node scripts/orvyq_production_plan.mjs validate",
+    "orvyq:build-proof": "node scripts/orvyq_production_plan.mjs build-proof",
+    "orvyq:build-full": "node scripts/orvyq_production_plan.mjs build-full",
+    "orvyq:preview-plan:legacy": "node scripts/orvyq_preview_plan.mjs",
     "orvyq:audits": "node scripts/orvyq_evidence_audit.mjs && node scripts/orvyq_evidence_asset_audit.mjs && node scripts/orvyq_semantic_visual_audit.mjs && node scripts/orvyq_pacing_audit.mjs && node scripts/orvyq_mobile_legibility_audit.mjs && node scripts/orvyq_music_cue_audit.mjs",
-    "orvyq:qa": "npm run orvyq:audits && node scripts/orvyq_edit_plan_tests.mjs && node scripts/orvyq_license_audit.mjs && node scripts/orvyq_alignment_score.mjs",
-    "orvyq:plan": "node scripts/orvyq_fetch_primary_evidence.mjs && node scripts/orvyq_caption_build.mjs && node scripts/orvyq_preview_plan.mjs && npm run orvyq:qa"
+    "orvyq:qa": "npm run orvyq:production-plan:validate -- && npm run orvyq:audits && node scripts/orvyq_edit_plan_tests.mjs && node scripts/orvyq_license_audit.mjs && node scripts/orvyq_alignment_score.mjs",
+    "orvyq:plan": "node scripts/orvyq_fetch_primary_evidence.mjs && node scripts/orvyq_caption_build.mjs && node scripts/orvyq_production_plan.mjs build-proof"
   },
   "dependencies": { "ajv": "^8.17.1", "ajv-formats": "^3.0.1" }
 }
