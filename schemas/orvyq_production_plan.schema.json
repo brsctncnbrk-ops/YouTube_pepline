@@ -72,6 +72,14 @@
           "type": "number",
           "exclusiveMinimum": 0
         },
+        "minimum_output_seconds": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "semantic_boundary_required": {
+          "type": "boolean",
+          "const": true
+        },
         "minimum_human_score": {
           "type": "number",
           "minimum": 0,
