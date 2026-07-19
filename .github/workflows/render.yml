@@ -80,7 +80,7 @@ jobs:
       - name: Canonical full-production and proof-approval hard gate
         run: |
           set -euo pipefail
-          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
+          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID" --skip-assets
           node scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
@@ -90,6 +90,12 @@ jobs:
           fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_EDITORIAL_PAUSES=1\n`);
           fs.writeFileSync('production-plan-sha256.txt', `${(await import('./scripts/lib/orvyq-production.mjs')).productionPlanSha256(plan)}\n`);
           NODE
+
+      - name: Fetch and verify official primary evidence
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_fetch_primary_evidence.mjs
+          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
 
       - name: Fetch licensed music and build full-duration voice-first mix
         run: |
