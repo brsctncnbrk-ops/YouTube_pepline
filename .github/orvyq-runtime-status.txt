@@ -1,2 +1,2 @@
-requested_at=2026-07-19T22:20:00+03:00
-purpose=inspect-structural-timeline-migration-run-and-exact-failure
+requested_at=2026-07-19T22:28:00+03:00
+purpose=inspect-retried-structural-timeline-migration-and-generated-canonical-state
