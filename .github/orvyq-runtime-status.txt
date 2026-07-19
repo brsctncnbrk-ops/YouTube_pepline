@@ -1,2 +1,2 @@
-requested_at=2026-07-19T14:45:00+03:00
-purpose=extract-latest-proof-failure-after-contextual-footage-fix
+requested_at=2026-07-19T15:15:00+03:00
+purpose=extract-latest-proof-failure-after-sfx-validation-fix
