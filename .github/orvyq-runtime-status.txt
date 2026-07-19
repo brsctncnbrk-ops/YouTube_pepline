@@ -1,2 +1,2 @@
-requested_at=2026-07-19T17:04:00+03:00
-purpose=verify-proof-restart-after-evidence-audit-contextual-footage-fix
+requested_at=2026-07-19T17:12:00+03:00
+purpose=extract-run-29690082731-exact-failure
