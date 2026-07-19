@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+  "approved": true,
+  "review_type": "human_rendered_video_review",
+  "human_score": 95,
+  "proof_run_id": "29701621699",
+  "render_source_sha": "323988d75e16d468f1398a1322129bf117d5d68b",
+  "production_plan_sha256": "62cb8b7de2863bde794c68393dc932883fb923afb7ecc99beeccf548d7b4d58f",
+  "approved_at": "2026-07-19T22:01:00.000Z",
+  "review_notes": "Approved by Barış Çetin after review of the 160-second canonical proof; structural corrections and semantic ending accepted."
+}
