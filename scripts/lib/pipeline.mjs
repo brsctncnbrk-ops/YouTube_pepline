@@ -1,16 +1,16 @@
 /**
- * Canonical FactForge pipeline stage graph. Single source of truth shared by
- * manifest_cli.mjs, validate.mjs, and scaffold_project.mjs so the stage list,
- * gate placement, and required-file contracts never drift between tools.
+ * Canonical ORVYQ / FactForge pipeline stage graph. Single source of truth
+ * shared by manifest_cli.mjs, validate.mjs, and scaffold_project.mjs so the
+ * stage list, gate placement, and required-file contracts never drift.
  *
- * Stage ids follow the spec's own manifest.json example naming convention
- * (research_qa / script_qa / voice_qa suffix pattern). This is the
- * footage-primary (Aperture-style) migration's 19-stage graph. Two stages
- * were added relative to the original 17-stage list: `fact_audit` (between
- * script and script_qa) and `footage_retrieval` (between storyboard_qa and
- * visual_style_bible). The `images` gate was renamed `visual_assets` because
- * the requirement is now conditional per scene (footage clip vs. fallback
- * still) rather than always a PNG.
+ * The system now separates three production contracts that were previously
+ * conflated:
+ * 1. scene-level Remotion composition;
+ * 2. a canonical full-duration ORVYQ production plan;
+ * 3. a human-approved proof rendered from that same canonical plan.
+ *
+ * A full render is impossible until the production plan covers the complete
+ * timeline and the approved proof hash still matches it.
  */
 
 export const STAGE_ORDER = [
@@ -29,7 +29,10 @@ export const STAGE_ORDER = [
   "visual_qa",
   "director",
   "remotion",
+  "production_plan",
+  "production_plan_qa",
   "editor",
+  "proof_qa",
   "render_qa",
   "packaging",
   "final_qa",
@@ -51,8 +54,32 @@ export const STAGE_REQUIRED_FILES = {
   visual_qa: ["prompts/visual_prompts.json", "prompts/visual_prompts.md", "prompts/negative_prompts.md", "prompts/leonardo_settings.md", "footage/footage_manifest.json"],
   director: ["storyboard/storyboard.json", "prompts/visual_prompts.md", "style/visual_style_bible.md", "footage/footage_manifest.json"],
   remotion: ["storyboard/storyboard.json", "direction/direction_plan.md", "assets/asset_manifest.json"],
-  editor: ["remotion/composition.json", "remotion/scene_config.json", "assets/audio/final_voice.mp3"],
-  render_qa: ["remotion/render_ready_project"],
+  production_plan: [
+    "remotion/composition.json",
+    "storyboard/storyboard.json",
+    "direction/direction_plan.md",
+    "footage/footage_manifest.json",
+    "research/evidence_map.json",
+  ],
+  production_plan_qa: [
+    "direction/production_plan.json",
+    "remotion/composition.json",
+    "research/evidence_map.json",
+  ],
+  editor: [
+    "remotion/composition.json",
+    "direction/production_plan.json",
+    "assets/audio/final_voice.mp3",
+  ],
+  proof_qa: [
+    "remotion/render_ready_project",
+    "direction/production_plan.json",
+  ],
+  render_qa: [
+    "remotion/render_ready_project",
+    "direction/production_plan.json",
+    "qa/proof_approval.json",
+  ],
   packaging: ["scripts/script.md", "research/research.md", "output/final_video.mp4"],
   final_qa: ["output/final_video.mp4", "storyboard/storyboard.json", "packaging/packaging.json", "packaging/title.md", "packaging/description.md", "fact_audit/claims.json"],
 };
@@ -80,7 +107,10 @@ export const STAGE_OUTPUT_FILES = {
   visual_qa: ["qa/visual_qa.md"],
   director: ["direction/direction_plan.md"],
   remotion: ["remotion/composition.json", "remotion/scene_config.json", "remotion/asset_map.json"],
+  production_plan: ["direction/production_plan.json"],
+  production_plan_qa: ["qa/production_plan_qa.md"],
   editor: ["remotion/render_ready_project"],
+  proof_qa: ["qa/proof_qa.md"],
   render_qa: ["qa/render_qa.md"],
   packaging: [
     "packaging/packaging.json",
@@ -119,6 +149,9 @@ export const ERROR_CODES = [
   "RENDER_CONFIG_MISSING",
   "USER_APPROVAL_REQUIRED",
   "UNRESOLVED_CLAIM",
+  "PRODUCTION_PLAN_INCOMPLETE",
+  "PROOF_APPROVAL_REQUIRED",
+  "PROOF_PLAN_DRIFT",
   "UNKNOWN_ERROR",
 ];
 
@@ -127,6 +160,10 @@ export const STATUSES = [
   "IN_PROGRESS",
   "WAITING_FOR_AUDIO",
   "WAITING_FOR_VISUAL_ASSETS",
+  "READY_FOR_PROOF_RENDER",
+  "PROOF_RENDERING",
+  "WAITING_FOR_PROOF_APPROVAL",
+  "PROOF_APPROVED",
   "WAITING_FOR_USER_APPROVAL",
   "READY_FOR_RENDER",
   "RENDERING",
@@ -137,7 +174,7 @@ export const STATUSES = [
   "ERROR",
 ];
 
-export const SCHEMA_VERSION = "2.0";
+export const SCHEMA_VERSION = "3.0";
 
 export function nextStage(currentStage) {
   if (currentStage === null || currentStage === undefined) return STAGE_ORDER[0];
