@@ -25,12 +25,13 @@ jobs:
           test -n "$LATEST_ID"
           echo "LATEST_PROOF_RUN_ID=$LATEST_ID"
 
-      - name: Extract latest proof failure
+      - name: Extract latest proof failure tail
         run: |
           set -euo pipefail
           RUN_ID="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-proof.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=1" --jq '.workflow_runs[0].id')"
           mkdir -p proof-logs
           gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > proof-logs.zip
           unzip -q proof-logs.zip -d proof-logs
-          echo "--- FILTERED FAILURE LINES ---"
-          grep -RniE -C 6 'error|failed|failure|music|approved|license|licence|403|404|exit code' proof-logs || true
+          LOG_FILE="$(find proof-logs -type f | head -n 1)"
+          echo "--- FINAL 220 LOG LINES ---"
+          tail -n 220 "$LOG_FILE"
