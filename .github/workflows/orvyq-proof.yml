@@ -7,19 +7,24 @@ on:
         description: "Project id under projects/"
         required: true
         type: string
+  push:
+    branches:
+      - agent/orvyq-system-wide-production
+    paths:
+      - .github/orvyq-proof-trigger.txt
 
 permissions:
   contents: write
 
 concurrency:
-  group: orvyq-proof-${{ inputs.project_id }}
+  group: orvyq-proof-${{ inputs.project_id || '001-the-ai-race-no-one-can-afford-to-win' }}
   cancel-in-progress: true
 
 jobs:
   proof:
     runs-on: ubuntu-latest
     env:
-      PROJECT_ID: ${{ inputs.project_id }}
+      PROJECT_ID: ${{ inputs.project_id || '001-the-ai-race-no-one-can-afford-to-win' }}
       ORVYQ_REQUIRE_APPROVED_MUSIC: "1"
       ORVYQ_EDITORIAL_PAUSES: "1"
     steps:
