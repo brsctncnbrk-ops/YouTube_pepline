@@ -123,6 +123,9 @@ export async function buildDynamicProofEditPlan(projectId) {
       editorial_mode: editorial.mode,
       cinematic_body_footage: cinematic,
       require_sound_design_sfx: cinematic,
+      proof_body_stock_assets_forbidden: !cinematic,
+      motion_hook_required: true,
+      metadata_cannot_define_evidence: true,
       motion_hook_fraction_max:
         plan.quality_policy?.motion_hook_fraction_max ?? 0.12,
       contextual_body_footage_fraction_min:
