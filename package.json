@@ -25,7 +25,7 @@
     "orvyq:plan": "node scripts/orvyq_fetch_primary_evidence.mjs && node scripts/orvyq_caption_build.mjs && node scripts/orvyq_production_plan.mjs generate",
     "orvyq:production-plan:generate": "node scripts/orvyq_production_plan.mjs generate",
     "orvyq:production-plan:finalize": "node scripts/orvyq_production_plan.mjs finalize",
-    "orvyq:production-plan:test": "node scripts/orvyq_production_plan_tests.mjs"
+    "orvyq:production-plan:test": "node scripts/orvyq_production_plan_tests.mjs && node scripts/orvyq_canonical_contract_tests.mjs"
   },
   "dependencies": {
     "ajv": "^8.17.1",
