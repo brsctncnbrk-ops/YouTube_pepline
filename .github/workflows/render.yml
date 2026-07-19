@@ -75,6 +75,7 @@ jobs:
         if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
         run: |
           set -euo pipefail
+          node scripts/orvyq_fetch_proof_music.mjs
           node scripts/orvyq_audio_mix.mjs
           python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID"
           node scripts/orvyq_caption_build.mjs
@@ -117,7 +118,7 @@ jobs:
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
           mkdir -p "$APP/out"
           cd "$APP"
-          npx remotion render src/index.ts FactForgeVideo out/final_video.mp4 --codec=h264 2>&1 | tee out/render_stdout.txt
+          npx remotion render src/index.ts FactForgeVideo out/final_video.mp4 --codec=h264 --concurrency=1 2>&1 | tee out/render_stdout.txt
 
       - name: ORVYQ post-render media gate
         if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
