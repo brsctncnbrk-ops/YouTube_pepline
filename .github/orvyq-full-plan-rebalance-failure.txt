@@ -1,0 +1,36 @@
+rebalance-logs/0_rebalance.txt:1047:2026-07-19T23:46:18.5800889Z {"ok":false,"error":"Primary evidence output is unexpectedly small: assets/evidence/anthropic_cyber_misuse_2025.png"}
+rebalance-logs/0_rebalance.txt:1048:2026-07-19T23:46:18.5874994Z ##[error]Process completed with exit code 1.
+rebalance-logs/rebalance/7_Expand and fetch full-film official evidence.txt:17:2026-07-19T23:46:18.5800860Z {"ok":false,"error":"Primary evidence output is unexpectedly small: assets/evidence/anthropic_cyber_misuse_2025.png"}
+rebalance-logs/rebalance/7_Expand and fetch full-film official evidence.txt:18:2026-07-19T23:46:18.5874978Z ##[error]Process completed with exit code 1.
+--- STEP LOG TAILS ---
+--- rebalance-logs/0_rebalance.txt ---
+2026-07-19T23:46:18.7729653Z The least common ancestor is /home/runner/work/YouTube_pepline/YouTube_pepline. This will be the root directory of the artifact
+2026-07-19T23:46:18.7731425Z With the provided path, there will be 1 file uploaded
+2026-07-19T23:46:18.7733889Z Artifact name is valid!
+2026-07-19T23:46:18.7735053Z Root directory input is valid!
+2026-07-19T23:46:19.1101075Z Beginning upload of artifact content to blob storage
+2026-07-19T23:46:19.1298645Z (node:4360) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-07-19T23:46:19.4205771Z Uploaded bytes 3421
+2026-07-19T23:46:19.5027673Z Finished uploading artifact content to blob storage!
+2026-07-19T23:46:19.5029342Z SHA256 digest of uploaded artifact zip is 5266048468a46c3524b52f41a966c91edaea8200b0336d46af6cd2d89ab6ac43
+2026-07-19T23:46:19.5030452Z Finalizing artifact upload
+2026-07-19T23:46:19.7396369Z Artifact orvyq-full-plan-rebalance-29708392913.zip successfully finalized. Artifact ID 8448537202
+2026-07-19T23:46:19.7397862Z Artifact orvyq-full-plan-rebalance-29708392913 has been successfully uploaded! Final size is 3421 bytes. Artifact ID is 8448537202
+2026-07-19T23:46:19.7403452Z Artifact download URL: https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29708392913/artifacts/8448537202
+2026-07-19T23:46:19.7598389Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-07-19T23:46:19.7599630Z Post job cleanup.
+2026-07-19T23:46:19.8443145Z [command]/usr/bin/git version
+2026-07-19T23:46:19.8486068Z git version 2.54.0
+2026-07-19T23:46:19.8528520Z Temporarily overriding HOME='/home/runner/work/_temp/675e5e59-1121-474f-a142-ae26c2ac1562' before making global git config changes
+2026-07-19T23:46:19.8530255Z Adding repository directory to the temporary git global config as a safe directory
+2026-07-19T23:46:19.8534835Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/YouTube_pepline/YouTube_pepline
+2026-07-19T23:46:19.8576730Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-07-19T23:46:19.8614816Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-07-19T23:46:19.8872876Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-07-19T23:46:19.8905700Z http.https://github.com/.extraheader
+2026-07-19T23:46:19.8918231Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-07-19T23:46:19.8951485Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-07-19T23:46:19.9204700Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-07-19T23:46:19.9241776Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-07-19T23:46:19.9637654Z Cleaning up orphan processes
+2026-07-19T23:46:19.9944275Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
