@@ -3,4 +3,4 @@ Project: 001-the-ai-race-no-one-can-afford-to-win
 Approved preview run: 29655003486
 Target ref: agent/orvyq-full-render-approved
 Requested by user: 2026-07-19
-Revision: approved music fetch fix 62b1b6a
+Revision: install requests dependency 18849cf
