@@ -32,14 +32,18 @@ jobs:
             base64 --decode "$part"
           done > /tmp/orvyq-system-code.patch.gz
           gunzip -c /tmp/orvyq-system-code.patch.gz > /tmp/orvyq-system-code.patch
-          git apply --check --exclude=.github/workflows/ci.yml /tmp/orvyq-system-code.patch
-          git apply --exclude=.github/workflows/ci.yml /tmp/orvyq-system-code.patch
+          EXCLUDES=(
+            --exclude=.github/workflows/ci.yml
+            --exclude=.github/workflows/orvyq-approve-proof.yml
+            --exclude=.github/workflows/orvyq-proof.yml
+            --exclude=.github/workflows/render.yml
+          )
+          git apply --check "${EXCLUDES[@]}" /tmp/orvyq-system-code.patch
+          git apply "${EXCLUDES[@]}" /tmp/orvyq-system-code.patch
           rm -f \
             .github/orvyq-system-code.patch.gz \
             .github/orvyq-system-code.patch.gz.part* \
             .github/orvyq-system-code.patch.gz.b64.part* \
-            .github/workflows/orvyq-apply-system-code.yml \
-            .github/workflows/orvyq-source-snapshot.yml \
             .github/orvyq-source-snapshot-trigger.txt \
             docs/.orvyq-system-update-placeholder
           git diff --check
