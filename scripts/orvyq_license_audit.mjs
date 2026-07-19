@@ -176,8 +176,16 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
     if (actualMusicHash !== musicProvenance.sha256)
       throw new Error("Approved music SHA-256 does not match its provenance record");
   }
+  const hasApprovedContextualFootage = plan.shots.some(
+    (shot) =>
+      shot.asset_type === "footage" &&
+      shot.contextual_footage === true &&
+      shot.provenance_mode === "approved_contextual_footage",
+  );
   const cinematicProof =
-    plan.preview && plan.quality_policy?.cinematic_body_footage === true;
+    plan.preview &&
+    (plan.quality_policy?.cinematic_body_footage === true ||
+      hasApprovedContextualFootage);
   const soundEffects = [];
   for (const asset of audioMetadata.sfx_assets || []) {
     if (!(await pathExists(path.join(dir, asset))))
