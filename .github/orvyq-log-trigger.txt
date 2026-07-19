@@ -1,4 +1,4 @@
 Inspect latest ORVYQ full-render failure log
 Target workflow: render.yml
 Target branch: agent/orvyq-full-render-approved
-Diagnostic revision: latest run 29675048593
+Diagnostic revision: latest run 29676601446
