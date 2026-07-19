@@ -1,2 +1,2 @@
-requested_at=2026-07-19T19:29:00+03:00
-purpose=validate-final-compatibility-fixes-after-bot-commit
+requested_at=2026-07-19T22:20:00+03:00
+purpose=inspect-structural-timeline-migration-run-and-exact-failure
