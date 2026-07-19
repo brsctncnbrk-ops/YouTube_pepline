@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "orvyq_production_plan.schema.json",
   "title": "ORVYQ Canonical Full-Duration Production Plan",
   "type": "object",
@@ -28,9 +28,11 @@
       "properties": {
         "type": { "type": "string", "const": "prefix" },
         "duration_frames": { "type": "integer", "minimum": 900 },
+        "narration_limit_seconds": { "type": "number", "exclusiveMinimum": 0 },
         "minimum_human_score": { "type": "number", "minimum": 0, "maximum": 100 }
       }
     },
+    "art_direction": { "type": ["object", "null"] },
     "quality_policy": {
       "type": "object",
       "additionalProperties": true,
@@ -119,7 +121,6 @@
         {
           "oneOf": [
             {
-              "properties": { "asset_type": { "const": "footage" } },
               "required": ["video_asset", "trim_in_sec", "trim_out_sec"],
               "properties": {
                 "asset_type": { "const": "footage" },
@@ -130,7 +131,6 @@
               }
             },
             {
-              "properties": { "asset_type": { "const": "evidence" } },
               "required": ["evidence"],
               "properties": {
                 "asset_type": { "const": "evidence" },
@@ -150,7 +150,6 @@
               }
             },
             {
-              "properties": { "asset_type": { "const": "graphic" } },
               "required": ["graphic"],
               "properties": {
                 "asset_type": { "const": "graphic" },
@@ -167,8 +166,7 @@
             }
           ]
         }
-      ],
-      "unevaluatedProperties": false
+      ]
     }
   }
 }
