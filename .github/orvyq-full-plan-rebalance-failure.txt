@@ -1,0 +1,34 @@
+rebalance-logs/0_rebalance.txt:1105:2026-07-19T23:50:36.5560713Z ##[error]Process completed with exit code 1.
+rebalance-logs/rebalance/8_Rebalance only the post-proof canonical timeline.txt:59:2026-07-19T23:50:36.5560695Z ##[error]Process completed with exit code 1.
+--- STEP LOG TAILS ---
+--- rebalance-logs/0_rebalance.txt ---
+2026-07-19T23:50:36.7609860Z The least common ancestor is /home/runner/work/YouTube_pepline/YouTube_pepline. This will be the root directory of the artifact
+2026-07-19T23:50:36.7615747Z With the provided path, there will be 2 files uploaded
+2026-07-19T23:50:36.7618641Z Artifact name is valid!
+2026-07-19T23:50:36.7619285Z Root directory input is valid!
+2026-07-19T23:50:36.8925111Z Beginning upload of artifact content to blob storage
+2026-07-19T23:50:36.9160350Z (node:7925) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-07-19T23:50:36.9646291Z Uploaded bytes 5192
+2026-07-19T23:50:36.9837858Z Finished uploading artifact content to blob storage!
+2026-07-19T23:50:36.9839323Z SHA256 digest of uploaded artifact zip is bbd816d0f324b90604879db5369b29409fc420da405b8a7de2222630747c332a
+2026-07-19T23:50:36.9840426Z Finalizing artifact upload
+2026-07-19T23:50:37.1400097Z Artifact orvyq-full-plan-rebalance-29708525058.zip successfully finalized. Artifact ID 8448559832
+2026-07-19T23:50:37.1402692Z Artifact orvyq-full-plan-rebalance-29708525058 has been successfully uploaded! Final size is 5192 bytes. Artifact ID is 8448559832
+2026-07-19T23:50:37.1409448Z Artifact download URL: https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29708525058/artifacts/8448559832
+2026-07-19T23:50:37.1590812Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-07-19T23:50:37.1592085Z Post job cleanup.
+2026-07-19T23:50:37.2498540Z [command]/usr/bin/git version
+2026-07-19T23:50:37.2549830Z git version 2.54.0
+2026-07-19T23:50:37.2628194Z Temporarily overriding HOME='/home/runner/work/_temp/a2479ec8-4619-48ee-82ea-f2c7c6029598' before making global git config changes
+2026-07-19T23:50:37.2630019Z Adding repository directory to the temporary git global config as a safe directory
+2026-07-19T23:50:37.2636755Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/YouTube_pepline/YouTube_pepline
+2026-07-19T23:50:37.2691561Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-07-19T23:50:37.2738339Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-07-19T23:50:37.3013905Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-07-19T23:50:37.3047639Z http.https://github.com/.extraheader
+2026-07-19T23:50:37.3059314Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-07-19T23:50:37.3111246Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-07-19T23:50:37.3380657Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-07-19T23:50:37.3426622Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-07-19T23:50:37.3838289Z Cleaning up orphan processes
+2026-07-19T23:50:37.4161032Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
