@@ -104,13 +104,27 @@ export async function migrateCanonicalTimeline(projectId = PROJECT_ID) {
       purpose: 'Introduce restrained market movement only as the narration reaches the competitive incentive, before the sourced investment figures begin.',
     }),
   ];
-  const shots = [...preShots, ...filler, ...continuation];
-  for (let index = 0; index < shots.length; index += 1) shots[index].shot_id = `shot_${String(index + 1).padStart(3, '0')}`;
+
   const oldDuration = Number(plan.duration_frames);
-  const newDuration = oldDuration + pauseFrames;
-  if (Number(timeline.full_duration_frames) !== newDuration) {
-    throw new Error(`Narration timeline duration ${timeline.full_duration_frames} does not match migrated plan ${newDuration}`);
+  const pauseExpandedDuration = oldDuration + pauseFrames;
+  const newDuration = Number(timeline.full_duration_frames);
+  const durationRoundingAdjustmentFrames = newDuration - pauseExpandedDuration;
+  if (!Number.isInteger(newDuration) || newDuration <= oldDuration) {
+    throw new Error(`Invalid canonical narration timeline duration: ${timeline.full_duration_frames}`);
   }
+  if (Math.abs(durationRoundingAdjustmentFrames) > Math.ceil(fps * 0.2)) {
+    throw new Error(`Narration timeline differs from pause-expanded visual duration by ${durationRoundingAdjustmentFrames} frames`);
+  }
+
+  const shots = [...preShots, ...filler, ...continuation];
+  const terminalShot = shots.at(-1);
+  if (!terminalShot || terminalShot.graphic?.type !== 'brand_close') {
+    throw new Error('The shifted canonical film does not end on its single brand close');
+  }
+  terminalShot.end_frame = newDuration;
+  if (terminalShot.end_frame <= terminalShot.start_frame) throw new Error('Canonical terminal shot collapsed after duration rounding');
+  for (let index = 0; index < shots.length; index += 1) shots[index].shot_id = `shot_${String(index + 1).padStart(3, '0')}`;
+
   const timelineSha256 = createHash('sha256').update(timelineRaw).digest('hex');
   const sec4Start = Number(plan.sections.find((section) => section.section_id === 'SEC_04_REAL_WORLD_MISUSE')?.start_frame || 6302);
   const sections = plan.sections.map((section) => {
@@ -119,6 +133,8 @@ export async function migrateCanonicalTimeline(projectId = PROJECT_ID) {
     if (Number(section.start_frame) >= sec4Start) return { ...section, start_frame: Number(section.start_frame) + pauseFrames, end_frame: Number(section.end_frame) + pauseFrames };
     return section;
   });
+  sections.at(-1).end_frame = newDuration;
+
   const migrated = {
     ...plan,
     duration_frames: newDuration,
@@ -146,14 +162,18 @@ export async function migrateCanonicalTimeline(projectId = PROJECT_ID) {
     writeJsonAtomic(planPath, migrated),
     writeJsonAtomic(compositionPath, composition),
     writeJsonAtomic(path.join(dir, 'qa', 'timeline_migration.json'), {
-      schema_version: '1.0', project_id: projectId, migrated_at: new Date().toISOString(),
-      old_duration_frames: oldDuration, new_duration_frames: newDuration,
+      schema_version: '1.1', project_id: projectId, migrated_at: new Date().toISOString(),
+      old_duration_frames: oldDuration, pause_expanded_duration_frames: pauseExpandedDuration,
+      new_duration_frames: newDuration, duration_rounding_adjustment_frames: durationRoundingAdjustmentFrames,
       inserted_pause_frames: pauseFrames, removed_internal_terminal_shot: terminal.shot_id,
       continuation_shift_frames: pauseFrames, filler_shot_count: filler.length,
-      invariant: 'canonical plan, proof and full render now share the same pause-expanded timeline',
+      invariant: 'canonical plan, proof and full render now share the same pause-expanded narration timeline, including sub-frame source-duration rounding',
     }),
   ]);
-  return { migrated: true, old_duration_frames: oldDuration, new_duration_frames: newDuration, shot_count: shots.length };
+  return {
+    migrated: true, old_duration_frames: oldDuration, new_duration_frames: newDuration,
+    duration_rounding_adjustment_frames: durationRoundingAdjustmentFrames, shot_count: shots.length,
+  };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
