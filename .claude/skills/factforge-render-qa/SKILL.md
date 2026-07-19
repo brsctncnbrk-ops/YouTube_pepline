@@ -1,81 +1,95 @@
 ---
 name: factforge-render-qa
-description: Runs the Render QA gate for a FactForge project - the final technical check before the GitHub Actions render. Use when a FactForge project's manifest current_stage is "render_qa".
+description: Final technical and approval gate before the expensive full ORVYQ GitHub Actions render. Use when current_stage is render_qa.
 ---
 
-# FactForge Render QA Gate
+# ORVYQ Full Render QA
 
-You are the last checkpoint before the (expensive) GitHub Actions render.
-Your job is to confirm the project is genuinely render-ready and then hand the
-user the exact command to trigger the render. This gate is mostly mechanical —
-the deterministic checks catch the failure modes that would otherwise waste
-render minutes.
+This is the last checkpoint before the expensive full render. A successful proof alone is not enough. The complete canonical production plan and its hash-bound human approval must both be valid.
 
-## Step 1 — mechanical checks
+## Step 1 — canonical plan gate
 
+Run:
+
+```bash
+node scripts/orvyq_production_plan.mjs validate --project-id <project_id>
 ```
+
+Require:
+
+- `direction/production_plan.json` exists and has `status: "ready"`;
+- sections and shots cover the complete composition duration;
+- no unresolved or removed claims are referenced;
+- all assets, trims, source reuse limits, role fractions, and quality policies pass;
+- the proof boundary is an exact canonical shot boundary.
+
+## Step 2 — proof approval and drift gate
+
+Run:
+
+```bash
+node scripts/orvyq_production_plan.mjs check-approval --project-id <project_id>
+```
+
+Require:
+
+- explicit human rendered-video review;
+- score at or above the production-plan minimum;
+- successful proof run ID and source commit SHA;
+- `qa/proof_approval.json.production_plan_sha256` exactly equals the current plan hash.
+
+If the hash differs, stop with `PROOF_PLAN_DRIFT`. The proof must be rebuilt and approved again. Never copy or edit the old hash.
+
+## Step 3 — compile the exact approved full edit
+
+```bash
+node scripts/orvyq_production_plan.mjs build-full --project-id <project_id>
+```
+
+Confirm `direction/edit_plan.json` has:
+
+- `render_mode: "full"`;
+- `preview: false`;
+- full composition duration;
+- the same `production_plan_sha256` as the approval;
+- every canonical shot.
+
+## Step 4 — standard render readiness
+
+```bash
 node scripts/manifest_cli.mjs qa --project-id <project_id> --gate render_qa
+node scripts/validate.mjs render-ready --project-id <project_id>
 ```
 
-This runs the aggregate render-readiness check (`validateRenderReady`) and
-writes `qa/render_qa.md`. It verifies:
+Also inspect the complete timeline for contiguous frames, correct dimensions, captions, audio mix, provenance, and final-section release.
 
-- `assets/audio/final_voice.mp3` present.
-- Every scene's resolved visual asset present — `assets/footage/scene_NNN.mp4`
-  or `assets/images/scene_NNN.png`, per `footage/footage_manifest.json`'s
-  `fallback_to_ai_visual` flag for that scene.
-- No absolute paths / drive letters / `..` in the Remotion config files.
-- Scene filenames/numbering are consistent.
-- `remotion/render_ready_project/` exists.
-- `remotion/{composition,scene_config,asset_map}.json` all present.
-- `.github/workflows/render.yml` present.
-- `remotion/composition.json` validates against the composition schema.
+Write the judgment result into `qa/render_qa.md`.
 
-If this reports `valid: false`, stop — status is now `ERROR` with a logged
-reason. Report exactly what's missing and which earlier stage needs to fix it
-(missing assets → the human re-drops them; missing configs →
-`factforge-motion`; missing `render_ready_project/` → `factforge-editor`).
+## Pass
 
-## Step 2 — judgment-based checks
+Advance, then prepare render:
 
-Read `remotion/composition.json` and `qa/render_qa.md`, then confirm:
+```bash
+node scripts/manifest_cli.mjs advance --project-id <project_id> --stage render_qa --result success
+node scripts/manifest_cli.mjs prepare-render --project-id <project_id>
+```
 
-- `duration_frames` equals the last scene's `end_frame` (the whole timeline
-  is covered, no truncated or overhanging audio/video).
-- Scenes are contiguous in frames (each scene's `start_frame` equals the
-  previous scene's `end_frame`) — no gaps or overlaps.
-- `fps`/`width`/`height` match `config/video_config.json`, and `render`
-  matches `config/render_config.json`.
+Trigger only:
 
-## Step 3 — record verdict and prepare render
+```bash
+gh workflow run render.yml -f project_id=<project_id>
+```
 
-Edit `qa/render_qa.md`'s "Judgment-Based Checks" section with your findings.
+The workflow independently repeats the canonical-plan and approval-hash gates. Deprecated UI approval inputs cannot bypass them.
 
-- **Pass**: mark the gate complete, then prepare the render — **in this
-  order**, because `advance` resets status to `IN_PROGRESS` and
-  `prepare-render` must run after it to leave the project at
-  `READY_FOR_RENDER`:
+## Fail
 
-  ```
-  node scripts/manifest_cli.mjs advance --project-id <project_id> --stage render_qa --result success
-  node scripts/manifest_cli.mjs prepare-render --project-id <project_id>
-  ```
+Do not run `prepare-render`. Report the exact failing layer:
 
-  `prepare-render` re-runs the render-readiness check, sets status
-  `READY_FOR_RENDER`, and prints the render command. Tell the user the project
-  is render-ready and that they (or you, if asked) can trigger the render on
-  GitHub Actions:
+- plan incomplete → production_plan;
+- editorial plan quality failed → production_plan_qa;
+- proof missing or score low → new proof review;
+- plan hash drift → new proof render and approval;
+- render project/assets missing → editor/remotion/assets.
 
-  ```
-  gh workflow run render.yml -f project_id=<project_id>
-  ```
-
-  or via the GitHub UI (Actions → "FactForge Render" → Run workflow →
-  enter the project_id). Remind them that the full render runs **only** on
-  GitHub Actions, never locally, and that when it finishes the workflow
-  commits `output/final_video.mp4` back to the branch, which unblocks the
-  `packaging` stage.
-- **Fail**: do not run `prepare-render`. Explain what's wrong and which stage
-  must be re-run.
-
-Never hand-edit `manifest.json` directly.
+Never hand-edit `manifest.json`.
