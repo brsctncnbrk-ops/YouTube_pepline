@@ -1,85 +1,36 @@
-2026-07-19T23:29:41.7018984Z {"ok":false,"error":"EVID_WEB_NTIA_OPEN_WEIGHTS_2024 evidence fetch failed after 4 attempts: https://www.ntia.gov/programs-and-initiatives/artificial-intelligence/open-model-weights-report (fetch failed)"}
-2026-07-19T23:29:41.7095878Z ##[error]Process completed with exit code 1.
-2026-07-19T23:29:41.7018940Z {"ok":false,"error":"EVID_WEB_NTIA_OPEN_WEIGHTS_2024 evidence fetch failed after 4 attempts: https://www.ntia.gov/programs-and-initiatives/artificial-intelligence/open-model-weights-report (fetch failed)"}
-2026-07-19T23:29:41.7095417Z ##[error]Process completed with exit code 1.
---- LAST 80 LINES ---
-2026-07-19T23:29:16.5675398Z Collecting fsspec>=2023.5.0 (from huggingface-hub>=0.13->faster-whisper==1.2.0)
-2026-07-19T23:29:16.5787929Z   Downloading fsspec-2026.6.0-py3-none-any.whl.metadata (10 kB)
-2026-07-19T23:29:16.6636575Z Collecting hf-xet<2.0.0,>=1.5.1 (from huggingface-hub>=0.13->faster-whisper==1.2.0)
-2026-07-19T23:29:16.6756879Z   Downloading hf_xet-1.5.2-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
-2026-07-19T23:29:16.7024094Z Collecting httpx<1,>=0.23.0 (from huggingface-hub>=0.13->faster-whisper==1.2.0)
-2026-07-19T23:29:16.7135588Z   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
-2026-07-19T23:29:16.7442360Z Collecting typing-extensions>=4.1.0 (from huggingface-hub>=0.13->faster-whisper==1.2.0)
-2026-07-19T23:29:16.7556804Z   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
-2026-07-19T23:29:16.7849177Z Collecting anyio (from httpx<1,>=0.23.0->huggingface-hub>=0.13->faster-whisper==1.2.0)
-2026-07-19T23:29:16.7962225Z   Downloading anyio-4.14.2-py3-none-any.whl.metadata (4.6 kB)
-2026-07-19T23:29:16.8207137Z Collecting httpcore==1.* (from httpx<1,>=0.23.0->huggingface-hub>=0.13->faster-whisper==1.2.0)
-2026-07-19T23:29:16.8321873Z   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
-2026-07-19T23:29:16.8547991Z Collecting h11>=0.16 (from httpcore==1.*->httpx<1,>=0.23.0->huggingface-hub>=0.13->faster-whisper==1.2.0)
-2026-07-19T23:29:16.8659533Z   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
-2026-07-19T23:29:16.8960224Z Downloading faster_whisper-1.2.0-py3-none-any.whl (1.1 MB)
-2026-07-19T23:29:16.9465893Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 29.2 MB/s  0:00:00
-2026-07-19T23:29:16.9577651Z Downloading requests-2.32.5-py3-none-any.whl (64 kB)
-2026-07-19T23:29:16.9711078Z Downloading charset_normalizer-3.4.9-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (221 kB)
-2026-07-19T23:29:16.9862688Z Downloading ctranslate2-4.8.1-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (39.4 MB)
-2026-07-19T23:29:17.1691228Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 39.4/39.4 MB 216.9 MB/s  0:00:00
-2026-07-19T23:29:17.1803723Z Downloading idna-3.18-py3-none-any.whl (65 kB)
-2026-07-19T23:29:17.1980876Z Downloading onnxruntime-1.27.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (18.6 MB)
-2026-07-19T23:29:17.2673534Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 18.6/18.6 MB 275.9 MB/s  0:00:00
-2026-07-19T23:29:17.2788765Z Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (806 kB)
-2026-07-19T23:29:17.2844132Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 806.6/806.6 kB 173.5 MB/s  0:00:00
-2026-07-19T23:29:17.2959628Z Downloading tokenizers-0.23.1-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.3 MB)
-2026-07-19T23:29:17.3078689Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 329.1 MB/s  0:00:00
-2026-07-19T23:29:17.3191688Z Downloading huggingface_hub-1.24.0-py3-none-any.whl (771 kB)
-2026-07-19T23:29:17.3246593Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 771.9/771.9 kB 159.7 MB/s  0:00:00
-2026-07-19T23:29:17.3357172Z Downloading click-8.4.2-py3-none-any.whl (119 kB)
-2026-07-19T23:29:17.3489211Z Downloading hf_xet-1.5.2-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.4 MB)
-2026-07-19T23:29:17.3634680Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.4/4.4 MB 355.1 MB/s  0:00:00
-2026-07-19T23:29:17.3746062Z Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
-2026-07-19T23:29:17.3878016Z Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
-2026-07-19T23:29:17.4012215Z Downloading urllib3-2.7.0-py3-none-any.whl (131 kB)
-2026-07-19T23:29:17.4153835Z Downloading av-18.0.0-cp311-abi3-manylinux_2_28_x86_64.whl (35.5 MB)
-2026-07-19T23:29:17.5097497Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.5/35.5 MB 384.7 MB/s  0:00:00
-2026-07-19T23:29:17.5210635Z Downloading certifi-2026.6.17-py3-none-any.whl (133 kB)
-2026-07-19T23:29:17.5351432Z Downloading filelock-3.31.0-py3-none-any.whl (96 kB)
-2026-07-19T23:29:17.5484908Z Downloading fsspec-2026.6.0-py3-none-any.whl (203 kB)
-2026-07-19T23:29:17.5617839Z Downloading h11-0.16.0-py3-none-any.whl (37 kB)
-2026-07-19T23:29:17.5753802Z Downloading numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.9 MB)
-2026-07-19T23:29:17.6232195Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.9/16.9 MB 365.9 MB/s  0:00:00
-2026-07-19T23:29:17.6344010Z Downloading packaging-26.2-py3-none-any.whl (100 kB)
-2026-07-19T23:29:17.6479637Z Downloading protobuf-7.35.1-cp310-abi3-manylinux2014_x86_64.whl (327 kB)
-2026-07-19T23:29:17.6618057Z Downloading tqdm-4.69.0-py3-none-any.whl (676 kB)
-2026-07-19T23:29:17.6672346Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 676.7/676.7 kB 143.6 MB/s  0:00:00
-2026-07-19T23:29:17.6784174Z Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
-2026-07-19T23:29:17.6921918Z Downloading anyio-4.14.2-py3-none-any.whl (125 kB)
-2026-07-19T23:29:17.7055098Z Downloading flatbuffers-25.12.19-py2.py3-none-any.whl (26 kB)
-2026-07-19T23:29:17.9227169Z Installing collected packages: flatbuffers, urllib3, typing-extensions, tqdm, pyyaml, protobuf, packaging, numpy, idna, hf-xet, h11, fsspec, filelock, click, charset_normalizer, certifi, av, requests, onnxruntime, httpcore, ctranslate2, anyio, httpx, huggingface-hub, tokenizers, faster-whisper
-2026-07-19T23:29:23.4965135Z 
-2026-07-19T23:29:23.4982806Z Successfully installed anyio-4.14.2 av-18.0.0 certifi-2026.6.17 charset_normalizer-3.4.9 click-8.4.2 ctranslate2-4.8.1 faster-whisper-1.2.0 filelock-3.31.0 flatbuffers-25.12.19 fsspec-2026.6.0 h11-0.16.0 hf-xet-1.5.2 httpcore-1.0.9 httpx-0.28.1 huggingface-hub-1.24.0 idna-3.18 numpy-2.4.6 onnxruntime-1.27.0 packaging-26.2 protobuf-7.35.1 pyyaml-6.0.3 requests-2.32.5 tokenizers-0.23.1 tqdm-4.69.0 typing-extensions-4.16.0 urllib3-2.7.0
-2026-07-19T23:29:23.7438688Z Google Chrome 150.0.7871.114 
-﻿2026-07-19T23:29:23.7515920Z ##[group]Run set -euo pipefail
-2026-07-19T23:29:23.7516276Z [36;1mset -euo pipefail[0m
-2026-07-19T23:29:23.7516670Z [36;1mnode scripts/orvyq_expand_primary_evidence_manifest.mjs "$PROJECT_ID"[0m
-2026-07-19T23:29:23.7517136Z [36;1mnode scripts/orvyq_fetch_primary_evidence.mjs[0m
-2026-07-19T23:29:23.7585592Z shell: /usr/bin/bash -e {0}
-2026-07-19T23:29:23.7585965Z env:
-2026-07-19T23:29:23.7586323Z   PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
-2026-07-19T23:29:23.7588819Z   GH_TOKEN: ***
-2026-07-19T23:29:23.7589127Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
-2026-07-19T23:29:23.7589570Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
-2026-07-19T23:29:23.7590009Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
-2026-07-19T23:29:23.7590397Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
-2026-07-19T23:29:23.7591006Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
-2026-07-19T23:29:23.7591389Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
-2026-07-19T23:29:23.7591786Z ##[endgroup]
-2026-07-19T23:29:23.8112472Z {"ok":true,"project_id":"001-the-ai-race-no-one-can-afford-to-win","active_source_count":17,"added_count":14,"total_assets":26,"allowed_hosts":["digital-strategy.ec.europa.eu","hai.stanford.edu","storage.googleapis.com","www-cdn.anthropic.com","www.anthropic.com","www.gov.uk","www.ilo.org","www.ntia.gov"],"added_assets":[{"evidence_asset_id":"EVID_WEB_ANTHROPIC_CYBER_MISUSE_2025","source_ids":["SRC_ANTHROPIC_CYBER_MISUSE_2025"],"local_asset":"assets/evidence/anthropic_cyber_misuse_2025.png"},{"evidence_asset_id":"EVID_WEB_ANTHROPIC_ESPIONAGE_2025","source_ids":["SRC_ANTHROPIC_ESPIONAGE_2025"],"local_asset":"assets/evidence/anthropic_espionage_2025.png"},{"evidence_asset_id":"EVID_WEB_ANTHROPIC_ASL3_2025","source_ids":["SRC_ANTHROPIC_ASL3_2025"],"local_asset":"assets/evidence/anthropic_asl3_2025.png"},{"evidence_asset_id":"EVID_WEB_ILO_JOBS_2025","source_ids":["SRC_ILO_JOBS_2025"],"local_asset":"assets/evidence/ilo_jobs_2025.png"},{"evidence_asset_id":"EVID_WEB_ILO_EXPOSURE_LIMITS_2026","source_ids":["SRC_ILO_EXPOSURE_LIMITS_2026"],"local_asset":"assets/evidence/ilo_exposure_limits_2026.png"},{"evidence_asset_id":"EVID_WEB_EU_GPAI_OBLIGATIONS_2025","source_ids":["SRC_EU_GPAI_OBLIGATIONS_2025"],"local_asset":"assets/evidence/eu_gpai_obligations_2025.png"},{"evidence_asset_id":"EVID_WEB_EU_GPAI_GUIDELINES_2025","source_ids":["SRC_EU_GPAI_GUIDELINES_2025"],"local_asset":"assets/evidence/eu_gpai_guidelines_2025.png"},{"evidence_asset_id":"EVID_WEB_NTIA_OPEN_WEIGHTS_2024","source_ids":["SRC_NTIA_OPEN_WEIGHTS_2024"],"local_asset":"assets/evidence/ntia_open_weights_2024.png"},{"evidence_asset_id":"EVID_WEB_UK_AISI_EVALS_2024","source_ids":["SRC_UK_AISI_EVALS_2024"],"local_asset":"assets/evidence/uk_aisi_evals_2024.png"},{"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_ECONOMY","source_ids":["SRC_STANFORD_AI_INDEX_2025_ECONOMY"],"local_asset":"assets/evidence/stanford_ai_index_2025_economy.png"},{"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_TECHNICAL","source_ids":["SRC_STANFORD_AI_INDEX_2025_TECHNICAL"],"local_asset":"assets/evidence/stanford_ai_index_2025_technical.png"},{"evidence_asset_id":"EVID_WEB_CMA_FOUNDATION_MODELS_UPDATE_2024","source_ids":["SRC_CMA_FOUNDATION_MODELS_UPDATE_2024"],"local_asset":"assets/evidence/cma_foundation_models_update_2024.png"},{"evidence_asset_id":"EVID_WEB_CMA_CLOUD_MARKET_2025","source_ids":["SRC_CMA_CLOUD_MARKET_2025"],"local_asset":"assets/evidence/cma_cloud_market_2025.png"},{"evidence_asset_id":"EVID_WEB_INTERNATIONAL_AI_SAFETY_REPORT_2025","source_ids":["SRC_INTERNATIONAL_AI_SAFETY_REPORT_2025"],"local_asset":"assets/evidence/international_ai_safety_report_2025.png"}]}
-2026-07-19T23:29:41.7018940Z {"ok":false,"error":"EVID_WEB_NTIA_OPEN_WEIGHTS_2024 evidence fetch failed after 4 attempts: https://www.ntia.gov/programs-and-initiatives/artificial-intelligence/open-model-weights-report (fetch failed)"}
-2026-07-19T23:29:41.7095417Z ##[error]Process completed with exit code 1.
-2026-07-19T23:28:27.4660000Z Requested labels: ubuntu-latest
-2026-07-19T23:28:27.4660000Z Job defined at: brsctncnbrk-ops/YouTube_pepline/.github/workflows/orvyq-full-plan-rebalance.yml@refs/heads/agent/orvyq-system-wide-production
-2026-07-19T23:28:27.4660000Z Waiting for a runner to pick up this job...
-2026-07-19T23:28:27.4680000Z Job is about to start running on the hosted runner: GitHub Actions 1000001476
-2026-07-19T23:28:27.4650000Z Evaluating rebalance.if
-2026-07-19T23:28:27.4650000Z Evaluating: success()
-2026-07-19T23:28:27.4650000Z Result: true
-2026-07-19T23:28:27.4670000Z Job is waiting for a hosted runner to come online.
+rebalance-logs/0_rebalance.txt:1047:2026-07-19T23:29:41.7018984Z {"ok":false,"error":"EVID_WEB_NTIA_OPEN_WEIGHTS_2024 evidence fetch failed after 4 attempts: https://www.ntia.gov/programs-and-initiatives/artificial-intelligence/open-model-weights-report (fetch failed)"}
+rebalance-logs/0_rebalance.txt:1048:2026-07-19T23:29:41.7095878Z ##[error]Process completed with exit code 1.
+rebalance-logs/rebalance/7_Expand and fetch full-film official evidence.txt:17:2026-07-19T23:29:41.7018940Z {"ok":false,"error":"EVID_WEB_NTIA_OPEN_WEIGHTS_2024 evidence fetch failed after 4 attempts: https://www.ntia.gov/programs-and-initiatives/artificial-intelligence/open-model-weights-report (fetch failed)"}
+rebalance-logs/rebalance/7_Expand and fetch full-film official evidence.txt:18:2026-07-19T23:29:41.7095417Z ##[error]Process completed with exit code 1.
+--- STEP LOG TAILS ---
+--- rebalance-logs/0_rebalance.txt ---
+2026-07-19T23:29:41.9036145Z The least common ancestor is /home/runner/work/YouTube_pepline/YouTube_pepline. This will be the root directory of the artifact
+2026-07-19T23:29:41.9037776Z With the provided path, there will be 1 file uploaded
+2026-07-19T23:29:41.9039147Z Artifact name is valid!
+2026-07-19T23:29:41.9039804Z Root directory input is valid!
+2026-07-19T23:29:42.0968975Z Beginning upload of artifact content to blob storage
+2026-07-19T23:29:42.1164237Z (node:4042) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-07-19T23:29:42.2591613Z Uploaded bytes 3415
+2026-07-19T23:29:42.2998046Z Finished uploading artifact content to blob storage!
+2026-07-19T23:29:42.2999120Z SHA256 digest of uploaded artifact zip is cbf20baf7caa03b3ff23e6161f43f629385d77d5890ef86fee1636900e2a022e
+2026-07-19T23:29:42.3000372Z Finalizing artifact upload
+2026-07-19T23:29:42.4871659Z Artifact orvyq-full-plan-rebalance-29707969860.zip successfully finalized. Artifact ID 8448451077
+2026-07-19T23:29:42.4872850Z Artifact orvyq-full-plan-rebalance-29707969860 has been successfully uploaded! Final size is 3415 bytes. Artifact ID is 8448451077
+2026-07-19T23:29:42.4879960Z Artifact download URL: https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29707969860/artifacts/8448451077
+2026-07-19T23:29:42.5088525Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-07-19T23:29:42.5089811Z Post job cleanup.
+2026-07-19T23:29:42.6001634Z [command]/usr/bin/git version
+2026-07-19T23:29:42.6043318Z git version 2.54.0
+2026-07-19T23:29:42.6082671Z Temporarily overriding HOME='/home/runner/work/_temp/656893b3-a24f-4fb7-aa2a-bf54318feb43' before making global git config changes
+2026-07-19T23:29:42.6084133Z Adding repository directory to the temporary git global config as a safe directory
+2026-07-19T23:29:42.6089081Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/YouTube_pepline/YouTube_pepline
+2026-07-19T23:29:42.6133497Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-07-19T23:29:42.6172181Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-07-19T23:29:42.6443021Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-07-19T23:29:42.6472288Z http.https://github.com/.extraheader
+2026-07-19T23:29:42.6484541Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-07-19T23:29:42.6520460Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-07-19T23:29:42.6819205Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-07-19T23:29:42.6861998Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-07-19T23:29:42.7352568Z Cleaning up orphan processes
+2026-07-19T23:29:42.7669305Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
