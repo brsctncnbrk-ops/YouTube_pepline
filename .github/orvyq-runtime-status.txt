@@ -1,2 +1,2 @@
-requested_at=2026-07-19T22:32:00+03:00
-purpose=extract-second-structural-migration-validation-failure
+requested_at=2026-07-19T22:38:00+03:00
+purpose=inspect-third-structural-migration-and-committed-canonical-state
