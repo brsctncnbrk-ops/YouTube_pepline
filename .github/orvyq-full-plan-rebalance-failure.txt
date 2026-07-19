@@ -1,0 +1,121 @@
+2026-07-19T23:24:42.9404169Z 
+2026-07-19T23:24:42.9404868Z Running kernel seems to be up-to-date.
+2026-07-19T23:24:42.9405527Z 
+2026-07-19T23:24:42.9405823Z No services need to be restarted.
+2026-07-19T23:24:42.9406139Z 
+2026-07-19T23:24:42.9406392Z No containers need to be restarted.
+2026-07-19T23:24:42.9406736Z 
+2026-07-19T23:24:42.9407034Z No user sessions are running outdated binaries.
+2026-07-19T23:24:42.9407415Z 
+2026-07-19T23:24:42.9407903Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+2026-07-19T23:24:44.9879031Z Collecting faster-whisper==1.2.0
+2026-07-19T23:24:45.0444874Z   Downloading faster_whisper-1.2.0-py3-none-any.whl.metadata (16 kB)
+2026-07-19T23:24:45.0737404Z Collecting requests==2.32.5
+2026-07-19T23:24:45.0852307Z   Downloading requests-2.32.5-py3-none-any.whl.metadata (4.9 kB)
+2026-07-19T23:24:45.1881726Z Collecting ctranslate2<5,>=4.0 (from faster-whisper==1.2.0)
+2026-07-19T23:24:45.1933679Z   Downloading ctranslate2-4.8.1-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (11 kB)
+2026-07-19T23:24:45.2353637Z Collecting huggingface-hub>=0.13 (from faster-whisper==1.2.0)
+2026-07-19T23:24:45.2403449Z   Downloading huggingface_hub-1.24.0-py3-none-any.whl.metadata (16 kB)
+2026-07-19T23:24:45.3785776Z Collecting tokenizers<1,>=0.13 (from faster-whisper==1.2.0)
+2026-07-19T23:24:45.3837427Z   Downloading tokenizers-0.23.1-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.8 kB)
+2026-07-19T23:24:45.4422360Z Collecting onnxruntime<2,>=1.14 (from faster-whisper==1.2.0)
+2026-07-19T23:24:45.4482322Z   Downloading onnxruntime-1.27.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (5.4 kB)
+2026-07-19T23:24:45.4923505Z Collecting av>=11 (from faster-whisper==1.2.0)
+2026-07-19T23:24:45.4969971Z   Downloading av-18.0.0-cp311-abi3-manylinux_2_28_x86_64.whl.metadata (4.5 kB)
+2026-07-19T23:24:45.5254818Z Collecting tqdm (from faster-whisper==1.2.0)
+2026-07-19T23:24:45.5304867Z   Downloading tqdm-4.69.0-py3-none-any.whl.metadata (57 kB)
+2026-07-19T23:24:45.6316871Z Collecting charset_normalizer<4,>=2 (from requests==2.32.5)
+2026-07-19T23:24:45.6378354Z   Downloading charset_normalizer-3.4.9-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (41 kB)
+2026-07-19T23:24:45.6565502Z Collecting idna<4,>=2.5 (from requests==2.32.5)
+2026-07-19T23:24:45.6612784Z   Downloading idna-3.18-py3-none-any.whl.metadata (6.1 kB)
+2026-07-19T23:24:45.6844021Z Collecting urllib3<3,>=1.21.1 (from requests==2.32.5)
+2026-07-19T23:24:45.6927067Z   Downloading urllib3-2.7.0-py3-none-any.whl.metadata (6.9 kB)
+2026-07-19T23:24:45.7399910Z Collecting certifi>=2017.4.17 (from requests==2.32.5)
+2026-07-19T23:24:45.7461061Z   Downloading certifi-2026.6.17-py3-none-any.whl.metadata (2.5 kB)
+2026-07-19T23:24:45.7508746Z Requirement already satisfied: setuptools in /opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/site-packages (from ctranslate2<5,>=4.0->faster-whisper==1.2.0) (79.0.1)
+2026-07-19T23:24:45.9297114Z Collecting numpy (from ctranslate2<5,>=4.0->faster-whisper==1.2.0)
+2026-07-19T23:24:45.9347345Z   Downloading numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+2026-07-19T23:24:45.9702445Z Collecting pyyaml<7,>=5.3 (from ctranslate2<5,>=4.0->faster-whisper==1.2.0)
+2026-07-19T23:24:45.9752475Z   Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+2026-07-19T23:24:45.9890482Z Collecting flatbuffers (from onnxruntime<2,>=1.14->faster-whisper==1.2.0)
+2026-07-19T23:24:45.9939038Z   Downloading flatbuffers-25.12.19-py2.py3-none-any.whl.metadata (1.0 kB)
+2026-07-19T23:24:46.0137617Z Collecting packaging (from onnxruntime<2,>=1.14->faster-whisper==1.2.0)
+2026-07-19T23:24:46.0396368Z   Downloading packaging-26.2-py3-none-any.whl.metadata (3.5 kB)
+2026-07-19T23:24:46.1745754Z Collecting protobuf>=4.25.8 (from onnxruntime<2,>=1.14->faster-whisper==1.2.0)
+2026-07-19T23:24:46.1823891Z   Downloading protobuf-7.35.1-cp310-abi3-manylinux2014_x86_64.whl.metadata (595 bytes)
+2026-07-19T23:24:46.2087441Z Collecting click<9.0.0,>=8.4.2 (from huggingface-hub>=0.13->faster-whisper==1.2.0)
+2026-07-19T23:24:46.2149618Z   Downloading click-8.4.2-py3-none-any.whl.metadata (2.6 kB)
+2026-07-19T23:24:46.2358496Z Collecting filelock>=3.10.0 (from huggingface-hub>=0.13->faster-whisper==1.2.0)
+2026-07-19T23:24:46.2432857Z   Downloading filelock-3.31.0-py3-none-any.whl.metadata (2.0 kB)
+2026-07-19T23:24:46.2620855Z Collecting fsspec>=2023.5.0 (from huggingface-hub>=0.13->faster-whisper==1.2.0)
+2026-07-19T23:24:46.2671046Z   Downloading fsspec-2026.6.0-py3-none-any.whl.metadata (10 kB)
+2026-07-19T23:24:46.3472007Z Collecting hf-xet<2.0.0,>=1.5.1 (from huggingface-hub>=0.13->faster-whisper==1.2.0)
+2026-07-19T23:24:46.3535268Z   Downloading hf_xet-1.5.2-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+2026-07-19T23:24:46.3706705Z Collecting httpx<1,>=0.23.0 (from huggingface-hub>=0.13->faster-whisper==1.2.0)
+2026-07-19T23:24:46.3756427Z   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+2026-07-19T23:24:46.3990611Z Collecting typing-extensions>=4.1.0 (from huggingface-hub>=0.13->faster-whisper==1.2.0)
+2026-07-19T23:24:46.4035791Z   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+2026-07-19T23:24:46.4242657Z Collecting anyio (from httpx<1,>=0.23.0->huggingface-hub>=0.13->faster-whisper==1.2.0)
+2026-07-19T23:24:46.4299152Z   Downloading anyio-4.14.2-py3-none-any.whl.metadata (4.6 kB)
+2026-07-19T23:24:46.4469752Z Collecting httpcore==1.* (from httpx<1,>=0.23.0->huggingface-hub>=0.13->faster-whisper==1.2.0)
+2026-07-19T23:24:46.4517757Z   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+2026-07-19T23:24:46.4660170Z Collecting h11>=0.16 (from httpcore==1.*->httpx<1,>=0.23.0->huggingface-hub>=0.13->faster-whisper==1.2.0)
+2026-07-19T23:24:46.4722144Z   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+2026-07-19T23:24:46.4957177Z Downloading faster_whisper-1.2.0-py3-none-any.whl (1.1 MB)
+2026-07-19T23:24:46.5137681Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 76.9 MB/s  0:00:00
+2026-07-19T23:24:46.5202335Z Downloading requests-2.32.5-py3-none-any.whl (64 kB)
+2026-07-19T23:24:46.5277978Z Downloading charset_normalizer-3.4.9-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (221 kB)
+2026-07-19T23:24:46.5397527Z Downloading ctranslate2-4.8.1-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (39.4 MB)
+2026-07-19T23:24:46.9643145Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 39.4/39.4 MB 92.7 MB/s  0:00:00
+2026-07-19T23:24:46.9701936Z Downloading idna-3.18-py3-none-any.whl (65 kB)
+2026-07-19T23:24:46.9800898Z Downloading onnxruntime-1.27.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (18.6 MB)
+2026-07-19T23:24:47.2588525Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 18.6/18.6 MB 67.6 MB/s  0:00:00
+2026-07-19T23:24:47.2669013Z Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (806 kB)
+2026-07-19T23:24:47.2741985Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 806.6/806.6 kB 115.1 MB/s  0:00:00
+2026-07-19T23:24:47.2791365Z Downloading tokenizers-0.23.1-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.3 MB)
+2026-07-19T23:24:47.2936356Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.3/3.3 MB 261.0 MB/s  0:00:00
+2026-07-19T23:24:47.3008686Z Downloading huggingface_hub-1.24.0-py3-none-any.whl (771 kB)
+2026-07-19T23:24:47.3078393Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 771.9/771.9 kB 131.9 MB/s  0:00:00
+2026-07-19T23:24:47.3130044Z Downloading click-8.4.2-py3-none-any.whl (119 kB)
+2026-07-19T23:24:47.3210048Z Downloading hf_xet-1.5.2-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.4 MB)
+2026-07-19T23:24:47.3386453Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.4/4.4 MB 281.8 MB/s  0:00:00
+2026-07-19T23:24:47.3459620Z Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+2026-07-19T23:24:47.3565751Z Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+2026-07-19T23:24:47.3662074Z Downloading urllib3-2.7.0-py3-none-any.whl (131 kB)
+2026-07-19T23:24:47.3733027Z Downloading av-18.0.0-cp311-abi3-manylinux_2_28_x86_64.whl (35.5 MB)
+2026-07-19T23:24:47.6997267Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.5/35.5 MB 109.2 MB/s  0:00:00
+2026-07-19T23:24:47.7044425Z Downloading certifi-2026.6.17-py3-none-any.whl (133 kB)
+2026-07-19T23:24:47.7116094Z Downloading filelock-3.31.0-py3-none-any.whl (96 kB)
+2026-07-19T23:24:47.7201945Z Downloading fsspec-2026.6.0-py3-none-any.whl (203 kB)
+2026-07-19T23:24:47.7318142Z Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+2026-07-19T23:24:47.7422334Z Downloading numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.9 MB)
+2026-07-19T23:24:47.8159521Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.9/16.9 MB 235.4 MB/s  0:00:00
+2026-07-19T23:24:47.8206629Z Downloading packaging-26.2-py3-none-any.whl (100 kB)
+2026-07-19T23:24:47.8274544Z Downloading protobuf-7.35.1-cp310-abi3-manylinux2014_x86_64.whl (327 kB)
+2026-07-19T23:24:47.8348618Z Downloading tqdm-4.69.0-py3-none-any.whl (676 kB)
+2026-07-19T23:24:47.8404329Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 676.7/676.7 kB 134.6 MB/s  0:00:00
+2026-07-19T23:24:47.8446432Z Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+2026-07-19T23:24:47.8510916Z Downloading anyio-4.14.2-py3-none-any.whl (125 kB)
+2026-07-19T23:24:47.8594397Z Downloading flatbuffers-25.12.19-py2.py3-none-any.whl (26 kB)
+2026-07-19T23:24:48.0415816Z Installing collected packages: flatbuffers, urllib3, typing-extensions, tqdm, pyyaml, protobuf, packaging, numpy, idna, hf-xet, h11, fsspec, filelock, click, charset_normalizer, certifi, av, requests, onnxruntime, httpcore, ctranslate2, anyio, httpx, huggingface-hub, tokenizers, faster-whisper
+2026-07-19T23:24:53.6343681Z 
+2026-07-19T23:24:53.6362268Z Successfully installed anyio-4.14.2 av-18.0.0 certifi-2026.6.17 charset_normalizer-3.4.9 click-8.4.2 ctranslate2-4.8.1 faster-whisper-1.2.0 filelock-3.31.0 flatbuffers-25.12.19 fsspec-2026.6.0 h11-0.16.0 hf-xet-1.5.2 httpcore-1.0.9 httpx-0.28.1 huggingface-hub-1.24.0 idna-3.18 numpy-2.4.6 onnxruntime-1.27.0 packaging-26.2 protobuf-7.35.1 pyyaml-6.0.3 requests-2.32.5 tokenizers-0.23.1 tqdm-4.69.0 typing-extensions-4.16.0 urllib3-2.7.0
+2026-07-19T23:24:55.2862991Z Google Chrome 150.0.7871.114 
+﻿2026-07-19T23:24:55.3044331Z ##[group]Run set -euo pipefail
+2026-07-19T23:24:55.3044867Z [36;1mset -euo pipefail[0m
+2026-07-19T23:24:55.3045995Z [36;1mnode scripts/orvyq_expand_primary_evidence_manifest.mjs "$PROJECT_ID"[0m
+2026-07-19T23:24:55.3046466Z [36;1mnode scripts/orvyq_fetch_primary_evidence.mjs[0m
+2026-07-19T23:24:55.3107703Z shell: /usr/bin/bash -e {0}
+2026-07-19T23:24:55.3107975Z env:
+2026-07-19T23:24:55.3108246Z   PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+2026-07-19T23:24:55.3111041Z   GH_TOKEN: ***
+2026-07-19T23:24:55.3111327Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-19T23:24:55.3111764Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+2026-07-19T23:24:55.3112191Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-19T23:24:55.3112572Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-19T23:24:55.3112943Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-19T23:24:55.3113346Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+2026-07-19T23:24:55.3113704Z ##[endgroup]
+2026-07-19T23:24:55.3619499Z {"ok":true,"project_id":"001-the-ai-race-no-one-can-afford-to-win","active_source_count":17,"added_count":14,"total_assets":26,"allowed_hosts":["digital-strategy.ec.europa.eu","hai.stanford.edu","storage.googleapis.com","www-cdn.anthropic.com","www.anthropic.com","www.gov.uk","www.ilo.org","www.ntia.gov"],"added_assets":[{"evidence_asset_id":"EVID_WEB_ANTHROPIC_CYBER_MISUSE_2025","source_ids":["SRC_ANTHROPIC_CYBER_MISUSE_2025"],"local_asset":"assets/evidence/anthropic_cyber_misuse_2025.png"},{"evidence_asset_id":"EVID_WEB_ANTHROPIC_ESPIONAGE_2025","source_ids":["SRC_ANTHROPIC_ESPIONAGE_2025"],"local_asset":"assets/evidence/anthropic_espionage_2025.png"},{"evidence_asset_id":"EVID_WEB_ANTHROPIC_ASL3_2025","source_ids":["SRC_ANTHROPIC_ASL3_2025"],"local_asset":"assets/evidence/anthropic_asl3_2025.png"},{"evidence_asset_id":"EVID_WEB_ILO_JOBS_2025","source_ids":["SRC_ILO_JOBS_2025"],"local_asset":"assets/evidence/ilo_jobs_2025.png"},{"evidence_asset_id":"EVID_WEB_ILO_EXPOSURE_LIMITS_2026","source_ids":["SRC_ILO_EXPOSURE_LIMITS_2026"],"local_asset":"assets/evidence/ilo_exposure_limits_2026.png"},{"evidence_asset_id":"EVID_WEB_EU_GPAI_OBLIGATIONS_2025","source_ids":["SRC_EU_GPAI_OBLIGATIONS_2025"],"local_asset":"assets/evidence/eu_gpai_obligations_2025.png"},{"evidence_asset_id":"EVID_WEB_EU_GPAI_GUIDELINES_2025","source_ids":["SRC_EU_GPAI_GUIDELINES_2025"],"local_asset":"assets/evidence/eu_gpai_guidelines_2025.png"},{"evidence_asset_id":"EVID_WEB_NTIA_OPEN_WEIGHTS_2024","source_ids":["SRC_NTIA_OPEN_WEIGHTS_2024"],"local_asset":"assets/evidence/ntia_open_weights_2024.png"},{"evidence_asset_id":"EVID_WEB_UK_AISI_EVALS_2024","source_ids":["SRC_UK_AISI_EVALS_2024"],"local_asset":"assets/evidence/uk_aisi_evals_2024.png"},{"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_ECONOMY","source_ids":["SRC_STANFORD_AI_INDEX_2025_ECONOMY"],"local_asset":"assets/evidence/stanford_ai_index_2025_economy.png"},{"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_TECHNICAL","source_ids":["SRC_STANFORD_AI_INDEX_2025_TECHNICAL"],"local_asset":"assets/evidence/stanford_ai_index_2025_technical.png"},{"evidence_asset_id":"EVID_WEB_CMA_FOUNDATION_MODELS_UPDATE_2024","source_ids":["SRC_CMA_FOUNDATION_MODELS_UPDATE_2024"],"local_asset":"assets/evidence/cma_foundation_models_update_2024.png"},{"evidence_asset_id":"EVID_WEB_CMA_CLOUD_MARKET_2025","source_ids":["SRC_CMA_CLOUD_MARKET_2025"],"local_asset":"assets/evidence/cma_cloud_market_2025.png"},{"evidence_asset_id":"EVID_WEB_INTERNATIONAL_AI_SAFETY_REPORT_2025","source_ids":["SRC_INTERNATIONAL_AI_SAFETY_REPORT_2025"],"local_asset":"assets/evidence/international_ai_safety_report_2025.png"}]}
+2026-07-19T23:25:01.7863308Z {"ok":false,"error":"fetch failed"}
+2026-07-19T23:25:01.7948808Z ##[error]Process completed with exit code 1.
