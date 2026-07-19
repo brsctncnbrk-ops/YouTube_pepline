@@ -1,0 +1,51 @@
+name: Observe ORVYQ Full Render
+
+on:
+  pull_request:
+    branches:
+      - "agent/orvyq-observe-base"
+    paths:
+      - ".github/orvyq-observe-trigger.txt"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Find latest dispatched full render
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const {data} = await github.rest.actions.listWorkflowRuns({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'render.yml',
+              event: 'workflow_dispatch',
+              branch: 'agent/orvyq-full-render-approved',
+              per_page: 10
+            });
+            const runs = data.workflow_runs || [];
+            if (!runs.length) {
+              core.setFailed('No dispatched FactForge Render run found for agent/orvyq-full-render-approved');
+              return;
+            }
+            const run = runs[0];
+            core.notice(`FULL_RENDER_RUN_ID=${run.id}`);
+            core.notice(`FULL_RENDER_STATUS=${run.status}`);
+            core.notice(`FULL_RENDER_CONCLUSION=${run.conclusion || 'pending'}`);
+            core.notice(`FULL_RENDER_URL=${run.html_url}`);
+            await core.summary
+              .addHeading('ORVYQ Full Render Status')
+              .addTable([
+                [{data: 'Field', header: true}, {data: 'Value', header: true}],
+                ['Run ID', String(run.id)],
+                ['Status', String(run.status)],
+                ['Conclusion', String(run.conclusion || 'pending')],
+                ['Branch', String(run.head_branch)],
+                ['Commit', String(run.head_sha)],
+                ['URL', String(run.html_url)]
+              ])
+              .write();
