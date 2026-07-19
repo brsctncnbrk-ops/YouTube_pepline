@@ -1,31 +1,31 @@
 {
-  "generated_at": "2026-07-19T22:52:32Z",
+  "generated_at": "2026-07-19T22:58:22Z",
   "latest_dispatch": {
-    "id": 29705436376,
+    "id": 29707088004,
     "status": "completed",
     "conclusion": "success",
-    "head_sha": "b1f79a57591005fe79b2a17d406f17829aa52242",
-    "created_at": "2026-07-19T22:02:46Z",
-    "updated_at": "2026-07-19T22:03:10Z",
-    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29705436376"
+    "head_sha": "2095636351f6277cdb7758e532517c07c5ddb4e8",
+    "created_at": "2026-07-19T22:57:48Z",
+    "updated_at": "2026-07-19T22:58:10Z",
+    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29707088004"
   },
   "latest_full_render": {
-    "id": 29705445038,
-    "status": "completed",
-    "conclusion": "failure",
-    "head_sha": "b1f79a57591005fe79b2a17d406f17829aa52242",
-    "created_at": "2026-07-19T22:03:02Z",
-    "updated_at": "2026-07-19T22:07:29Z",
-    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29705445038"
+    "id": 29707094779,
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "2095636351f6277cdb7758e532517c07c5ddb4e8",
+    "created_at": "2026-07-19T22:58:02Z",
+    "updated_at": "2026-07-19T22:58:05Z",
+    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29707094779"
   },
   "jobs": [
     {
-      "id": 88241537027,
+      "id": 88245829232,
       "name": "render",
-      "status": "completed",
-      "conclusion": "failure",
-      "started_at": "2026-07-19T22:03:05Z",
-      "completed_at": "2026-07-19T22:07:28Z",
+      "status": "in_progress",
+      "conclusion": null,
+      "started_at": "2026-07-19T22:58:05Z",
+      "completed_at": null,
       "steps": [
         {
           "name": "Set up job",
@@ -65,129 +65,123 @@
         },
         {
           "name": "Install tooling",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "in_progress",
+          "conclusion": null,
           "number": 7
         },
         {
           "name": "Validate project id",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 8
         },
         {
           "name": "Resolve and verify canonical narration timeline",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 9
         },
         {
           "name": "Canonical full-production and proof-approval hard gate",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 10
         },
         {
           "name": "Fetch and verify official primary evidence",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 11
         },
         {
           "name": "Fetch licensed music and build full-duration voice-first mix",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 12
         },
         {
           "name": "Verify narration and build captions",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 13
         },
         {
           "name": "Compile full edit from the approved canonical plan",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 14
         },
         {
           "name": "Editorial provenance timeline and render-readiness gates",
-          "status": "completed",
-          "conclusion": "failure",
+          "status": "pending",
+          "conclusion": null,
           "number": 15
         },
         {
           "name": "Rebuild render-ready Remotion project",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 16
         },
         {
           "name": "Install deterministic Remotion dependencies and type-check",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 17
         },
         {
           "name": "Resolve browser executable",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 18
         },
         {
           "name": "Render full video",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 19
         },
         {
           "name": "Post-render media speech and complete-ending gates",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 20
         },
         {
           "name": "Collect successful render output",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 21
         },
         {
           "name": "Upload render bundle",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 22
         },
         {
           "name": "Upload render diagnostics",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 23
         },
         {
           "name": "Post Set up Python",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 44
         },
         {
           "name": "Post Set up Node",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 45
         },
         {
           "name": "Post Checkout exact source with LFS assets",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 46
-        },
-        {
-          "name": "Complete job",
-          "status": "completed",
-          "conclusion": "success",
-          "number": 47
         }
       ]
     }
