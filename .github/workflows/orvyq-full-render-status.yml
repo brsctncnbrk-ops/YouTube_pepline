@@ -48,12 +48,30 @@ jobs:
             }' > .github/orvyq-full-render-latest.json
           cat .github/orvyq-full-render-latest.json
 
+          STATUS="$(echo "$RENDERS" | jq -r '.workflow_runs[0].status')"
+          CONCLUSION="$(echo "$RENDERS" | jq -r '.workflow_runs[0].conclusion // empty')"
+          : > .github/orvyq-full-render-failure.txt
+          if [ "$STATUS" = "completed" ] && [ "$CONCLUSION" != "success" ]; then
+            gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > full-render-logs.zip
+            mkdir -p full-render-logs
+            unzip -q full-render-logs.zip -d full-render-logs
+            find full-render-logs -type f -print0 | sort -z | xargs -0 cat > full-render-all.log
+            LINE="$(grep -n 'Process completed with exit code' full-render-all.log | tail -n 1 | cut -d: -f1 || true)"
+            if [ -n "$LINE" ]; then
+              START=$(( LINE > 180 ? LINE - 180 : 1 ))
+              sed -n "${START},${LINE}p" full-render-all.log > .github/orvyq-full-render-failure.txt
+            else
+              tail -n 240 full-render-all.log > .github/orvyq-full-render-failure.txt
+            fi
+            cat .github/orvyq-full-render-failure.txt
+          fi
+
       - name: Commit status snapshot
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .github/orvyq-full-render-latest.json
+          git add .github/orvyq-full-render-latest.json .github/orvyq-full-render-failure.txt
           git diff --cached --quiet && exit 0
           git commit -m 'Update ORVYQ full render status snapshot'
           git pull --rebase origin "$GITHUB_REF_NAME"
