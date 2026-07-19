@@ -1,0 +1,36 @@
+name: ORVYQ Full Render Status
+
+on:
+  push:
+    branches:
+      - agent/orvyq-system-wide-production
+    paths:
+      - .github/orvyq-full-render-status.txt
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Inspect dispatcher and full render runs
+        run: |
+          set -euo pipefail
+          DISPATCH="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-full-render-dispatch.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=5")"
+          echo '--- DISPATCH RUNS ---'
+          echo "$DISPATCH" | jq '{runs:[.workflow_runs[]|{id,status,conclusion,head_sha,created_at,updated_at,html_url}]}'
+
+          RENDERS="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/render.yml/runs?branch=agent%2Forvyq-system-wide-production&event=workflow_dispatch&per_page=5")"
+          echo '--- FULL RENDER RUNS ---'
+          echo "$RENDERS" | jq '{runs:[.workflow_runs[]|{id,status,conclusion,head_sha,created_at,updated_at,html_url}]}'
+
+          RUN_ID="$(echo "$RENDERS" | jq -r '.workflow_runs[0].id // empty')"
+          test -n "$RUN_ID"
+          echo "FULL_RENDER_RUN_ID=$RUN_ID"
+          echo '--- FULL RENDER JOBS ---'
+          gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs?per_page=100" \
+            --jq '{jobs:[.jobs[]|{id,name,status,conclusion,started_at,completed_at,steps:[.steps[]|{name,status,conclusion,number}]}]}'
