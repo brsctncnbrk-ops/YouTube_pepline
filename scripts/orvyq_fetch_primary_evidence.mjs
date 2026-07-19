@@ -21,6 +21,12 @@ function assertMagic(buffer, mime, assetId) {
   }
 }
 
+function pngDimensions(buffer, assetId) {
+  assertMagic(buffer, "image/png", assetId);
+  if (buffer.length < 24) throw new Error(`${assetId} PNG header is incomplete`);
+  return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
+}
+
 async function fetchBuffer(url, allowedHosts, assetId) {
   const parsed = new URL(url);
   if (parsed.protocol !== "https:") throw new Error(`Evidence URL must use HTTPS: ${url}`);
@@ -31,7 +37,7 @@ async function fetchBuffer(url, allowedHosts, assetId) {
       const response = await fetch(parsed, {
         redirect: "follow",
         headers: {
-          "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/150 Safari/537.36 ORVYQ-primary-evidence-fetch/3.1",
+          "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/150 Safari/537.36 ORVYQ-primary-evidence-fetch/3.2",
           accept: "text/html,application/pdf,image/png,image/*;q=0.9,*/*;q=0.8",
           "accept-language": "en-US,en;q=0.9",
         },
@@ -134,12 +140,18 @@ export async function fetchPrimaryEvidence(projectId = PROJECT_ID) {
     }
     if (!(await pathExists(localPath))) throw new Error(`Primary evidence output missing: ${asset.local_asset}`);
     const localBuffer = await fs.readFile(localPath);
-    if (localBuffer.length < 30000) throw new Error(`Primary evidence output is unexpectedly small: ${asset.local_asset}`);
-    assertMagic(localBuffer, "image/png", asset.evidence_asset_id);
-    runtimeAssets.push({ evidence_asset_id: asset.evidence_asset_id, source_ids: asset.source_ids, source_url: asset.source_url, final_url: downloadRecords.get(asset.download_asset)?.final_url || asset.source_url, local_asset: asset.local_asset, download_asset: asset.download_asset, page_number: asset.page_number || null, capture_type: asset.capture_type || null, provenance_mode: asset.provenance_mode, caption: asset.caption, bytes: localBuffer.length, sha256: sha256(localBuffer) });
+    const dimensions = pngDimensions(localBuffer, asset.evidence_asset_id);
+    if (asset.capture_type === "webpage") {
+      if (localBuffer.length < 8000 || dimensions.width < 1600 || dimensions.height < 900) {
+        throw new Error(`Web capture quality failed for ${asset.local_asset}: ${localBuffer.length} bytes, ${dimensions.width}x${dimensions.height}`);
+      }
+    } else if (localBuffer.length < 30000) {
+      throw new Error(`Primary evidence output is unexpectedly small: ${asset.local_asset} (${localBuffer.length} bytes)`);
+    }
+    runtimeAssets.push({ evidence_asset_id: asset.evidence_asset_id, source_ids: asset.source_ids, source_url: asset.source_url, final_url: downloadRecords.get(asset.download_asset)?.final_url || asset.source_url, local_asset: asset.local_asset, download_asset: asset.download_asset, page_number: asset.page_number || null, capture_type: asset.capture_type || null, provenance_mode: asset.provenance_mode, caption: asset.caption, bytes: localBuffer.length, width: dimensions.width, height: dimensions.height, sha256: sha256(localBuffer) });
   }
 
-  const runtime = { schema_version: "3.1-retry-web-capture", project_id: projectId, generated_at: new Date().toISOString(), policy: manifest.policy, downloads: Object.fromEntries(downloadRecords), assets: runtimeAssets, pass: runtimeAssets.length === (manifest.assets || []).length };
+  const runtime = { schema_version: "3.2-dimension-validated-web-capture", project_id: projectId, generated_at: new Date().toISOString(), policy: manifest.policy, downloads: Object.fromEntries(downloadRecords), assets: runtimeAssets, pass: runtimeAssets.length === (manifest.assets || []).length };
   await writeJsonAtomic(path.join(dir, manifest.policy.runtime_manifest), runtime);
   return runtime;
 }
