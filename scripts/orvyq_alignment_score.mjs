@@ -2,42 +2,65 @@
 import path from "node:path";
 import { projectDir, readJson, writeJsonAtomic } from "./lib/fs-utils.mjs";
 import { auditMotionHook } from "./lib/orvyq-motion-hook.mjs";
-const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win",
-  clamp01 = (value) => Math.max(0, Math.min(1, Number(value) || 0));
+import { resolveVisualThresholds } from "./lib/orvyq-visual-policy.mjs";
+
+const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
+const clamp01 = (value) => Math.max(0, Math.min(1, Number(value) || 0));
+
 export async function buildAlignmentReadiness(projectId = PROJECT_ID) {
   const dir = projectDir(projectId);
-  const [evidence, assetAudit, semantic, pacing, mobile, speech, audio, plan] =
-    await Promise.all([
-      readJson(path.join(dir, "qa", "evidence_coverage.json")),
-      readJson(path.join(dir, "qa", "evidence_asset_audit.json")),
-      readJson(path.join(dir, "qa", "semantic_visual_audit.json")),
-      readJson(path.join(dir, "qa", "pacing_audit.json")),
-      readJson(path.join(dir, "qa", "mobile_legibility_audit.json")),
-      readJson(path.join(dir, "qa", "speech_transcript.json")),
-      readJson(path.join(dir, "assets", "audio", "final_mix.metadata.json")),
-      readJson(path.join(dir, "direction", "edit_plan.json")),
-    ]);
+  const [
+    evidence,
+    assetAudit,
+    semantic,
+    pacing,
+    mobile,
+    music,
+    speech,
+    audio,
+    plan,
+  ] = await Promise.all([
+    readJson(path.join(dir, "qa", "evidence_coverage.json")),
+    readJson(path.join(dir, "qa", "evidence_asset_audit.json")),
+    readJson(path.join(dir, "qa", "semantic_visual_audit.json")),
+    readJson(path.join(dir, "qa", "pacing_audit.json")),
+    readJson(path.join(dir, "qa", "mobile_legibility_audit.json")),
+    readJson(path.join(dir, "qa", "music_cue_audit.json")),
+    readJson(path.join(dir, "qa", "speech_transcript.json")),
+    readJson(path.join(dir, "assets", "audio", "final_mix.metadata.json")),
+    readJson(path.join(dir, "direction", "edit_plan.json")),
+  ]);
   const motionHook = auditMotionHook(plan);
-  const cinematicProof =
-    plan.preview && plan.quality_policy?.cinematic_body_footage === true;
-  const primaryEvidenceTargets = cinematicProof
-    ? { official_capture_fraction: 0.3, source_backed_fraction: 0.55 }
-    : { official_capture_fraction: 0.55, source_backed_fraction: null };
-  const primaryEvidenceReadiness = cinematicProof
-    ? Math.min(
-        clamp01(
-          semantic.official_primary_capture_fraction /
-            primaryEvidenceTargets.official_capture_fraction,
-        ),
-        clamp01(
-          semantic.evidence_archive_fraction /
-            primaryEvidenceTargets.source_backed_fraction,
-        ),
-      )
-    : clamp01(
-        semantic.official_primary_capture_fraction /
-          primaryEvidenceTargets.official_capture_fraction,
-      );
+  const resolved = resolveVisualThresholds(plan);
+  const semanticThresholds = semantic.resolved_thresholds || {};
+  const primaryEvidenceTargets = {
+    official_capture_fraction: Number(
+      semanticThresholds.official_capture_fraction_min ??
+        resolved.official_capture_fraction_min,
+    ),
+    source_backed_fraction: Number(
+      semanticThresholds.evidence_asset_fraction_min ??
+        resolved.evidence_asset_fraction_min,
+    ),
+  };
+  const primaryEvidenceReadiness = Math.min(
+    clamp01(
+      semantic.official_primary_capture_fraction /
+        primaryEvidenceTargets.official_capture_fraction,
+    ),
+    clamp01(
+      semantic.evidence_archive_fraction /
+        primaryEvidenceTargets.source_backed_fraction,
+    ),
+  );
+  const hookThreshold = Number(
+    semanticThresholds.motion_hook_fraction_max ??
+      resolved.motion_hook_fraction_max,
+  );
+  const genericThreshold = Number(
+    semanticThresholds.generic_stock_fraction_max ??
+      resolved.generic_stock_fraction_max,
+  );
   const categories = {
     narration_integrity: {
       weight: 15,
@@ -62,10 +85,15 @@ export async function buildAlignmentReadiness(projectId = PROJECT_ID) {
       weight: 10,
       score:
         motionHook.pass &&
-        semantic.generic_stock_fraction <= 0.12 &&
+        Number(semantic.opening_hook_fraction || 0) <= hookThreshold + 0.0001 &&
+        semantic.generic_stock_fraction <= genericThreshold + 0.0001 &&
         assetAudit.legacy_footage_count === 0
           ? 10
           : 0,
+      targets: {
+        opening_hook_fraction_max: hookThreshold,
+        generic_stock_fraction_max: genericThreshold,
+      },
     },
     pacing_structure: {
       weight: 10,
@@ -77,12 +105,17 @@ export async function buildAlignmentReadiness(projectId = PROJECT_ID) {
     },
     sound_structure: {
       weight: 10,
-      score: audio.music_sections?.length >= 3 ? 9 : 6,
+      score: music.pass
+        ? Math.min(
+            10,
+            audio.music_sections?.length >= 3 ? 9 + (music.sfx_count >= 3 ? 1 : 0) : 7,
+          )
+        : 0,
     },
     technical_gate: {
       weight: 5,
       score:
-        [evidence, assetAudit, semantic, pacing, mobile].every(
+        [evidence, assetAudit, semantic, pacing, mobile, music].every(
           (audit) => audit.pass,
         ) && speech.passed
           ? 5
@@ -90,20 +123,22 @@ export async function buildAlignmentReadiness(projectId = PROJECT_ID) {
     },
   };
   const raw = Object.values(categories).reduce(
-      (sum, category) => sum + category.score,
-      0,
-    ),
-    ceiling = 90,
-    readiness = Math.min(ceiling, raw * 0.9),
-    pass =
-      readiness >= 82 &&
-      Object.values(categories).every(
-        (category) => category.score >= category.weight * 0.65,
-      );
+    (sum, category) => sum + category.score,
+    0,
+  );
+  const ceiling = 90;
+  const readiness = Math.min(ceiling, raw * 0.9);
+  const pass =
+    readiness >= 82 &&
+    Object.values(categories).every(
+      (category) => category.score >= category.weight * 0.65,
+    );
   const report = {
-    schema_version: "2.2-cinematic-source-balance-readiness-only",
+    schema_version: "3.0-policy-aware-readiness-only",
     project_id: projectId,
     preview: Boolean(plan.preview),
+    editorial_mode: semantic.editorial_mode || resolved.editorial.mode,
+    resolved_visual_targets: primaryEvidenceTargets,
     categories,
     raw_technical_points: raw,
     pre_render_readiness_score: readiness,
@@ -135,6 +170,7 @@ export async function buildAlignmentReadiness(projectId = PROJECT_ID) {
     );
   return report;
 }
+
 if (import.meta.url === `file://${process.argv[1]}`)
   buildAlignmentReadiness()
     .then((report) =>
