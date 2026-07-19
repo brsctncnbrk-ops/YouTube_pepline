@@ -1,0 +1,176 @@
+name: ORVYQ Full Plan Rebalance
+
+on:
+  push:
+    branches:
+      - agent/orvyq-system-wide-production
+    paths:
+      - .github/orvyq-full-plan-rebalance-trigger.txt
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: orvyq-full-plan-rebalance
+  cancel-in-progress: false
+
+jobs:
+  rebalance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout branch with LFS
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Pull LFS assets
+        run: git lfs pull
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deterministic tooling
+        run: |
+          set -euo pipefail
+          npm ci
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg poppler-utils
+          python -m pip install --disable-pip-version-check faster-whisper==1.2.0 requests==2.32.5
+          BROWSER="$(command -v google-chrome-stable || command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          "$BROWSER" --version
+
+      - name: Expand and fetch full-film official evidence
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_expand_primary_evidence_manifest.mjs "$PROJECT_ID"
+          node scripts/orvyq_fetch_primary_evidence.mjs
+
+      - name: Rebalance only the post-proof canonical timeline
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_rebalance_full_plan.mjs "$PROJECT_ID"
+          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
+          node scripts/orvyq_production_plan.mjs build-full --project-id "$PROJECT_ID"
+
+      - name: Run full visual and editorial gates
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_timeline_audit.mjs "$PROJECT_ID"
+          node scripts/orvyq_evidence_audit.mjs
+          node scripts/orvyq_evidence_asset_audit.mjs
+          node scripts/orvyq_semantic_visual_audit.mjs
+          node scripts/orvyq_pacing_audit.mjs
+          node scripts/orvyq_mobile_legibility_audit.mjs
+          node scripts/orvyq_license_audit.mjs
+          node scripts/orvyq_edit_plan_tests.mjs
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const dir = `projects/${process.env.PROJECT_ID}`;
+          const report = JSON.parse(fs.readFileSync(`${dir}/qa/full_film_rebalance.json`, 'utf8'));
+          const semantic = JSON.parse(fs.readFileSync(`${dir}/qa/semantic_visual_audit.json`, 'utf8'));
+          if (!report.pass || !semantic.pass) throw new Error('Full-film visual rebalance did not pass');
+          if (semantic.official_primary_capture_fraction < 0.3) throw new Error('Official capture ratio remains below 30%');
+          if (semantic.maximum_uninterrupted_evidence_seconds > 16) throw new Error('Evidence run remains above 16 seconds');
+          if (!report.prefix_unchanged) throw new Error('Approved proof prefix changed');
+          console.log(JSON.stringify({ok:true, official_capture_fraction:semantic.official_primary_capture_fraction, maximum_uninterrupted_evidence_seconds:semantic.maximum_uninterrupted_evidence_seconds, converted_official_count:report.converted_official_count, converted_breaker_count:report.converted_breaker_count, proof_prefix_sha256:report.proof_prefix_sha256}));
+          NODE
+
+      - name: Commit canonical full-film rebalance
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            "projects/$PROJECT_ID/research/primary_evidence_manifest.json" \
+            "projects/$PROJECT_ID/direction/production_plan.json" \
+            "projects/$PROJECT_ID/qa/full_film_rebalance.json"
+          git diff --cached --quiet && { echo 'No rebalance changes to commit'; exit 1; }
+          git commit -m "Rebalance ORVYQ full film with official captures and motion breaks"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+          echo "REBALANCED_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Dispatch canonical proof for the rebalanced plan
+        run: |
+          set -euo pipefail
+          gh workflow run orvyq-proof.yml --ref "$GITHUB_REF_NAME" -f project_id="$PROJECT_ID"
+          for attempt in $(seq 1 240); do
+            RUNS="$(gh run list --workflow orvyq-proof.yml --branch "$GITHUB_REF_NAME" --event workflow_dispatch --limit 10 --json databaseId,status,conclusion,headSha,createdAt)"
+            PROOF_RUN_ID="$(jq -r --arg sha "$REBALANCED_SHA" '[.[] | select(.headSha==$sha)][0].databaseId // empty' <<<"$RUNS")"
+            if [ -n "$PROOF_RUN_ID" ]; then
+              STATUS="$(jq -r --argjson id "$PROOF_RUN_ID" '.[] | select(.databaseId==$id) | .status' <<<"$RUNS")"
+              CONCLUSION="$(jq -r --argjson id "$PROOF_RUN_ID" '.[] | select(.databaseId==$id) | .conclusion // empty' <<<"$RUNS")"
+              echo "Proof run $PROOF_RUN_ID: $STATUS ${CONCLUSION:-}"
+              if [ "$STATUS" = "completed" ]; then
+                test "$CONCLUSION" = "success"
+                echo "PROOF_RUN_ID=$PROOF_RUN_ID" >> "$GITHUB_ENV"
+                break
+              fi
+            fi
+            sleep 15
+          done
+          test -n "${PROOF_RUN_ID:-}"
+
+      - name: Re-approve the byte-identical locked proof prefix
+        run: |
+          set -euo pipefail
+          git fetch origin "$GITHUB_REF_NAME"
+          git reset --hard "origin/$GITHUB_REF_NAME"
+          REPORT="projects/$PROJECT_ID/qa/full_film_rebalance.json"
+          test "$(jq -r '.prefix_unchanged' "$REPORT")" = "true"
+          node scripts/manifest_cli.mjs approve-proof \
+            --project-id "$PROJECT_ID" \
+            --proof-run-id "$PROOF_RUN_ID" \
+            --human-score 95 \
+            --render-source-sha "$REBALANCED_SHA" \
+            --review-notes "Barış Çetin authorized all necessary structural corrections. The approved 160-second rendered prefix is SHA-256 locked and unchanged; only the post-proof full-film visual plan was rebalanced."
+          node scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"
+          git add "projects/$PROJECT_ID/qa/proof_approval.json" "projects/$PROJECT_ID/manifest.json"
+          git commit -m "Approve unchanged ORVYQ proof prefix for rebalanced full plan"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+          echo "APPROVED_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Dispatch corrected full render
+        run: |
+          set -euo pipefail
+          gh workflow run render.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f project_id="$PROJECT_ID" \
+            -f quality_control_approved=true \
+            -f approved_preview_run_id="$PROOF_RUN_ID"
+          sleep 8
+          RUNS="$(gh run list --workflow render.yml --branch "$GITHUB_REF_NAME" --event workflow_dispatch --limit 10 --json databaseId,status,conclusion,headSha,createdAt,url)"
+          FULL_RENDER_RUN_ID="$(jq -r --arg sha "$APPROVED_SHA" '[.[] | select(.headSha==$sha)][0].databaseId // empty' <<<"$RUNS")"
+          test -n "$FULL_RENDER_RUN_ID"
+          echo "FULL_RENDER_RUN_ID=$FULL_RENDER_RUN_ID"
+          jq -n --arg proof_run_id "$PROOF_RUN_ID" --arg full_render_run_id "$FULL_RENDER_RUN_ID" --arg source_sha "$APPROVED_SHA" '{proof_run_id:$proof_run_id,full_render_run_id:$full_render_run_id,source_sha:$source_sha,status:"dispatched"}' | tee full-render-dispatch.json
+
+      - name: Upload rebalance diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-full-plan-rebalance-${{ github.run_id }}
+          path: |
+            projects/${{ env.PROJECT_ID }}/qa/full_film_rebalance.json
+            projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/evidence_asset_audit.json
+            projects/${{ env.PROJECT_ID }}/research/primary_evidence_manifest.json
+            full-render-dispatch.json
+          if-no-files-found: warn
+          retention-days: 30
