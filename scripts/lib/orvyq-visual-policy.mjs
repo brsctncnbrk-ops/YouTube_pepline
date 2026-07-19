@@ -18,6 +18,18 @@ export function isOpeningHookFootage(shot) {
   return Boolean(shot?.asset_type === "footage" && shot.hook_footage === true);
 }
 
+export function isSourceBackedGraphic(shot) {
+  const graphic = shot?.graphic || {};
+  return Boolean(
+    shot?.asset_type === "graphic" &&
+      graphic.source_backed === true &&
+      graphic.provenance_mode === "source_derived_graphic" &&
+      Array.isArray(graphic.source_ids) &&
+      graphic.source_ids.length > 0 &&
+      String(graphic.source || "").trim(),
+  );
+}
+
 export function resolveEditorialMode(plan) {
   const policy = plan?.quality_policy || {};
   const declared = String(policy.editorial_mode || "").trim();
@@ -92,6 +104,7 @@ export function measureVisualMix(plan, classifyEvidence) {
     other_footage_frames: 0,
     official_capture_frames: 0,
     source_derived_frames: 0,
+    source_backed_graphic_frames: 0,
     generic_stock_frames: 0,
     full_screen_graphic_frames: 0,
   };
@@ -108,6 +121,10 @@ export function measureVisualMix(plan, classifyEvidence) {
     const evidenceClass = classifyEvidence?.(shot) || null;
     if (evidenceClass === "official") totals.official_capture_frames += frames;
     if (evidenceClass === "derived") totals.source_derived_frames += frames;
+    if (isSourceBackedGraphic(shot)) {
+      totals.source_derived_frames += frames;
+      totals.source_backed_graphic_frames += frames;
+    }
   }
   const fraction = (frames) => frames / durationFrames;
   return {
@@ -118,6 +135,7 @@ export function measureVisualMix(plan, classifyEvidence) {
     unapproved_footage_fraction: fraction(totals.other_footage_frames),
     official_primary_capture_fraction: fraction(totals.official_capture_frames),
     source_derived_graphic_fraction: fraction(totals.source_derived_frames),
+    source_backed_graphic_fraction: fraction(totals.source_backed_graphic_frames),
     evidence_archive_fraction: fraction(
       totals.official_capture_frames + totals.source_derived_frames,
     ),
