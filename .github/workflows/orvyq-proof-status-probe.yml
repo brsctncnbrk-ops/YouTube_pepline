@@ -1,0 +1,25 @@
+name: ORVYQ Proof Status Probe
+
+on:
+  pull_request:
+    paths:
+      - .github/orvyq-proof-status-probe.txt
+      - .github/workflows/orvyq-proof-status-probe.yml
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Query canonical proof workflow runs
+        run: |
+          set -euo pipefail
+          gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-proof.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=10" \
+            --jq '{total_count, runs: [.workflow_runs[] | {id, name, event, status, conclusion, head_sha, run_number, created_at, updated_at, html_url}]}'
