@@ -1,2 +1,2 @@
-requested_at=2026-07-19T22:28:00+03:00
-purpose=inspect-retried-structural-timeline-migration-and-generated-canonical-state
+requested_at=2026-07-19T22:32:00+03:00
+purpose=extract-second-structural-migration-validation-failure
