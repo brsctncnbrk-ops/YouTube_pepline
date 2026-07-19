@@ -5,6 +5,7 @@ import { loadResolvedEvidenceMap } from "./lib/orvyq-evidence.mjs";
 
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
 const ACTIVE_STATUSES = new Set(["verified", "attributed_commentary"]);
+const UNAVAILABLE_WEB_CAPTURE_SOURCES = new Set(["SRC_NTIA_OPEN_WEIGHTS_2024"]);
 const slug = (value) => String(value || "source").toLowerCase().replace(/^src_/, "").replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
 
 export async function expandPrimaryEvidenceManifest(projectId = PROJECT_ID) {
@@ -22,8 +23,13 @@ export async function expandPrimaryEvidenceManifest(projectId = PROJECT_ID) {
   const representedSources = new Set((manifest.assets || []).flatMap((asset) => asset.source_ids || []));
   const assetIds = new Set((manifest.assets || []).map((asset) => asset.evidence_asset_id));
   const added = [];
+  const skipped = [];
   for (const source of evidenceMap.source_catalog || []) {
     if (!activeSourceIds.has(source.source_id) || source.official !== true || representedSources.has(source.source_id) || !source.url) continue;
+    if (UNAVAILABLE_WEB_CAPTURE_SOURCES.has(source.source_id)) {
+      skipped.push({ source_id: source.source_id, reason: "official page is not reachable from GitHub-hosted runners; retain source-derived visual treatment" });
+      continue;
+    }
     const parsed = new URL(source.url);
     if (parsed.protocol !== "https:") continue;
     const sourceSlug = slug(source.source_id);
@@ -49,12 +55,13 @@ export async function expandPrimaryEvidenceManifest(projectId = PROJECT_ID) {
     added.push(asset);
     manifest.policy.allowed_hosts = [...new Set([...(manifest.policy.allowed_hosts || []), parsed.hostname])].sort();
   }
-  manifest.schema_version = "2.2-full-film-official-capture";
+  manifest.schema_version = "2.3-full-film-official-capture";
   manifest.policy.full_film_official_capture_required = true;
   manifest.policy.minimum_official_capture_fraction = 0.3;
   manifest.policy.maximum_uninterrupted_evidence_seconds = 16;
+  manifest.policy.unavailable_web_capture_sources = skipped;
   await writeJsonAtomic(manifestPath, manifest);
-  return { project_id: projectId, active_source_count: activeSourceIds.size, added_count: added.length, total_assets: manifest.assets.length, allowed_hosts: manifest.policy.allowed_hosts, added_assets: added.map((asset) => ({ evidence_asset_id: asset.evidence_asset_id, source_ids: asset.source_ids, local_asset: asset.local_asset })) };
+  return { project_id: projectId, active_source_count: activeSourceIds.size, added_count: added.length, skipped_count: skipped.length, total_assets: manifest.assets.length, allowed_hosts: manifest.policy.allowed_hosts, skipped_sources: skipped, added_assets: added.map((asset) => ({ evidence_asset_id: asset.evidence_asset_id, source_ids: asset.source_ids, local_asset: asset.local_asset })) };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
