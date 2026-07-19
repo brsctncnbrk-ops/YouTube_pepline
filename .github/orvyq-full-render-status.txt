@@ -1,2 +1,2 @@
-requested_at=2026-07-19T22:06:00.000Z
-purpose=verify-approved-full-render-dispatch-and-running-job-after-persisted-status-update
+requested_at=2026-07-20T02:20:00+03:00
+purpose=extract-exact-full-render-readiness-failure-before-rerun
