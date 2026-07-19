@@ -6,6 +6,11 @@ import path from "node:path";
 import { projectDir, readJson, pathExists } from "./lib/fs-utils.mjs";
 import { loadResolvedEvidenceMap } from "./lib/orvyq-evidence.mjs";
 import { auditMotionHook } from "./lib/orvyq-motion-hook.mjs";
+import { runEvidenceAudit } from "./orvyq_evidence_audit.mjs";
+import { runEvidenceAssetAudit } from "./orvyq_evidence_asset_audit.mjs";
+import { runSemanticVisualAudit } from "./orvyq_semantic_visual_audit.mjs";
+import { runPacingAudit } from "./orvyq_pacing_audit.mjs";
+import { runMobileLegibilityAudit } from "./orvyq_mobile_legibility_audit.mjs";
 const run = promisify(execFile),
   PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
 const VALID_ROLES = new Set([
@@ -45,6 +50,21 @@ const VALID_ROLES = new Set([
     "bar_chart",
     "line_chart",
   ]);
+async function ensureReadinessAudits(projectId, dir) {
+  const prerequisites = [
+    ["qa/evidence_coverage.json", runEvidenceAudit],
+    ["qa/evidence_asset_audit.json", runEvidenceAssetAudit],
+    ["qa/semantic_visual_audit.json", runSemanticVisualAudit],
+    ["qa/pacing_audit.json", runPacingAudit],
+    ["qa/mobile_legibility_audit.json", runMobileLegibilityAudit],
+  ];
+  for (const [relativePath, execute] of prerequisites) {
+    if (!(await pathExists(path.join(dir, relativePath)))) {
+      await execute(projectId);
+    }
+  }
+}
+
 async function videoDuration(file) {
   const { stdout } = await run("ffprobe", [
     "-v",
@@ -59,6 +79,7 @@ async function videoDuration(file) {
 }
 export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
   const dir = projectDir(projectId);
+  await ensureReadinessAudits(projectId, dir);
   const [
     plan,
     composition,
@@ -318,7 +339,7 @@ export async function validateOrvyqEditPlan(projectId = PROJECT_ID) {
       readJson(narrationPath),
     ]);
     assert.equal(approval.approved, true);
-    assert.ok(approval.aperture_alignment_score >= 95);
+    assert.ok(Number(approval.human_score ?? approval.aperture_alignment_score) >= 95);
     assert.equal(approval.review_type, "human_rendered_video_review");
     assert.equal(narration.full_narration_requires_regeneration, false);
     assert.equal(narration.full_narration_approved, true);
