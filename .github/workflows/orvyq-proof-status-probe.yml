@@ -33,5 +33,5 @@ jobs:
           gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > proof-logs.zip
           unzip -q proof-logs.zip -d proof-logs
           LOG_FILE="$(find proof-logs -type f | head -n 1)"
-          echo "--- FINAL 70 LOG LINES ---"
-          tail -n 70 "$LOG_FILE"
+          echo "--- FINAL 35 LOG LINES ---"
+          tail -n 35 "$LOG_FILE"
