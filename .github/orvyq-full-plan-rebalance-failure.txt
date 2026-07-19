@@ -1,0 +1,36 @@
+rebalance-logs/0_rebalance.txt:982:2026-07-19T23:35:45.8248032Z {"ok":false,"error":"EVID_WEB_INTERNATIONAL_AI_SAFETY_REPORT_2025 evidence fetch failed after 4 attempts: https://www.gov.uk/government/publications/international-ai-safety-report-2025/international-ai-safety-report-2025 (redirect escaped allowlist to internationalaisafetyreport.org)"}
+rebalance-logs/0_rebalance.txt:983:2026-07-19T23:35:45.8315792Z ##[error]Process completed with exit code 1.
+rebalance-logs/rebalance/7_Expand and fetch full-film official evidence.txt:17:2026-07-19T23:35:45.8247664Z {"ok":false,"error":"EVID_WEB_INTERNATIONAL_AI_SAFETY_REPORT_2025 evidence fetch failed after 4 attempts: https://www.gov.uk/government/publications/international-ai-safety-report-2025/international-ai-safety-report-2025 (redirect escaped allowlist to internationalaisafetyreport.org)"}
+rebalance-logs/rebalance/7_Expand and fetch full-film official evidence.txt:18:2026-07-19T23:35:45.8315768Z ##[error]Process completed with exit code 1.
+--- STEP LOG TAILS ---
+--- rebalance-logs/0_rebalance.txt ---
+2026-07-19T23:35:45.9790046Z The least common ancestor is /home/runner/work/YouTube_pepline/YouTube_pepline. This will be the root directory of the artifact
+2026-07-19T23:35:45.9791001Z With the provided path, there will be 1 file uploaded
+2026-07-19T23:35:45.9794898Z Artifact name is valid!
+2026-07-19T23:35:45.9795355Z Root directory input is valid!
+2026-07-19T23:35:46.1568618Z Beginning upload of artifact content to blob storage
+2026-07-19T23:35:46.1719210Z (node:3829) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-07-19T23:35:46.2635582Z Uploaded bytes 3375
+2026-07-19T23:35:46.2911572Z Finished uploading artifact content to blob storage!
+2026-07-19T23:35:46.2912522Z SHA256 digest of uploaded artifact zip is 9d835e9cf4e9f98357e061beafffb0fc1d2bac7e8cbb496bf6f1c5697042a2b8
+2026-07-19T23:35:46.2913261Z Finalizing artifact upload
+2026-07-19T23:35:46.4469488Z Artifact orvyq-full-plan-rebalance-29708139708.zip successfully finalized. Artifact ID 8448483607
+2026-07-19T23:35:46.4470525Z Artifact orvyq-full-plan-rebalance-29708139708 has been successfully uploaded! Final size is 3375 bytes. Artifact ID is 8448483607
+2026-07-19T23:35:46.4474808Z Artifact download URL: https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29708139708/artifacts/8448483607
+2026-07-19T23:35:46.4627170Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-07-19T23:35:46.4628133Z Post job cleanup.
+2026-07-19T23:35:46.5299688Z [command]/usr/bin/git version
+2026-07-19T23:35:46.5334173Z git version 2.54.0
+2026-07-19T23:35:46.5364514Z Temporarily overriding HOME='/home/runner/work/_temp/8b20cf1e-050a-4a54-b236-53e10eb871af' before making global git config changes
+2026-07-19T23:35:46.5365647Z Adding repository directory to the temporary git global config as a safe directory
+2026-07-19T23:35:46.5369319Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/YouTube_pepline/YouTube_pepline
+2026-07-19T23:35:46.5403840Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-07-19T23:35:46.5434580Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-07-19T23:35:46.5652955Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-07-19T23:35:46.5673485Z http.https://github.com/.extraheader
+2026-07-19T23:35:46.5683088Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-07-19T23:35:46.5713993Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-07-19T23:35:46.5969062Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-07-19T23:35:46.6005067Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-07-19T23:35:46.6343715Z Cleaning up orphan processes
+2026-07-19T23:35:46.6618852Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
