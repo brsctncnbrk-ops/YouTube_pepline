@@ -1,0 +1,179 @@
+name: ORVYQ Canonical Proof
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_id:
+        description: "Project id under projects/"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: orvyq-proof-${{ inputs.project_id }}
+  cancel-in-progress: true
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: ${{ inputs.project_id }}
+      ORVYQ_REQUIRE_APPROVED_MUSIC: "1"
+      ORVYQ_EDITORIAL_PAUSES: "1"
+    steps:
+      - name: Checkout exact source with LFS
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Lock exact source commit
+        run: |
+          set -euo pipefail
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          test "$ACTUAL_SHA" = "$GITHUB_SHA"
+          printf '%s\n' "$ACTUAL_SHA" | tee proof-source-sha.txt
+
+      - name: Pull LFS assets
+        run: git lfs pull
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install media, PDF and speech tooling
+        run: |
+          set -euo pipefail
+          npm ci
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg poppler-utils
+          python -m pip install --disable-pip-version-check faster-whisper==1.2.0 requests==2.32.5
+
+      - name: Validate canonical full-duration production plan
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import {productionPlanSha256} from './scripts/lib/orvyq-production.mjs';
+          const plan = JSON.parse(fs.readFileSync(`projects/${process.env.PROJECT_ID}/direction/production_plan.json`, 'utf8'));
+          const proofSeconds = plan.proof.duration_frames / plan.fps;
+          const narrationSeconds = Number(plan.proof.narration_limit_seconds || proofSeconds);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_PREVIEW_FRAMES=${plan.proof.duration_frames}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_AUDIO_LIMIT_SECONDS=${proofSeconds}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_NARRATION_LIMIT_SECONDS=${narrationSeconds}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_PROOF_SECONDS=${proofSeconds}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_PROOF_LAST_FRAME=${plan.proof.duration_frames - 1}\n`);
+          fs.writeFileSync('production-plan-sha256.txt', `${productionPlanSha256(plan)}\n`);
+          NODE
+
+      - name: Fetch licensed music and build proof audio
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import {fetchProofMusic} from './scripts/orvyq_fetch_proof_music.mjs';
+          import {buildOrvyqAudioMix} from './scripts/orvyq_audio_mix.mjs';
+          await fetchProofMusic(process.env.PROJECT_ID);
+          const result = await buildOrvyqAudioMix(process.env.PROJECT_ID);
+          console.log(JSON.stringify({ok: true, ...result}));
+          NODE
+
+      - name: Verify narration, build captions and compile exact proof prefix
+        run: |
+          set -euo pipefail
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --max-seconds "$ORVYQ_PROOF_SECONDS"
+          node --input-type=module <<'NODE'
+          import {buildOrvyqCaptions} from './scripts/orvyq_caption_build.mjs';
+          await buildOrvyqCaptions(process.env.PROJECT_ID);
+          NODE
+          node scripts/orvyq_production_plan.mjs build-proof --project-id "$PROJECT_ID"
+
+      - name: Run proof editorial and provenance gates
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
+          if [ "$PROJECT_ID" = "001-the-ai-race-no-one-can-afford-to-win" ]; then
+            node scripts/orvyq_edit_plan_tests.mjs
+            node scripts/orvyq_license_audit.mjs
+            node scripts/orvyq_alignment_score.mjs
+          fi
+
+      - name: Build render-ready project
+        run: |
+          set -euo pipefail
+          node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
+          node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
+          cd "projects/$PROJECT_ID/remotion/render_ready_project"
+          npm ci --no-audit --no-fund
+          npx tsc --noEmit
+
+      - name: Resolve browser executable
+        run: |
+          set -euo pipefail
+          BROWSER="$(command -v google-chrome-stable || command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          echo "FACTFORGE_REMOTION_BROWSER_EXECUTABLE=$BROWSER" >> "$GITHUB_ENV"
+          "$BROWSER" --version
+
+      - name: Render canonical proof prefix
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          mkdir -p "$APP/out"
+          cd "$APP"
+          npx remotion render src/index.ts FactForgeVideo out/orvyq_canonical_proof.mp4 \
+            --codec=h264 --frames="0-$ORVYQ_PROOF_LAST_FRAME" --concurrency=1 --image-format=png \
+            2>&1 | tee out/proof_render_stdout.txt
+
+      - name: Verify rendered proof media and speech
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          node scripts/orvyq_media_qa.mjs \
+            --project-id "$PROJECT_ID" \
+            --video "$APP/out/orvyq_canonical_proof.mp4" \
+            --report "projects/$PROJECT_ID/qa/orvyq_proof_media_qa.json"
+          python scripts/orvyq_speech_qa.py \
+            --project-id "$PROJECT_ID" \
+            --media "$APP/out/orvyq_canonical_proof.mp4" \
+            --max-seconds "$ORVYQ_PROOF_SECONDS" \
+            --output-name proof_video_speech_qa.json
+
+      - name: Create review sheets
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          ffmpeg -hide_banner -loglevel error -y \
+            -i "$APP/out/orvyq_canonical_proof.mp4" \
+            -vf "fps=1/10,scale=480:-1,tile=5x3" \
+            -frames:v 1 "$APP/out/orvyq_proof_contact_sheet.jpg"
+          ffprobe -v error -show_format -show_streams -of json \
+            "$APP/out/orvyq_canonical_proof.mp4" > "$APP/out/orvyq_proof_probe.json"
+
+      - name: Upload canonical proof approval package
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-canonical-proof-${{ env.PROJECT_ID }}-${{ github.run_id }}
+          path: |
+            proof-source-sha.txt
+            production-plan-sha256.txt
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_canonical_proof.mp4
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_proof_contact_sheet.jpg
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_proof_probe.json
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/proof_render_stdout.txt
+            projects/${{ env.PROJECT_ID }}/direction/production_plan.json
+            projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
+            projects/${{ env.PROJECT_ID }}/qa/production_plan_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/orvyq_proof_media_qa.json
+            projects/${{ env.PROJECT_ID }}/qa/proof_video_speech_qa.json
+            projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
+          if-no-files-found: error
+          retention-days: 30
