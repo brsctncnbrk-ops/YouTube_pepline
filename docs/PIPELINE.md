@@ -1,83 +1,125 @@
-# FactForge Pipeline
+# ORVYQ / FactForge Pipeline
 
-## Stage graph (17 stages)
+## Canonical stage graph
 
+```text
+research -> research_qa -> script -> fact_audit -> script_qa
+-> voice_script -> voice_qa
+-- audio gate --
+-> storyboard -> storyboard_qa -> footage_retrieval
+-> visual_style_bible -> visual_prompt -> visual_qa
+-- visual-assets gate --
+-> director -> remotion
+-> production_plan -> production_plan_qa
+-> editor -> proof_qa
+-- external canonical proof render + human approval --
+-> render_qa
+-- external full render --
+-> packaging -> final_qa -> DONE
 ```
-research -> research_qa -> script -> script_qa -> voice_script -> voice_qa
-  --[GATE: audio]--
-  -> storyboard -> storyboard_qa -> visual_style_bible -> visual_prompt -> visual_qa
-  --[GATE: images]--
-  -> director -> remotion -> editor -> render_qa
-  --[external: GitHub Actions render]--
-  -> packaging -> final_qa -> DONE
+
+The machine-readable authority is `scripts/lib/pipeline.mjs`.
+
+## Why the production-plan stages exist
+
+A polished short proof does not guarantee that the complete documentary has been authored. The previous system allowed the proof cut and the full-film plan to drift: the proof could pass while the remaining timeline had only section notes or legacy footage.
+
+The updated system requires `direction/production_plan.json` before any approval proof is generated. It is the single source of truth for:
+
+- every section and shot across the full duration;
+- claim-to-visual mapping;
+- exact assets and footage trims;
+- evidence attribution and limitations;
+- pacing, transitions, emphasis beats, and music states;
+- generic-stock, evidence/archive, graphic, and source-reuse policies.
+
+The proof is generated as the exact opening prefix of this plan. There is no separate proof edit.
+
+## Production-plan lifecycle
+
+### `production_plan`
+
+`factforge-production-plan` authors `direction/production_plan.json` from the completed storyboard, direction, composition, evidence map, and licensed assets.
+
+### `production_plan_qa`
+
+`factforge-production-plan-qa` runs:
+
+```bash
+node scripts/orvyq_production_plan.mjs validate --project-id <id>
 ```
 
-The canonical, machine-readable version of this graph lives in
-`scripts/lib/pipeline.mjs` (`STAGE_ORDER`, `STAGE_REQUIRED_FILES`,
-`STAGE_OUTPUT_FILES`, `GATES`) — treat that file as the source of truth if
-this doc and the code ever disagree.
+The gate requires exact full timeline coverage, active claims, complete assets, valid trims, evidence balance, source reuse limits, and an exact proof boundary. Results are written to `qa/production_plan_audit.json` and summarized in `qa/production_plan_qa.md`.
 
-Mapping back to the original spec's numbered skills: 01→research,
-01.5→research_qa, 02→script, 02.5→script_qa, 03→voice_script, 03.5→voice_qa,
-04→storyboard, 04.5→storyboard_qa, 05→visual_style_bible, 06→visual_prompt,
-06.5→visual_qa, 07→director, 08→remotion, 09→editor, 10→render_qa,
-11→packaging, 12→final_qa. Skill 00 (Orchestrator) is not itself a pipeline
-stage — it sequences the rest.
+### `proof_qa`
 
-## manifest.json statuses
+`factforge-proof-qa` compiles the exact prefix:
+
+```bash
+node scripts/orvyq_production_plan.mjs build-proof --project-id <id>
+```
+
+Then the external proof render is triggered:
+
+```bash
+gh workflow run orvyq-proof.yml -f project_id=<id>
+```
+
+### Human approval
+
+Approval is recorded only after reviewing the rendered video. `orvyq-approve-proof.yml` verifies that the proof workflow succeeded and that its source commit matches the supplied SHA. It writes `qa/proof_approval.json` containing:
+
+- proof run ID;
+- source commit SHA;
+- human score;
+- review type;
+- SHA-256 of the complete canonical production plan.
+
+Any plan change invalidates the approval automatically.
+
+### `render_qa`
+
+The final gate requires:
+
+```bash
+node scripts/orvyq_production_plan.mjs validate --project-id <id>
+node scripts/orvyq_production_plan.mjs check-approval --project-id <id>
+node scripts/orvyq_production_plan.mjs build-full --project-id <id>
+node scripts/validate.mjs render-ready --project-id <id>
+```
+
+Only then may the full render run:
+
+```bash
+gh workflow run render.yml -f project_id=<id>
+```
+
+The full workflow repeats the plan and approval-hash gates independently. UI checkboxes cannot bypass them.
+
+## Manifest statuses
 
 | Status | Meaning |
 |---|---|
-| `NOT_STARTED` | Project scaffolded, no stage has completed yet. |
-| `IN_PROGRESS` | Actively moving through stages. |
-| `WAITING_FOR_AUDIO` | Blocked until the human drops `assets/audio/final_voice.mp3` in place (ElevenLabs is manual). |
-| `WAITING_FOR_IMAGES` | Blocked until every `assets/images/scene_NNN.png` referenced by `storyboard.json` exists (Leonardo AI is manual). |
-| `WAITING_FOR_USER_APPROVAL` | Reserved for a future explicit human sign-off step. |
-| `READY_FOR_RENDER` | `prepare-render` passed every render-readiness check; ready to dispatch `render.yml`. |
-| `RENDERING` | Reserved for in-flight render state (the workflow currently goes straight from `READY_FOR_RENDER` to `RENDER_DONE`). |
-| `RENDER_DONE` | The render workflow produced `output/final_video.mp4` and called `manifest_cli.mjs render-complete`. |
-| `READY_FOR_FINAL_QA` | Reserved for post-render, pre-final-QA state (Phase 5). |
-| `READY_FOR_UPLOAD` | Reserved intermediate; `final_qa` completing goes straight to `DONE`. |
-| `DONE` | All 17 stages completed — the video and its YouTube package are publish-ready. |
-| `ERROR` | A stage or gate failed a mechanical check; see `errors[]` and `logs/errors.log`. |
+| `NOT_STARTED` | Project scaffolded. |
+| `IN_PROGRESS` | A pipeline stage is active. |
+| `WAITING_FOR_AUDIO` | Manual narration file is missing. |
+| `WAITING_FOR_VISUAL_ASSETS` | Required footage or fallback images are missing. |
+| `READY_FOR_PROOF_RENDER` | Canonical plan and proof preflight passed. |
+| `PROOF_RENDERING` | Proof workflow is running. |
+| `WAITING_FOR_PROOF_APPROVAL` | Rendered proof awaits human review. |
+| `PROOF_APPROVED` | Human approval exists for the current plan hash. |
+| `READY_FOR_RENDER` | Full plan, approval hash, assets, and render project passed. |
+| `RENDERING` | Full workflow is running. |
+| `RENDER_DONE` | Full video exists. |
+| `DONE` | Packaging and final QA passed. |
+| `ERROR` | A deterministic or judgment gate failed. |
 
-## Gates
+## Error classes added by the canonical system
 
-Gates are not pipeline stages — they're manifest-level checks the Orchestrator
-runs via `manifest_cli.mjs gate` before letting a blocked stage proceed.
+- `PRODUCTION_PLAN_INCOMPLETE` — full timeline, assets, claims, or quality policy failed.
+- `PROOF_APPROVAL_REQUIRED` — no valid rendered-video approval exists.
+- `PROOF_PLAN_DRIFT` — the plan changed after proof approval.
 
-- **audio gate** (before `storyboard`): requires
-  `assets/audio/final_voice.mp3` to exist.
-- **images gate** (before `director`): requires every `scene_NNN.png`
-  referenced in `storyboard.json` to exist under `assets/images/`.
+## Core invariant
 
-## QA gates (7 of the 17 stages)
-
-`research_qa`, `script_qa`, `voice_qa`, `storyboard_qa`, `visual_qa`,
-`render_qa`, `final_qa`. Each writes `qa/<gate>.md` with two sections: an
-"Automated Checks" section (written by `manifest_cli.mjs qa`, backed by
-`scripts/validate.mjs`) and a "Judgment-Based Checks" section. All seven
-gates now have a matching QA skill (`factforge-research-qa`,
-`factforge-script-qa`, `factforge-voice-qa`, `factforge-storyboard-qa`,
-`factforge-visual-qa`, `factforge-render-qa`, `factforge-final-qa`) that
-fills in the judgment section for real.
-
-`final_qa`'s mechanical half schema-validates `packaging/packaging.json` and
-confirms every publish deliverable exists (`output/final_video.mp4` plus the
-six `packaging/*` files). Like `visual_prompt` in Phase 3, `packaging` emits
-a schema-backed `packaging.json` (in addition to the spec's `.md`/`.txt`
-files) so this check has a single JSON target to validate.
-
-`visual_qa` deliberately does not check whether `assets/images/scene_NNN.png`
-files exist — at that point in the pipeline the human hasn't generated them
-yet. It only checks that `prompts/visual_prompts.json` fully covers the
-storyboard's scenes with correctly-patterned filenames (a name-mapping check
-via `validatePromptCoverage` in `scripts/validate.mjs`). Actual file
-existence is checked separately by the images gate, right before `director`.
-
-`visual_style_bible`, `director`, `remotion`, `editor` have no dedicated QA
-gate per the original spec — any schema-backed JSON output among them is
-still schema-validated automatically as a cheap machine check (logged to
-`logs/errors.log` on failure) without introducing a new named gate.
-`visual_style_bible`'s outputs are all markdown with no JSON schema, so there
-is nothing to auto-check there beyond the producer skill's own review.
+A proof may demonstrate the visual grammar. Only a complete canonical plan proves that the grammar was extended to the entire film.
