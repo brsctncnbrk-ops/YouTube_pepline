@@ -1,0 +1,5 @@
+Dispatch approved ORVYQ full render
+Project: 001-the-ai-race-no-one-can-afford-to-win
+Approved preview run: 29655003486
+Target ref: agent/orvyq-full-render-approved
+Requested by user: 2026-07-19
