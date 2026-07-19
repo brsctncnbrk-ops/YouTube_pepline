@@ -53,14 +53,16 @@ jobs:
           set -euo pipefail
           python scripts/orvyq_narration_timeline.py --project-id "$PROJECT_ID"
 
-      - name: Migrate canonical plan and composition
+      - name: Migrate and bind canonical plan
         run: |
           set -euo pipefail
           node scripts/orvyq_migrate_canonical_timeline.mjs "$PROJECT_ID"
+          node scripts/orvyq_bind_source_backed_bridge.mjs "$PROJECT_ID"
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID" --skip-assets
           node --check scripts/orvyq_dynamic_proof.mjs
           node --check scripts/orvyq_timeline_audit.mjs
           node --check scripts/orvyq_rendered_proof_ending_audit.mjs
+          node --check scripts/orvyq_bind_source_backed_bridge.mjs
           python -m py_compile scripts/orvyq_narration_timeline.py
 
       - name: Verify structural invariants before commit
@@ -83,7 +85,9 @@ jobs:
           const semanticFrame = Math.ceil(timeline.proof.speech_output_end_seconds * plan.fps);
           const proofBoundary = plan.shots.find((shot) => shot.end_frame >= semanticFrame);
           if (!proofBoundary || proofBoundary.graphic?.type === 'brand_close') throw new Error('Semantic proof boundary is invalid');
-          console.log(JSON.stringify({ok:true,duration_frames:plan.duration_frames,shot_count:plan.shots.length,proof_boundary:proofBoundary.shot_id,proof_seconds:proofBoundary.end_frame/plan.fps}));
+          const bridge = plan.shots.find((shot) => shot.motif === 'section_bridge_controlled_test_limit');
+          if (!bridge?.graphic?.source_backed || bridge.graphic.provenance_mode !== 'source_derived_graphic' || !(bridge.graphic.source_ids || []).length || !bridge.graphic.source) throw new Error('Controlled-test bridge lacks visible source provenance');
+          console.log(JSON.stringify({ok:true,duration_frames:plan.duration_frames,shot_count:plan.shots.length,proof_boundary:proofBoundary.shot_id,proof_seconds:proofBoundary.end_frame/plan.fps,source_backed_bridge:bridge.shot_id}));
           NODE
 
       - name: Commit migrated canonical state
@@ -101,7 +105,7 @@ jobs:
             echo "No canonical state changes to commit."
             exit 0
           fi
-          git commit -m "Migrate ORVYQ to one semantic audio visual timeline"
+          git commit -m "Bind ORVYQ canonical timeline and sourced section bridge"
           git reset --hard HEAD
           git clean -fd
           git pull --rebase origin "$GITHUB_REF_NAME"
