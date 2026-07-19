@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-07-19T23:37:19Z",
+  "generated_at": "2026-07-19T23:38:58Z",
   "latest_run": {
-    "id": 29708139708,
-    "status": "completed",
-    "conclusion": "failure",
-    "head_sha": "1aed5c6a3c27f79bb9af36ed835672272a86052b",
-    "created_at": "2026-07-19T23:34:24Z",
-    "updated_at": "2026-07-19T23:35:49Z",
-    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29708139708"
+    "id": 29708247876,
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "9449693149250dee67d44e59479542f0ad33a5d5",
+    "created_at": "2026-07-19T23:38:31Z",
+    "updated_at": "2026-07-19T23:38:34Z",
+    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29708247876"
   },
   "jobs": [
     {
-      "id": 88248358742,
+      "id": 88248613079,
       "name": "rebalance",
-      "status": "completed",
-      "conclusion": "failure",
-      "started_at": "2026-07-19T23:34:27Z",
-      "completed_at": "2026-07-19T23:35:48Z",
+      "status": "in_progress",
+      "conclusion": null,
+      "started_at": "2026-07-19T23:38:33Z",
+      "completed_at": null,
       "steps": [
         {
           "name": "Set up job",
@@ -50,81 +50,75 @@
         },
         {
           "name": "Install deterministic tooling",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "in_progress",
+          "conclusion": null,
           "number": 6
         },
         {
           "name": "Expand and fetch full-film official evidence",
-          "status": "completed",
-          "conclusion": "failure",
+          "status": "pending",
+          "conclusion": null,
           "number": 7
         },
         {
           "name": "Rebalance only the post-proof canonical timeline",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 8
         },
         {
           "name": "Run full visual and editorial gates",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 9
         },
         {
           "name": "Commit canonical full-film rebalance",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 10
         },
         {
           "name": "Dispatch canonical proof for the rebalanced plan",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 11
         },
         {
           "name": "Re-approve the byte-identical locked proof prefix",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 12
         },
         {
           "name": "Dispatch corrected full render",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 13
         },
         {
           "name": "Upload rebalance diagnostics",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 14
         },
         {
           "name": "Post Set up Python",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 26
         },
         {
           "name": "Post Set up Node",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 27
         },
         {
           "name": "Post Checkout branch with LFS",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 28
-        },
-        {
-          "name": "Complete job",
-          "status": "completed",
-          "conclusion": "success",
-          "number": 29
         }
       ]
     }
