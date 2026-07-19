@@ -1,2 +1,2 @@
-requested_at=2026-07-19T22:35:00+03:00
-purpose=commit-semantic-canonical-timeline-after-schema-contract-update
+requested_at=2026-07-19T22:43:00+03:00
+purpose=finalize-and-commit-semantic-canonical-timeline-rebase-safe
