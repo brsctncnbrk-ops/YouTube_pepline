@@ -14,7 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Locate uninterrupted proof evidence runs
+        with:
+          show-progress: false
+      - name: Locate longest uninterrupted proof evidence run
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
@@ -50,5 +52,5 @@ jobs:
           }
           flush();
           runs.sort((a, b) => b.seconds - a.seconds);
-          console.log(JSON.stringify({ proof_end_frame: proofEnd, runs }, null, 2));
+          console.log('EVIDENCE_RUN_RESULT=' + JSON.stringify(runs[0]));
           NODE
