@@ -5,7 +5,7 @@ on:
     branches:
       - agent/orvyq-system-wide-production
     paths:
-      - .github/orvyq-system-code.patch.gz.b64.part07
+      - .github/orvyq-system-code.patch.gz
 
 permissions:
   contents: write
@@ -27,10 +27,11 @@ jobs:
       - name: Decode and apply code patch
         run: |
           set -euo pipefail
-          cat .github/orvyq-system-code.patch.gz.b64.part* | base64 --decode | gunzip > /tmp/orvyq-system-code.patch
+          gunzip -c .github/orvyq-system-code.patch.gz > /tmp/orvyq-system-code.patch
           git apply --check /tmp/orvyq-system-code.patch
           git apply /tmp/orvyq-system-code.patch
           rm -f \
+            .github/orvyq-system-code.patch.gz \
             .github/orvyq-system-code.patch.gz.b64.part* \
             .github/workflows/orvyq-apply-system-code.yml \
             .github/workflows/orvyq-source-snapshot.yml \
