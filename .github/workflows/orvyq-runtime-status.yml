@@ -37,7 +37,8 @@ jobs:
             mkdir -p structural-logs
             gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${STRUCTURAL_RUN_ID}/logs" > structural-logs.zip
             unzip -q structural-logs.zip -d structural-logs
-            find structural-logs -type f -print0 | sort -z | xargs -0 cat > structural-all.log
-            echo '--- STRUCTURAL MIGRATION FINAL 80 LINES ---'
-            tail -n 80 structural-all.log
+            TARGET="$(grep -lR 'orvyq_migrate_canonical_timeline' structural-logs | head -n 1 || true)"
+            test -n "$TARGET"
+            echo "--- FAILED MIGRATION STEP LOG ---"
+            tail -n 80 "$TARGET"
           fi
