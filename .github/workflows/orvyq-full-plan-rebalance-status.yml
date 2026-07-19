@@ -29,13 +29,30 @@ jobs:
           test -n "$RUN_ID"
           JOBS="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs?per_page=100")"
           jq -n --arg generated_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson runs "$RUNS" --argjson jobs "$JOBS" '{generated_at:$generated_at,latest_run:($runs.workflow_runs[0]|{id,status,conclusion,head_sha,created_at,updated_at,html_url}),jobs:[$jobs.jobs[]|{id,name,status,conclusion,started_at,completed_at,steps:[.steps[]|{name,status,conclusion,number}]}]}' > .github/orvyq-full-plan-rebalance-latest.json
+          : > .github/orvyq-full-plan-rebalance-failure.txt
+          STATUS="$(jq -r '.workflow_runs[0].status' <<<"$RUNS")"
+          CONCLUSION="$(jq -r '.workflow_runs[0].conclusion // empty' <<<"$RUNS")"
+          if [ "$STATUS" = "completed" ] && [ "$CONCLUSION" != "success" ]; then
+            gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > rebalance-logs.zip
+            mkdir -p rebalance-logs
+            unzip -q rebalance-logs.zip -d rebalance-logs
+            find rebalance-logs -type f -print0 | sort -z | xargs -0 cat > rebalance-all.log
+            LINE="$(grep -n 'Process completed with exit code' rebalance-all.log | tail -n 1 | cut -d: -f1 || true)"
+            if [ -n "$LINE" ]; then
+              START=$(( LINE > 120 ? LINE - 120 : 1 ))
+              sed -n "${START},${LINE}p" rebalance-all.log > .github/orvyq-full-plan-rebalance-failure.txt
+            else
+              tail -n 180 rebalance-all.log > .github/orvyq-full-plan-rebalance-failure.txt
+            fi
+          fi
           cat .github/orvyq-full-plan-rebalance-latest.json
+          cat .github/orvyq-full-plan-rebalance-failure.txt
       - name: Commit snapshot
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .github/orvyq-full-plan-rebalance-latest.json
+          git add .github/orvyq-full-plan-rebalance-latest.json .github/orvyq-full-plan-rebalance-failure.txt
           git diff --cached --quiet && exit 0
           git commit -m 'Update ORVYQ full-plan rebalance status'
           git pull --rebase origin "$GITHUB_REF_NAME"
