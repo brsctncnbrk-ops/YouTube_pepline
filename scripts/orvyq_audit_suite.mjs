@@ -8,6 +8,7 @@ import { runSemanticVisualAudit } from "./orvyq_semantic_visual_audit.mjs";
 import { runPacingAudit } from "./orvyq_pacing_audit.mjs";
 import { runMobileLegibilityAudit } from "./orvyq_mobile_legibility_audit.mjs";
 import { runMusicCueAudit } from "./orvyq_music_cue_audit.mjs";
+import { runTimelineAudit } from "./orvyq_timeline_audit.mjs";
 import { validateOrvyqEditPlan } from "./orvyq_edit_plan_tests.mjs";
 import { buildLicenseAudit } from "./orvyq_license_audit.mjs";
 import { buildAlignmentReadiness } from "./orvyq_alignment_score.mjs";
@@ -18,6 +19,7 @@ export async function runAuditSuite(projectId = PROJECT_ID) {
   const dir = projectDir(projectId);
   const definitions = [
     ["compatibility", runCompatibilityAudit],
+    ["canonical_timeline", runTimelineAudit],
     ["evidence_coverage", runEvidenceAudit],
     ["evidence_assets", runEvidenceAssetAudit],
     ["semantic_visual", runSemanticVisualAudit],
@@ -57,7 +59,7 @@ export async function runAuditSuite(projectId = PROJECT_ID) {
   }
   const failed = checks.filter((check) => !check.pass);
   const report = {
-    schema_version: "1.0-aggregate-pre-render-gate",
+    schema_version: "1.1-aggregate-pre-render-gate",
     project_id: projectId,
     generated_at: new Date().toISOString(),
     check_count: checks.length,
