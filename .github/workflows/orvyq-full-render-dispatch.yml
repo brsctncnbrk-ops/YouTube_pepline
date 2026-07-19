@@ -1,0 +1,61 @@
+name: ORVYQ Full Render Dispatch
+
+on:
+  push:
+    branches:
+      - agent/orvyq-system-wide-production
+    paths:
+      - .github/orvyq-full-render-trigger.txt
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: orvyq-full-render-dispatch
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout exact branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Verify hash-bound proof approval
+        run: |
+          set -euo pipefail
+          npm ci
+          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID" --skip-assets
+          node scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"
+
+      - name: Dispatch existing full render workflow
+        run: |
+          set -euo pipefail
+          gh workflow run render.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f project_id="$PROJECT_ID" \
+            -f quality_control_approved=true \
+            -f approved_preview_run_id=29701621699
+          sleep 5
+          gh run list \
+            --workflow render.yml \
+            --branch "$GITHUB_REF_NAME" \
+            --event workflow_dispatch \
+            --limit 1 \
+            --json databaseId,status,conclusion,headSha,createdAt,url \
+            | tee full-render-run.json
+          RUN_ID="$(jq -r '.[0].databaseId // empty' full-render-run.json)"
+          test -n "$RUN_ID"
+          echo "FULL_RENDER_RUN_ID=$RUN_ID"
