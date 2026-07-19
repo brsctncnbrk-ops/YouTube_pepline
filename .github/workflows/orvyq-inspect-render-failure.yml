@@ -15,7 +15,7 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Download latest FactForge Render job log
+      - name: Extract latest FactForge Render failure
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -33,10 +33,10 @@ jobs:
           echo "RUN_ID=$RUN_ID"
           echo "JOB_ID=$JOB_ID"
           gh api "repos/$GH_REPO/actions/jobs/$JOB_ID/logs" > render-job.log
-          echo '--- LAST 240 LINES ---'
-          tail -n 240 render-job.log
           echo '--- FAILURE MARKERS ---'
-          grep -Ein 'error|failed|failure|traceback|assert|mismatch|missing|required|exit code|not found' render-job.log | tail -n 100 || true
+          grep -Ein '"ok":false|##\[error\]|Process completed|Traceback|AssertionError|Error:|error":|failed:|mismatch|missing|required|not found' render-job.log | tail -n 25 || true
+          echo '--- FINAL 25 LINES ---'
+          tail -n 25 render-job.log
 
       - name: Upload raw render job log
         if: always()
