@@ -7,7 +7,29 @@ import {
   finalizeProductionPlan,
 } from "./lib/orvyq-production.mjs";
 import { generateProductionPlan } from "./orvyq_generate_production_plan.mjs";
+import {
+  preflightCanonicalGeneration,
+  bindGeneratedPlanToCanonicalTimeline,
+  validateCanonicalTimelineContract,
+  assertCanonicalTimelineContract,
+} from "./lib/orvyq-canonical-contract.mjs";
 import { parseArgs, printJson } from "./lib/fs-utils.mjs";
+
+function combineChecks(base, contract) {
+  const issues = [...(base?.issues || []), ...(contract?.issues || [])];
+  return {
+    ...base,
+    valid: base?.valid !== false && contract?.valid !== false,
+    error_code:
+      base?.valid === false
+        ? base.error_code || "PRODUCTION_PLAN_INCOMPLETE"
+        : contract?.valid === false
+          ? "CANONICAL_TIMELINE_CONTRACT_FAILED"
+          : null,
+    canonical_timeline_contract: contract,
+    issues,
+  };
+}
 
 async function main() {
   const [command, ...rest] = process.argv.slice(2);
@@ -17,39 +39,64 @@ async function main() {
 
   let result;
   switch (command) {
-    case "generate":
-      result = await generateProductionPlan(projectId, {
+    case "generate": {
+      await preflightCanonicalGeneration(projectId);
+      const generated = await generateProductionPlan(projectId, {
         proofSeconds: Number(args["proof-seconds"] || 150),
       });
+      const contract = await bindGeneratedPlanToCanonicalTimeline(projectId);
+      result = { ...generated, valid: contract.valid, canonical_timeline_contract: contract };
       break;
-    case "validate":
-      result = await writeProductionAudit({
+    }
+    case "validate": {
+      const base = await writeProductionAudit({
         projectId,
         requireReady: args.draft !== true,
         requireAssets: args["skip-assets"] !== true,
       });
+      const contract = await validateCanonicalTimelineContract(projectId, {
+        writeReport: true,
+      });
+      result = combineChecks(base, contract);
       break;
-    case "finalize":
-      result = await finalizeProductionPlan({ projectId });
+    }
+    case "finalize": {
+      await assertCanonicalTimelineContract(projectId);
+      const finalized = await finalizeProductionPlan({ projectId });
+      const contract = await assertCanonicalTimelineContract(projectId);
+      result = { ...finalized, canonical_timeline_contract: contract };
       break;
-    case "build-proof":
-      result = await buildEditPlanFromProduction({ projectId, mode: "proof" });
+    }
+    case "build-proof": {
+      const contract = await assertCanonicalTimelineContract(projectId);
+      const built = await buildEditPlanFromProduction({ projectId, mode: "proof" });
+      result = { ...built, canonical_timeline_contract: contract };
       break;
-    case "build-full":
-      result = await buildEditPlanFromProduction({ projectId, mode: "full" });
+    }
+    case "build-full": {
+      const contract = await assertCanonicalTimelineContract(projectId);
+      const built = await buildEditPlanFromProduction({ projectId, mode: "full" });
+      result = { ...built, canonical_timeline_contract: contract };
       break;
-    case "check-approval":
-      result = await validateProofApproval({ projectId });
+    }
+    case "check-approval": {
+      const contract = await assertCanonicalTimelineContract(projectId);
+      const approval = await validateProofApproval({ projectId });
+      result = { ...approval, canonical_timeline_contract: contract };
       break;
-    case "approve-proof":
-      result = await writeProofApproval({
+    }
+    case "approve-proof": {
+      const contract = await assertCanonicalTimelineContract(projectId);
+      const approval = await writeProofApproval({
         projectId,
         proofRunId: args["proof-run-id"],
         humanScore: args["human-score"],
         renderSourceSha: args["render-source-sha"],
         reviewNotes: args["review-notes"] || "",
       });
+      result = { ...approval, canonical_timeline_contract: contract };
       break;
+    }
     default:
       throw new Error(
         "Use generate|validate|finalize|build-proof|build-full|check-approval|approve-proof",
@@ -77,7 +124,15 @@ async function main() {
 
 main().catch((error) => {
   const command = process.argv[2] || "";
-  const productionCommands = new Set(["generate", "validate", "finalize", "build-proof", "build-full"]);
+  const productionCommands = new Set([
+    "generate",
+    "validate",
+    "finalize",
+    "build-proof",
+    "build-full",
+    "check-approval",
+    "approve-proof",
+  ]);
   printJson({
     ok: false,
     error_code:
@@ -86,6 +141,7 @@ main().catch((error) => {
         ? "PRODUCTION_PLAN_INCOMPLETE"
         : "UNKNOWN_ERROR"),
     message: error.message,
+    issues: error.issues || error.check?.issues || undefined,
   });
   process.exitCode = 1;
 });
