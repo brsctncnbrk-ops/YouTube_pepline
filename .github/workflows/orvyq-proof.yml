@@ -62,6 +62,24 @@ jobs:
           sudo apt-get install -y ffmpeg poppler-utils
           python -m pip install --disable-pip-version-check faster-whisper==1.2.0 requests==2.32.5
 
+      - name: Resolve and verify canonical narration timeline
+        run: |
+          set -euo pipefail
+          python scripts/orvyq_narration_timeline.py --project-id "$PROJECT_ID"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          const dir = `projects/${process.env.PROJECT_ID}`;
+          const plan = JSON.parse(fs.readFileSync(`${dir}/direction/production_plan.json`, 'utf8'));
+          const timelineRaw = fs.readFileSync(`${dir}/direction/narration_timeline.json`, 'utf8');
+          const timeline = JSON.parse(timelineRaw);
+          const actual = crypto.createHash('sha256').update(timelineRaw).digest('hex');
+          const expected = plan.quality_policy?.narration_timeline_sha256;
+          if (!expected || actual !== expected) throw new Error(`Narration timeline drift: ${actual} != ${expected || 'missing'}`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_NARRATION_LIMIT_SECONDS=${timeline.proof.source_end_seconds}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_SEMANTIC_SPEECH_END_SECONDS=${timeline.proof.speech_output_end_seconds}\n`);
+          NODE
+
       - name: Validate canonical full-duration production plan
         run: |
           set -euo pipefail
@@ -71,11 +89,7 @@ jobs:
           import {productionPlanSha256} from './scripts/lib/orvyq-production.mjs';
           const plan = JSON.parse(fs.readFileSync(`projects/${process.env.PROJECT_ID}/direction/production_plan.json`, 'utf8'));
           const minimumProofSeconds = plan.proof.duration_frames / plan.fps;
-          const narrationSeconds = Number(plan.proof.narration_limit_seconds || minimumProofSeconds);
-          const fullTimelineSeconds = plan.duration_frames / plan.fps;
           fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_MINIMUM_PROOF_SECONDS=${minimumProofSeconds}\n`);
-          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_AUDIO_LIMIT_SECONDS=${fullTimelineSeconds}\n`);
-          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_NARRATION_LIMIT_SECONDS=${narrationSeconds}\n`);
           fs.writeFileSync('production-plan-sha256.txt', `${productionPlanSha256(plan)}\n`);
           NODE
 
@@ -85,7 +99,7 @@ jobs:
           node scripts/orvyq_fetch_primary_evidence.mjs
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
 
-      - name: Fetch licensed music and build narration-driven proof audio
+      - name: Fetch licensed music and build semantic proof audio
         run: |
           set -euo pipefail
           node --input-type=module <<'NODE'
@@ -93,34 +107,22 @@ jobs:
           import {fetchProofMusic} from './scripts/orvyq_fetch_proof_music.mjs';
           import {buildOrvyqAudioMix} from './scripts/orvyq_audio_mix.mjs';
           import {resolveDynamicProofWindow} from './scripts/orvyq_dynamic_proof.mjs';
-
           await fetchProofMusic(process.env.PROJECT_ID);
-
-          // First pass uses the full-film ceiling only to discover the paused narration timeline.
-          const discoveryMix = await buildOrvyqAudioMix(process.env.PROJECT_ID);
-          const {result: discoveredProof} = await resolveDynamicProofWindow(process.env.PROJECT_ID);
-
-          // Rebuild the mix to the next canonical shot boundary, not to a fixed 150-second cap.
-          process.env.ORVYQ_AUDIO_LIMIT_SECONDS = String(discoveredProof.duration_seconds);
+          const {result: plannedProof} = await resolveDynamicProofWindow(process.env.PROJECT_ID, {requireAssets: true, requireAudio: false});
+          process.env.ORVYQ_AUDIO_LIMIT_SECONDS = String(plannedProof.duration_seconds);
           const finalMix = await buildOrvyqAudioMix(process.env.PROJECT_ID);
-          const {result: proof} = await resolveDynamicProofWindow(process.env.PROJECT_ID);
-
+          const {result: proof} = await resolveDynamicProofWindow(process.env.PROJECT_ID, {requireAssets: true, requireAudio: true});
           fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_PREVIEW_FRAMES=${proof.duration_frames}\n`);
           fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_AUDIO_LIMIT_SECONDS=${proof.duration_seconds}\n`);
           fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_PROOF_SECONDS=${proof.duration_seconds}\n`);
           fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_PROOF_LAST_FRAME=${proof.last_frame}\n`);
-          console.log(JSON.stringify({
-            ok: true,
-            discovery_mix: discoveryMix,
-            final_mix: finalMix,
-            effective_proof: proof,
-          }));
+          console.log(JSON.stringify({ok: true, final_mix: finalMix, effective_proof: proof}));
           NODE
 
-      - name: Verify narration, build captions and compile exact dynamic proof prefix
+      - name: Verify narration, build captions and compile exact semantic proof prefix
         run: |
           set -euo pipefail
-          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --max-seconds "$ORVYQ_NARRATION_LIMIT_SECONDS"
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --max-seconds "$ORVYQ_PROOF_SECONDS"
           node --input-type=module <<'NODE'
           import {buildOrvyqCaptions} from './scripts/orvyq_caption_build.mjs';
           await buildOrvyqCaptions(process.env.PROJECT_ID);
@@ -144,6 +146,8 @@ jobs:
           path: |
             projects/${{ env.PROJECT_ID }}/qa/audit_suite.json
             projects/${{ env.PROJECT_ID }}/qa/compatibility_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/timeline_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/proof_source_speech.json
             projects/${{ env.PROJECT_ID }}/qa/evidence_coverage.json
             projects/${{ env.PROJECT_ID }}/qa/evidence_asset_audit.json
             projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
@@ -182,7 +186,7 @@ jobs:
             --codec=h264 --frames="0-$ORVYQ_PROOF_LAST_FRAME" --concurrency=1 --image-format=png \
             2>&1 | tee out/proof_render_stdout.txt
 
-      - name: Verify rendered proof media and speech
+      - name: Verify rendered proof media speech and semantic ending
         run: |
           set -euo pipefail
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
@@ -195,6 +199,7 @@ jobs:
             --media "$APP/out/orvyq_canonical_proof.mp4" \
             --max-seconds "$ORVYQ_PROOF_SECONDS" \
             --output-name proof_video_speech_qa.json
+          node scripts/orvyq_rendered_proof_ending_audit.mjs "$PROJECT_ID"
 
       - name: Create review sheets
         run: |
@@ -233,11 +238,14 @@ jobs:
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/proof_render_stdout.txt
             projects/${{ env.PROJECT_ID }}/manifest.json
             projects/${{ env.PROJECT_ID }}/direction/production_plan.json
+            projects/${{ env.PROJECT_ID }}/direction/narration_timeline.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
             projects/${{ env.PROJECT_ID }}/qa/effective_proof_window.json
             projects/${{ env.PROJECT_ID }}/qa/production_plan_audit.json
             projects/${{ env.PROJECT_ID }}/qa/audit_suite.json
             projects/${{ env.PROJECT_ID }}/qa/compatibility_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/timeline_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/proof_ending_audit.json
             projects/${{ env.PROJECT_ID }}/qa/orvyq_proof_media_qa.json
             projects/${{ env.PROJECT_ID }}/qa/proof_video_speech_qa.json
             projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
