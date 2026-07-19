@@ -37,13 +37,11 @@ jobs:
             mkdir -p rebalance-logs
             unzip -q rebalance-logs.zip -d rebalance-logs
             find rebalance-logs -type f -print0 | sort -z | xargs -0 cat > rebalance-all.log
-            LINE="$(grep -n 'Process completed with exit code' rebalance-all.log | tail -n 1 | cut -d: -f1 || true)"
-            if [ -n "$LINE" ]; then
-              START=$(( LINE > 120 ? LINE - 120 : 1 ))
-              sed -n "${START},${LINE}p" rebalance-all.log > .github/orvyq-full-plan-rebalance-failure.txt
-            else
-              tail -n 180 rebalance-all.log > .github/orvyq-full-plan-rebalance-failure.txt
-            fi
+            {
+              grep -E 'evidence fetch failed|official webpage capture failed|did not download|downloaded only|Primary evidence output|Official capture target|Evidence run remains|semantic visual audit failed|Process completed with exit code' rebalance-all.log || true
+              echo '--- LAST 80 LINES ---'
+              tail -n 80 rebalance-all.log
+            } > .github/orvyq-full-plan-rebalance-failure.txt
           fi
           cat .github/orvyq-full-plan-rebalance-latest.json
           cat .github/orvyq-full-plan-rebalance-failure.txt
