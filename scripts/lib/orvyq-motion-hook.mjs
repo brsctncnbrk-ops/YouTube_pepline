@@ -17,8 +17,12 @@ export function auditMotionHook(plan, options = {}) {
   const failures = [];
   const hookShots = shots.filter((shot) => shot.hook_footage === true);
   const footageShots = shots.filter((shot) => shot.asset_type === "footage");
+  const approvedContextualFootage = (shot) =>
+    shot.contextual_footage === true &&
+    shot.provenance_mode === "approved_contextual_footage";
   const allowsContextualBodyFootage =
-    plan.quality_policy?.cinematic_body_footage === true;
+    plan.quality_policy?.cinematic_body_footage === true ||
+    footageShots.some(approvedContextualFootage);
 
   if (!plan.preview) {
     return {
@@ -37,14 +41,12 @@ export function auditMotionHook(plan, options = {}) {
     footageShots.some(
       (shot) =>
         shot.hook_footage !== true &&
-        !(
-          allowsContextualBodyFootage &&
-          shot.contextual_footage === true &&
-          shot.provenance_mode === "approved_contextual_footage"
-        ),
+        !(allowsContextualBodyFootage && approvedContextualFootage(shot)),
     )
   )
-    failures.push("Footage is allowed only inside the approved opening hook");
+    failures.push(
+      "Preview footage must be an approved opening hook or approved contextual footage",
+    );
 
   const firstNonHookIndex = shots.findIndex(
     (shot) => shot.hook_footage !== true,
