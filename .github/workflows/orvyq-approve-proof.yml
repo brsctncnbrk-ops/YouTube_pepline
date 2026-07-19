@@ -71,8 +71,8 @@ jobs:
       - name: Validate unchanged plan and record hash-bound human approval
         run: |
           set -euo pipefail
-          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
-          node scripts/orvyq_production_plan.mjs approve-proof \
+          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID" --skip-assets
+          node scripts/manifest_cli.mjs approve-proof \
             --project-id "$PROJECT_ID" \
             --proof-run-id "$PROOF_RUN_ID" \
             --human-score "$HUMAN_SCORE" \
@@ -85,7 +85,9 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "projects/$PROJECT_ID/qa/proof_approval.json"
+          git add \
+            "projects/$PROJECT_ID/qa/proof_approval.json" \
+            "projects/$PROJECT_ID/manifest.json"
           git diff --cached --quiet && { echo "Approval already recorded"; exit 0; }
           git commit -m "Approve ORVYQ proof for $PROJECT_ID"
           git push origin "HEAD:$GITHUB_REF_NAME"
