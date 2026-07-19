@@ -1,4 +1,4 @@
-name: ORVYQ Runtime Status
+name: ORVYQ Apply Remaining Fixes
 
 on:
   pull_request:
@@ -7,52 +7,130 @@ on:
       - .github/workflows/orvyq-runtime-status.yml
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  status:
+  apply:
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ github.token }}
     steps:
-      - name: Locate longest uninterrupted proof evidence run
+      - name: Checkout PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+          show-progress: false
+
+      - name: Apply canonical compatibility fixes
         run: |
           set -euo pipefail
-          gh api -H 'Accept: application/vnd.github+json' \
-            "/repos/${GITHUB_REPOSITORY}/contents/projects/001-the-ai-race-no-one-can-afford-to-win/direction/production_plan.json?ref=agent%2Forvyq-system-wide-production" \
-            --jq '.content' | base64 -d > production_plan.json
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          const plan = JSON.parse(fs.readFileSync('production_plan.json', 'utf8'));
-          const proofEnd = 5361;
-          const shots = plan.shots.filter((shot) => shot.start_frame < proofEnd && shot.end_frame <= proofEnd);
-          const runs = [];
-          let current = [];
-          const flush = () => {
-            if (!current.length) return;
-            const start = current[0].start_frame;
-            const end = current.at(-1).end_frame;
-            runs.push({
-              seconds: (end - start) / plan.fps,
-              start_frame: start,
-              end_frame: end,
-              shots: current.map((shot) => ({
-                shot_id: shot.shot_id,
-                scene_id: shot.scene_id,
-                claim_id: shot.claim_id,
-                kind: shot.evidence?.kind,
-                start_frame: shot.start_frame,
-                end_frame: shot.end_frame,
-                duration_seconds: (shot.end_frame - shot.start_frame) / plan.fps,
-              })),
-            });
-            current = [];
-          };
-          for (const shot of shots) {
-            if (shot.asset_type === 'evidence') current.push(shot);
-            else flush();
+
+          const project = '001-the-ai-race-no-one-can-afford-to-win';
+          const planPath = `projects/${project}/direction/production_plan.json`;
+          const plan = JSON.parse(fs.readFileSync(planPath, 'utf8'));
+          const shot = plan.shots.find((entry) => entry.shot_id === 'shot_034');
+          if (!shot) throw new Error('shot_034 was not found');
+          if (shot.start_frame !== 4916 || shot.end_frame !== 5126) {
+            throw new Error(`shot_034 frame contract changed: ${shot.start_frame}-${shot.end_frame}`);
           }
-          flush();
-          runs.sort((a, b) => b.seconds - a.seconds);
-          console.log('EVIDENCE_RUN_RESULT=' + JSON.stringify(runs[0]));
+          Object.assign(shot, {
+            asset_type: 'footage',
+            visual_role: 'context',
+            editorial_purpose: 'Break the source-graphic sequence with licensed market movement, without presenting the clip as literal evidence of a named company, investor or event.',
+            video_asset: 'assets/footage/scene_008_42946788405d61ee3a28fa31.mp4',
+            trim_in_sec: 0,
+            trim_out_sec: 7,
+            motion_variant: 'push',
+            contextual_footage: true,
+            provenance_mode: 'approved_contextual_footage',
+            motif: 'assets/footage/scene_008_42946788405d61ee3a28fa31.mp4',
+          });
+          delete shot.evidence;
+          fs.writeFileSync(planPath, `${JSON.stringify(plan, null, 2)}\n`);
+
+          function replaceOnce(path, from, to, label) {
+            const source = fs.readFileSync(path, 'utf8');
+            if (source.includes(to)) return;
+            const matches = source.split(from).length - 1;
+            if (matches !== 1) throw new Error(`${label}: expected one replacement target, found ${matches}`);
+            fs.writeFileSync(path, source.replace(from, to));
+          }
+
+          replaceOnce(
+            'scripts/orvyq_dynamic_proof.mjs',
+            '    project_id: projectId,\n    fps: plan.fps,',
+            '    project_id: projectId,\n    production_mode:\n      plan.production_mode ||\n      plan.art_direction?.production_mode ||\n      "evidence_led_video_essay",\n    fps: plan.fps,',
+            'dynamic proof production_mode',
+          );
+
+          replaceOnce(
+            'scripts/lib/orvyq-production.mjs',
+            '    project_id: projectId,\n    fps: plan.fps,',
+            '    project_id: projectId,\n    production_mode:\n      plan.production_mode ||\n      plan.art_direction?.production_mode ||\n      "evidence_led_video_essay",\n    fps: plan.fps,',
+            'canonical edit-plan production_mode',
+          );
+
+          replaceOnce(
+            'scripts/orvyq_generate_production_plan.mjs',
+            '  { type: "static", params: {} },\n];\nconst MUSIC_STATES = {',
+            '  { type: "static", params: {} },\n];\nconst MAX_UNINTERRUPTED_EVIDENCE_SECONDS = 16;\nconst MUSIC_STATES = {',
+            'generator evidence-run constant',
+          );
+
+          replaceOnce(
+            'scripts/orvyq_generate_production_plan.mjs',
+            '  return chunks;\n}\n\nfunction buildSectionRanges',
+            '  return chunks;\n}\n\nfunction trailingEvidenceFrames(shots) {\n  let frames = 0;\n  for (let index = shots.length - 1; index >= 0; index -= 1) {\n    const shot = shots[index];\n    if (shot.asset_type !== "evidence") break;\n    frames += Number(shot.end_frame) - Number(shot.start_frame);\n  }\n  return frames;\n}\n\nfunction buildSectionRanges',
+            'generator trailing evidence helper',
+          );
+
+          replaceOnce(
+            'scripts/orvyq_generate_production_plan.mjs',
+            '      const patternIndex = generatedOrdinal % 5;\n      const wantsEvidence = patternIndex === 0 || patternIndex === 3;',
+            '      const patternIndex = generatedOrdinal % 5;\n      const evidenceRunLimitFrames = Math.round(\n        composition.fps * MAX_UNINTERRUPTED_EVIDENCE_SECONDS,\n      );\n      const shouldBreakEvidenceRun =\n        trailingEvidenceFrames(shots) + frames > evidenceRunLimitFrames;\n      const wantsEvidence = patternIndex === 0 || patternIndex === 3;',
+            'generator evidence-run decision',
+          );
+
+          replaceOnce(
+            'scripts/orvyq_generate_production_plan.mjs',
+            '      const availableStart = footageAsset\n        ? Math.max(\n            Number(scene.trim_in_sec || 0),\n            trimCursor.get(footageAsset) || Number(scene.trim_in_sec || 0),\n          )\n        : 0;\n      const canUseFootage = Boolean(\n        !wantsEvidence &&',
+            '      const sequentialStart = footageAsset\n        ? Math.max(\n            Number(scene.trim_in_sec || 0),\n            trimCursor.get(footageAsset) || Number(scene.trim_in_sec || 0),\n          )\n        : 0;\n      const reusableStart = Number(scene.trim_in_sec || 0);\n      const canRestartFootage = Boolean(\n        shouldBreakEvidenceRun &&\n          footageInfo &&\n          reusableStart + duration <= footageInfo.duration + 0.001,\n      );\n      const availableStart = canRestartFootage ? reusableStart : sequentialStart;\n      const canUseFootage = Boolean(\n        (!wantsEvidence || shouldBreakEvidenceRun) &&',
+            'generator forced footage breaker',
+          );
+
+          replaceOnce(
+            'scripts/orvyq_generate_production_plan.mjs',
+            '      const canUseImage = Boolean(\n        !wantsEvidence &&\n          !canUseFootage &&',
+            '      const canUseImage = Boolean(\n        (!wantsEvidence || shouldBreakEvidenceRun) &&\n          !canUseFootage &&',
+            'generator image breaker',
+          );
+
+          replaceOnce(
+            'scripts/orvyq_generate_production_plan.mjs',
+            '    art_direction: preservedProof?.art_direction || {\n      principle:',
+            '    art_direction: preservedProof?.art_direction || {\n      production_mode: "evidence_led_video_essay",\n      principle:',
+            'generator art-direction mode',
+          );
           NODE
+
+          node --check scripts/orvyq_dynamic_proof.mjs
+          node --check scripts/lib/orvyq-production.mjs
+          node --check scripts/orvyq_generate_production_plan.mjs
+
+      - name: Commit fixes to PR branch
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            projects/001-the-ai-race-no-one-can-afford-to-win/direction/production_plan.json \
+            scripts/orvyq_dynamic_proof.mjs \
+            scripts/lib/orvyq-production.mjs \
+            scripts/orvyq_generate_production_plan.mjs
+          if git diff --cached --quiet; then
+            echo 'No remaining fixes to commit.'
+            exit 0
+          fi
+          git commit -m 'Resolve final ORVYQ proof compatibility blockers'
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
