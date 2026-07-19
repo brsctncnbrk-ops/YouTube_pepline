@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-07-19T23:57:45Z",
+  "generated_at": "2026-07-19T23:59:51Z",
   "latest_run": {
     "id": 29708729566,
-    "status": "in_progress",
-    "conclusion": null,
+    "status": "completed",
+    "conclusion": "failure",
     "head_sha": "82bc1c219cd1bf9528845da9a5c434ed7c0dad00",
     "created_at": "2026-07-19T23:56:35Z",
-    "updated_at": "2026-07-19T23:56:37Z",
+    "updated_at": "2026-07-19T23:58:21Z",
     "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29708729566"
   },
   "jobs": [
     {
       "id": 88249720917,
       "name": "rebalance",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "started_at": "2026-07-19T23:56:37Z",
-      "completed_at": null,
+      "completed_at": "2026-07-19T23:58:20Z",
       "steps": [
         {
           "name": "Set up job",
@@ -56,69 +56,75 @@
         },
         {
           "name": "Expand and fetch full-film official evidence",
-          "status": "in_progress",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "number": 7
         },
         {
           "name": "Rebalance only the post-proof canonical timeline",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "failure",
           "number": 8
         },
         {
           "name": "Run full visual and editorial gates",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 9
         },
         {
           "name": "Commit canonical full-film rebalance",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 10
         },
         {
           "name": "Dispatch canonical proof for the rebalanced plan",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 11
         },
         {
           "name": "Re-approve the byte-identical locked proof prefix",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 12
         },
         {
           "name": "Dispatch corrected full render",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 13
         },
         {
           "name": "Upload rebalance diagnostics",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "number": 14
         },
         {
           "name": "Post Set up Python",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 26
         },
         {
           "name": "Post Set up Node",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 27
         },
         {
           "name": "Post Checkout branch with LFS",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "number": 28
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 29
         }
       ]
     }
