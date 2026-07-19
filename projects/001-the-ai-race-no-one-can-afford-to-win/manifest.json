@@ -34,7 +34,7 @@
   "required_files": [],
   "errors": [],
   "last_successful_stage": "production_plan_qa",
-  "last_updated": "2026-07-19T17:48:57.162Z",
+  "last_updated": "2026-07-19T20:33:23.265Z",
   "paused": false,
   "migration": {
     "migrated_to": "3.0",
@@ -67,8 +67,8 @@
   },
   "proof": {
     "status": "rendered_waiting_for_human_review",
-    "proof_run_id": "29696176254",
-    "render_source_sha": "3fbbb1769964edc807c0cf98d7f5894d7c2f3289",
-    "rendered_at": "2026-07-19T17:48:57.162Z"
+    "proof_run_id": "29701621699",
+    "render_source_sha": "323988d75e16d468f1398a1322129bf117d5d68b",
+    "rendered_at": "2026-07-19T20:33:23.265Z"
   }
 }
