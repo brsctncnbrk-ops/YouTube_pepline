@@ -44,6 +44,10 @@ export function resolveVisualThresholds(plan) {
   const policy = plan?.quality_policy || {};
   const editorial = resolveEditorialMode(plan);
   const cinematic = editorial.mode === "cinematic_contextual";
+  const declaredGenericLimit = finiteNumber(
+    policy.generic_stock_fraction_max,
+    plan?.preview ? 0.12 : 0.25,
+  );
   return {
     editorial,
     motion_hook_fraction_max: finiteNumber(
@@ -66,10 +70,9 @@ export function resolveVisualThresholds(plan) {
       policy.evidence_asset_fraction_min,
       cinematic ? 0.6 : 0.75,
     ),
-    generic_stock_fraction_max: finiteNumber(
-      policy.generic_stock_fraction_max,
-      0.12,
-    ),
+    generic_stock_fraction_max: plan?.preview
+      ? Math.min(declaredGenericLimit, 0.12)
+      : declaredGenericLimit,
     full_screen_graphic_fraction_max: finiteNumber(
       policy.full_screen_graphic_fraction_max,
       0.1,
