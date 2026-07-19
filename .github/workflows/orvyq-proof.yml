@@ -9,7 +9,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: orvyq-proof-${{ inputs.project_id }}
@@ -60,7 +60,7 @@ jobs:
       - name: Validate canonical full-duration production plan
         run: |
           set -euo pipefail
-          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
+          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID" --skip-assets
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           import {productionPlanSha256} from './scripts/lib/orvyq-production.mjs';
@@ -74,6 +74,12 @@ jobs:
           fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_PROOF_LAST_FRAME=${plan.proof.duration_frames - 1}\n`);
           fs.writeFileSync('production-plan-sha256.txt', `${productionPlanSha256(plan)}\n`);
           NODE
+
+      - name: Fetch and verify official primary evidence
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_fetch_primary_evidence.mjs
+          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
 
       - name: Fetch licensed music and build proof audio
         run: |
@@ -158,6 +164,19 @@ jobs:
           ffprobe -v error -show_format -show_streams -of json \
             "$APP/out/orvyq_canonical_proof.mp4" > "$APP/out/orvyq_proof_probe.json"
 
+      - name: Persist proof review state
+        run: |
+          set -euo pipefail
+          node scripts/manifest_cli.mjs proof-complete \
+            --project-id "$PROJECT_ID" \
+            --proof-run-id "${{ github.run_id }}" \
+            --render-source-sha "${{ github.sha }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "projects/$PROJECT_ID/manifest.json"
+          git diff --cached --quiet || git commit -m "Record ORVYQ proof run for $PROJECT_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
       - name: Upload canonical proof approval package
         uses: actions/upload-artifact@v4
         with:
@@ -169,6 +188,7 @@ jobs:
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_proof_contact_sheet.jpg
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/orvyq_proof_probe.json
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/proof_render_stdout.txt
+            projects/${{ env.PROJECT_ID }}/manifest.json
             projects/${{ env.PROJECT_ID }}/direction/production_plan.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
             projects/${{ env.PROJECT_ID }}/qa/production_plan_audit.json
