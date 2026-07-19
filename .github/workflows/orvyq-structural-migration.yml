@@ -24,6 +24,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: true
+          fetch-depth: 0
 
       - name: Pull LFS assets
         run: git lfs pull
@@ -96,5 +97,10 @@ jobs:
             "projects/$PROJECT_ID/remotion/composition.json" \
             "projects/$PROJECT_ID/qa/proof_source_speech.json" \
             "projects/$PROJECT_ID/qa/timeline_migration.json"
-          git diff --cached --quiet || git commit -m "Migrate ORVYQ to one semantic audio visual timeline"
+          if git diff --cached --quiet; then
+            echo "No canonical state changes to commit."
+            exit 0
+          fi
+          git commit -m "Migrate ORVYQ to one semantic audio visual timeline"
+          git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin "HEAD:$GITHUB_REF_NAME"
