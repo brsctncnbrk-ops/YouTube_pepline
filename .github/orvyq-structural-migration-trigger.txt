@@ -1,2 +1,2 @@
-requested_at=2026-07-19T20:20:00+03:00
-purpose=remove internal close align proof and full render to semantic narration timeline
+requested_at=2026-07-19T22:25:00+03:00
+purpose=apply-canonical-timeline-with-audio-owned-final-frame-and-remove-internal-close
