@@ -1,0 +1,62 @@
+name: Apply ORVYQ System Code
+
+on:
+  push:
+    branches:
+      - agent/orvyq-system-wide-production
+    paths:
+      - .github/orvyq-system-code.patch
+
+permissions:
+  contents: write
+
+concurrency:
+  group: orvyq-apply-system-code
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          lfs: false
+          fetch-depth: 0
+
+      - name: Apply code patch
+        run: |
+          set -euo pipefail
+          git apply --check .github/orvyq-system-code.patch
+          git apply .github/orvyq-system-code.patch
+          rm -f \
+            .github/orvyq-system-code.patch \
+            .github/workflows/orvyq-apply-system-code.yml \
+            .github/workflows/orvyq-source-snapshot.yml \
+            .github/orvyq-source-snapshot-trigger.txt \
+            docs/.orvyq-system-update-placeholder
+          git diff --check
+
+      - name: Validate implementation
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run ci:smoke
+          npm run orvyq:production-plan:test
+          node scripts/orvyq_production_plan.mjs validate \
+            --project-id 001-the-ai-race-no-one-can-afford-to-win \
+            --skip-assets
+          find scripts -type f -name '*.mjs' -print0 | xargs -0 -n1 node --check
+          cd templates/remotion
+          npm ci --no-audit --no-fund
+          npx tsc --noEmit
+
+      - name: Commit implementation
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && { echo "No changes to commit"; exit 0; }
+          git commit -m "Implement canonical ORVYQ full-production pipeline"
+          git push origin "HEAD:$GITHUB_REF_NAME"
