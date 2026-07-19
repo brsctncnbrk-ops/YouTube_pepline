@@ -1,0 +1,26 @@
+name: ORVYQ Runtime Status
+
+on:
+  pull_request:
+    paths:
+      - .github/orvyq-runtime-status.txt
+      - .github/workflows/orvyq-runtime-status.yml
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Inspect latest canonical proof run
+        run: |
+          set -euo pipefail
+          RUN="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-proof.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=1")"
+          echo "$RUN" | jq '{latest: (.workflow_runs[0] | {id,name,event,status,conclusion,head_sha,run_number,created_at,updated_at,html_url})}'
+          RUN_ID="$(echo "$RUN" | jq -r '.workflow_runs[0].id')"
+          gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs?per_page=100" \
+            --jq '{jobs: [.jobs[] | {id,name,status,conclusion,started_at,completed_at,steps: [.steps[] | {name,status,conclusion,number}]}]}'
