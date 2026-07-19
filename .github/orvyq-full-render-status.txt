@@ -1,2 +1,2 @@
-requested_at=2026-07-20T02:20:00+03:00
-purpose=extract-exact-full-render-readiness-failure-before-rerun
+requested_at=2026-07-20T02:29:00+03:00
+purpose=track-retried-full-render-after-self-contained-readiness-fix
