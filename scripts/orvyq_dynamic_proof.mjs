@@ -1,8 +1,7 @@
 #!/usr/bin/env node
 import path from "node:path";
-import {
-  validateProductionPlan,
-} from "./lib/orvyq-production.mjs";
+import { validateProductionPlan } from "./lib/orvyq-production.mjs";
+import { resolveEditorialMode } from "./lib/orvyq-visual-policy.mjs";
 import {
   parseArgs,
   printJson,
@@ -16,7 +15,10 @@ function finitePositive(value, fallback = 0) {
   return Number.isFinite(number) && number > 0 ? number : fallback;
 }
 
-export async function resolveDynamicProofWindow(projectId, { requireAssets = true } = {}) {
+export async function resolveDynamicProofWindow(
+  projectId,
+  { requireAssets = true } = {},
+) {
   const check = await validateProductionPlan({
     projectId,
     requireReady: true,
@@ -29,7 +31,9 @@ export async function resolveDynamicProofWindow(projectId, { requireAssets = tru
   }
 
   const dir = projectDir(projectId);
-  const metadata = await readJson(path.join(dir, "assets", "audio", "final_mix.metadata.json"));
+  const metadata = await readJson(
+    path.join(dir, "assets", "audio", "final_mix.metadata.json"),
+  );
   const plan = check.plan;
   const fps = Number(plan.fps);
   const minimumFrames = Number(plan.proof.duration_frames);
@@ -38,21 +42,31 @@ export async function resolveDynamicProofWindow(projectId, { requireAssets = tru
     finitePositive(metadata.narration_duration_seconds),
   );
   if (!narrationTimelineSeconds) {
-    throw new Error("final_mix.metadata.json does not contain a valid narration timeline duration");
+    throw new Error(
+      "final_mix.metadata.json does not contain a valid narration timeline duration",
+    );
   }
 
   const narrationEndFrame = Math.ceil(narrationTimelineSeconds * fps);
   const requiredFrame = Math.max(minimumFrames, narrationEndFrame);
-  const boundaryShot = plan.shots.find((shot) => Number(shot.end_frame) >= requiredFrame);
-  if (!boundaryShot || Number(boundaryShot.end_frame) >= Number(plan.duration_frames)) {
-    throw new Error("Unable to resolve a proof boundary inside the canonical full timeline");
+  const boundaryShot = plan.shots.find(
+    (shot) => Number(shot.end_frame) >= requiredFrame,
+  );
+  if (
+    !boundaryShot ||
+    Number(boundaryShot.end_frame) >= Number(plan.duration_frames)
+  ) {
+    throw new Error(
+      "Unable to resolve a proof boundary inside the canonical full timeline",
+    );
   }
 
   const durationFrames = Number(boundaryShot.end_frame);
   const result = {
     schema_version: "1.0",
     project_id: projectId,
-    policy: "minimum_duration_expands_to_cover_paused_narration_at_next_canonical_shot_boundary",
+    policy:
+      "minimum_duration_expands_to_cover_paused_narration_at_next_canonical_shot_boundary",
     minimum_duration_frames: minimumFrames,
     minimum_duration_seconds: minimumFrames / fps,
     narration_timeline_seconds: narrationTimelineSeconds,
@@ -65,7 +79,10 @@ export async function resolveDynamicProofWindow(projectId, { requireAssets = tru
     production_plan_sha256: check.plan_sha256,
   };
 
-  await writeJsonAtomic(path.join(dir, "qa", "effective_proof_window.json"), result);
+  await writeJsonAtomic(
+    path.join(dir, "qa", "effective_proof_window.json"),
+    result,
+  );
   return { result, check };
 }
 
@@ -75,8 +92,18 @@ export async function buildDynamicProofEditPlan(projectId) {
   });
   const plan = check.plan;
   const durationFrames = proof.duration_frames;
+  const proofShots = plan.shots
+    .filter((shot) => shot.end_frame <= durationFrames)
+    .map((shot) => ({ ...shot }));
+  const editorial = resolveEditorialMode({
+    ...plan,
+    preview: true,
+    duration_frames: durationFrames,
+    shots: proofShots,
+  });
+  const cinematic = editorial.mode === "cinematic_contextual";
   const compiled = {
-    schema_version: "8.2-dynamic-canonical-proof",
+    schema_version: "8.3-compatible-dynamic-canonical-proof",
     project_id: projectId,
     fps: plan.fps,
     duration_frames: durationFrames,
@@ -89,6 +116,23 @@ export async function buildDynamicProofEditPlan(projectId) {
     art_direction: plan.art_direction || null,
     quality_policy: {
       ...plan.quality_policy,
+      editorial_mode: editorial.mode,
+      cinematic_body_footage: cinematic,
+      require_sound_design_sfx: cinematic,
+      motion_hook_fraction_max:
+        plan.quality_policy?.motion_hook_fraction_max ?? 0.12,
+      contextual_body_footage_fraction_min:
+        plan.quality_policy?.contextual_body_footage_fraction_min ??
+        (cinematic ? 0.25 : 0),
+      contextual_body_footage_fraction_max:
+        plan.quality_policy?.contextual_body_footage_fraction_max ??
+        (cinematic ? 0.4 : 0),
+      official_capture_fraction_min:
+        plan.quality_policy?.official_capture_fraction_min ??
+        (cinematic ? 0.3 : 0.55),
+      evidence_asset_fraction_min:
+        plan.quality_policy?.evidence_asset_fraction_min ??
+        (cinematic ? 0.6 : 0.75),
       canonical_full_plan_required: true,
       proof_is_exact_prefix_of_full_plan: true,
       proof_duration_is_minimum_not_cap: true,
@@ -104,9 +148,7 @@ export async function buildDynamicProofEditPlan(projectId) {
     physical_asset_usage: check.physical_asset_usage,
     motif_usage: check.motif_usage,
     evidence_source_usage: check.evidence_source_usage,
-    shots: plan.shots
-      .filter((shot) => shot.end_frame <= durationFrames)
-      .map((shot) => ({ ...shot })),
+    shots: proofShots,
   };
 
   await writeJsonAtomic(
@@ -139,7 +181,11 @@ async function main() {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   main().catch((error) => {
-    printJson({ ok: false, error_code: error.code || "DYNAMIC_PROOF_FAILED", message: error.message });
+    printJson({
+      ok: false,
+      error_code: error.code || "DYNAMIC_PROOF_FAILED",
+      message: error.message,
+    });
     process.exitCode = 1;
   });
 }
