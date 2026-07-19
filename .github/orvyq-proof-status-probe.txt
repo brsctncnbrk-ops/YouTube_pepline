@@ -1,2 +1,2 @@
-requested_at=2026-07-19T14:16:00+03:00
-purpose=extract-final-proof-failure-tail
+requested_at=2026-07-19T14:20:00+03:00
+purpose=extract-final-70-proof-lines
