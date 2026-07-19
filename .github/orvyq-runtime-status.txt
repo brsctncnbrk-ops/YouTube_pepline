@@ -1,2 +1,2 @@
-requested_at=2026-07-19T22:46:00+03:00
-purpose=inspect-rebase-safe-structural-migration-and-canonical-state-commit
+requested_at=2026-07-19T22:53:00+03:00
+purpose=verify-final-structural-migration-committed-canonical-state
