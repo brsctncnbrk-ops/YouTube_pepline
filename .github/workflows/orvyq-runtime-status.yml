@@ -32,6 +32,6 @@ jobs:
           mkdir -p proof-logs
           gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > proof-logs.zip
           unzip -q proof-logs.zip -d proof-logs
-          cat $(find proof-logs -type f | sort) > proof-all.log
+          find proof-logs -type f -print0 | sort -z | xargs -0 cat > proof-all.log
           echo "--- EXACT FAILURE LINES ---"
           grep -nE '\{"ok":false|##\[error\]|AssertionError|ERR_ASSERTION|audit failed|Process completed with exit code|Error:|failed:' proof-all.log | tail -n 60 || true
