@@ -1,0 +1,2 @@
+requested_at=2026-07-19T20:20:00+03:00
+purpose=remove internal close align proof and full render to semantic narration timeline
