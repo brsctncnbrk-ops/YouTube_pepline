@@ -1,3 +1,3 @@
 project_id=001-the-ai-race-no-one-can-afford-to-win
-requested_at=2026-07-19T22:58:00+03:00
-reason=verify-one-canonical-audio-visual-timeline-complete-paragraph-ending-and-terminal-close-policy
+requested_at=2026-07-19T23:12:00+03:00
+reason=verify-semantic-160-second-proof-source-backed-bridge-visible-provenance-and-complete-ending
