@@ -16,6 +16,9 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v4
+
       - name: Inspect latest canonical proof run
         run: |
           set -euo pipefail
@@ -25,6 +28,47 @@ jobs:
           echo "RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
           gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs?per_page=100" \
             --jq '{jobs: [.jobs[] | {id,name,status,conclusion,started_at,completed_at,steps: [.steps[] | {name,status,conclusion,number}]}]}'
+
+      - name: Locate uninterrupted proof evidence runs
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const project = '001-the-ai-race-no-one-can-afford-to-win';
+          const plan = JSON.parse(fs.readFileSync(`projects/${project}/direction/production_plan.json`, 'utf8'));
+          const proofEnd = 5361;
+          const shots = plan.shots.filter((shot) => shot.start_frame < proofEnd && shot.end_frame <= proofEnd);
+          const runs = [];
+          let current = [];
+          const flush = () => {
+            if (!current.length) return;
+            const start = current[0].start_frame;
+            const end = current.at(-1).end_frame;
+            runs.push({
+              seconds: (end - start) / plan.fps,
+              start_frame: start,
+              end_frame: end,
+              shots: current.map((shot) => ({
+                shot_id: shot.shot_id,
+                scene_id: shot.scene_id,
+                claim_id: shot.claim_id,
+                kind: shot.evidence?.kind,
+                start_frame: shot.start_frame,
+                end_frame: shot.end_frame,
+                duration_seconds: (shot.end_frame - shot.start_frame) / plan.fps,
+              })),
+            });
+            current = [];
+          };
+          for (const shot of shots) {
+            if (shot.asset_type === 'evidence') current.push(shot);
+            else flush();
+          }
+          flush();
+          runs.sort((a, b) => b.seconds - a.seconds);
+          console.log('--- EVIDENCE RUNS ---');
+          console.log(JSON.stringify({ proof_end_frame: proofEnd, runs }, null, 2));
+          NODE
 
       - name: Extract exact proof failure
         run: |
