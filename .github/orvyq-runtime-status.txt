@@ -1,2 +1,2 @@
-requested_at=2026-07-19T14:24:50+03:00
-purpose=inspect-restarted-dynamic-canonical-proof
+requested_at=2026-07-19T14:34:00+03:00
+purpose=extract-exact-canonical-proof-gate-failure
