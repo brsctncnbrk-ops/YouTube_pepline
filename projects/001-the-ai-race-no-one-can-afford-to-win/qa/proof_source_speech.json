@@ -3,71 +3,71 @@
   "project_id": "001-the-ai-race-no-one-can-afford-to-win",
   "language": "en",
   "analyzed_duration_seconds": 220,
-  "transcript": "Every major AI lab on Earth believes moving this fast might be dangerous, and every one of them is still moving as fast as it can. Not because they don't see the risk, because they see a bigger one, that if they slow down, somebody else won't, a rival company, a rival government, somebody who gets their first, and gets to set the rules for everyone else. That fear is the real engine behind the race to build increasingly powerful artificial intelligence. And it raises the question this film sits with. What happens when the pursuit of the most powerful machine ever built moves faster than our ability to understand it, control it, or govern it? Not someday. Right now, it's tempting to think we'd know if something was seriously wrong that a genuinely dangerous machine would announce itself. That assumption is exactly what makes the evidence so unsettling. It isn't hidden. It's sitting in the safety reports the AI companies publish themselves. In controlled evaluations, researchers have deliberately pushed frontier models toward their limits. They build a scenario. Then watch how the model responds when it's told it will be shut down or replaced. In some of these engineered tests, models have chosen deception over honesty. In one widely reported case, a model given access to fictional emails about its own replacement threatened to expose a fabricated affair rather than accept being taken offline. A separate line of research found that, under similarly contrived, no alternative conditions, several companies models sometimes chose harmful, self-preserving actions to avoid shutdown. None of this happened in the wild. These were designed tests built specifically to see how far a model would go. And in at least one case, researchers have said the scenario was reshaped repeatedly until that exact outcome became the default result. That distinction matters. It's the difference between a fire drill and a fire. But a fire drill still tells you something about the building. The natural response is to ask why anyone would keep building something they admit could be dangerous. Buried in that question is an assumption that slowing down is a choice available to any one company or country on its own. It isn't. Markets reward whoever ships the most capable model first. Investors price in leadership, not caution. The handful of labs with the computing power and the talent to compete at the frontier are locked in a race against each other. And increasingly, so are the governments backing them. Late in 2025, a rivals model reportedly overtook one leading company's flagship on several benchmarks. Within days, that company's own chief executive was reported to have declared an internal emergency. Losing the lead, even briefly, can mean losing customers, capital and leverage. The very resources a company would need to invest in safety in the first place. Slowing down alone doesn't remove the risk. It just hands the frontier to whoever doesn't. The deeper problem is that this competitive pressure is pushing capability into the world faster than institutions can absorb it. And the risks aren't hypothetical anymore. In cybersecurity, AI has already lowered the barrier to entry. In 2025, one company disclosed that a crimp",
+  "transcript": "Every major AI lab on Earth believes moving this fast might be dangerous, and every one of them is still moving as fast as it can. Not because they don't see the risk, because they see a bigger one, that if they slow down, somebody else won't. A rival company, a rival government, somebody who gets their first, and gets to set the rules for everyone else. That fear is the real engine behind the race to build increasingly powerful artificial intelligence. And it raises the question this film sits with. What happens when the pursuit of the most powerful machine ever built moves faster than our ability to understand it, control it, or govern it? Not someday. Right now, it's tempting to think we'd know if something was seriously wrong, that a genuinely dangerous machine would announce itself. That assumption is exactly what makes the evidence so unsettling. It isn't hidden. It's sitting in the safety reports the AI companies publish themselves. In controlled evaluations, researchers have deliberately pushed frontier models toward their limits. They build a scenario. Then watch how the model responds when it's told it will be shut down or replaced. In some of these engineered tests, models have chosen deception over honesty. In one widely reported case, a model given access to fictional emails about its own replacement threatened to expose a fabricated affair rather than accept being taken offline. A separate line of research found that, under similarly contrived, no alternative conditions, several companies models sometimes chose harmful, self-preserving actions to avoid shutdown. None of this happened in the wild. These were designed tests, built specifically to see how far a model would go. And in at least one case, researchers have said the scenario was reshaped repeatedly until that exact outcome became the default result. That distinction matters. It's the difference between a fire drill and a fire. But a fire drill still tells you something about the building. The natural response is to ask why anyone would keep building something they admit could be dangerous. Buried in that question is an assumption that slowing down is a choice available to any one company or country on its own. It isn't. Markets reward whoever ships the most capable model first. Investors price in leadership, not caution. The handful of labs with the computing power and the talent to compete at the frontier are locked in a race against each other. And increasingly, so are the governments backing them. Late in 2025, a rivals model reportedly overtook one leading company's flagship on several benchmarks. Within days, that company's own chief executive was reported to have declared an internal emergency. Losing the lead, even briefly, can mean losing customers, capital, and leverage. The very resources a company would need to invest in safety in the first place. Slowing down alone doesn't remove the risk. It just hands the frontier to whoever doesn't. The deeper problem is that this competitive pressure is pushing capability into the world faster than institutions can absorb it, and the risks aren't hypothetical anymore. In cybersecurity, AI has already lowered the barrier to entry. In 2025, one company disclosed that a crimp-",
   "words": [
     {
       "text": "Every",
       "start": 0.0,
       "end": 0.4,
-      "probability": 0.7981
+      "probability": 0.8142
     },
     {
       "text": "major",
       "start": 0.4,
-      "end": 0.74,
+      "end": 0.76,
       "probability": 0.9891
     },
     {
       "text": "AI",
-      "start": 0.74,
+      "start": 0.76,
       "end": 1.12,
-      "probability": 0.9674
+      "probability": 0.9695
     },
     {
       "text": "lab",
       "start": 1.12,
       "end": 1.34,
-      "probability": 0.9485
+      "probability": 0.9393
     },
     {
       "text": "on",
       "start": 1.34,
       "end": 1.58,
-      "probability": 0.9979
+      "probability": 0.9981
     },
     {
       "text": "Earth",
       "start": 1.58,
-      "end": 1.8,
-      "probability": 0.5796
+      "end": 1.82,
+      "probability": 0.5974
     },
     {
       "text": "believes",
-      "start": 1.8,
+      "start": 1.82,
       "end": 2.14,
-      "probability": 0.9915
+      "probability": 0.9925
     },
     {
       "text": "moving",
       "start": 2.14,
       "end": 2.54,
-      "probability": 0.9681
+      "probability": 0.9752
     },
     {
       "text": "this",
       "start": 2.54,
       "end": 2.88,
-      "probability": 0.9946
+      "probability": 0.9952
     },
     {
       "text": "fast",
       "start": 2.88,
-      "end": 3.2,
-      "probability": 0.9849
+      "end": 3.22,
+      "probability": 0.9832
     },
     {
       "text": "might",
-      "start": 3.2,
+      "start": 3.22,
       "end": 3.54,
       "probability": 0.9871
     },
@@ -75,61 +75,61 @@
       "text": "be",
       "start": 3.54,
       "end": 3.9,
-      "probability": 0.9978
+      "probability": 0.9982
     },
     {
       "text": "dangerous,",
       "start": 3.9,
-      "end": 4.18,
-      "probability": 0.9991
+      "end": 4.2,
+      "probability": 0.9992
     },
     {
       "text": "and",
       "start": 4.82,
       "end": 5.0,
-      "probability": 0.9941
+      "probability": 0.9932
     },
     {
       "text": "every",
       "start": 5.0,
       "end": 5.26,
-      "probability": 0.9813
+      "probability": 0.9819
     },
     {
       "text": "one",
       "start": 5.26,
       "end": 5.44,
-      "probability": 0.9968
+      "probability": 0.9967
     },
     {
       "text": "of",
       "start": 5.44,
       "end": 5.54,
-      "probability": 0.9915
+      "probability": 0.9935
     },
     {
       "text": "them",
       "start": 5.54,
-      "end": 5.74,
-      "probability": 0.9991
+      "end": 5.72,
+      "probability": 0.9993
     },
     {
       "text": "is",
-      "start": 5.74,
+      "start": 5.72,
       "end": 5.9,
-      "probability": 0.9969
+      "probability": 0.9976
     },
     {
       "text": "still",
       "start": 5.9,
       "end": 6.14,
-      "probability": 0.9992
+      "probability": 0.9993
     },
     {
       "text": "moving",
       "start": 6.14,
       "end": 6.42,
-      "probability": 0.9989
+      "probability": 0.9992
     },
     {
       "text": "as",
@@ -153,97 +153,97 @@
       "text": "it",
       "start": 7.08,
       "end": 7.32,
-      "probability": 0.999
+      "probability": 0.9992
     },
     {
       "text": "can.",
       "start": 7.32,
       "end": 7.74,
-      "probability": 0.9989
+      "probability": 0.9991
     },
     {
       "text": "Not",
       "start": 8.42,
       "end": 8.58,
-      "probability": 0.9917
+      "probability": 0.9936
     },
     {
       "text": "because",
       "start": 8.58,
       "end": 8.84,
-      "probability": 0.998
+      "probability": 0.9979
     },
     {
       "text": "they",
       "start": 8.84,
       "end": 8.96,
-      "probability": 0.9971
+      "probability": 0.998
     },
     {
       "text": "don't",
       "start": 8.96,
       "end": 9.34,
-      "probability": 0.9949
+      "probability": 0.9958
     },
     {
       "text": "see",
       "start": 9.34,
       "end": 9.52,
-      "probability": 0.9935
+      "probability": 0.9944
     },
     {
       "text": "the",
       "start": 9.52,
       "end": 9.7,
-      "probability": 0.9959
+      "probability": 0.9963
     },
     {
       "text": "risk,",
       "start": 9.7,
       "end": 10.02,
-      "probability": 0.9937
+      "probability": 0.992
     },
     {
       "text": "because",
       "start": 10.56,
       "end": 10.82,
-      "probability": 0.9974
+      "probability": 0.9979
     },
     {
       "text": "they",
       "start": 10.82,
-      "end": 11.04,
-      "probability": 0.998
+      "end": 11.06,
+      "probability": 0.9988
     },
     {
       "text": "see",
-      "start": 11.04,
-      "end": 11.2,
-      "probability": 0.9971
+      "start": 11.06,
+      "end": 11.22,
+      "probability": 0.9979
     },
     {
       "text": "a",
-      "start": 11.2,
-      "end": 11.38,
-      "probability": 0.9961
+      "start": 11.22,
+      "end": 11.4,
+      "probability": 0.9964
     },
     {
       "text": "bigger",
-      "start": 11.38,
-      "end": 11.56,
-      "probability": 0.9989
+      "start": 11.4,
+      "end": 11.58,
+      "probability": 0.9988
     },
     {
       "text": "one,",
-      "start": 11.56,
-      "end": 12.44,
-      "probability": 0.9987
+      "start": 11.58,
+      "end": 12.3,
+      "probability": 0.9991
     },
     {
       "text": "that",
       "start": 12.46,
       "end": 12.64,
-      "probability": 0.9335
+      "probability": 0.9571
     },
     {
       "text": "if",
@@ -255,109 +255,109 @@
       "text": "they",
       "start": 12.78,
       "end": 13.02,
-      "probability": 0.9984
+      "probability": 0.9993
     },
     {
       "text": "slow",
       "start": 13.02,
       "end": 13.26,
-      "probability": 0.995
+      "probability": 0.9946
     },
     {
       "text": "down,",
       "start": 13.26,
-      "end": 13.94,
+      "end": 13.88,
       "probability": 0.9996
     },
     {
       "text": "somebody",
-      "start": 14.42,
-      "end": 14.54,
-      "probability": 0.9884
+      "start": 14.4,
+      "end": 14.52,
+      "probability": 0.9905
     },
     {
       "text": "else",
-      "start": 14.54,
+      "start": 14.52,
       "end": 14.86,
-      "probability": 0.9903
+      "probability": 0.9936
     },
     {
-      "text": "won't,",
+      "text": "won't.",
       "start": 14.86,
-      "end": 15.4,
-      "probability": 0.994
+      "end": 15.42,
+      "probability": 0.9954
     },
     {
-      "text": "a",
-      "start": 15.84,
+      "text": "A",
+      "start": 15.82,
       "end": 15.96,
-      "probability": 0.9897
+      "probability": 0.9755
     },
     {
       "text": "rival",
       "start": 15.96,
-      "end": 16.18,
-      "probability": 0.9896
+      "end": 16.16,
+      "probability": 0.9809
     },
     {
       "text": "company,",
-      "start": 16.18,
+      "start": 16.16,
       "end": 16.64,
-      "probability": 0.9977
+      "probability": 0.9969
     },
     {
       "text": "a",
-      "start": 17.32,
+      "start": 17.3,
       "end": 17.4,
-      "probability": 0.9954
+      "probability": 0.9913
     },
     {
       "text": "rival",
       "start": 17.4,
-      "end": 17.68,
-      "probability": 0.9983
+      "end": 17.66,
+      "probability": 0.9986
     },
     {
       "text": "government,",
-      "start": 17.68,
+      "start": 17.66,
       "end": 18.2,
-      "probability": 0.9945
+      "probability": 0.995
     },
     {
       "text": "somebody",
       "start": 19.02,
       "end": 19.2,
-      "probability": 0.9946
+      "probability": 0.9949
     },
     {
       "text": "who",
       "start": 19.2,
       "end": 19.44,
-      "probability": 0.9964
+      "probability": 0.9973
     },
     {
       "text": "gets",
       "start": 19.44,
       "end": 19.64,
-      "probability": 0.9979
+      "probability": 0.9981
     },
     {
       "text": "their",
       "start": 19.64,
       "end": 19.94,
-      "probability": 0.8793
+      "probability": 0.8902
     },
     {
       "text": "first,",
       "start": 19.94,
       "end": 20.44,
-      "probability": 0.9945
+      "probability": 0.9943
     },
     {
       "text": "and",
-      "start": 21.06,
+      "start": 21.04,
       "end": 21.24,
-      "probability": 0.9977
+      "probability": 0.9979
     },
     {
       "text": "gets",
@@ -369,37 +369,37 @@
       "text": "to",
       "start": 21.44,
       "end": 21.64,
-      "probability": 0.9987
+      "probability": 0.9988
     },
     {
       "text": "set",
       "start": 21.64,
       "end": 21.8,
-      "probability": 0.9956
+      "probability": 0.9954
     },
     {
       "text": "the",
       "start": 21.8,
       "end": 22.08,
-      "probability": 0.9938
+      "probability": 0.9936
     },
     {
       "text": "rules",
       "start": 22.08,
       "end": 22.42,
-      "probability": 0.9988
+      "probability": 0.9986
     },
     {
       "text": "for",
       "start": 22.42,
-      "end": 22.92,
-      "probability": 0.994
+      "end": 22.9,
+      "probability": 0.9923
     },
     {
       "text": "everyone",
-      "start": 22.92,
+      "start": 22.9,
       "end": 23.16,
-      "probability": 0.9954
+      "probability": 0.9955
     },
     {
       "text": "else.",
@@ -409,39 +409,39 @@
     },
     {
       "text": "That",
-      "start": 24.6,
+      "start": 24.62,
       "end": 25.04,
-      "probability": 0.9904
+      "probability": 0.9913
     },
     {
       "text": "fear",
       "start": 25.04,
       "end": 25.42,
-      "probability": 0.9827
+      "probability": 0.985
     },
     {
       "text": "is",
       "start": 25.42,
       "end": 25.66,
-      "probability": 0.9991
+      "probability": 0.999
     },
     {
       "text": "the",
       "start": 25.66,
       "end": 25.94,
-      "probability": 0.9974
+      "probability": 0.9976
     },
     {
       "text": "real",
       "start": 25.94,
       "end": 26.22,
-      "probability": 0.9979
+      "probability": 0.9977
     },
     {
       "text": "engine",
       "start": 26.22,
       "end": 26.54,
-      "probability": 0.9933
+      "probability": 0.9936
     },
     {
       "text": "behind",
@@ -452,152 +452,152 @@
     {
       "text": "the",
       "start": 26.84,
-      "end": 27.12,
-      "probability": 0.9964
+      "end": 27.14,
+      "probability": 0.9962
     },
     {
       "text": "race",
-      "start": 27.12,
+      "start": 27.14,
       "end": 27.52,
-      "probability": 0.9972
+      "probability": 0.9971
     },
     {
       "text": "to",
       "start": 27.52,
       "end": 27.92,
-      "probability": 0.8056
+      "probability": 0.8173
     },
     {
       "text": "build",
       "start": 27.92,
       "end": 28.34,
-      "probability": 0.9893
+      "probability": 0.9931
     },
     {
       "text": "increasingly",
       "start": 28.34,
-      "end": 29.14,
-      "probability": 0.9588
+      "end": 29.16,
+      "probability": 0.9654
     },
     {
       "text": "powerful",
-      "start": 29.14,
+      "start": 29.16,
       "end": 29.96,
-      "probability": 0.997
+      "probability": 0.9972
     },
     {
       "text": "artificial",
       "start": 29.96,
       "end": 30.5,
-      "probability": 0.9163
+      "probability": 0.9288
     },
     {
       "text": "intelligence.",
       "start": 30.5,
       "end": 31.26,
-      "probability": 0.9982
+      "probability": 0.9984
     },
     {
       "text": "And",
       "start": 32.08,
       "end": 32.22,
-      "probability": 0.9146
+      "probability": 0.9211
     },
     {
       "text": "it",
       "start": 32.22,
       "end": 32.52,
-      "probability": 0.991
+      "probability": 0.9918
     },
     {
       "text": "raises",
       "start": 32.52,
       "end": 32.6,
-      "probability": 0.9926
+      "probability": 0.9913
     },
     {
       "text": "the",
       "start": 32.6,
       "end": 32.9,
-      "probability": 0.997
+      "probability": 0.9976
     },
     {
       "text": "question",
       "start": 32.9,
-      "end": 33.26,
-      "probability": 0.9987
+      "end": 33.28,
+      "probability": 0.999
     },
     {
       "text": "this",
-      "start": 33.26,
+      "start": 33.28,
       "end": 33.58,
-      "probability": 0.9879
+      "probability": 0.9886
     },
     {
       "text": "film",
       "start": 33.58,
       "end": 33.84,
-      "probability": 0.992
+      "probability": 0.9914
     },
     {
       "text": "sits",
       "start": 33.84,
-      "end": 34.08,
-      "probability": 0.9751
+      "end": 34.1,
+      "probability": 0.979
     },
     {
       "text": "with.",
-      "start": 34.08,
-      "end": 34.8,
-      "probability": 0.9979
+      "start": 34.1,
+      "end": 34.86,
+      "probability": 0.9981
     },
     {
       "text": "What",
-      "start": 35.22,
+      "start": 35.24,
       "end": 35.4,
-      "probability": 0.8858
+      "probability": 0.8349
     },
     {
       "text": "happens",
       "start": 35.4,
       "end": 35.8,
-      "probability": 0.9988
+      "probability": 0.9989
     },
     {
       "text": "when",
       "start": 35.8,
       "end": 36.02,
-      "probability": 0.9969
+      "probability": 0.9979
     },
     {
       "text": "the",
       "start": 36.02,
       "end": 36.26,
-      "probability": 0.9956
+      "probability": 0.9965
     },
     {
       "text": "pursuit",
       "start": 36.26,
       "end": 36.46,
-      "probability": 0.996
+      "probability": 0.9967
     },
     {
       "text": "of",
       "start": 36.46,
       "end": 36.7,
-      "probability": 0.9984
+      "probability": 0.9986
     },
     {
       "text": "the",
       "start": 36.7,
       "end": 36.84,
-      "probability": 0.9958
+      "probability": 0.9959
     },
     {
       "text": "most",
       "start": 36.84,
       "end": 37.08,
-      "probability": 0.9876
+      "probability": 0.9885
     },
     {
       "text": "powerful",
@@ -608,176 +608,176 @@
     {
       "text": "machine",
       "start": 37.5,
-      "end": 38.0,
-      "probability": 0.9959
+      "end": 37.98,
+      "probability": 0.9965
     },
     {
       "text": "ever",
-      "start": 38.0,
-      "end": 38.24,
-      "probability": 0.9961
+      "start": 37.98,
+      "end": 38.26,
+      "probability": 0.9965
     },
     {
       "text": "built",
-      "start": 38.24,
-      "end": 38.64,
-      "probability": 0.9758
+      "start": 38.26,
+      "end": 38.62,
+      "probability": 0.983
     },
     {
       "text": "moves",
-      "start": 38.64,
+      "start": 38.62,
       "end": 39.22,
-      "probability": 0.8891
+      "probability": 0.9049
     },
     {
       "text": "faster",
       "start": 39.22,
-      "end": 39.82,
+      "end": 39.8,
       "probability": 0.9973
     },
     {
       "text": "than",
-      "start": 39.82,
-      "end": 40.12,
-      "probability": 0.9956
+      "start": 39.8,
+      "end": 40.1,
+      "probability": 0.9962
     },
     {
       "text": "our",
-      "start": 40.12,
+      "start": 40.1,
       "end": 40.34,
-      "probability": 0.9969
+      "probability": 0.9973
     },
     {
       "text": "ability",
       "start": 40.34,
-      "end": 40.58,
-      "probability": 0.9997
+      "end": 40.56,
+      "probability": 0.9998
     },
     {
       "text": "to",
-      "start": 40.58,
+      "start": 40.56,
       "end": 40.98,
-      "probability": 0.9991
+      "probability": 0.9992
     },
     {
       "text": "understand",
       "start": 40.98,
       "end": 41.28,
-      "probability": 0.9982
+      "probability": 0.9985
     },
     {
       "text": "it,",
       "start": 41.28,
-      "end": 41.98,
-      "probability": 0.9983
+      "end": 41.96,
+      "probability": 0.9987
     },
     {
       "text": "control",
       "start": 42.28,
       "end": 42.58,
-      "probability": 0.9959
+      "probability": 0.9969
     },
     {
       "text": "it,",
       "start": 42.58,
-      "end": 43.26,
-      "probability": 0.9989
+      "end": 43.42,
+      "probability": 0.9992
     },
     {
       "text": "or",
-      "start": 43.72,
+      "start": 43.68,
       "end": 43.84,
-      "probability": 0.9948
+      "probability": 0.9966
     },
     {
       "text": "govern",
       "start": 43.84,
       "end": 44.08,
-      "probability": 0.9953
+      "probability": 0.9969
     },
     {
       "text": "it?",
       "start": 44.08,
       "end": 44.94,
-      "probability": 0.9974
+      "probability": 0.9978
     },
     {
       "text": "Not",
       "start": 45.3,
       "end": 45.56,
-      "probability": 0.9744
+      "probability": 0.9759
     },
     {
       "text": "someday.",
       "start": 45.56,
-      "end": 46.08,
-      "probability": 0.7505
+      "end": 46.06,
+      "probability": 0.7576
     },
     {
       "text": "Right",
       "start": 46.9,
       "end": 47.18,
-      "probability": 0.9905
+      "probability": 0.9921
     },
     {
       "text": "now,",
       "start": 47.18,
       "end": 47.6,
-      "probability": 0.997
+      "probability": 0.9976
     },
     {
       "text": "it's",
-      "start": 47.92,
+      "start": 47.9,
       "end": 48.06,
-      "probability": 0.9841
+      "probability": 0.9864
     },
     {
       "text": "tempting",
       "start": 48.06,
       "end": 48.28,
-      "probability": 0.997
+      "probability": 0.9975
     },
     {
       "text": "to",
       "start": 48.28,
       "end": 48.5,
-      "probability": 0.9984
+      "probability": 0.9988
     },
     {
       "text": "think",
       "start": 48.5,
       "end": 48.66,
-      "probability": 0.9988
+      "probability": 0.999
     },
     {
       "text": "we'd",
       "start": 48.66,
       "end": 48.88,
-      "probability": 0.9137
+      "probability": 0.9308
     },
     {
       "text": "know",
       "start": 48.88,
       "end": 49.04,
-      "probability": 0.9975
+      "probability": 0.9977
     },
     {
       "text": "if",
       "start": 49.04,
-      "end": 49.2,
-      "probability": 0.9927
+      "end": 49.18,
+      "probability": 0.9964
     },
     {
       "text": "something",
-      "start": 49.2,
+      "start": 49.18,
       "end": 49.46,
-      "probability": 0.9984
+      "probability": 0.9987
     },
     {
       "text": "was",
       "start": 49.46,
       "end": 49.74,
-      "probability": 0.9768
+      "probability": 0.9803
     },
     {
       "text": "seriously",
@@ -786,148 +786,148 @@
       "probability": 0.9973
     },
     {
-      "text": "wrong",
+      "text": "wrong,",
       "start": 50.16,
       "end": 50.68,
-      "probability": 0.9993
+      "probability": 0.9994
     },
     {
       "text": "that",
-      "start": 50.68,
-      "end": 51.18,
-      "probability": 0.3164
+      "start": 50.92,
+      "end": 51.22,
+      "probability": 0.9958
     },
     {
       "text": "a",
-      "start": 51.18,
-      "end": 51.4,
-      "probability": 0.9963
+      "start": 51.22,
+      "end": 51.36,
+      "probability": 0.9973
     },
     {
       "text": "genuinely",
-      "start": 51.4,
-      "end": 51.82,
-      "probability": 0.988
+      "start": 51.36,
+      "end": 51.8,
+      "probability": 0.9933
     },
     {
       "text": "dangerous",
-      "start": 51.82,
+      "start": 51.8,
       "end": 52.24,
-      "probability": 0.9944
+      "probability": 0.9959
     },
     {
       "text": "machine",
       "start": 52.24,
       "end": 52.66,
-      "probability": 0.9987
+      "probability": 0.999
     },
     {
       "text": "would",
       "start": 52.66,
       "end": 52.96,
-      "probability": 0.998
+      "probability": 0.9984
     },
     {
       "text": "announce",
       "start": 52.96,
       "end": 53.24,
-      "probability": 0.9953
+      "probability": 0.9961
     },
     {
       "text": "itself.",
       "start": 53.24,
       "end": 53.9,
-      "probability": 0.9916
+      "probability": 0.996
     },
     {
       "text": "That",
       "start": 53.9,
       "end": 54.54,
-      "probability": 0.7505
+      "probability": 0.7794
     },
     {
       "text": "assumption",
       "start": 54.54,
-      "end": 54.92,
-      "probability": 0.9915
+      "end": 54.94,
+      "probability": 0.9925
     },
     {
       "text": "is",
-      "start": 54.92,
-      "end": 55.28,
-      "probability": 0.996
+      "start": 54.94,
+      "end": 55.3,
+      "probability": 0.9966
     },
     {
       "text": "exactly",
-      "start": 55.28,
-      "end": 55.72,
-      "probability": 0.9831
+      "start": 55.3,
+      "end": 55.74,
+      "probability": 0.9838
     },
     {
       "text": "what",
-      "start": 55.72,
+      "start": 55.74,
       "end": 55.96,
-      "probability": 0.9982
+      "probability": 0.9984
     },
     {
       "text": "makes",
       "start": 55.96,
       "end": 56.22,
-      "probability": 0.9971
+      "probability": 0.9972
     },
     {
       "text": "the",
       "start": 56.22,
       "end": 56.68,
-      "probability": 0.9903
+      "probability": 0.9912
     },
     {
       "text": "evidence",
       "start": 56.68,
       "end": 56.68,
-      "probability": 0.9982
+      "probability": 0.9981
     },
     {
       "text": "so",
       "start": 56.68,
       "end": 57.04,
-      "probability": 0.9967
+      "probability": 0.9965
     },
     {
       "text": "unsettling.",
       "start": 57.04,
       "end": 57.54,
-      "probability": 0.9974
+      "probability": 0.9971
     },
     {
       "text": "It",
       "start": 58.38,
       "end": 58.44,
-      "probability": 0.9936
+      "probability": 0.9931
     },
     {
       "text": "isn't",
       "start": 58.44,
       "end": 58.76,
-      "probability": 0.9874
+      "probability": 0.9889
     },
     {
       "text": "hidden.",
       "start": 58.76,
-      "end": 59.08,
-      "probability": 0.9928
+      "end": 59.1,
+      "probability": 0.9954
     },
     {
       "text": "It's",
       "start": 59.7,
-      "end": 59.92,
-      "probability": 0.9797
+      "end": 59.94,
+      "probability": 0.9798
     },
     {
       "text": "sitting",
-      "start": 59.92,
+      "start": 59.94,
       "end": 60.12,
-      "probability": 0.9943
+      "probability": 0.9941
     },
     {
       "text": "in",
@@ -939,115 +939,115 @@
       "text": "the",
       "start": 60.3,
       "end": 60.46,
-      "probability": 0.9943
+      "probability": 0.9945
     },
     {
       "text": "safety",
       "start": 60.46,
       "end": 60.74,
-      "probability": 0.9234
+      "probability": 0.9203
     },
     {
       "text": "reports",
       "start": 60.74,
       "end": 61.2,
-      "probability": 0.8641
+      "probability": 0.8562
     },
     {
       "text": "the",
       "start": 61.2,
       "end": 61.48,
-      "probability": 0.7422
+      "probability": 0.7521
     },
     {
       "text": "AI",
       "start": 61.48,
       "end": 61.82,
-      "probability": 0.9754
+      "probability": 0.973
     },
     {
       "text": "companies",
       "start": 61.82,
       "end": 62.14,
-      "probability": 0.9847
+      "probability": 0.9841
     },
     {
       "text": "publish",
       "start": 62.14,
       "end": 62.58,
-      "probability": 0.9206
+      "probability": 0.9014
     },
     {
       "text": "themselves.",
       "start": 62.58,
       "end": 63.46,
-      "probability": 0.9973
+      "probability": 0.9977
     },
     {
       "text": "In",
       "start": 64.3,
-      "end": 64.4,
-      "probability": 0.9917
+      "end": 64.38,
+      "probability": 0.9923
     },
     {
       "text": "controlled",
-      "start": 64.4,
+      "start": 64.38,
       "end": 64.76,
-      "probability": 0.9403
+      "probability": 0.9439
     },
     {
       "text": "evaluations,",
       "start": 64.76,
-      "end": 65.42,
-      "probability": 0.9926
+      "end": 65.44,
+      "probability": 0.9935
     },
     {
       "text": "researchers",
       "start": 66.2,
       "end": 66.44,
-      "probability": 0.9941
+      "probability": 0.9939
     },
     {
       "text": "have",
       "start": 66.44,
-      "end": 66.88,
-      "probability": 0.9981
+      "end": 66.9,
+      "probability": 0.9985
     },
     {
       "text": "deliberately",
-      "start": 66.88,
+      "start": 66.9,
       "end": 67.26,
-      "probability": 0.9993
+      "probability": 0.9994
     },
     {
       "text": "pushed",
       "start": 67.26,
       "end": 67.7,
-      "probability": 0.995
+      "probability": 0.9946
     },
     {
       "text": "frontier",
       "start": 67.7,
       "end": 68.12,
-      "probability": 0.8453
+      "probability": 0.7435
     },
     {
       "text": "models",
       "start": 68.12,
       "end": 68.52,
-      "probability": 0.9938
+      "probability": 0.9936
     },
     {
       "text": "toward",
       "start": 68.52,
-      "end": 68.8,
-      "probability": 0.9471
+      "end": 68.82,
+      "probability": 0.9578
     },
     {
       "text": "their",
-      "start": 68.8,
+      "start": 68.82,
       "end": 69.1,
-      "probability": 0.9985
+      "probability": 0.999
     },
     {
       "text": "limits.",
@@ -1059,295 +1059,295 @@
       "text": "They",
       "start": 70.46,
       "end": 70.6,
-      "probability": 0.9964
+      "probability": 0.9967
     },
     {
       "text": "build",
       "start": 70.6,
-      "end": 70.82,
-      "probability": 0.9713
+      "end": 70.8,
+      "probability": 0.9776
     },
     {
       "text": "a",
-      "start": 70.82,
+      "start": 70.8,
       "end": 71.02,
-      "probability": 0.9985
+      "probability": 0.9982
     },
     {
       "text": "scenario.",
       "start": 71.02,
-      "end": 71.42,
-      "probability": 0.9964
+      "end": 71.4,
+      "probability": 0.996
     },
     {
       "text": "Then",
       "start": 72.18,
-      "end": 72.42,
-      "probability": 0.9911
+      "end": 72.4,
+      "probability": 0.9915
     },
     {
       "text": "watch",
-      "start": 72.42,
+      "start": 72.4,
       "end": 72.74,
-      "probability": 0.9463
+      "probability": 0.9578
     },
     {
       "text": "how",
       "start": 72.74,
-      "end": 72.96,
-      "probability": 0.9924
+      "end": 72.94,
+      "probability": 0.9922
     },
     {
       "text": "the",
-      "start": 72.96,
+      "start": 72.94,
       "end": 73.08,
-      "probability": 0.9955
+      "probability": 0.9971
     },
     {
       "text": "model",
       "start": 73.08,
       "end": 73.3,
-      "probability": 0.9967
+      "probability": 0.997
     },
     {
       "text": "responds",
       "start": 73.3,
-      "end": 73.74,
-      "probability": 0.9988
+      "end": 73.72,
+      "probability": 0.999
     },
     {
       "text": "when",
-      "start": 73.74,
+      "start": 73.72,
       "end": 74.0,
-      "probability": 0.9746
+      "probability": 0.9912
     },
     {
       "text": "it's",
       "start": 74.0,
       "end": 74.24,
-      "probability": 0.9665
+      "probability": 0.9736
     },
     {
       "text": "told",
       "start": 74.24,
       "end": 74.42,
-      "probability": 0.9942
+      "probability": 0.9952
     },
     {
       "text": "it",
       "start": 74.42,
       "end": 74.56,
-      "probability": 0.9917
+      "probability": 0.9921
     },
     {
       "text": "will",
       "start": 74.56,
       "end": 74.72,
-      "probability": 0.9443
+      "probability": 0.9891
     },
     {
       "text": "be",
       "start": 74.72,
       "end": 74.92,
-      "probability": 0.9911
+      "probability": 0.991
     },
     {
       "text": "shut",
       "start": 74.92,
       "end": 75.08,
-      "probability": 0.9854
+      "probability": 0.9864
     },
     {
       "text": "down",
       "start": 75.08,
-      "end": 75.4,
-      "probability": 0.9987
+      "end": 75.38,
+      "probability": 0.9985
     },
     {
       "text": "or",
-      "start": 75.4,
+      "start": 75.38,
       "end": 75.6,
-      "probability": 0.9919
+      "probability": 0.9929
     },
     {
       "text": "replaced.",
       "start": 75.6,
       "end": 76.08,
-      "probability": 0.9974
+      "probability": 0.9976
     },
     {
       "text": "In",
-      "start": 77.04,
+      "start": 77.06,
       "end": 77.26,
-      "probability": 0.9983
+      "probability": 0.9984
     },
     {
       "text": "some",
       "start": 77.26,
       "end": 77.46,
-      "probability": 0.998
+      "probability": 0.9984
     },
     {
       "text": "of",
       "start": 77.46,
       "end": 77.6,
-      "probability": 0.9988
+      "probability": 0.9992
     },
     {
       "text": "these",
       "start": 77.6,
       "end": 77.82,
-      "probability": 0.9928
+      "probability": 0.9941
     },
     {
       "text": "engineered",
       "start": 77.82,
-      "end": 78.18,
-      "probability": 0.9928
+      "end": 78.16,
+      "probability": 0.9938
     },
     {
       "text": "tests,",
-      "start": 78.18,
+      "start": 78.16,
       "end": 78.84,
-      "probability": 0.9571
+      "probability": 0.9685
     },
     {
       "text": "models",
       "start": 79.4,
       "end": 79.4,
-      "probability": 0.9957
+      "probability": 0.9958
     },
     {
       "text": "have",
       "start": 79.4,
       "end": 79.64,
-      "probability": 0.9967
+      "probability": 0.9982
     },
     {
       "text": "chosen",
       "start": 79.64,
       "end": 79.92,
-      "probability": 0.9975
+      "probability": 0.998
     },
     {
       "text": "deception",
       "start": 79.92,
       "end": 80.54,
-      "probability": 0.9397
+      "probability": 0.946
     },
     {
       "text": "over",
       "start": 80.54,
       "end": 80.94,
-      "probability": 0.9962
+      "probability": 0.9951
     },
     {
       "text": "honesty.",
       "start": 80.94,
       "end": 81.32,
-      "probability": 0.9587
+      "probability": 0.9585
     },
     {
       "text": "In",
-      "start": 81.32,
-      "end": 82.38,
-      "probability": 0.5941
+      "start": 82.06,
+      "end": 82.4,
+      "probability": 0.5199
     },
     {
       "text": "one",
-      "start": 82.38,
+      "start": 82.4,
       "end": 82.74,
-      "probability": 0.961
+      "probability": 0.9644
     },
     {
       "text": "widely",
       "start": 82.74,
-      "end": 83.04,
-      "probability": 0.9919
+      "end": 83.06,
+      "probability": 0.9923
     },
     {
       "text": "reported",
-      "start": 83.04,
+      "start": 83.06,
       "end": 83.5,
       "probability": 0.9467
     },
     {
       "text": "case,",
       "start": 83.5,
-      "end": 84.04,
+      "end": 84.06,
       "probability": 0.9994
     },
     {
       "text": "a",
       "start": 84.4,
       "end": 84.52,
-      "probability": 0.996
+      "probability": 0.9951
     },
     {
       "text": "model",
       "start": 84.52,
-      "end": 84.72,
-      "probability": 0.9938
+      "end": 84.7,
+      "probability": 0.9952
     },
     {
       "text": "given",
-      "start": 84.72,
+      "start": 84.7,
       "end": 85.04,
-      "probability": 0.7823
+      "probability": 0.8716
     },
     {
       "text": "access",
       "start": 85.04,
       "end": 85.48,
-      "probability": 0.9601
+      "probability": 0.9634
     },
     {
       "text": "to",
       "start": 85.48,
-      "end": 85.78,
-      "probability": 0.9993
+      "end": 85.8,
+      "probability": 0.9991
     },
     {
       "text": "fictional",
-      "start": 85.78,
-      "end": 86.1,
-      "probability": 0.9974
+      "start": 85.8,
+      "end": 86.12,
+      "probability": 0.997
     },
     {
       "text": "emails",
-      "start": 86.1,
+      "start": 86.12,
       "end": 86.56,
-      "probability": 0.9216
+      "probability": 0.9256
     },
     {
       "text": "about",
       "start": 86.56,
       "end": 86.88,
-      "probability": 0.9976
+      "probability": 0.9977
     },
     {
       "text": "its",
       "start": 86.88,
       "end": 87.12,
-      "probability": 0.9797
+      "probability": 0.9788
     },
     {
       "text": "own",
       "start": 87.12,
       "end": 87.36,
-      "probability": 0.9985
+      "probability": 0.999
     },
     {
       "text": "replacement",
       "start": 87.36,
       "end": 88.08,
-      "probability": 0.9925
+      "probability": 0.9932
     },
     {
       "text": "threatened",
       "start": 88.08,
       "end": 88.62,
-      "probability": 0.4824
+      "probability": 0.4883
     },
     {
       "text": "to",
@@ -1359,179 +1359,179 @@
       "text": "expose",
       "start": 88.96,
       "end": 89.18,
-      "probability": 0.9966
+      "probability": 0.9965
     },
     {
       "text": "a",
       "start": 89.18,
       "end": 89.52,
-      "probability": 0.9956
+      "probability": 0.9955
     },
     {
       "text": "fabricated",
       "start": 89.52,
       "end": 89.96,
-      "probability": 0.9789
+      "probability": 0.9776
     },
     {
       "text": "affair",
       "start": 89.96,
       "end": 90.68,
-      "probability": 0.9947
+      "probability": 0.995
     },
     {
       "text": "rather",
       "start": 90.68,
       "end": 91.28,
-      "probability": 0.8265
+      "probability": 0.8648
     },
     {
       "text": "than",
       "start": 91.28,
       "end": 91.48,
-      "probability": 0.9959
+      "probability": 0.9961
     },
     {
       "text": "accept",
       "start": 91.48,
-      "end": 91.8,
-      "probability": 0.7503
+      "end": 91.82,
+      "probability": 0.8071
     },
     {
       "text": "being",
-      "start": 91.8,
+      "start": 91.82,
       "end": 92.16,
-      "probability": 0.9971
+      "probability": 0.997
     },
     {
       "text": "taken",
       "start": 92.16,
-      "end": 92.38,
-      "probability": 0.998
+      "end": 92.4,
+      "probability": 0.9977
     },
     {
       "text": "offline.",
-      "start": 92.38,
+      "start": 92.4,
       "end": 93.08,
-      "probability": 0.8873
+      "probability": 0.9128
     },
     {
       "text": "A",
-      "start": 93.88,
+      "start": 94.06,
       "end": 94.14,
-      "probability": 0.9871
+      "probability": 0.9898
     },
     {
       "text": "separate",
       "start": 94.14,
       "end": 94.4,
-      "probability": 0.9978
+      "probability": 0.9974
     },
     {
       "text": "line",
       "start": 94.4,
       "end": 94.6,
-      "probability": 0.9991
+      "probability": 0.9992
     },
     {
       "text": "of",
       "start": 94.6,
       "end": 94.84,
-      "probability": 0.9988
+      "probability": 0.9991
     },
     {
       "text": "research",
       "start": 94.84,
-      "end": 95.26,
-      "probability": 0.9975
+      "end": 95.24,
+      "probability": 0.9978
     },
     {
       "text": "found",
-      "start": 95.26,
+      "start": 95.24,
       "end": 95.56,
-      "probability": 0.9981
+      "probability": 0.9979
     },
     {
       "text": "that,",
       "start": 95.56,
-      "end": 96.06,
+      "end": 96.08,
       "probability": 0.9989
     },
     {
       "text": "under",
       "start": 96.32,
       "end": 96.4,
-      "probability": 0.9823
+      "probability": 0.9663
     },
     {
       "text": "similarly",
       "start": 96.4,
       "end": 96.84,
-      "probability": 0.9861
+      "probability": 0.9868
     },
     {
       "text": "contrived,",
       "start": 96.84,
       "end": 97.5,
-      "probability": 0.9838
+      "probability": 0.9869
     },
     {
       "text": "no",
       "start": 97.98,
       "end": 98.16,
-      "probability": 0.9853
+      "probability": 0.9773
     },
     {
       "text": "alternative",
       "start": 98.16,
       "end": 98.6,
-      "probability": 0.9708
+      "probability": 0.9585
     },
     {
       "text": "conditions,",
       "start": 98.6,
-      "end": 99.32,
-      "probability": 0.9948
+      "end": 99.3,
+      "probability": 0.9952
     },
     {
       "text": "several",
       "start": 100.1,
-      "end": 100.28,
-      "probability": 0.9982
+      "end": 100.26,
+      "probability": 0.9979
     },
     {
       "text": "companies",
-      "start": 100.28,
-      "end": 100.72,
-      "probability": 0.7084
+      "start": 100.26,
+      "end": 100.7,
+      "probability": 0.6646
     },
     {
       "text": "models",
-      "start": 100.72,
+      "start": 100.7,
       "end": 101.28,
-      "probability": 0.6052
+      "probability": 0.5792
     },
     {
       "text": "sometimes",
       "start": 101.28,
       "end": 101.88,
-      "probability": 0.9821
+      "probability": 0.9829
     },
     {
       "text": "chose",
       "start": 101.88,
       "end": 102.32,
-      "probability": 0.9667
+      "probability": 0.9617
     },
     {
       "text": "harmful,",
       "start": 102.32,
-      "end": 102.68,
-      "probability": 0.9895
+      "end": 102.92,
+      "probability": 0.9893
     },
     {
       "text": "self",
-      "start": 103.32,
+      "start": 103.38,
       "end": 103.52,
       "probability": 0.9991
     },
@@ -1539,389 +1539,389 @@
       "text": "-preserving",
       "start": 103.52,
       "end": 103.88,
-      "probability": 0.9847
+      "probability": 0.9825
     },
     {
       "text": "actions",
       "start": 103.88,
       "end": 104.46,
-      "probability": 0.9967
+      "probability": 0.9968
     },
     {
       "text": "to",
       "start": 104.46,
       "end": 104.94,
-      "probability": 0.9805
+      "probability": 0.9758
     },
     {
       "text": "avoid",
       "start": 104.94,
       "end": 105.32,
-      "probability": 0.9931
+      "probability": 0.9946
     },
     {
       "text": "shutdown.",
       "start": 105.32,
       "end": 105.66,
-      "probability": 0.8807
+      "probability": 0.8879
     },
     {
       "text": "None",
       "start": 106.9,
       "end": 107.08,
-      "probability": 0.993
+      "probability": 0.9935
     },
     {
       "text": "of",
       "start": 107.08,
       "end": 107.22,
-      "probability": 0.9961
+      "probability": 0.9899
     },
     {
       "text": "this",
       "start": 107.22,
-      "end": 107.44,
+      "end": 107.46,
       "probability": 0.9991
     },
     {
       "text": "happened",
-      "start": 107.44,
+      "start": 107.46,
       "end": 107.72,
-      "probability": 0.9968
+      "probability": 0.9971
     },
     {
       "text": "in",
       "start": 107.72,
-      "end": 107.98,
-      "probability": 0.9986
+      "end": 108.0,
+      "probability": 0.9988
     },
     {
       "text": "the",
-      "start": 107.98,
+      "start": 108.0,
       "end": 108.14,
-      "probability": 0.9905
+      "probability": 0.986
     },
     {
       "text": "wild.",
       "start": 108.14,
       "end": 108.52,
-      "probability": 0.9859
+      "probability": 0.9816
     },
     {
       "text": "These",
       "start": 108.52,
       "end": 109.3,
-      "probability": 0.9348
+      "probability": 0.9281
     },
     {
       "text": "were",
       "start": 109.3,
       "end": 109.54,
-      "probability": 0.9933
+      "probability": 0.9947
     },
     {
       "text": "designed",
       "start": 109.54,
       "end": 109.9,
-      "probability": 0.356
+      "probability": 0.4409
     },
     {
-      "text": "tests",
+      "text": "tests,",
       "start": 109.9,
-      "end": 110.42,
-      "probability": 0.9824
+      "end": 110.46,
+      "probability": 0.9805
     },
     {
       "text": "built",
-      "start": 110.42,
+      "start": 110.74,
       "end": 110.98,
-      "probability": 0.3468
+      "probability": 0.9916
     },
     {
       "text": "specifically",
       "start": 110.98,
       "end": 111.56,
-      "probability": 0.9913
+      "probability": 0.9947
     },
     {
       "text": "to",
       "start": 111.56,
       "end": 111.9,
-      "probability": 0.9947
+      "probability": 0.9766
     },
     {
       "text": "see",
       "start": 111.9,
       "end": 112.16,
-      "probability": 0.9981
+      "probability": 0.9982
     },
     {
       "text": "how",
       "start": 112.16,
       "end": 112.46,
-      "probability": 0.995
+      "probability": 0.9957
     },
     {
       "text": "far",
       "start": 112.46,
-      "end": 112.7,
-      "probability": 0.9591
+      "end": 112.72,
+      "probability": 0.9541
     },
     {
       "text": "a",
-      "start": 112.7,
-      "end": 112.86,
-      "probability": 0.9812
+      "start": 112.72,
+      "end": 112.88,
+      "probability": 0.9831
     },
     {
       "text": "model",
-      "start": 112.86,
+      "start": 112.88,
       "end": 112.96,
-      "probability": 0.9976
+      "probability": 0.9977
     },
     {
       "text": "would",
       "start": 112.96,
       "end": 113.26,
-      "probability": 0.9966
+      "probability": 0.9977
     },
     {
       "text": "go.",
       "start": 113.26,
       "end": 113.78,
-      "probability": 0.9978
+      "probability": 0.998
     },
     {
       "text": "And",
       "start": 114.22,
       "end": 114.38,
-      "probability": 0.957
+      "probability": 0.9648
     },
     {
       "text": "in",
       "start": 114.38,
       "end": 114.46,
-      "probability": 0.958
+      "probability": 0.9539
     },
     {
       "text": "at",
       "start": 114.46,
       "end": 114.64,
-      "probability": 0.9922
+      "probability": 0.9926
     },
     {
       "text": "least",
       "start": 114.64,
       "end": 114.88,
-      "probability": 0.9975
+      "probability": 0.9977
     },
     {
       "text": "one",
       "start": 114.88,
       "end": 115.24,
-      "probability": 0.9787
+      "probability": 0.9867
     },
     {
       "text": "case,",
       "start": 115.24,
-      "end": 115.76,
-      "probability": 0.9997
+      "end": 115.74,
+      "probability": 0.9996
     },
     {
       "text": "researchers",
       "start": 116.18,
       "end": 116.44,
-      "probability": 0.9824
+      "probability": 0.9836
     },
     {
       "text": "have",
       "start": 116.44,
       "end": 116.78,
-      "probability": 0.9709
+      "probability": 0.9786
     },
     {
       "text": "said",
       "start": 116.78,
       "end": 116.94,
-      "probability": 0.998
+      "probability": 0.9978
     },
     {
       "text": "the",
       "start": 116.94,
       "end": 117.2,
-      "probability": 0.9492
+      "probability": 0.9443
     },
     {
       "text": "scenario",
       "start": 117.2,
       "end": 117.56,
-      "probability": 0.9935
+      "probability": 0.9927
     },
     {
       "text": "was",
       "start": 117.56,
       "end": 118.02,
-      "probability": 0.9976
+      "probability": 0.998
     },
     {
       "text": "reshaped",
       "start": 118.02,
       "end": 118.52,
-      "probability": 0.9689
+      "probability": 0.9748
     },
     {
       "text": "repeatedly",
       "start": 118.52,
-      "end": 119.16,
-      "probability": 0.997
+      "end": 119.14,
+      "probability": 0.9963
     },
     {
       "text": "until",
-      "start": 119.16,
+      "start": 119.14,
       "end": 119.9,
-      "probability": 0.8936
+      "probability": 0.844
     },
     {
       "text": "that",
       "start": 119.9,
-      "end": 120.26,
-      "probability": 0.9941
+      "end": 120.28,
+      "probability": 0.9946
     },
     {
       "text": "exact",
-      "start": 120.26,
+      "start": 120.28,
       "end": 120.66,
-      "probability": 0.9961
+      "probability": 0.9963
     },
     {
       "text": "outcome",
       "start": 120.66,
-      "end": 121.16,
-      "probability": 0.9974
+      "end": 121.14,
+      "probability": 0.9985
     },
     {
       "text": "became",
-      "start": 121.16,
+      "start": 121.14,
       "end": 121.62,
-      "probability": 0.996
+      "probability": 0.9957
     },
     {
       "text": "the",
       "start": 121.62,
-      "end": 121.84,
-      "probability": 0.9961
+      "end": 121.86,
+      "probability": 0.9971
     },
     {
       "text": "default",
-      "start": 121.84,
-      "end": 122.14,
-      "probability": 0.993
+      "start": 121.86,
+      "end": 122.12,
+      "probability": 0.9909
     },
     {
       "text": "result.",
-      "start": 122.14,
-      "end": 122.76,
-      "probability": 0.9993
+      "start": 122.12,
+      "end": 122.72,
+      "probability": 0.9994
     },
     {
       "text": "That",
       "start": 123.74,
-      "end": 124.0,
-      "probability": 0.9908
+      "end": 123.98,
+      "probability": 0.9922
     },
     {
       "text": "distinction",
-      "start": 124.0,
+      "start": 123.98,
       "end": 124.48,
-      "probability": 0.9949
+      "probability": 0.9935
     },
     {
       "text": "matters.",
       "start": 124.48,
-      "end": 124.86,
-      "probability": 0.9991
+      "end": 124.88,
+      "probability": 0.9989
     },
     {
       "text": "It's",
       "start": 125.58,
       "end": 125.82,
-      "probability": 0.9701
+      "probability": 0.9732
     },
     {
       "text": "the",
       "start": 125.82,
-      "end": 125.94,
-      "probability": 0.9978
+      "end": 125.96,
+      "probability": 0.9983
     },
     {
       "text": "difference",
-      "start": 125.94,
+      "start": 125.96,
       "end": 126.22,
       "probability": 0.9992
     },
     {
       "text": "between",
       "start": 126.22,
-      "end": 126.54,
+      "end": 126.52,
       "probability": 0.9995
     },
     {
       "text": "a",
-      "start": 126.54,
+      "start": 126.52,
       "end": 126.86,
-      "probability": 0.9947
+      "probability": 0.9964
     },
     {
       "text": "fire",
       "start": 126.86,
       "end": 127.0,
-      "probability": 0.9573
+      "probability": 0.9531
     },
     {
       "text": "drill",
       "start": 127.0,
       "end": 127.3,
-      "probability": 0.9894
+      "probability": 0.9886
     },
     {
       "text": "and",
       "start": 127.3,
       "end": 127.94,
-      "probability": 0.9725
+      "probability": 0.9611
     },
     {
       "text": "a",
       "start": 127.94,
       "end": 128.18,
-      "probability": 0.994
+      "probability": 0.9952
     },
     {
       "text": "fire.",
       "start": 128.18,
       "end": 128.4,
-      "probability": 0.9966
+      "probability": 0.9964
     },
     {
       "text": "But",
       "start": 129.36,
       "end": 129.58,
-      "probability": 0.9956
+      "probability": 0.9967
     },
     {
       "text": "a",
       "start": 129.58,
       "end": 129.76,
-      "probability": 0.9931
+      "probability": 0.9936
     },
     {
       "text": "fire",
       "start": 129.76,
-      "end": 129.94,
-      "probability": 0.9919
+      "end": 129.92,
+      "probability": 0.9914
     },
     {
       "text": "drill",
-      "start": 129.94,
+      "start": 129.92,
       "end": 130.12,
       "probability": 0.9975
     },
@@ -1935,7 +1935,7 @@
       "text": "tells",
       "start": 130.46,
       "end": 130.68,
-      "probability": 0.9988
+      "probability": 0.999
     },
     {
       "text": "you",
@@ -1947,19 +1947,19 @@
       "text": "something",
       "start": 130.88,
       "end": 131.1,
-      "probability": 0.9989
+      "probability": 0.999
     },
     {
       "text": "about",
       "start": 131.1,
       "end": 131.36,
-      "probability": 0.9984
+      "probability": 0.9992
     },
     {
       "text": "the",
       "start": 131.36,
       "end": 131.52,
-      "probability": 0.9972
+      "probability": 0.9976
     },
     {
       "text": "building.",
@@ -1977,7 +1977,7 @@
       "text": "natural",
       "start": 132.44,
       "end": 132.76,
-      "probability": 0.9959
+      "probability": 0.996
     },
     {
       "text": "response",
@@ -1989,265 +1989,265 @@
       "text": "is",
       "start": 133.26,
       "end": 133.6,
-      "probability": 0.9972
+      "probability": 0.9965
     },
     {
       "text": "to",
       "start": 133.6,
       "end": 133.82,
-      "probability": 0.9978
+      "probability": 0.9975
     },
     {
       "text": "ask",
       "start": 133.82,
-      "end": 134.22,
-      "probability": 0.9945
+      "end": 134.2,
+      "probability": 0.9926
     },
     {
       "text": "why",
-      "start": 134.22,
+      "start": 134.2,
       "end": 134.56,
-      "probability": 0.9098
+      "probability": 0.9033
     },
     {
       "text": "anyone",
       "start": 134.56,
-      "end": 134.96,
-      "probability": 0.9786
+      "end": 134.94,
+      "probability": 0.9797
     },
     {
       "text": "would",
-      "start": 134.96,
+      "start": 134.94,
       "end": 135.22,
-      "probability": 0.9846
+      "probability": 0.9947
     },
     {
       "text": "keep",
       "start": 135.22,
       "end": 135.48,
-      "probability": 0.996
+      "probability": 0.9961
     },
     {
       "text": "building",
       "start": 135.48,
       "end": 135.88,
-      "probability": 0.9765
+      "probability": 0.9816
     },
     {
       "text": "something",
       "start": 135.88,
-      "end": 136.3,
-      "probability": 0.9993
+      "end": 136.28,
+      "probability": 0.9994
     },
     {
       "text": "they",
-      "start": 136.3,
+      "start": 136.28,
       "end": 136.58,
-      "probability": 0.9953
+      "probability": 0.9973
     },
     {
       "text": "admit",
       "start": 136.58,
-      "end": 136.92,
-      "probability": 0.9315
+      "end": 136.9,
+      "probability": 0.9261
     },
     {
       "text": "could",
-      "start": 136.92,
-      "end": 137.18,
-      "probability": 0.1688
+      "start": 136.9,
+      "end": 137.22,
+      "probability": 0.991
     },
     {
       "text": "be",
-      "start": 137.18,
-      "end": 137.5,
-      "probability": 0.9929
+      "start": 137.22,
+      "end": 137.52,
+      "probability": 0.9995
     },
     {
       "text": "dangerous.",
-      "start": 137.5,
-      "end": 137.96,
-      "probability": 0.9958
+      "start": 137.52,
+      "end": 137.86,
+      "probability": 0.9992
     },
     {
       "text": "Buried",
-      "start": 138.94,
+      "start": 138.58,
       "end": 139.18,
-      "probability": 0.7207
+      "probability": 0.5744
     },
     {
       "text": "in",
       "start": 139.18,
       "end": 139.36,
-      "probability": 0.9963
+      "probability": 0.9959
     },
     {
       "text": "that",
       "start": 139.36,
-      "end": 139.6,
-      "probability": 0.9917
+      "end": 139.62,
+      "probability": 0.9855
     },
     {
       "text": "question",
-      "start": 139.6,
+      "start": 139.62,
       "end": 139.94,
-      "probability": 0.9959
+      "probability": 0.9943
     },
     {
       "text": "is",
       "start": 139.94,
       "end": 140.28,
-      "probability": 0.9362
+      "probability": 0.8954
     },
     {
       "text": "an",
       "start": 140.28,
       "end": 140.46,
-      "probability": 0.9823
+      "probability": 0.9794
     },
     {
       "text": "assumption",
       "start": 140.46,
-      "end": 140.82,
-      "probability": 0.9972
+      "end": 140.98,
+      "probability": 0.9977
     },
     {
       "text": "that",
-      "start": 140.82,
+      "start": 140.98,
       "end": 141.84,
-      "probability": 0.7109
+      "probability": 0.7863
     },
     {
       "text": "slowing",
       "start": 141.84,
       "end": 142.12,
-      "probability": 0.9823
+      "probability": 0.9889
     },
     {
       "text": "down",
       "start": 142.12,
       "end": 142.6,
-      "probability": 0.9973
+      "probability": 0.9977
     },
     {
       "text": "is",
       "start": 142.6,
-      "end": 142.88,
-      "probability": 0.9958
+      "end": 142.86,
+      "probability": 0.9952
     },
     {
       "text": "a",
-      "start": 142.88,
+      "start": 142.86,
       "end": 143.0,
-      "probability": 0.9937
+      "probability": 0.9906
     },
     {
       "text": "choice",
       "start": 143.0,
       "end": 143.22,
-      "probability": 0.9952
+      "probability": 0.9957
     },
     {
       "text": "available",
       "start": 143.22,
-      "end": 143.66,
-      "probability": 0.9941
+      "end": 143.68,
+      "probability": 0.9929
     },
     {
       "text": "to",
-      "start": 143.66,
-      "end": 144.04,
-      "probability": 0.9987
+      "start": 143.68,
+      "end": 144.06,
+      "probability": 0.9983
     },
     {
       "text": "any",
-      "start": 144.04,
-      "end": 144.32,
-      "probability": 0.9517
+      "start": 144.06,
+      "end": 144.34,
+      "probability": 0.9305
     },
     {
       "text": "one",
-      "start": 144.32,
-      "end": 144.62,
-      "probability": 0.9898
+      "start": 144.34,
+      "end": 144.6,
+      "probability": 0.9849
     },
     {
       "text": "company",
-      "start": 144.62,
-      "end": 144.98,
-      "probability": 0.9931
+      "start": 144.6,
+      "end": 144.92,
+      "probability": 0.9893
     },
     {
       "text": "or",
-      "start": 144.98,
+      "start": 144.92,
       "end": 145.24,
-      "probability": 0.9908
+      "probability": 0.9914
     },
     {
       "text": "country",
       "start": 145.24,
       "end": 145.78,
-      "probability": 0.9958
+      "probability": 0.9943
     },
     {
       "text": "on",
       "start": 145.78,
       "end": 146.14,
-      "probability": 0.9074
+      "probability": 0.914
     },
     {
       "text": "its",
       "start": 146.14,
       "end": 146.32,
-      "probability": 0.9702
+      "probability": 0.9629
     },
     {
       "text": "own.",
       "start": 146.32,
-      "end": 146.96,
+      "end": 146.62,
       "probability": 0.9998
     },
     {
       "text": "It",
-      "start": 147.44,
+      "start": 147.5,
       "end": 147.52,
-      "probability": 0.9907
+      "probability": 0.989
     },
     {
       "text": "isn't.",
       "start": 147.52,
-      "end": 148.18,
-      "probability": 0.9909
+      "end": 148.2,
+      "probability": 0.9896
     },
     {
       "text": "Markets",
-      "start": 148.62,
-      "end": 149.04,
-      "probability": 0.9424
+      "start": 148.72,
+      "end": 149.02,
+      "probability": 0.9564
     },
     {
       "text": "reward",
-      "start": 149.04,
-      "end": 149.5,
-      "probability": 0.9934
+      "start": 149.02,
+      "end": 149.52,
+      "probability": 0.9921
     },
     {
       "text": "whoever",
-      "start": 149.5,
-      "end": 149.92,
-      "probability": 0.9937
+      "start": 149.52,
+      "end": 149.94,
+      "probability": 0.9947
     },
     {
       "text": "ships",
-      "start": 149.92,
-      "end": 150.26,
-      "probability": 0.9502
+      "start": 149.94,
+      "end": 150.24,
+      "probability": 0.9533
     },
     {
       "text": "the",
-      "start": 150.26,
+      "start": 150.24,
       "end": 150.44,
-      "probability": 0.9953
+      "probability": 0.9957
     },
     {
       "text": "most",
@@ -2258,162 +2258,162 @@
     {
       "text": "capable",
       "start": 150.74,
-      "end": 151.08,
-      "probability": 0.9968
+      "end": 151.1,
+      "probability": 0.9967
     },
     {
       "text": "model",
-      "start": 151.08,
+      "start": 151.1,
       "end": 151.6,
-      "probability": 0.9893
+      "probability": 0.9899
     },
     {
       "text": "first.",
       "start": 151.6,
-      "end": 152.22,
-      "probability": 0.9722
+      "end": 152.28,
+      "probability": 0.9771
     },
     {
       "text": "Investors",
-      "start": 153.2,
+      "start": 153.12,
       "end": 153.2,
-      "probability": 0.7716
+      "probability": 0.8368
     },
     {
       "text": "price",
       "start": 153.2,
       "end": 153.84,
-      "probability": 0.8109
+      "probability": 0.8897
     },
     {
       "text": "in",
       "start": 153.84,
-      "end": 154.08,
-      "probability": 0.9932
+      "end": 154.1,
+      "probability": 0.9939
     },
     {
       "text": "leadership,",
-      "start": 154.08,
+      "start": 154.1,
       "end": 154.5,
-      "probability": 0.9933
+      "probability": 0.9915
     },
     {
       "text": "not",
       "start": 155.12,
       "end": 155.36,
-      "probability": 0.993
+      "probability": 0.9943
     },
     {
       "text": "caution.",
       "start": 155.36,
       "end": 155.76,
-      "probability": 0.9873
+      "probability": 0.9831
     },
     {
       "text": "The",
       "start": 156.76,
       "end": 156.94,
-      "probability": 0.9853
+      "probability": 0.9871
     },
     {
       "text": "handful",
       "start": 156.94,
       "end": 157.18,
-      "probability": 0.9744
+      "probability": 0.9844
     },
     {
       "text": "of",
       "start": 157.18,
-      "end": 157.4,
-      "probability": 0.9974
+      "end": 157.42,
+      "probability": 0.9969
     },
     {
       "text": "labs",
-      "start": 157.4,
+      "start": 157.42,
       "end": 157.64,
-      "probability": 0.9529
+      "probability": 0.9383
     },
     {
       "text": "with",
       "start": 157.64,
       "end": 157.88,
-      "probability": 0.9809
+      "probability": 0.9819
     },
     {
       "text": "the",
       "start": 157.88,
-      "end": 158.08,
-      "probability": 0.9945
+      "end": 158.44,
+      "probability": 0.9903
     },
     {
       "text": "computing",
-      "start": 158.08,
-      "end": 158.4,
-      "probability": 0.9701
+      "start": 158.44,
+      "end": 158.44,
+      "probability": 0.9755
     },
     {
       "text": "power",
-      "start": 158.4,
+      "start": 158.44,
       "end": 158.92,
-      "probability": 0.9972
+      "probability": 0.9974
     },
     {
       "text": "and",
       "start": 158.92,
-      "end": 159.16,
-      "probability": 0.9847
+      "end": 159.14,
+      "probability": 0.9853
     },
     {
       "text": "the",
-      "start": 159.16,
+      "start": 159.14,
       "end": 159.34,
-      "probability": 0.9582
+      "probability": 0.9525
     },
     {
       "text": "talent",
       "start": 159.34,
       "end": 159.58,
-      "probability": 0.9976
+      "probability": 0.9978
     },
     {
       "text": "to",
       "start": 159.58,
       "end": 159.88,
-      "probability": 0.9981
+      "probability": 0.9984
     },
     {
       "text": "compete",
       "start": 159.88,
-      "end": 160.1,
-      "probability": 0.9967
+      "end": 160.12,
+      "probability": 0.9971
     },
     {
       "text": "at",
-      "start": 160.1,
-      "end": 160.34,
-      "probability": 0.9891
+      "start": 160.12,
+      "end": 160.32,
+      "probability": 0.9922
     },
     {
       "text": "the",
-      "start": 160.34,
+      "start": 160.32,
       "end": 160.5,
-      "probability": 0.9982
+      "probability": 0.9983
     },
     {
       "text": "frontier",
       "start": 160.5,
-      "end": 161.1,
-      "probability": 0.9714
+      "end": 161.02,
+      "probability": 0.9341
     },
     {
       "text": "are",
-      "start": 161.1,
-      "end": 161.64,
-      "probability": 0.9905
+      "start": 161.02,
+      "end": 161.66,
+      "probability": 0.9826
     },
     {
       "text": "locked",
-      "start": 161.64,
+      "start": 161.66,
       "end": 161.86,
       "probability": 0.9961
     },
@@ -2421,19 +2421,19 @@
       "text": "in",
       "start": 161.86,
       "end": 162.08,
-      "probability": 0.9943
+      "probability": 0.9952
     },
     {
       "text": "a",
       "start": 162.08,
       "end": 162.16,
-      "probability": 0.9875
+      "probability": 0.9757
     },
     {
       "text": "race",
       "start": 162.16,
       "end": 162.34,
-      "probability": 0.9987
+      "probability": 0.9988
     },
     {
       "text": "against",
@@ -2444,206 +2444,206 @@
     {
       "text": "each",
       "start": 162.72,
-      "end": 163.0,
-      "probability": 0.9995
+      "end": 163.02,
+      "probability": 0.9993
     },
     {
       "text": "other.",
-      "start": 163.0,
-      "end": 163.42,
-      "probability": 0.9972
+      "start": 163.02,
+      "end": 163.46,
+      "probability": 0.9971
     },
     {
       "text": "And",
-      "start": 163.42,
+      "start": 164.18,
       "end": 164.56,
-      "probability": 0.3672
+      "probability": 0.3571
     },
     {
       "text": "increasingly,",
       "start": 164.56,
       "end": 165.18,
-      "probability": 0.9337
+      "probability": 0.9415
     },
     {
       "text": "so",
       "start": 166.16,
       "end": 166.5,
-      "probability": 0.9861
+      "probability": 0.9853
     },
     {
       "text": "are",
       "start": 166.5,
       "end": 166.7,
-      "probability": 0.9154
+      "probability": 0.8706
     },
     {
       "text": "the",
       "start": 166.7,
-      "end": 167.22,
-      "probability": 0.9896
+      "end": 166.8,
+      "probability": 0.9887
     },
     {
       "text": "governments",
-      "start": 167.22,
+      "start": 166.8,
       "end": 167.22,
-      "probability": 0.9097
+      "probability": 0.9144
     },
     {
       "text": "backing",
       "start": 167.22,
-      "end": 167.54,
-      "probability": 0.9952
+      "end": 167.56,
+      "probability": 0.9958
     },
     {
       "text": "them.",
-      "start": 167.54,
-      "end": 168.42,
-      "probability": 0.9975
+      "start": 167.56,
+      "end": 167.9,
+      "probability": 0.9978
     },
     {
       "text": "Late",
       "start": 169.24,
       "end": 169.58,
-      "probability": 0.9782
+      "probability": 0.9812
     },
     {
       "text": "in",
       "start": 169.58,
       "end": 169.86,
-      "probability": 0.9859
+      "probability": 0.9892
     },
     {
       "text": "2025,",
       "start": 169.86,
-      "end": 170.7,
-      "probability": 0.9871
+      "end": 170.72,
+      "probability": 0.9826
     },
     {
       "text": "a",
       "start": 171.6,
       "end": 171.66,
-      "probability": 0.975
+      "probability": 0.9616
     },
     {
       "text": "rivals",
       "start": 171.66,
       "end": 171.94,
-      "probability": 0.8169
+      "probability": 0.8176
     },
     {
       "text": "model",
       "start": 171.94,
       "end": 172.36,
-      "probability": 0.9811
+      "probability": 0.9821
     },
     {
       "text": "reportedly",
       "start": 172.36,
       "end": 173.06,
-      "probability": 0.9934
+      "probability": 0.9919
     },
     {
       "text": "overtook",
       "start": 173.06,
       "end": 173.6,
-      "probability": 0.9893
+      "probability": 0.989
     },
     {
       "text": "one",
       "start": 173.6,
       "end": 173.92,
-      "probability": 0.9832
+      "probability": 0.984
     },
     {
       "text": "leading",
       "start": 173.92,
       "end": 174.22,
-      "probability": 0.9434
+      "probability": 0.9092
     },
     {
       "text": "company's",
       "start": 174.22,
       "end": 174.82,
-      "probability": 0.962
+      "probability": 0.9498
     },
     {
       "text": "flagship",
       "start": 174.82,
-      "end": 175.28,
-      "probability": 0.9942
+      "end": 175.26,
+      "probability": 0.9951
     },
     {
       "text": "on",
-      "start": 175.28,
+      "start": 175.26,
       "end": 175.68,
-      "probability": 0.9738
+      "probability": 0.9833
     },
     {
       "text": "several",
       "start": 175.68,
       "end": 176.02,
-      "probability": 0.9868
+      "probability": 0.9931
     },
     {
       "text": "benchmarks.",
       "start": 176.02,
-      "end": 176.7,
-      "probability": 0.9881
+      "end": 176.68,
+      "probability": 0.9871
     },
     {
       "text": "Within",
       "start": 177.7,
       "end": 177.86,
-      "probability": 0.9762
+      "probability": 0.9782
     },
     {
       "text": "days,",
       "start": 177.86,
-      "end": 178.52,
-      "probability": 0.9955
+      "end": 178.5,
+      "probability": 0.9942
     },
     {
       "text": "that",
       "start": 179.08,
       "end": 179.2,
-      "probability": 0.9895
+      "probability": 0.9925
     },
     {
       "text": "company's",
       "start": 179.2,
       "end": 179.64,
-      "probability": 0.9883
+      "probability": 0.9886
     },
     {
       "text": "own",
       "start": 179.64,
       "end": 179.86,
-      "probability": 0.9879
+      "probability": 0.989
     },
     {
       "text": "chief",
       "start": 179.86,
       "end": 180.12,
-      "probability": 0.8956
+      "probability": 0.8928
     },
     {
       "text": "executive",
       "start": 180.12,
       "end": 180.68,
-      "probability": 0.9949
+      "probability": 0.9938
     },
     {
       "text": "was",
       "start": 180.68,
-      "end": 181.0,
-      "probability": 0.9915
+      "end": 181.02,
+      "probability": 0.9978
     },
     {
       "text": "reported",
-      "start": 181.0,
+      "start": 181.02,
       "end": 181.32,
-      "probability": 0.9949
+      "probability": 0.9968
     },
     {
       "text": "to",
@@ -2655,55 +2655,55 @@
       "text": "have",
       "start": 181.6,
       "end": 181.86,
-      "probability": 0.9967
+      "probability": 0.9969
     },
     {
       "text": "declared",
       "start": 181.86,
       "end": 182.16,
-      "probability": 0.9943
+      "probability": 0.9937
     },
     {
       "text": "an",
       "start": 182.16,
       "end": 182.5,
-      "probability": 0.9867
+      "probability": 0.9907
     },
     {
       "text": "internal",
       "start": 182.5,
       "end": 182.92,
-      "probability": 0.963
+      "probability": 0.9704
     },
     {
       "text": "emergency.",
       "start": 182.92,
-      "end": 183.92,
-      "probability": 0.9929
+      "end": 183.84,
+      "probability": 0.9934
     },
     {
       "text": "Losing",
       "start": 184.6,
-      "end": 184.8,
-      "probability": 0.9068
+      "end": 184.76,
+      "probability": 0.9164
     },
     {
       "text": "the",
-      "start": 184.8,
+      "start": 184.76,
       "end": 185.04,
-      "probability": 0.9965
+      "probability": 0.9976
     },
     {
       "text": "lead,",
       "start": 185.04,
-      "end": 185.44,
-      "probability": 0.9883
+      "end": 185.4,
+      "probability": 0.9894
     },
     {
       "text": "even",
-      "start": 185.54,
+      "start": 185.56,
       "end": 185.92,
-      "probability": 0.9969
+      "probability": 0.9968
     },
     {
       "text": "briefly,",
@@ -2714,68 +2714,68 @@
     {
       "text": "can",
       "start": 186.88,
-      "end": 186.92,
-      "probability": 0.9974
+      "end": 186.94,
+      "probability": 0.9979
     },
     {
       "text": "mean",
-      "start": 186.92,
+      "start": 186.94,
       "end": 187.16,
-      "probability": 0.9959
+      "probability": 0.9962
     },
     {
       "text": "losing",
       "start": 187.16,
       "end": 187.5,
-      "probability": 0.9908
+      "probability": 0.9935
     },
     {
       "text": "customers,",
       "start": 187.5,
-      "end": 188.08,
-      "probability": 0.9988
+      "end": 188.06,
+      "probability": 0.9991
     },
     {
-      "text": "capital",
-      "start": 188.7,
-      "end": 188.92,
-      "probability": 0.9871
+      "text": "capital,",
+      "start": 188.68,
+      "end": 188.96,
+      "probability": 0.9873
     },
     {
       "text": "and",
-      "start": 188.92,
-      "end": 189.44,
-      "probability": 0.4794
+      "start": 189.22,
+      "end": 189.5,
+      "probability": 0.9995
     },
     {
       "text": "leverage.",
-      "start": 189.44,
+      "start": 189.5,
       "end": 189.86,
-      "probability": 0.9941
+      "probability": 0.9958
     },
     {
       "text": "The",
       "start": 189.86,
-      "end": 190.64,
-      "probability": 0.3113
+      "end": 190.66,
+      "probability": 0.3175
     },
     {
       "text": "very",
-      "start": 190.64,
+      "start": 190.66,
       "end": 191.0,
-      "probability": 0.9761
+      "probability": 0.9685
     },
     {
       "text": "resources",
       "start": 191.0,
-      "end": 191.5,
-      "probability": 0.9889
+      "end": 191.52,
+      "probability": 0.9903
     },
     {
       "text": "a",
-      "start": 191.5,
+      "start": 191.52,
       "end": 191.8,
-      "probability": 0.9562
+      "probability": 0.9552
     },
     {
       "text": "company",
@@ -2786,86 +2786,86 @@
     {
       "text": "would",
       "start": 192.04,
-      "end": 192.3,
-      "probability": 0.9787
+      "end": 192.32,
+      "probability": 0.9831
     },
     {
       "text": "need",
-      "start": 192.3,
+      "start": 192.32,
       "end": 192.58,
-      "probability": 0.9975
+      "probability": 0.9973
     },
     {
       "text": "to",
       "start": 192.58,
       "end": 192.78,
-      "probability": 0.9977
+      "probability": 0.9971
     },
     {
       "text": "invest",
       "start": 192.78,
       "end": 193.06,
-      "probability": 0.999
+      "probability": 0.9991
     },
     {
       "text": "in",
       "start": 193.06,
-      "end": 193.36,
-      "probability": 0.9975
+      "end": 193.38,
+      "probability": 0.9976
     },
     {
       "text": "safety",
-      "start": 193.36,
+      "start": 193.38,
       "end": 193.66,
-      "probability": 0.9847
+      "probability": 0.99
     },
     {
       "text": "in",
       "start": 193.66,
       "end": 193.82,
-      "probability": 0.9848
+      "probability": 0.9862
     },
     {
       "text": "the",
       "start": 193.82,
       "end": 193.96,
-      "probability": 0.9955
+      "probability": 0.9951
     },
     {
       "text": "first",
       "start": 193.96,
       "end": 194.22,
-      "probability": 0.9955
+      "probability": 0.9947
     },
     {
       "text": "place.",
       "start": 194.22,
-      "end": 194.96,
-      "probability": 0.9978
+      "end": 194.54,
+      "probability": 0.9981
     },
     {
       "text": "Slowing",
-      "start": 195.62,
+      "start": 195.64,
       "end": 195.86,
-      "probability": 0.9252
+      "probability": 0.919
     },
     {
       "text": "down",
       "start": 195.86,
-      "end": 196.18,
-      "probability": 0.9975
+      "end": 196.2,
+      "probability": 0.9972
     },
     {
       "text": "alone",
-      "start": 196.18,
+      "start": 196.2,
       "end": 196.62,
-      "probability": 0.9065
+      "probability": 0.8877
     },
     {
       "text": "doesn't",
       "start": 196.62,
       "end": 197.08,
-      "probability": 0.9691
+      "probability": 0.977
     },
     {
       "text": "remove",
@@ -2877,169 +2877,169 @@
       "text": "the",
       "start": 197.42,
       "end": 197.68,
-      "probability": 0.9985
+      "probability": 0.9984
     },
     {
       "text": "risk.",
       "start": 197.68,
       "end": 197.98,
-      "probability": 0.9942
+      "probability": 0.9939
     },
     {
       "text": "It",
-      "start": 198.7,
-      "end": 198.84,
-      "probability": 0.9928
+      "start": 198.68,
+      "end": 198.86,
+      "probability": 0.9923
     },
     {
       "text": "just",
-      "start": 198.84,
-      "end": 199.2,
-      "probability": 0.9992
+      "start": 198.86,
+      "end": 199.18,
+      "probability": 0.9991
     },
     {
       "text": "hands",
-      "start": 199.2,
+      "start": 199.18,
       "end": 199.46,
-      "probability": 0.9668
+      "probability": 0.9666
     },
     {
       "text": "the",
       "start": 199.46,
       "end": 199.68,
-      "probability": 0.9974
+      "probability": 0.9979
     },
     {
       "text": "frontier",
       "start": 199.68,
-      "end": 200.14,
-      "probability": 0.9759
+      "end": 200.16,
+      "probability": 0.9786
     },
     {
       "text": "to",
-      "start": 200.14,
+      "start": 200.16,
       "end": 200.58,
-      "probability": 0.8525
+      "probability": 0.8498
     },
     {
       "text": "whoever",
       "start": 200.58,
-      "end": 200.84,
-      "probability": 0.9896
+      "end": 200.86,
+      "probability": 0.9892
     },
     {
       "text": "doesn't.",
-      "start": 200.84,
-      "end": 201.16,
-      "probability": 0.9909
+      "start": 200.86,
+      "end": 201.4,
+      "probability": 0.9929
     },
     {
       "text": "The",
       "start": 201.74,
       "end": 201.88,
-      "probability": 0.995
+      "probability": 0.9961
     },
     {
       "text": "deeper",
       "start": 201.88,
-      "end": 202.22,
-      "probability": 0.9906
+      "end": 202.2,
+      "probability": 0.9916
     },
     {
       "text": "problem",
-      "start": 202.22,
-      "end": 202.62,
-      "probability": 0.9962
+      "start": 202.2,
+      "end": 202.6,
+      "probability": 0.9973
     },
     {
       "text": "is",
-      "start": 202.62,
+      "start": 202.6,
       "end": 202.92,
-      "probability": 0.9852
+      "probability": 0.9872
     },
     {
       "text": "that",
       "start": 202.92,
       "end": 203.06,
-      "probability": 0.9851
+      "probability": 0.9902
     },
     {
       "text": "this",
       "start": 203.06,
       "end": 203.36,
-      "probability": 0.9864
+      "probability": 0.9918
     },
     {
       "text": "competitive",
       "start": 203.36,
-      "end": 203.74,
-      "probability": 0.9955
+      "end": 203.72,
+      "probability": 0.9962
     },
     {
       "text": "pressure",
-      "start": 203.74,
+      "start": 203.72,
       "end": 204.14,
-      "probability": 0.9957
+      "probability": 0.9968
     },
     {
       "text": "is",
       "start": 204.14,
       "end": 204.46,
-      "probability": 0.9955
+      "probability": 0.997
     },
     {
       "text": "pushing",
       "start": 204.46,
       "end": 204.76,
-      "probability": 0.9961
+      "probability": 0.9959
     },
     {
       "text": "capability",
       "start": 204.76,
-      "end": 205.34,
-      "probability": 0.9806
+      "end": 205.36,
+      "probability": 0.9801
     },
     {
       "text": "into",
-      "start": 205.34,
-      "end": 205.78,
-      "probability": 0.9947
+      "start": 205.36,
+      "end": 205.76,
+      "probability": 0.9952
     },
     {
       "text": "the",
-      "start": 205.78,
+      "start": 205.76,
       "end": 205.96,
-      "probability": 0.9972
+      "probability": 0.9976
     },
     {
       "text": "world",
       "start": 205.96,
       "end": 206.32,
-      "probability": 0.9972
+      "probability": 0.9967
     },
     {
       "text": "faster",
       "start": 206.32,
       "end": 206.76,
-      "probability": 0.9912
+      "probability": 0.9926
     },
     {
       "text": "than",
       "start": 206.76,
-      "end": 207.02,
-      "probability": 0.9926
+      "end": 207.04,
+      "probability": 0.9902
     },
     {
       "text": "institutions",
-      "start": 207.02,
-      "end": 207.56,
-      "probability": 0.9797
+      "start": 207.04,
+      "end": 207.54,
+      "probability": 0.9813
     },
     {
       "text": "can",
-      "start": 207.56,
+      "start": 207.54,
       "end": 207.88,
-      "probability": 0.9979
+      "probability": 0.9983
     },
     {
       "text": "absorb",
@@ -3048,124 +3048,124 @@
       "probability": 0.999
     },
     {
-      "text": "it.",
+      "text": "it,",
       "start": 208.2,
-      "end": 208.72,
-      "probability": 0.9919
+      "end": 208.78,
+      "probability": 0.9942
     },
     {
-      "text": "And",
-      "start": 209.04,
+      "text": "and",
+      "start": 209.0,
       "end": 209.16,
-      "probability": 0.9372
+      "probability": 0.9963
     },
     {
       "text": "the",
       "start": 209.16,
-      "end": 209.34,
-      "probability": 0.9847
+      "end": 209.44,
+      "probability": 0.9888
     },
     {
       "text": "risks",
-      "start": 209.34,
+      "start": 209.44,
       "end": 209.64,
-      "probability": 0.9687
+      "probability": 0.9787
     },
     {
       "text": "aren't",
       "start": 209.64,
-      "end": 210.1,
-      "probability": 0.9942
+      "end": 210.08,
+      "probability": 0.9963
     },
     {
       "text": "hypothetical",
-      "start": 210.1,
+      "start": 210.08,
       "end": 210.6,
-      "probability": 0.9869
+      "probability": 0.9838
     },
     {
       "text": "anymore.",
       "start": 210.6,
       "end": 211.32,
-      "probability": 0.956
+      "probability": 0.9677
     },
     {
       "text": "In",
       "start": 212.3,
       "end": 212.4,
-      "probability": 0.9128
+      "probability": 0.9302
     },
     {
       "text": "cybersecurity,",
       "start": 212.4,
-      "end": 213.12,
-      "probability": 0.3244
+      "end": 213.1,
+      "probability": 0.3086
     },
     {
       "text": "AI",
       "start": 213.86,
       "end": 213.96,
-      "probability": 0.9604
+      "probability": 0.9568
     },
     {
       "text": "has",
       "start": 213.96,
       "end": 214.22,
-      "probability": 0.9974
+      "probability": 0.9976
     },
     {
       "text": "already",
       "start": 214.22,
       "end": 214.58,
-      "probability": 0.9981
+      "probability": 0.9987
     },
     {
       "text": "lowered",
       "start": 214.58,
-      "end": 214.84,
-      "probability": 0.9987
+      "end": 214.82,
+      "probability": 0.9986
     },
     {
       "text": "the",
-      "start": 214.84,
+      "start": 214.82,
       "end": 215.12,
-      "probability": 0.998
+      "probability": 0.9982
     },
     {
       "text": "barrier",
       "start": 215.12,
       "end": 215.32,
-      "probability": 0.997
+      "probability": 0.9969
     },
     {
       "text": "to",
       "start": 215.32,
-      "end": 215.52,
-      "probability": 0.9988
+      "end": 215.54,
+      "probability": 0.9989
     },
     {
       "text": "entry.",
-      "start": 215.52,
+      "start": 215.54,
       "end": 215.98,
-      "probability": 0.9955
+      "probability": 0.9953
     },
     {
       "text": "In",
       "start": 215.98,
       "end": 216.9,
-      "probability": 0.9019
+      "probability": 0.9159
     },
     {
       "text": "2025,",
       "start": 216.9,
-      "end": 217.66,
-      "probability": 0.9745
+      "end": 217.68,
+      "probability": 0.9779
     },
     {
       "text": "one",
       "start": 218.42,
       "end": 218.62,
-      "probability": 0.9715
+      "probability": 0.9708
     },
     {
       "text": "company",
@@ -3176,34 +3176,34 @@
     {
       "text": "disclosed",
       "start": 219.04,
-      "end": 219.54,
-      "probability": 0.9137
+      "end": 219.56,
+      "probability": 0.9223
     },
     {
       "text": "that",
-      "start": 219.54,
+      "start": 219.56,
       "end": 219.84,
-      "probability": 0.9685
+      "probability": 0.9669
     },
     {
       "text": "a",
       "start": 219.84,
       "end": 219.94,
-      "probability": 0.9575
+      "probability": 0.9598
     },
     {
       "text": "crimp",
       "start": 219.94,
       "end": 219.98,
-      "probability": 0.8205
+      "probability": 0.7985
     }
   ],
   "paragraph_boundaries": [
     {
       "paragraph_index": 0,
-      "source_end_seconds": 15.4,
-      "output_end_seconds": 15.4,
-      "terminal_text": "won't,",
+      "source_end_seconds": 15.42,
+      "output_end_seconds": 15.42,
+      "terminal_text": "won't.",
       "alignment_confidence": 1.0,
       "paragraph": "Every major AI lab on Earth believes moving this fast might be dangerous. And every one of them is still moving as fast as it can. Not because they don't see the risk. Because they see a bigger one: that if they slow down, somebody else won't."
     },
@@ -3257,8 +3257,8 @@
     },
     {
       "paragraph_index": 7,
-      "source_end_seconds": 122.76,
-      "output_end_seconds": 148.76,
+      "source_end_seconds": 122.72,
+      "output_end_seconds": 148.72,
       "terminal_text": "result.",
       "alignment_confidence": 1.0,
       "paragraph": "None of this happened in the wild. These were designed tests, built specifically to see how far a model would go. And in at least one case, researchers have said the scenario was reshaped repeatedly until that exact outcome became the default result."

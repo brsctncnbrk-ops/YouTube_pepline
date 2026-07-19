@@ -4,7 +4,7 @@
   "status": "ready",
   "fps": 30,
   "duration_frames": 22376,
-  "generated_at": "2026-07-19T19:35:52.003Z",
+  "generated_at": "2026-07-19T19:56:48.521Z",
   "proof": {
     "type": "prefix",
     "duration_frames": 4500,
@@ -1239,7 +1239,13 @@
         "type": "section_bridge",
         "kicker": "THE LIMIT",
         "title": "A TEST IS NOT AN INCIDENT",
-        "subtitle": "But it can still expose the shape of a future failure."
+        "subtitle": "But it can still expose the shape of a future failure.",
+        "source": "Anthropic · Agentic Misalignment: How LLMs Could Be Insider Threats · controlled evaluation and stated limitations",
+        "source_ids": [
+          "SRC_ANTHROPIC_AGENTIC_MISALIGNMENT_2025"
+        ],
+        "source_backed": true,
+        "provenance_mode": "source_derived_graphic"
       },
       "motif": "section_bridge_controlled_test_limit"
     },
