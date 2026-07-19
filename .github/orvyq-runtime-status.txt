@@ -1,2 +1,2 @@
-requested_at=2026-07-19T16:25:00+03:00
-purpose=extract-latest-proof-failure-after-full-audit-chain
+requested_at=2026-07-19T17:04:00+03:00
+purpose=verify-proof-restart-after-evidence-audit-contextual-footage-fix
