@@ -1,2 +1,2 @@
-requested_at=2026-07-19T17:12:00+03:00
-purpose=extract-run-29690082731-exact-failure
+requested_at=2026-07-19T19:29:00+03:00
+purpose=validate-final-compatibility-fixes-after-bot-commit
