@@ -1,0 +1,163 @@
+name: ORVYQ Approved Full Render
+
+on:
+  push:
+    branches:
+      - "agent/orvyq-full-render-approved"
+    paths:
+      - ".github/orvyq-full-render-trigger.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: orvyq-approved-full-render
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+      APPROVED_PREVIEW_RUN_ID: "29655003486"
+    steps:
+      - name: Checkout approved source with LFS
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Pull LFS assets
+        run: git lfs pull
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install tooling
+        run: |
+          set -euo pipefail
+          npm ci
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --disable-pip-version-check faster-whisper==1.2.0
+
+      - name: Validate recorded approval and project id
+        run: |
+          set -euo pipefail
+          node --input-type=module -e '
+            import {readFile} from "node:fs/promises";
+            import {assertValidProjectId} from "./scripts/lib/fs-utils.mjs";
+            assertValidProjectId(process.env.PROJECT_ID);
+            const approval = JSON.parse(await readFile(`projects/${process.env.PROJECT_ID}/qa/proof_approval.json`, "utf8"));
+            const narration = JSON.parse(await readFile(`projects/${process.env.PROJECT_ID}/voice/narration_status.json`, "utf8"));
+            if (approval.approved !== true) throw new Error("Human preview approval is missing");
+            if (String(approval.approved_preview_run_id) !== process.env.APPROVED_PREVIEW_RUN_ID) throw new Error("Approved preview run id mismatch");
+            if (narration.full_narration_approved !== true || narration.full_narration_requires_regeneration !== false) throw new Error("Full narration is not approved");
+            console.log(`Validated project ${process.env.PROJECT_ID} and preview run ${process.env.APPROVED_PREVIEW_RUN_ID}`);
+          '
+
+      - name: Build voice-first audio and verify narration
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_audio_mix.mjs
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID"
+          node scripts/orvyq_caption_build.mjs
+          node scripts/orvyq_edit_plan.mjs
+
+      - name: Rebuild render-ready Remotion project
+        run: |
+          set -euo pipefail
+          node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
+          node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
+
+      - name: Run editorial and license quality gates
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_edit_plan_tests.mjs
+          node scripts/orvyq_license_audit.mjs
+          node scripts/validate.mjs render-ready --project-id "$PROJECT_ID"
+
+      - name: Install deterministic Remotion dependencies
+        run: |
+          set -euo pipefail
+          cd "projects/$PROJECT_ID/remotion/render_ready_project"
+          npm ci --no-audit --no-fund
+          npx tsc --noEmit
+
+      - name: Resolve browser executable
+        run: |
+          set -euo pipefail
+          BROWSER="$(command -v google-chrome-stable || command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          echo "FACTFORGE_REMOTION_BROWSER_EXECUTABLE=$BROWSER" >> "$GITHUB_ENV"
+          "$BROWSER" --version
+
+      - name: Render full video
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          mkdir -p "$APP/out"
+          cd "$APP"
+          npx remotion render src/index.ts FactForgeVideo out/final_video.mp4 --codec=h264 --concurrency=1 2>&1 | tee out/render_stdout.txt
+
+      - name: Run post-render media and speech QA
+        run: |
+          set -euo pipefail
+          APP="projects/$PROJECT_ID/remotion/render_ready_project"
+          node scripts/orvyq_media_qa.mjs --project-id "$PROJECT_ID" --video "$APP/out/final_video.mp4"
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --media "$APP/out/final_video.mp4" --output-name final_video_speech_qa.json
+
+      - name: Collect successful render output
+        run: |
+          set -euo pipefail
+          SRC="projects/$PROJECT_ID/remotion/render_ready_project/out"
+          DEST="projects/$PROJECT_ID/output"
+          mkdir -p "$DEST"
+          cp "$SRC/final_video.mp4" "$DEST/final_video.mp4"
+          {
+            echo "Rendered at: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "Workflow run: ${{ github.run_id }}"
+            echo "Approved preview run: $APPROVED_PREVIEW_RUN_ID"
+            echo "Source commit: ${{ github.sha }}"
+            echo "---"
+            tail -n 80 "$SRC/render_stdout.txt" || true
+          } > "$DEST/render_log.txt"
+          node scripts/manifest_cli.mjs render-complete --project-id "$PROJECT_ID" --output-file "output/final_video.mp4"
+
+      - name: Upload full render bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-full-render-${{ github.run_id }}
+          path: |
+            projects/${{ env.PROJECT_ID }}/output/final_video.mp4
+            projects/${{ env.PROJECT_ID }}/output/render_log.txt
+            projects/${{ env.PROJECT_ID }}/manifest.json
+            projects/${{ env.PROJECT_ID }}/assets/asset_manifest.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload ORVYQ QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-full-render-qa-${{ github.run_id }}
+          path: |
+            projects/${{ env.PROJECT_ID }}/qa/proof_approval.json
+            projects/${{ env.PROJECT_ID }}/qa/orvyq_media_qa.json
+            projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
+            projects/${{ env.PROJECT_ID }}/qa/final_video_speech_qa.json
+            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
+            projects/${{ env.PROJECT_ID }}/remotion/captions.json
+            projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
+            projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/render_stdout.txt
+          if-no-files-found: warn
+          retention-days: 30
