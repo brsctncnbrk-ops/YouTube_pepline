@@ -38,6 +38,7 @@ import {
   validateProofApproval,
   writeProofApproval,
   buildEditPlanFromProduction,
+  finalizeProductionPlan,
 } from "./lib/orvyq-production.mjs";
 
 function manifestPath(projectId) {
@@ -159,6 +160,36 @@ async function cmdAdvance(args) {
     return { project_id: projectId, stage, result, manifest };
   }
 
+  if (stage === "production_plan") {
+    const planCheck = await validateProductionPlan({
+      projectId,
+      requireReady: false,
+      requireAssets: false,
+    });
+    if (!planCheck.valid) {
+      throw new CliError(
+        `Cannot advance production_plan: ${planCheck.issues.map((entry) => entry.message).join("; ")}`,
+        "PRODUCTION_PLAN_INCOMPLETE",
+      );
+    }
+  }
+  if (stage === "production_plan_qa") {
+    await finalizeProductionPlan({ projectId });
+  }
+  if (stage === "proof_qa") {
+    const planCheck = await validateProductionPlan({
+      projectId,
+      requireReady: true,
+      requireAssets: false,
+    });
+    if (!planCheck.valid) {
+      throw new CliError(
+        `Cannot prepare proof: ${planCheck.issues.map((entry) => entry.message).join("; ")}`,
+        "PRODUCTION_PLAN_INCOMPLETE",
+      );
+    }
+  }
+
   manifest.pending_skills = manifest.pending_skills.filter((s) => s !== stage);
   if (!manifest.completed_skills.includes(stage)) manifest.completed_skills.push(stage);
   manifest.completed_skills = STAGE_ORDER.filter((s) => manifest.completed_skills.includes(s));
@@ -204,6 +235,16 @@ async function cmdQa(args) {
   const result = await validateAll({ projectId, stage: gateName });
   const automated = toHuman(result);
   const qaPath = path.join(projectDir(projectId), "qa", `${gateName}.md`);
+  const judgment =
+    gateName === "production_plan_qa"
+      ? result.valid
+        ? "PASS — The canonical plan covers the full timeline, preserves an exact proof prefix, maps every shot to a section and sourced claim, and satisfies the declared visual-balance and reuse policies."
+        : "FAIL — The canonical full-duration production contract is incomplete or internally inconsistent."
+      : gateName === "proof_qa"
+        ? result.valid
+          ? "PASS — The proof is ready to be rendered as the exact opening prefix of the canonical full-duration plan. Human rendered-video approval remains a separate required gate."
+          : "FAIL — The proof cannot be rendered from the current canonical plan."
+        : "_Not yet completed. Run the corresponding ORVYQ / FactForge QA skill._";
   const content = [
     `# ${gateName} QA — ${projectId}`,
     "",
@@ -211,7 +252,7 @@ async function cmdQa(args) {
     "",
     "### Judgment-Based Checks",
     "",
-    "_Not yet completed. Run the corresponding ORVYQ / FactForge QA skill._",
+    judgment,
     "",
   ].join("\n");
   await fs.mkdir(path.dirname(qaPath), { recursive: true });
@@ -240,7 +281,18 @@ async function cmdQa(args) {
     });
   }
 
-  return { project_id: projectId, gate: gateName, valid: result.valid, qa_file: path.relative(process.cwd(), qaPath) };
+  let finalizedPlan = null;
+  if (result.valid && gateName === "production_plan_qa") {
+    finalizedPlan = await finalizeProductionPlan({ projectId });
+  }
+
+  return {
+    project_id: projectId,
+    gate: gateName,
+    valid: result.valid,
+    qa_file: path.relative(process.cwd(), qaPath),
+    ...(finalizedPlan ? { finalized_plan: finalizedPlan } : {}),
+  };
 }
 
 async function cmdError(args) {
@@ -351,6 +403,28 @@ async function cmdMigrateV3(args) {
   manifest.waiting_for = [];
   manifest.errors = [];
   delete manifest.render;
+
+  const legacyApprovalPath = path.join(
+    projectDir(projectId),
+    "qa",
+    "proof_approval.json",
+  );
+  if (await pathExists(legacyApprovalPath)) {
+    const legacyApproval = await readJsonSafe(legacyApprovalPath, null);
+    if (legacyApproval) {
+      await writeJsonAtomic(
+        path.join(projectDir(projectId), "qa", "legacy_proof_approval.json"),
+        {
+          archived_at: nowIso(),
+          reason:
+            "Pre-v3 approval was not bound to the canonical full-duration production plan hash",
+          approval: legacyApproval,
+        },
+      );
+    }
+    await fs.rm(legacyApprovalPath, { force: true });
+  }
+
   manifest.migration = {
     migrated_to: SCHEMA_VERSION,
     migrated_at: nowIso(),
@@ -366,17 +440,20 @@ async function cmdPrepareProof(args) {
   const { "project-id": projectId } = args;
   if (!projectId) throw new CliError("--project-id is required", "UNKNOWN_ERROR");
   const manifest = await loadManifest(projectId);
-  const planCheck = await validateProductionPlan({ projectId, requireReady: true });
+  const planCheck = await validateProductionPlan({
+    projectId,
+    requireReady: true,
+    requireAssets: false,
+  });
   if (!planCheck.valid) {
     return { project_id: projectId, ready: false, check: summarizeCheck(planCheck) };
   }
-  const editPlan = await buildEditPlanFromProduction({ projectId, mode: "proof" });
   manifest.status = "READY_FOR_PROOF_RENDER";
   manifest.current_stage = "render_qa";
   manifest.proof = {
     status: "ready_for_render",
     production_plan_sha256: planCheck.plan_sha256,
-    duration_frames: editPlan.duration_frames,
+    duration_frames: planCheck.plan.proof.duration_frames,
   };
   await saveManifest(projectId, manifest);
   await logOrchestrator(projectId, `PROOF_PREPARED plan_sha256=${planCheck.plan_sha256}`);

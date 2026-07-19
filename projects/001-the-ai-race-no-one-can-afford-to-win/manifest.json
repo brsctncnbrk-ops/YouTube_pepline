@@ -1,9 +1,9 @@
 {
-  "schema_version": "2.0",
+  "schema_version": "3.0",
   "project_id": "001-the-ai-race-no-one-can-afford-to-win",
   "project_name": "The AI Race No One Can Afford to Win",
-  "status": "READY_FOR_RENDER",
-  "current_stage": "packaging",
+  "status": "IN_PROGRESS",
+  "current_stage": "editor",
   "completed_skills": [
     "research",
     "research_qa",
@@ -20,17 +20,49 @@
     "visual_qa",
     "director",
     "remotion",
-    "editor",
-    "render_qa"
+    "production_plan",
+    "production_plan_qa"
   ],
   "pending_skills": [
+    "editor",
+    "proof_qa",
+    "render_qa",
     "packaging",
     "final_qa"
   ],
   "waiting_for": [],
   "required_files": [],
   "errors": [],
-  "last_successful_stage": "render_qa",
-  "last_updated": "2026-07-13T23:18:22.523Z",
-  "paused": false
+  "last_successful_stage": "production_plan_qa",
+  "last_updated": "2026-07-19T08:04:42.152Z",
+  "paused": false,
+  "migration": {
+    "migrated_to": "3.0",
+    "migrated_at": "2026-07-19T08:04:41.533Z",
+    "reason": "Canonical full-duration production plan and hash-bound proof approval are now mandatory",
+    "previous": {
+      "schema_version": "2.0",
+      "status": "READY_FOR_RENDER",
+      "current_stage": "packaging",
+      "completed_skills": [
+        "research",
+        "research_qa",
+        "script",
+        "fact_audit",
+        "script_qa",
+        "voice_script",
+        "voice_qa",
+        "storyboard",
+        "storyboard_qa",
+        "footage_retrieval",
+        "visual_style_bible",
+        "visual_prompt",
+        "visual_qa",
+        "director",
+        "remotion",
+        "editor",
+        "render_qa"
+      ]
+    }
+  }
 }
