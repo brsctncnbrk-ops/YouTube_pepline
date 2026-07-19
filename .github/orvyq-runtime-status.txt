@@ -1,2 +1,2 @@
-requested_at=2026-07-19T14:34:00+03:00
-purpose=extract-exact-canonical-proof-gate-failure
+requested_at=2026-07-19T14:40:00+03:00
+purpose=verify-proof-restart-after-contextual-footage-fix
