@@ -7,12 +7,14 @@ import {
   finalizeProductionPlan,
 } from "./lib/orvyq-production.mjs";
 import { generateProductionPlan } from "./orvyq_generate_production_plan.mjs";
+import { buildDynamicProofEditPlan } from "./orvyq_dynamic_proof.mjs";
 import {
   preflightCanonicalGeneration,
   bindGeneratedPlanToCanonicalTimeline,
   validateCanonicalTimelineContract,
   assertCanonicalTimelineContract,
 } from "./lib/orvyq-canonical-contract.mjs";
+import { bindCompiledEditPlanToCanonicalTimeline } from "./lib/orvyq-edit-plan-contract.mjs";
 import { parseArgs, printJson } from "./lib/fs-utils.mjs";
 
 function combineChecks(base, contract) {
@@ -45,7 +47,11 @@ async function main() {
         proofSeconds: Number(args["proof-seconds"] || 150),
       });
       const contract = await bindGeneratedPlanToCanonicalTimeline(projectId);
-      result = { ...generated, valid: contract.valid, canonical_timeline_contract: contract };
+      result = {
+        ...generated,
+        valid: contract.valid,
+        canonical_timeline_contract: contract,
+      };
       break;
     }
     case "validate": {
@@ -69,13 +75,16 @@ async function main() {
     }
     case "build-proof": {
       const contract = await assertCanonicalTimelineContract(projectId);
-      const built = await buildEditPlanFromProduction({ projectId, mode: "proof" });
+      const built = await buildDynamicProofEditPlan(projectId);
       result = { ...built, canonical_timeline_contract: contract };
       break;
     }
     case "build-full": {
       const contract = await assertCanonicalTimelineContract(projectId);
-      const built = await buildEditPlanFromProduction({ projectId, mode: "full" });
+      await buildEditPlanFromProduction({ projectId, mode: "full" });
+      const built = await bindCompiledEditPlanToCanonicalTimeline(projectId, {
+        mode: "full",
+      });
       result = { ...built, canonical_timeline_contract: contract };
       break;
     }
