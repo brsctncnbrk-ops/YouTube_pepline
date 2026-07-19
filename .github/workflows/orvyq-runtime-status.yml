@@ -1,4 +1,4 @@
-name: ORVYQ Apply Remaining Fixes
+name: ORVYQ Structural Migration Status
 
 on:
   pull_request:
@@ -7,130 +7,37 @@ on:
       - .github/workflows/orvyq-runtime-status.yml
 
 permissions:
-  contents: write
+  actions: read
+  contents: read
 
 jobs:
-  apply:
+  status:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - name: Checkout PR head
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          fetch-depth: 0
-          show-progress: false
-
-      - name: Apply canonical compatibility fixes
+      - name: Inspect latest structural migration run
         run: |
           set -euo pipefail
-          node --input-type=module <<'NODE'
-          import fs from 'node:fs';
+          RUNS="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-structural-migration.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=5")"
+          echo "$RUNS" | jq '{total_count, runs: [.workflow_runs[] | {id,status,conclusion,head_sha,run_number,created_at,updated_at,html_url}]}'
+          RUN_ID="$(echo "$RUNS" | jq -r '.workflow_runs[0].id // empty')"
+          test -n "$RUN_ID"
+          echo "STRUCTURAL_RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
+          gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs?per_page=100" \
+            --jq '{jobs: [.jobs[] | {id,name,status,conclusion,started_at,completed_at,steps: [.steps[] | {name,status,conclusion,number}]}]}'
 
-          const project = '001-the-ai-race-no-one-can-afford-to-win';
-          const planPath = `projects/${project}/direction/production_plan.json`;
-          const plan = JSON.parse(fs.readFileSync(planPath, 'utf8'));
-          const shot = plan.shots.find((entry) => entry.shot_id === 'shot_034');
-          if (!shot) throw new Error('shot_034 was not found');
-          if (shot.start_frame !== 4916 || shot.end_frame !== 5126) {
-            throw new Error(`shot_034 frame contract changed: ${shot.start_frame}-${shot.end_frame}`);
-          }
-          Object.assign(shot, {
-            asset_type: 'footage',
-            visual_role: 'context',
-            editorial_purpose: 'Break the source-graphic sequence with licensed market movement, without presenting the clip as literal evidence of a named company, investor or event.',
-            video_asset: 'assets/footage/scene_008_42946788405d61ee3a28fa31.mp4',
-            trim_in_sec: 0,
-            trim_out_sec: 7,
-            motion_variant: 'push',
-            contextual_footage: true,
-            provenance_mode: 'approved_contextual_footage',
-            motif: 'assets/footage/scene_008_42946788405d61ee3a28fa31.mp4',
-          });
-          delete shot.evidence;
-          fs.writeFileSync(planPath, `${JSON.stringify(plan, null, 2)}\n`);
-
-          function replaceOnce(path, from, to, label) {
-            const source = fs.readFileSync(path, 'utf8');
-            if (source.includes(to)) return;
-            const matches = source.split(from).length - 1;
-            if (matches !== 1) throw new Error(`${label}: expected one replacement target, found ${matches}`);
-            fs.writeFileSync(path, source.replace(from, to));
-          }
-
-          replaceOnce(
-            'scripts/orvyq_dynamic_proof.mjs',
-            '    project_id: projectId,\n    fps: plan.fps,',
-            '    project_id: projectId,\n    production_mode:\n      plan.production_mode ||\n      plan.art_direction?.production_mode ||\n      "evidence_led_video_essay",\n    fps: plan.fps,',
-            'dynamic proof production_mode',
-          );
-
-          replaceOnce(
-            'scripts/lib/orvyq-production.mjs',
-            '    project_id: projectId,\n    fps: plan.fps,',
-            '    project_id: projectId,\n    production_mode:\n      plan.production_mode ||\n      plan.art_direction?.production_mode ||\n      "evidence_led_video_essay",\n    fps: plan.fps,',
-            'canonical edit-plan production_mode',
-          );
-
-          replaceOnce(
-            'scripts/orvyq_generate_production_plan.mjs',
-            '  { type: "static", params: {} },\n];\nconst MUSIC_STATES = {',
-            '  { type: "static", params: {} },\n];\nconst MAX_UNINTERRUPTED_EVIDENCE_SECONDS = 16;\nconst MUSIC_STATES = {',
-            'generator evidence-run constant',
-          );
-
-          replaceOnce(
-            'scripts/orvyq_generate_production_plan.mjs',
-            '  return chunks;\n}\n\nfunction buildSectionRanges',
-            '  return chunks;\n}\n\nfunction trailingEvidenceFrames(shots) {\n  let frames = 0;\n  for (let index = shots.length - 1; index >= 0; index -= 1) {\n    const shot = shots[index];\n    if (shot.asset_type !== "evidence") break;\n    frames += Number(shot.end_frame) - Number(shot.start_frame);\n  }\n  return frames;\n}\n\nfunction buildSectionRanges',
-            'generator trailing evidence helper',
-          );
-
-          replaceOnce(
-            'scripts/orvyq_generate_production_plan.mjs',
-            '      const patternIndex = generatedOrdinal % 5;\n      const wantsEvidence = patternIndex === 0 || patternIndex === 3;',
-            '      const patternIndex = generatedOrdinal % 5;\n      const evidenceRunLimitFrames = Math.round(\n        composition.fps * MAX_UNINTERRUPTED_EVIDENCE_SECONDS,\n      );\n      const shouldBreakEvidenceRun =\n        trailingEvidenceFrames(shots) + frames > evidenceRunLimitFrames;\n      const wantsEvidence = patternIndex === 0 || patternIndex === 3;',
-            'generator evidence-run decision',
-          );
-
-          replaceOnce(
-            'scripts/orvyq_generate_production_plan.mjs',
-            '      const availableStart = footageAsset\n        ? Math.max(\n            Number(scene.trim_in_sec || 0),\n            trimCursor.get(footageAsset) || Number(scene.trim_in_sec || 0),\n          )\n        : 0;\n      const canUseFootage = Boolean(\n        !wantsEvidence &&',
-            '      const sequentialStart = footageAsset\n        ? Math.max(\n            Number(scene.trim_in_sec || 0),\n            trimCursor.get(footageAsset) || Number(scene.trim_in_sec || 0),\n          )\n        : 0;\n      const reusableStart = Number(scene.trim_in_sec || 0);\n      const canRestartFootage = Boolean(\n        shouldBreakEvidenceRun &&\n          footageInfo &&\n          reusableStart + duration <= footageInfo.duration + 0.001,\n      );\n      const availableStart = canRestartFootage ? reusableStart : sequentialStart;\n      const canUseFootage = Boolean(\n        (!wantsEvidence || shouldBreakEvidenceRun) &&',
-            'generator forced footage breaker',
-          );
-
-          replaceOnce(
-            'scripts/orvyq_generate_production_plan.mjs',
-            '      const canUseImage = Boolean(\n        !wantsEvidence &&\n          !canUseFootage &&',
-            '      const canUseImage = Boolean(\n        (!wantsEvidence || shouldBreakEvidenceRun) &&\n          !canUseFootage &&',
-            'generator image breaker',
-          );
-
-          replaceOnce(
-            'scripts/orvyq_generate_production_plan.mjs',
-            '    art_direction: preservedProof?.art_direction || {\n      principle:',
-            '    art_direction: preservedProof?.art_direction || {\n      production_mode: "evidence_led_video_essay",\n      principle:',
-            'generator art-direction mode',
-          );
-          NODE
-
-          node --check scripts/orvyq_dynamic_proof.mjs
-          node --check scripts/lib/orvyq-production.mjs
-          node --check scripts/orvyq_generate_production_plan.mjs
-
-      - name: Commit fixes to PR branch
+      - name: Extract failure when completed unsuccessfully
         run: |
           set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add \
-            projects/001-the-ai-race-no-one-can-afford-to-win/direction/production_plan.json \
-            scripts/orvyq_dynamic_proof.mjs \
-            scripts/lib/orvyq-production.mjs \
-            scripts/orvyq_generate_production_plan.mjs
-          if git diff --cached --quiet; then
-            echo 'No remaining fixes to commit.'
-            exit 0
+          RUN="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${STRUCTURAL_RUN_ID}")"
+          STATUS="$(echo "$RUN" | jq -r '.status')"
+          CONCLUSION="$(echo "$RUN" | jq -r '.conclusion // empty')"
+          if [ "$STATUS" = "completed" ] && [ "$CONCLUSION" != "success" ]; then
+            mkdir -p structural-logs
+            gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${STRUCTURAL_RUN_ID}/logs" > structural-logs.zip
+            unzip -q structural-logs.zip -d structural-logs
+            find structural-logs -type f -print0 | sort -z | xargs -0 cat > structural-all.log
+            echo '--- STRUCTURAL MIGRATION FAILURE ---'
+            grep -nE '\{"ok":false|##\[error\]|Traceback|Error:|RuntimeError|AssertionError|Process completed with exit code|failed:' structural-all.log | tail -n 100 || true
           fi
-          git commit -m 'Resolve final ORVYQ proof compatibility blockers'
-          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
