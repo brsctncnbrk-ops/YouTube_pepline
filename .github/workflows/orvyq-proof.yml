@@ -128,16 +128,32 @@ jobs:
           node scripts/orvyq_dynamic_proof.mjs build --project-id "$PROJECT_ID"
           node scripts/orvyq_dynamic_proof_tests.mjs "$PROJECT_ID"
 
-      - name: Run proof editorial and provenance gates
+      - name: Run complete compatibility and pre-render audit suite
         run: |
           set -euo pipefail
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
           if [ "$PROJECT_ID" = "001-the-ai-race-no-one-can-afford-to-win" ]; then
-            npm run orvyq:audits
-            node scripts/orvyq_edit_plan_tests.mjs
-            node scripts/orvyq_license_audit.mjs
-            node scripts/orvyq_alignment_score.mjs
+            npm run orvyq:audits -- "$PROJECT_ID"
           fi
+
+      - name: Upload aggregate pre-render audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-pre-render-audits-${{ env.PROJECT_ID }}-${{ github.run_id }}
+          path: |
+            projects/${{ env.PROJECT_ID }}/qa/audit_suite.json
+            projects/${{ env.PROJECT_ID }}/qa/compatibility_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/evidence_coverage.json
+            projects/${{ env.PROJECT_ID }}/qa/evidence_asset_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/pacing_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/mobile_legibility_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/music_cue_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Build render-ready project
         run: |
@@ -220,6 +236,8 @@ jobs:
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
             projects/${{ env.PROJECT_ID }}/qa/effective_proof_window.json
             projects/${{ env.PROJECT_ID }}/qa/production_plan_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/audit_suite.json
+            projects/${{ env.PROJECT_ID }}/qa/compatibility_audit.json
             projects/${{ env.PROJECT_ID }}/qa/orvyq_proof_media_qa.json
             projects/${{ env.PROJECT_ID }}/qa/proof_video_speech_qa.json
             projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
