@@ -36,15 +36,12 @@ jobs:
             gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > rebalance-logs.zip
             mkdir -p rebalance-logs
             unzip -q rebalance-logs.zip -d rebalance-logs
-            {
-              grep -RInE '\{"ok":false|##\[error\]|evidence fetch failed|official webpage capture failed|did not download|downloaded only|Primary evidence output|Official capture target|Evidence run remains|semantic visual audit failed|Process completed with exit code' rebalance-logs || true
-              echo '--- STEP LOG TAILS ---'
-              for file in rebalance-logs/*; do
-                [ -f "$file" ] || continue
-                echo "--- $file ---"
-                tail -n 30 "$file"
-              done
-            } > .github/orvyq-full-plan-rebalance-failure.txt
+            TARGET="$(find rebalance-logs -type f -name '8_Rebalance only the post-proof canonical timeline.txt' -print -quit)"
+            if [ -n "$TARGET" ]; then
+              cat "$TARGET" > .github/orvyq-full-plan-rebalance-failure.txt
+            else
+              grep -RInE '"ok"[[:space:]]*:[[:space:]]*false|"valid"[[:space:]]*:[[:space:]]*false|"message"|"issues"|##\[error\]|Process completed with exit code' rebalance-logs > .github/orvyq-full-plan-rebalance-failure.txt || true
+            fi
           fi
           cat .github/orvyq-full-plan-rebalance-latest.json
           cat .github/orvyq-full-plan-rebalance-failure.txt
