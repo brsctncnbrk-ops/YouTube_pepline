@@ -4,6 +4,7 @@ import { projectDir, readJson, writeJsonAtomic } from "./lib/fs-utils.mjs";
 import { loadResolvedEvidenceMap } from "./lib/orvyq-evidence.mjs";
 
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
+const ACTIVE_STATUSES = new Set(["verified", "attributed_commentary"]);
 const slug = (value) => String(value || "source").toLowerCase().replace(/^src_/, "").replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
 
 export async function expandPrimaryEvidenceManifest(projectId = PROJECT_ID) {
@@ -13,11 +14,16 @@ export async function expandPrimaryEvidenceManifest(projectId = PROJECT_ID) {
     readJson(manifestPath),
     loadResolvedEvidenceMap(dir),
   ]);
+  const activeSourceIds = new Set(
+    (evidenceMap.claims || [])
+      .filter((claim) => ACTIVE_STATUSES.has(claim.status))
+      .flatMap((claim) => claim.source_ids || []),
+  );
   const representedSources = new Set((manifest.assets || []).flatMap((asset) => asset.source_ids || []));
   const assetIds = new Set((manifest.assets || []).map((asset) => asset.evidence_asset_id));
   const added = [];
   for (const source of evidenceMap.source_catalog || []) {
-    if (source.official !== true || representedSources.has(source.source_id) || !source.url) continue;
+    if (!activeSourceIds.has(source.source_id) || source.official !== true || representedSources.has(source.source_id) || !source.url) continue;
     const parsed = new URL(source.url);
     if (parsed.protocol !== "https:") continue;
     const sourceSlug = slug(source.source_id);
@@ -48,7 +54,7 @@ export async function expandPrimaryEvidenceManifest(projectId = PROJECT_ID) {
   manifest.policy.minimum_official_capture_fraction = 0.3;
   manifest.policy.maximum_uninterrupted_evidence_seconds = 16;
   await writeJsonAtomic(manifestPath, manifest);
-  return { project_id: projectId, added_count: added.length, total_assets: manifest.assets.length, allowed_hosts: manifest.policy.allowed_hosts, added_assets: added.map((asset) => ({ evidence_asset_id: asset.evidence_asset_id, source_ids: asset.source_ids, local_asset: asset.local_asset })) };
+  return { project_id: projectId, active_source_count: activeSourceIds.size, added_count: added.length, total_assets: manifest.assets.length, allowed_hosts: manifest.policy.allowed_hosts, added_assets: added.map((asset) => ({ evidence_asset_id: asset.evidence_asset_id, source_ids: asset.source_ids, local_asset: asset.local_asset })) };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
