@@ -77,7 +77,7 @@ export async function rebalanceFullPlan(projectId = PROJECT_ID) {
   const lockedPrefixBefore = plan.shots.filter((shot) => shot.end_frame <= lockedBoundaryFrame);
   const prefixHashBefore = hash(lockedPrefixBefore);
   const maxUses = Math.min(Number(plan.quality_policy?.max_uses_per_source || 5), Number(blueprint.global_rules?.max_uses_per_source || 5));
-  const targetOfficialFraction = Math.max(0.305, Number(manifest.policy?.minimum_official_capture_fraction || 0.3));
+  const targetOfficialFraction = Math.max(0.3, Number(manifest.policy?.minimum_official_capture_fraction || 0.3));
   const maxEvidenceSeconds = Math.min(16, Number(manifest.policy?.maximum_uninterrupted_evidence_seconds || 16));
 
   const assetsBySource = new Map();
