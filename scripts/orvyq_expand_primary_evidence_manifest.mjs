@@ -6,6 +6,9 @@ import { loadResolvedEvidenceMap } from "./lib/orvyq-evidence.mjs";
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
 const ACTIVE_STATUSES = new Set(["verified", "attributed_commentary"]);
 const UNAVAILABLE_WEB_CAPTURE_SOURCES = new Set(["SRC_NTIA_OPEN_WEIGHTS_2024"]);
+const SOURCE_REDIRECT_HOSTS = new Map([
+  ["SRC_INTERNATIONAL_AI_SAFETY_REPORT_2025", ["internationalaisafetyreport.org"]],
+]);
 const slug = (value) => String(value || "source").toLowerCase().replace(/^src_/, "").replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
 
 export async function expandPrimaryEvidenceManifest(projectId = PROJECT_ID) {
@@ -32,6 +35,7 @@ export async function expandPrimaryEvidenceManifest(projectId = PROJECT_ID) {
     }
     const parsed = new URL(source.url);
     if (parsed.protocol !== "https:") continue;
+    const redirectHosts = SOURCE_REDIRECT_HOSTS.get(source.source_id) || [];
     const sourceSlug = slug(source.source_id);
     let evidenceAssetId = `EVID_WEB_${sourceSlug.toUpperCase()}`;
     let ordinal = 2;
@@ -45,6 +49,7 @@ export async function expandPrimaryEvidenceManifest(projectId = PROJECT_ID) {
       mime: "text/html",
       min_bytes: 1200,
       capture_type: "webpage",
+      allowed_redirect_hosts: redirectHosts,
       provenance_mode: "official_primary_capture",
       required_for_full: true,
       caption: `${source.publisher} — ${source.title}${source.publication_date ? ` (${source.publication_date})` : ""}`,
@@ -53,15 +58,15 @@ export async function expandPrimaryEvidenceManifest(projectId = PROJECT_ID) {
     representedSources.add(source.source_id);
     assetIds.add(evidenceAssetId);
     added.push(asset);
-    manifest.policy.allowed_hosts = [...new Set([...(manifest.policy.allowed_hosts || []), parsed.hostname])].sort();
+    manifest.policy.allowed_hosts = [...new Set([...(manifest.policy.allowed_hosts || []), parsed.hostname, ...redirectHosts])].sort();
   }
-  manifest.schema_version = "2.3-full-film-official-capture";
+  manifest.schema_version = "2.4-full-film-official-capture";
   manifest.policy.full_film_official_capture_required = true;
   manifest.policy.minimum_official_capture_fraction = 0.3;
   manifest.policy.maximum_uninterrupted_evidence_seconds = 16;
   manifest.policy.unavailable_web_capture_sources = skipped;
   await writeJsonAtomic(manifestPath, manifest);
-  return { project_id: projectId, active_source_count: activeSourceIds.size, added_count: added.length, skipped_count: skipped.length, total_assets: manifest.assets.length, allowed_hosts: manifest.policy.allowed_hosts, skipped_sources: skipped, added_assets: added.map((asset) => ({ evidence_asset_id: asset.evidence_asset_id, source_ids: asset.source_ids, local_asset: asset.local_asset })) };
+  return { project_id: projectId, active_source_count: activeSourceIds.size, added_count: added.length, skipped_count: skipped.length, total_assets: manifest.assets.length, allowed_hosts: manifest.policy.allowed_hosts, skipped_sources: skipped, added_assets: added.map((asset) => ({ evidence_asset_id: asset.evidence_asset_id, source_ids: asset.source_ids, local_asset: asset.local_asset, allowed_redirect_hosts: asset.allowed_redirect_hosts })) };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
