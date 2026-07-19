@@ -6,6 +6,7 @@ on:
       - agent/orvyq-system-wide-production
     paths:
       - .github/orvyq-system-code.patch.gz.part11
+      - .github/workflows/orvyq-apply-system-code.yml
 
 permissions:
   contents: write
@@ -31,8 +32,8 @@ jobs:
             base64 --decode "$part"
           done > /tmp/orvyq-system-code.patch.gz
           gunzip -c /tmp/orvyq-system-code.patch.gz > /tmp/orvyq-system-code.patch
-          git apply --check /tmp/orvyq-system-code.patch
-          git apply /tmp/orvyq-system-code.patch
+          git apply --check --exclude=.github/workflows/ci.yml /tmp/orvyq-system-code.patch
+          git apply --exclude=.github/workflows/ci.yml /tmp/orvyq-system-code.patch
           rm -f \
             .github/orvyq-system-code.patch.gz \
             .github/orvyq-system-code.patch.gz.part* \
