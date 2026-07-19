@@ -1,2 +1,2 @@
-requested_at=2026-07-19T15:15:00+03:00
-purpose=extract-latest-proof-failure-after-sfx-validation-fix
+requested_at=2026-07-19T16:25:00+03:00
+purpose=extract-latest-proof-failure-after-full-audit-chain
