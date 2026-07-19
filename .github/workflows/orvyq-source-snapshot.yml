@@ -6,6 +6,10 @@ on:
       - agent/orvyq-system-wide-production
     paths:
       - .github/orvyq-source-snapshot-trigger.txt
+  pull_request:
+    paths:
+      - .github/orvyq-source-snapshot-trigger.txt
+      - .github/workflows/orvyq-source-snapshot.yml
 
 permissions:
   contents: read
