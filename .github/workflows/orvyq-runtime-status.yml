@@ -39,6 +39,6 @@ jobs:
             unzip -q structural-logs.zip -d structural-logs
             TARGET="$(grep -lR 'orvyq_migrate_canonical_timeline' structural-logs | head -n 1 || true)"
             test -n "$TARGET"
-            echo "--- FAILED MIGRATION STEP LOG ---"
-            tail -n 80 "$TARGET"
+            echo "--- FAILED MIGRATION STEP FINAL 20 LINES ---"
+            tail -n 20 "$TARGET"
           fi
