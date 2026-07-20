@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-07-20T00:14:48Z",
+  "generated_at": "2026-07-20T00:15:40Z",
   "latest_run": {
-    "id": 29709101659,
-    "status": "completed",
-    "conclusion": "failure",
-    "head_sha": "71da20c07517df35dff6c6092e536a943b66efef",
-    "created_at": "2026-07-20T00:10:46Z",
-    "updated_at": "2026-07-20T00:13:01Z",
-    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29709101659"
+    "id": 29709216772,
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "9be802b05d91bc54952e7e559963f06082cefe72",
+    "created_at": "2026-07-20T00:14:50Z",
+    "updated_at": "2026-07-20T00:14:54Z",
+    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29709216772"
   },
   "jobs": [
     {
-      "id": 88250527001,
+      "id": 88250757139,
       "name": "rebalance",
-      "status": "completed",
-      "conclusion": "failure",
-      "started_at": "2026-07-20T00:10:49Z",
-      "completed_at": "2026-07-20T00:13:00Z",
+      "status": "in_progress",
+      "conclusion": null,
+      "started_at": "2026-07-20T00:14:54Z",
+      "completed_at": null,
       "steps": [
         {
           "name": "Set up job",
@@ -50,81 +50,81 @@
         },
         {
           "name": "Install deterministic tooling",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "in_progress",
+          "conclusion": null,
           "number": 6
         },
         {
-          "name": "Expand and fetch full-film official evidence",
-          "status": "completed",
-          "conclusion": "success",
+          "name": "Verify proof approval continuity regression contract",
+          "status": "pending",
+          "conclusion": null,
           "number": 7
         },
         {
-          "name": "Rebalance only the post-proof canonical timeline",
-          "status": "completed",
-          "conclusion": "success",
+          "name": "Expand and fetch full-film official evidence",
+          "status": "pending",
+          "conclusion": null,
           "number": 8
         },
         {
-          "name": "Preserve existing proof approval by prefix continuity",
-          "status": "completed",
-          "conclusion": "success",
+          "name": "Rebalance only the post-proof canonical timeline",
+          "status": "pending",
+          "conclusion": null,
           "number": 9
         },
         {
-          "name": "Build approved full edit and run all gates",
-          "status": "completed",
-          "conclusion": "failure",
+          "name": "Preserve existing proof approval by prefix continuity",
+          "status": "pending",
+          "conclusion": null,
           "number": 10
         },
         {
-          "name": "Commit corrected full-film plan and preserved approval",
-          "status": "completed",
-          "conclusion": "skipped",
+          "name": "Build approved full edit and run all gates",
+          "status": "pending",
+          "conclusion": null,
           "number": 11
         },
         {
-          "name": "Verify preserved approval after commit",
-          "status": "completed",
-          "conclusion": "skipped",
+          "name": "Commit corrected full-film plan and preserved approval",
+          "status": "pending",
+          "conclusion": null,
           "number": 12
         },
         {
-          "name": "Dispatch corrected full render directly",
-          "status": "completed",
-          "conclusion": "skipped",
+          "name": "Verify preserved approval after commit",
+          "status": "pending",
+          "conclusion": null,
           "number": 13
         },
         {
-          "name": "Upload rebalance diagnostics",
-          "status": "completed",
-          "conclusion": "success",
+          "name": "Dispatch corrected full render directly",
+          "status": "pending",
+          "conclusion": null,
           "number": 14
         },
         {
+          "name": "Upload rebalance diagnostics",
+          "status": "pending",
+          "conclusion": null,
+          "number": 15
+        },
+        {
           "name": "Post Set up Python",
-          "status": "completed",
-          "conclusion": "skipped",
-          "number": 26
-        },
-        {
-          "name": "Post Set up Node",
-          "status": "completed",
-          "conclusion": "skipped",
-          "number": 27
-        },
-        {
-          "name": "Post Checkout branch with LFS",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 28
         },
         {
-          "name": "Complete job",
-          "status": "completed",
-          "conclusion": "success",
+          "name": "Post Set up Node",
+          "status": "pending",
+          "conclusion": null,
           "number": 29
+        },
+        {
+          "name": "Post Checkout branch with LFS",
+          "status": "pending",
+          "conclusion": null,
+          "number": 30
         }
       ]
     }
