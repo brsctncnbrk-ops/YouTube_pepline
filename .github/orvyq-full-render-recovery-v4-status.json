@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-20T18:53:30Z",
+  "generated_at": "2026-07-20T18:54:07Z",
   "recovery_runs": [
     {
       "id": 29769647267,
@@ -97,13 +97,13 @@
         },
         {
           "name": "Install deterministic tooling",
-          "status": "in_progress",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "number": 6
         },
         {
           "name": "Resolve canonical narration contract",
-          "status": "pending",
+          "status": "in_progress",
           "conclusion": null,
           "number": 7
         },
