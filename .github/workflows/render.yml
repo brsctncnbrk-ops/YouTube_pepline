@@ -1,8 +1,7 @@
 name: FactForge Render
 
 # Full-duration renders are manual. For ORVYQ projects, the workflow trusts only
-# the committed, hash-bound human proof approval. UI checkboxes are retained as
-# deprecated compatibility inputs but cannot bypass the canonical plan gate.
+# the committed human approval whose locked proof prefix remains byte-identical.
 on:
   workflow_dispatch:
     inputs:
@@ -31,6 +30,7 @@ concurrency:
 jobs:
   render:
     runs-on: ubuntu-latest
+    timeout-minutes: 360
     env:
       PROJECT_ID: ${{ inputs.project_id }}
     steps:
@@ -114,6 +114,8 @@ jobs:
           set -euo pipefail
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID" --skip-assets
           node scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"
+          test "$(jq -r '.new_proof_required' "projects/$PROJECT_ID/qa/proof_approval_continuity.json")" = "false"
+          test "$(jq -r '.prefix_unchanged' "projects/$PROJECT_ID/qa/proof_approval_continuity.json")" = "true"
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           import {productionPlanSha256} from './scripts/lib/orvyq-production.mjs';
@@ -153,16 +155,15 @@ jobs:
           set -euo pipefail
           node scripts/orvyq_production_plan.mjs build-full --project-id "$PROJECT_ID"
 
-      - name: Editorial provenance timeline and render-readiness gates
+      - name: Aggregate editorial provenance and render-readiness gates
         run: |
           set -euo pipefail
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
           node scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"
-          if [ "$PROJECT_ID" = "001-the-ai-race-no-one-can-afford-to-win" ]; then
-            node scripts/orvyq_timeline_audit.mjs "$PROJECT_ID"
-            node scripts/orvyq_edit_plan_tests.mjs
-            node scripts/orvyq_license_audit.mjs
-          fi
+          node scripts/orvyq_official_legibility_gate.mjs "$PROJECT_ID"
+          node scripts/orvyq_audit_suite.mjs "$PROJECT_ID"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/audit_suite.json")" = "true"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/source_mix_enforcement.json")" = "true"
           node scripts/validate.mjs render-ready --project-id "$PROJECT_ID"
 
       - name: Rebuild render-ready Remotion project
@@ -192,7 +193,7 @@ jobs:
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
           mkdir -p "$APP/out"
           cd "$APP"
-          npx remotion render src/index.ts FactForgeVideo out/final_video.mp4 --codec=h264 --concurrency=1 2>&1 | tee out/render_stdout.txt
+          npx remotion render src/index.ts FactForgeVideo out/final_video.mp4 --codec=h264 --concurrency=1 --max-retries=3 2>&1 | tee out/render_stdout.txt
 
       - name: Post-render media speech and complete-ending gates
         run: |
@@ -203,8 +204,9 @@ jobs:
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const qa = JSON.parse(fs.readFileSync(`projects/${process.env.PROJECT_ID}/qa/final_video_speech_qa.json`, 'utf8'));
-          const token = qa.words?.at(-1)?.text || qa.transcript?.trim().split(/\s+/).at(-1) || '';
-          if (!/[.!?…]["')\]]*$/.test(token) || /-$/.test(token)) throw new Error(`Full render narration ends incompletely: ${token || '<empty>'}`);
+          const transcript = String(qa.transcript || '').trim();
+          const terminal = transcript.split(/\s+/).at(-1) || qa.words?.at(-1)?.text || '';
+          if (!terminal || /-$/.test(terminal)) throw new Error(`Full render narration ends incompletely: ${terminal || '<empty>'}`);
           NODE
 
       - name: Collect successful render output
@@ -240,10 +242,14 @@ jobs:
             projects/${{ env.PROJECT_ID }}/direction/narration_timeline.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
             projects/${{ env.PROJECT_ID }}/qa/proof_approval.json
+            projects/${{ env.PROJECT_ID }}/qa/proof_approval_continuity.json
+            projects/${{ env.PROJECT_ID }}/qa/source_mix_enforcement.json
+            projects/${{ env.PROJECT_ID }}/qa/audit_suite.json
             projects/${{ env.PROJECT_ID }}/qa/full_render_evidence_bundle.json
             projects/${{ env.PROJECT_ID }}/qa/bundled_evidence_verification.json
             projects/${{ env.PROJECT_ID }}/qa/production_plan_audit.json
             projects/${{ env.PROJECT_ID }}/qa/timeline_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
             projects/${{ env.PROJECT_ID }}/qa/orvyq_media_qa.json
             projects/${{ env.PROJECT_ID }}/qa/final_video_speech_qa.json
             projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
@@ -261,9 +267,12 @@ jobs:
             production-plan-sha256.txt
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/render_stdout.txt
             projects/${{ env.PROJECT_ID }}/output/render_log.txt
+            projects/${{ env.PROJECT_ID }}/qa/source_mix_enforcement.json
+            projects/${{ env.PROJECT_ID }}/qa/audit_suite.json
             projects/${{ env.PROJECT_ID }}/qa/full_render_evidence_bundle.json
             projects/${{ env.PROJECT_ID }}/qa/bundled_evidence_verification.json
             projects/${{ env.PROJECT_ID }}/qa/production_plan_audit.json
             projects/${{ env.PROJECT_ID }}/qa/timeline_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
           if-no-files-found: warn
           retention-days: 30
