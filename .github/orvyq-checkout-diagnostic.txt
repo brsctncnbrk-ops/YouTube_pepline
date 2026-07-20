@@ -1,32 +1,32 @@
-RUN_ID=29748503339
+RUN_ID=29749369463
 TARGET=logs/rebalance/10_Normalize, rebalance, enforce source mix, and bind evidence bundle.txt
-26:2026-07-20T14:01:14.2183948Z {"ok":false,"error":"No breaker candidate can preserve the official capture floor"}
-27:2026-07-20T14:01:14.2232503Z ##[error]Process completed with exit code 1.
---- LAST 180 LINES ---
-﻿2026-07-20T14:01:14.0994096Z ##[group]Run set -euo pipefail
-2026-07-20T14:01:14.0994482Z [36;1mset -euo pipefail[0m
-2026-07-20T14:01:14.0994920Z [36;1mnode scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID" --mode preflight[0m
-2026-07-20T14:01:14.0995474Z [36;1mnode scripts/orvyq_rebalance_full_plan.mjs "$PROJECT_ID"[0m
-2026-07-20T14:01:14.0995894Z [36;1mnode scripts/orvyq_enforce_source_mix.mjs "$PROJECT_ID"[0m
-2026-07-20T14:01:14.0996404Z [36;1mnode scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID" --mode final[0m
-2026-07-20T14:01:14.0996974Z [36;1mnode scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"[0m
-2026-07-20T14:01:14.0997514Z [36;1mnode scripts/orvyq_bind_full_render_evidence_bundle.mjs "$PROJECT_ID"[0m
-2026-07-20T14:01:14.0998098Z [36;1mtest "$(jq -r '.pass' "projects/$PROJECT_ID/qa/full_render_evidence_bundle.json")" = "true"[0m
-2026-07-20T14:01:14.0998698Z [36;1mtest "$(jq -r '.pass' "projects/$PROJECT_ID/qa/source_mix_enforcement.json")" = "true"[0m
-2026-07-20T14:01:14.1059797Z shell: /usr/bin/bash -e {0}
-2026-07-20T14:01:14.1060053Z env:
-2026-07-20T14:01:14.1060312Z   PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
-2026-07-20T14:01:14.1062993Z   GH_TOKEN: ***
-2026-07-20T14:01:14.1063307Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
-2026-07-20T14:01:14.1063743Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
-2026-07-20T14:01:14.1064185Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
-2026-07-20T14:01:14.1064574Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
-2026-07-20T14:01:14.1064942Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
-2026-07-20T14:01:14.1065311Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
-2026-07-20T14:01:14.1065649Z   ORVYQ_NARRATION_LIMIT_SECONDS: 719.882
-2026-07-20T14:01:14.1065918Z   ORVYQ_AUDIO_LIMIT_SECONDS: 745.882
-2026-07-20T14:01:14.1066180Z   ORVYQ_EDITORIAL_PAUSES: 1
-2026-07-20T14:01:14.1066414Z ##[endgroup]
-2026-07-20T14:01:14.1644694Z {"ok":true,"schema_version":"2.0-two-phase-official-mobile-legibility","project_id":"001-the-ai-race-no-one-can-afford-to-win","mode":"preflight","locked_proof_boundary_frame":4800,"proof_prefix_sha256":"1b80c4dcd9e408f0fd1c98168c1a3c9d7374a3019cd1dc12a6cdeda7ef11a61b","prefix_unchanged":true,"minimum_official_capture_seconds":4,"target_official_capture_fraction":0.3,"final_official_capture_fraction":0.29545048265999285,"target_enforced":false,"target_met":false,"demoted":[],"promoted":[{"shot_id":"shot_036","duration_seconds":5.666666666666667,"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_ECONOMY"},{"shot_id":"shot_038","duration_seconds":5.8,"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_TECHNICAL"},{"shot_id":"shot_040","duration_seconds":7.833333333333333,"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_ECONOMY"},{"shot_id":"shot_041","duration_seconds":5.8,"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_TECHNICAL"},{"shot_id":"shot_046","duration_seconds":5.8,"evidence_asset_id":"EVID_WEB_ANTHROPIC_ASL3_2025"},{"shot_id":"shot_048","duration_seconds":5.8,"evidence_asset_id":"EVID_WEB_ANTHROPIC_CYBER_MISUSE_2025"},{"shot_id":"shot_049","duration_seconds":7,"evidence_asset_id":"EVID_WEB_ANTHROPIC_ESPIONAGE_2025"},{"shot_id":"shot_050","duration_seconds":6.2,"evidence_asset_id":"EVID_WEB_ANTHROPIC_ASL3_2025"},{"shot_id":"shot_052","duration_seconds":6.9,"evidence_asset_id":"EVID_WEB_ANTHROPIC_CYBER_MISUSE_2025"},{"shot_id":"shot_057","duration_seconds":5.8,"evidence_asset_id":"EVID_WEB_ANTHROPIC_ESPIONAGE_2025"},{"shot_id":"shot_064","duration_seconds":5.8,"evidence_asset_id":"EVID_WEB_ILO_JOBS_2025"},{"shot_id":"shot_066","duration_seconds":6.2,"evidence_asset_id":"EVID_WEB_ILO_EXPOSURE_LIMITS_2026"},{"shot_id":"shot_067","duration_seconds":7.6,"evidence_asset_id":"EVID_WEB_ILO_JOBS_2025"},{"shot_id":"shot_068","duration_seconds":6.6,"evidence_asset_id":"EVID_WEB_CMA_FOUNDATION_MODELS_UPDATE_2024"},{"shot_id":"shot_071","duration_seconds":7,"evidence_asset_id":"EVID_WEB_CMA_CLOUD_MARKET_2025"},{"shot_id":"shot_073","duration_seconds":6.966666666666667,"evidence_asset_id":"EVID_WEB_ILO_EXPOSURE_LIMITS_2026"},{"shot_id":"shot_076","duration_seconds":7,"evidence_asset_id":"EVID_WEB_EU_GPAI_OBLIGATIONS_2025"},{"shot_id":"shot_082","duration_seconds":5.8,"evidence_asset_id":"EVID_WEB_EU_GPAI_GUIDELINES_2025"},{"shot_id":"shot_083","duration_seconds":7,"evidence_asset_id":"EVID_WEB_EU_GPAI_OBLIGATIONS_2025"},{"shot_id":"shot_084","duration_seconds":6.533333333333333,"evidence_asset_id":"EVID_WEB_EU_GPAI_GUIDELINES_2025"},{"shot_id":"shot_104","duration_seconds":5.766666666666667,"evidence_asset_id":"EVID_WEB_UK_AISI_EVALS_2024"},{"shot_id":"shot_121","duration_seconds":5.8,"evidence_asset_id":"EVID_RSP_SUMMARY_CAPTURE"},{"shot_id":"shot_123","duration_seconds":6.2,"evidence_asset_id":"EVID_RSP_THRESHOLDS_CAPTURE"},{"shot_id":"shot_124","duration_seconds":5.9,"evidence_asset_id":"EVID_RSP_SUMMARY_CAPTURE"},{"shot_id":"shot_125","duration_seconds":5.8,"evidence_asset_id":"EVID_FSF_FRAMEWORK_CAPTURE"},{"shot_id":"shot_126","duration_seconds":7,"evidence_asset_id":"EVID_FSF_ALIGNMENT_CAPTURE"}],"pass":true}
-2026-07-20T14:01:14.2183948Z {"ok":false,"error":"No breaker candidate can preserve the official capture floor"}
-2026-07-20T14:01:14.2232503Z ##[error]Process completed with exit code 1.
+26:2026-07-20T14:12:08.0015790Z {"ok":false,"error":"Official capture target not reached: 29.64% < 30.00%"}
+27:2026-07-20T14:12:08.0231464Z ##[error]Process completed with exit code 1.
+--- LAST 220 LINES ---
+﻿2026-07-20T14:12:07.9012188Z ##[group]Run set -euo pipefail
+2026-07-20T14:12:07.9012582Z [36;1mset -euo pipefail[0m
+2026-07-20T14:12:07.9012996Z [36;1mnode scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID" --mode preflight[0m
+2026-07-20T14:12:07.9013568Z [36;1mnode scripts/orvyq_rebalance_full_plan.mjs "$PROJECT_ID"[0m
+2026-07-20T14:12:07.9013999Z [36;1mnode scripts/orvyq_enforce_source_mix.mjs "$PROJECT_ID"[0m
+2026-07-20T14:12:07.9014435Z [36;1mnode scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID" --mode final[0m
+2026-07-20T14:12:07.9014975Z [36;1mnode scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"[0m
+2026-07-20T14:12:07.9015457Z [36;1mnode scripts/orvyq_bind_full_render_evidence_bundle.mjs "$PROJECT_ID"[0m
+2026-07-20T14:12:07.9016009Z [36;1mtest "$(jq -r '.pass' "projects/$PROJECT_ID/qa/full_render_evidence_bundle.json")" = "true"[0m
+2026-07-20T14:12:07.9016550Z [36;1mtest "$(jq -r '.pass' "projects/$PROJECT_ID/qa/source_mix_enforcement.json")" = "true"[0m
+2026-07-20T14:12:07.9050361Z shell: /usr/bin/bash -e {0}
+2026-07-20T14:12:07.9050741Z env:
+2026-07-20T14:12:07.9051089Z   PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+2026-07-20T14:12:07.9053447Z   GH_TOKEN: ***
+2026-07-20T14:12:07.9053779Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T14:12:07.9054193Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+2026-07-20T14:12:07.9054654Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T14:12:07.9055086Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T14:12:07.9055467Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T14:12:07.9055858Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+2026-07-20T14:12:07.9056199Z   ORVYQ_NARRATION_LIMIT_SECONDS: 719.882
+2026-07-20T14:12:07.9056538Z   ORVYQ_AUDIO_LIMIT_SECONDS: 745.882
+2026-07-20T14:12:07.9056855Z   ORVYQ_EDITORIAL_PAUSES: 1
+2026-07-20T14:12:07.9057131Z ##[endgroup]
+2026-07-20T14:12:07.9525455Z {"ok":true,"schema_version":"2.1-read-only-preflight","project_id":"001-the-ai-race-no-one-can-afford-to-win","mode":"preflight","plan_mutated":false,"locked_proof_boundary_frame":4800,"proof_prefix_sha256":"1b80c4dcd9e408f0fd1c98168c1a3c9d7374a3019cd1dc12a6cdeda7ef11a61b","prefix_unchanged":true,"minimum_official_capture_seconds":4,"target_official_capture_fraction":0.3,"final_official_capture_fraction":0.30613156953879156,"target_enforced":false,"target_met":true,"demoted":[],"promoted":[{"shot_id":"shot_036","duration_seconds":5.666666666666667,"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_ECONOMY"},{"shot_id":"shot_038","duration_seconds":5.8,"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_TECHNICAL"},{"shot_id":"shot_040","duration_seconds":7.833333333333333,"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_ECONOMY"},{"shot_id":"shot_041","duration_seconds":5.8,"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_TECHNICAL"},{"shot_id":"shot_046","duration_seconds":5.8,"evidence_asset_id":"EVID_WEB_ANTHROPIC_ASL3_2025"},{"shot_id":"shot_048","duration_seconds":5.8,"evidence_asset_id":"EVID_WEB_ANTHROPIC_CYBER_MISUSE_2025"},{"shot_id":"shot_049","duration_seconds":7,"evidence_asset_id":"EVID_WEB_ANTHROPIC_ESPIONAGE_2025"},{"shot_id":"shot_050","duration_seconds":6.2,"evidence_asset_id":"EVID_WEB_ANTHROPIC_ASL3_2025"},{"shot_id":"shot_051","duration_seconds":7.6,"evidence_asset_id":"EVID_WEB_INTERNATIONAL_AI_SAFETY_REPORT_2025"},{"shot_id":"shot_052","duration_seconds":6.9,"evidence_asset_id":"EVID_WEB_ANTHROPIC_CYBER_MISUSE_2025"},{"shot_id":"shot_057","duration_seconds":5.8,"evidence_asset_id":"EVID_WEB_ANTHROPIC_ESPIONAGE_2025"},{"shot_id":"shot_059","duration_seconds":7.366666666666666,"evidence_asset_id":"EVID_WEB_INTERNATIONAL_AI_SAFETY_REPORT_2025"},{"shot_id":"shot_064","duration_seconds":5.8,"evidence_asset_id":"EVID_WEB_ILO_JOBS_2025"},{"shot_id":"shot_066","duration_seconds":6.2,"evidence_asset_id":"EVID_WEB_ILO_EXPOSURE_LIMITS_2026"},{"shot_id":"shot_067","duration_seconds":7.6,"evidence_asset_id":"EVID_WEB_ILO_JOBS_2025"},{"shot_id":"shot_068","duration_seconds":6.6,"evidence_asset_id":"EVID_WEB_CMA_FOUNDATION_MODELS_UPDATE_2024"},{"shot_id":"shot_071","duration_seconds":7,"evidence_asset_id":"EVID_WEB_CMA_CLOUD_MARKET_2025"},{"shot_id":"shot_073","duration_seconds":6.966666666666667,"evidence_asset_id":"EVID_WEB_ILO_EXPOSURE_LIMITS_2026"},{"shot_id":"shot_076","duration_seconds":7,"evidence_asset_id":"EVID_WEB_EU_GPAI_OBLIGATIONS_2025"},{"shot_id":"shot_082","duration_seconds":5.8,"evidence_asset_id":"EVID_WEB_EU_GPAI_GUIDELINES_2025"},{"shot_id":"shot_083","duration_seconds":7,"evidence_asset_id":"EVID_WEB_EU_GPAI_OBLIGATIONS_2025"},{"shot_id":"shot_084","duration_seconds":6.533333333333333,"evidence_asset_id":"EVID_WEB_EU_GPAI_GUIDELINES_2025"},{"shot_id":"shot_104","duration_seconds":5.766666666666667,"evidence_asset_id":"EVID_WEB_UK_AISI_EVALS_2024"},{"shot_id":"shot_121","duration_seconds":5.8,"evidence_asset_id":"EVID_RSP_SUMMARY_CAPTURE"},{"shot_id":"shot_123","duration_seconds":6.2,"evidence_asset_id":"EVID_RSP_THRESHOLDS_CAPTURE"},{"shot_id":"shot_124","duration_seconds":5.9,"evidence_asset_id":"EVID_RSP_SUMMARY_CAPTURE"},{"shot_id":"shot_125","duration_seconds":5.8,"evidence_asset_id":"EVID_FSF_FRAMEWORK_CAPTURE"}],"pass":true}
+2026-07-20T14:12:08.0015790Z {"ok":false,"error":"Official capture target not reached: 29.64% < 30.00%"}
+2026-07-20T14:12:08.0231464Z ##[error]Process completed with exit code 1.
