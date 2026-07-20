@@ -2,7 +2,7 @@
 import path from "node:path";
 import { projectDir, readJson, writeJsonAtomic } from "./lib/fs-utils.mjs";
 import { rebalanceFullPlanV3 } from "./orvyq_rebalance_full_plan_v3.mjs";
-import { insertOfficialBridgeV2 } from "./orvyq_insert_official_bridge_v2.mjs";
+import { insertOfficialBridgesV3 } from "./orvyq_insert_official_bridges_v3.mjs";
 
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
 
@@ -54,10 +54,10 @@ export async function rebalanceWithFinalGate(projectId = PROJECT_ID) {
       },
     };
     await writeJsonAtomic(reportPath, deferred);
-    const bridge = await insertOfficialBridgeV2(projectId);
+    const bridge = await insertOfficialBridgesV3(projectId);
     return {
       ...deferred,
-      schema_version: "3.3-canonical-isolated-official-bridge",
+      schema_version: "3.4-multi-isolated-official-bridges",
       official_normalization_pending: false,
       official_bridge: bridge,
       after: bridge.after,
@@ -77,9 +77,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
           phase_pass: report.phase_pass ?? report.pass,
           official_normalization_pending:
             report.official_normalization_pending === true,
-          official_bridge_inserted:
-            report.official_bridge?.inserted === true ||
-            report.official_bridge_inserted === true,
+          official_bridge_count:
+            report.official_bridge?.inserted_bridge_count ??
+            report.official_bridge_count ??
+            0,
           canonical_ids_valid:
             report.official_bridge?.canonical_ids_valid === true,
           official_fraction: report.after?.official_fraction ?? null,
