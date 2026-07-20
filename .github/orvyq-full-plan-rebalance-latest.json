@@ -1,21 +1,21 @@
 {
-  "generated_at": "2026-07-20T00:04:09Z",
+  "generated_at": "2026-07-20T00:11:18Z",
   "latest_run": {
-    "id": 29708891722,
+    "id": 29709101659,
     "status": "in_progress",
     "conclusion": null,
-    "head_sha": "3b9b94f16060d0bf76d04b2396851e83eff39aa5",
-    "created_at": "2026-07-20T00:03:18Z",
-    "updated_at": "2026-07-20T00:03:22Z",
-    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29708891722"
+    "head_sha": "71da20c07517df35dff6c6092e536a943b66efef",
+    "created_at": "2026-07-20T00:10:46Z",
+    "updated_at": "2026-07-20T00:10:50Z",
+    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29709101659"
   },
   "jobs": [
     {
-      "id": 88250089216,
+      "id": 88250527001,
       "name": "rebalance",
       "status": "in_progress",
       "conclusion": null,
-      "started_at": "2026-07-20T00:03:22Z",
+      "started_at": "2026-07-20T00:10:49Z",
       "completed_at": null,
       "steps": [
         {
@@ -38,19 +38,19 @@
         },
         {
           "name": "Set up Node",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "in_progress",
+          "conclusion": null,
           "number": 4
         },
         {
           "name": "Set up Python",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 5
         },
         {
           "name": "Install deterministic tooling",
-          "status": "in_progress",
+          "status": "pending",
           "conclusion": null,
           "number": 6
         },
@@ -67,31 +67,31 @@
           "number": 8
         },
         {
-          "name": "Run full visual and editorial gates",
+          "name": "Preserve existing proof approval by prefix continuity",
           "status": "pending",
           "conclusion": null,
           "number": 9
         },
         {
-          "name": "Commit canonical full-film rebalance",
+          "name": "Build approved full edit and run all gates",
           "status": "pending",
           "conclusion": null,
           "number": 10
         },
         {
-          "name": "Dispatch canonical proof for the rebalanced plan",
+          "name": "Commit corrected full-film plan and preserved approval",
           "status": "pending",
           "conclusion": null,
           "number": 11
         },
         {
-          "name": "Re-approve the byte-identical locked proof prefix",
+          "name": "Verify preserved approval after commit",
           "status": "pending",
           "conclusion": null,
           "number": 12
         },
         {
-          "name": "Dispatch corrected full render",
+          "name": "Dispatch corrected full render directly",
           "status": "pending",
           "conclusion": null,
           "number": 13
@@ -101,12 +101,6 @@
           "status": "pending",
           "conclusion": null,
           "number": 14
-        },
-        {
-          "name": "Post Set up Python",
-          "status": "pending",
-          "conclusion": null,
-          "number": 26
         },
         {
           "name": "Post Set up Node",
