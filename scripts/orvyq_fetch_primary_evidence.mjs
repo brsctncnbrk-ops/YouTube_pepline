@@ -27,6 +27,10 @@ function pngDimensions(buffer, assetId) {
   return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
 }
 
+function isRequired(asset) {
+  return asset.required_for_full === true || asset.required_for_proof === true;
+}
+
 async function fetchBuffer(url, allowedHosts, assetId) {
   const parsed = new URL(url);
   if (parsed.protocol !== "https:") throw new Error(`Evidence URL must use HTTPS: ${url}`);
@@ -37,7 +41,7 @@ async function fetchBuffer(url, allowedHosts, assetId) {
       const response = await fetch(parsed, {
         redirect: "follow",
         headers: {
-          "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/150 Safari/537.36 ORVYQ-primary-evidence-fetch/3.2",
+          "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/150 Safari/537.36 ORVYQ-primary-evidence-fetch/3.3",
           accept: "text/html,application/pdf,image/png,image/*;q=0.9,*/*;q=0.8",
           "accept-language": "en-US,en;q=0.9",
         },
@@ -116,46 +120,87 @@ export async function fetchPrimaryEvidence(projectId = PROJECT_ID) {
   }
 
   const downloadRecords = new Map();
+  const failures = [];
   for (const [relativePath, asset] of downloadGroups.entries()) {
     const target = path.join(dir, relativePath);
     await fs.mkdir(path.dirname(target), { recursive: true });
-    const { buffer, final_url, content_type } = await fetchBuffer(asset.source_url, allowedHosts, asset.evidence_asset_id);
-    if (buffer.length < Number(asset.min_bytes || 1)) throw new Error(`${asset.evidence_asset_id} downloaded only ${buffer.length} bytes from ${asset.source_url}`);
-    assertMagic(buffer, asset.mime, asset.evidence_asset_id);
-    await fs.writeFile(target, buffer);
-    downloadRecords.set(relativePath, { source_url: asset.source_url, final_url, content_type, bytes: buffer.length, sha256: sha256(buffer) });
+    try {
+      const { buffer, final_url, content_type } = await fetchBuffer(asset.source_url, allowedHosts, asset.evidence_asset_id);
+      if (buffer.length < Number(asset.min_bytes || 1)) throw new Error(`${asset.evidence_asset_id} downloaded only ${buffer.length} bytes from ${asset.source_url}`);
+      assertMagic(buffer, asset.mime, asset.evidence_asset_id);
+      await fs.writeFile(target, buffer);
+      downloadRecords.set(relativePath, { source_url: asset.source_url, final_url, content_type, bytes: buffer.length, sha256: sha256(buffer) });
+    } catch (error) {
+      failures.push({
+        evidence_asset_id: asset.evidence_asset_id,
+        source_ids: asset.source_ids || [],
+        source_url: asset.source_url,
+        stage: "download",
+        required: isRequired(asset),
+        error: error.message,
+      });
+      await fs.rm(target, { force: true });
+    }
   }
 
   const runtimeAssets = [];
   for (const asset of manifest.assets || []) {
+    const download = downloadRecords.get(asset.download_asset);
+    if (!download) continue;
     const rawPath = path.join(dir, asset.download_asset);
     const localPath = path.join(dir, asset.local_asset);
-    if (asset.capture_type === "webpage") {
-      const finalUrl = downloadRecords.get(asset.download_asset)?.final_url || asset.source_url;
-      await captureWebpage(finalUrl, localPath, asset.evidence_asset_id);
-    } else if (asset.mime === "application/pdf") {
-      const prefix = localPath.replace(/\.png$/i, "");
-      await fs.mkdir(path.dirname(localPath), { recursive: true });
-      await run("pdftoppm", ["-f", String(asset.page_number), "-l", String(asset.page_number), "-singlefile", "-png", "-r", "150", rawPath, prefix], { maxBuffer: 20 * 1024 * 1024 });
-    }
-    if (!(await pathExists(localPath))) throw new Error(`Primary evidence output missing: ${asset.local_asset}`);
-    const localBuffer = await fs.readFile(localPath);
-    const dimensions = pngDimensions(localBuffer, asset.evidence_asset_id);
-    if (asset.capture_type === "webpage") {
-      if (localBuffer.length < 8000 || dimensions.width < 1600 || dimensions.height < 900) {
-        throw new Error(`Web capture quality failed for ${asset.local_asset}: ${localBuffer.length} bytes, ${dimensions.width}x${dimensions.height}`);
+    try {
+      if (asset.capture_type === "webpage") {
+        await captureWebpage(download.final_url || asset.source_url, localPath, asset.evidence_asset_id);
+      } else if (asset.mime === "application/pdf") {
+        const prefix = localPath.replace(/\.png$/i, "");
+        await fs.mkdir(path.dirname(localPath), { recursive: true });
+        await run("pdftoppm", ["-f", String(asset.page_number), "-l", String(asset.page_number), "-singlefile", "-png", "-r", "150", rawPath, prefix], { maxBuffer: 20 * 1024 * 1024 });
       }
-    } else if (localBuffer.length < 30000) {
-      throw new Error(`Primary evidence output is unexpectedly small: ${asset.local_asset} (${localBuffer.length} bytes)`);
+      if (!(await pathExists(localPath))) throw new Error(`Primary evidence output missing: ${asset.local_asset}`);
+      const localBuffer = await fs.readFile(localPath);
+      const dimensions = pngDimensions(localBuffer, asset.evidence_asset_id);
+      if (asset.capture_type === "webpage") {
+        if (localBuffer.length < 8000 || dimensions.width < 1600 || dimensions.height < 900) {
+          throw new Error(`Web capture quality failed for ${asset.local_asset}: ${localBuffer.length} bytes, ${dimensions.width}x${dimensions.height}`);
+        }
+      } else if (localBuffer.length < 30000) {
+        throw new Error(`Primary evidence output is unexpectedly small: ${asset.local_asset} (${localBuffer.length} bytes)`);
+      }
+      runtimeAssets.push({ evidence_asset_id: asset.evidence_asset_id, source_ids: asset.source_ids, source_url: asset.source_url, final_url: download.final_url || asset.source_url, local_asset: asset.local_asset, download_asset: asset.download_asset, page_number: asset.page_number || null, capture_type: asset.capture_type || null, provenance_mode: asset.provenance_mode, caption: asset.caption, bytes: localBuffer.length, width: dimensions.width, height: dimensions.height, sha256: sha256(localBuffer) });
+    } catch (error) {
+      failures.push({
+        evidence_asset_id: asset.evidence_asset_id,
+        source_ids: asset.source_ids || [],
+        source_url: asset.source_url,
+        stage: "capture",
+        required: isRequired(asset),
+        error: error.message,
+      });
+      await fs.rm(localPath, { force: true });
     }
-    runtimeAssets.push({ evidence_asset_id: asset.evidence_asset_id, source_ids: asset.source_ids, source_url: asset.source_url, final_url: downloadRecords.get(asset.download_asset)?.final_url || asset.source_url, local_asset: asset.local_asset, download_asset: asset.download_asset, page_number: asset.page_number || null, capture_type: asset.capture_type || null, provenance_mode: asset.provenance_mode, caption: asset.caption, bytes: localBuffer.length, width: dimensions.width, height: dimensions.height, sha256: sha256(localBuffer) });
   }
 
-  const runtime = { schema_version: "3.2-dimension-validated-web-capture", project_id: projectId, generated_at: new Date().toISOString(), policy: manifest.policy, downloads: Object.fromEntries(downloadRecords), assets: runtimeAssets, pass: runtimeAssets.length === (manifest.assets || []).length };
+  const requiredFailures = failures.filter((failure) => failure.required);
+  const runtime = {
+    schema_version: "3.3-resilient-dimension-validated-web-capture",
+    project_id: projectId,
+    generated_at: new Date().toISOString(),
+    policy: manifest.policy,
+    downloads: Object.fromEntries(downloadRecords),
+    assets: runtimeAssets,
+    failures,
+    required_failure_count: requiredFailures.length,
+    optional_failure_count: failures.length - requiredFailures.length,
+    pass: requiredFailures.length === 0,
+  };
   await writeJsonAtomic(path.join(dir, manifest.policy.runtime_manifest), runtime);
+  if (requiredFailures.length) {
+    throw new Error(`Required primary evidence failed: ${requiredFailures.map((failure) => `${failure.evidence_asset_id} (${failure.error})`).join("; ")}`);
+  }
   return runtime;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  fetchPrimaryEvidence().then((runtime) => console.log(JSON.stringify({ ok: true, asset_count: runtime.assets.length, total_bytes: runtime.assets.reduce((sum, asset) => sum + asset.bytes, 0), runtime_manifest: runtime.policy.runtime_manifest }))).catch((error) => { console.error(JSON.stringify({ ok: false, error: error.message })); process.exitCode = 1; });
+  fetchPrimaryEvidence().then((runtime) => console.log(JSON.stringify({ ok: true, asset_count: runtime.assets.length, optional_failure_count: runtime.optional_failure_count, required_failure_count: runtime.required_failure_count, total_bytes: runtime.assets.reduce((sum, asset) => sum + asset.bytes, 0), runtime_manifest: runtime.policy.runtime_manifest }))).catch((error) => { console.error(JSON.stringify({ ok: false, error: error.message })); process.exitCode = 1; });
 }
