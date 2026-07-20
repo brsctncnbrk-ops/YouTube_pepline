@@ -19,17 +19,37 @@ jobs:
       - name: Query latest full-plan and render workflows
         run: |
           set -euo pipefail
-          REBALANCE="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-full-plan-rebalance.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=5")"
-          RENDER="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/render.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=5")"
+          api_retry() {
+            local endpoint="$1"
+            local output="$2"
+            for attempt in 1 2 3 4 5; do
+              if gh api -H 'Accept: application/vnd.github+json' "$endpoint" > "$output"; then
+                return 0
+              fi
+              sleep $((attempt * 4))
+            done
+            return 1
+          }
+          api_retry "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-full-plan-rebalance.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=5" rebalance.json
+          api_retry "/repos/${GITHUB_REPOSITORY}/actions/workflows/render.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=5" render.json
           echo '--- REBALANCE RUNS ---'
-          echo "$REBALANCE" | jq '[.workflow_runs[] | {id,event,status,conclusion,head_sha,created_at,updated_at,html_url}]'
+          jq '[.workflow_runs[] | {id,event,status,conclusion,head_sha,created_at,updated_at,html_url}]' rebalance.json
           echo '--- RENDER RUNS ---'
-          echo "$RENDER" | jq '[.workflow_runs[] | {id,event,status,conclusion,head_sha,created_at,updated_at,html_url}]'
-          echo "LATEST_REBALANCE_RUN_ID=$(echo "$REBALANCE" | jq -r '.workflow_runs[0].id // empty')"
-          echo "LATEST_RENDER_RUN_ID=$(echo "$RENDER" | jq -r '.workflow_runs[0].id // empty')"
+          jq '[.workflow_runs[] | {id,event,status,conclusion,head_sha,created_at,updated_at,html_url}]' render.json
+          echo "LATEST_REBALANCE_RUN_ID=$(jq -r '.workflow_runs[0].id // empty' rebalance.json)"
+          echo "LATEST_RENDER_RUN_ID=$(jq -r '.workflow_runs[0].id // empty' render.json)"
 
       - name: Show active or latest rebalance job steps
         run: |
           set -euo pipefail
-          RUN_ID="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-full-plan-rebalance.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=1" --jq '.workflow_runs[0].id')"
-          gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs?per_page=100" | jq '{run_id:'"$RUN_ID"',jobs:[.jobs[]|{id,name,status,conclusion,steps:[.steps[]|{number,name,status,conclusion}]}]}'
+          for attempt in 1 2 3 4 5; do
+            if gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-full-plan-rebalance.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=1" > latest.json; then break; fi
+            sleep $((attempt * 4))
+          done
+          RUN_ID="$(jq -r '.workflow_runs[0].id // empty' latest.json)"
+          test -n "$RUN_ID"
+          for attempt in 1 2 3 4 5; do
+            if gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs?per_page=100" > jobs.json; then break; fi
+            sleep $((attempt * 4))
+          done
+          jq --argjson run_id "$RUN_ID" '{run_id:$run_id,jobs:[.jobs[]|{id,name,status,conclusion,steps:[.steps[]|{number,name,status,conclusion}]}]}' jobs.json
