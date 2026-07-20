@@ -51,7 +51,8 @@ export async function expandPrimaryEvidenceManifest(projectId = PROJECT_ID) {
       capture_type: "webpage",
       allowed_redirect_hosts: redirectHosts,
       provenance_mode: "official_primary_capture",
-      required_for_full: true,
+      required_for_full: false,
+      availability_policy: "best_effort_with_global_quality_gate",
       caption: `${source.publisher} — ${source.title}${source.publication_date ? ` (${source.publication_date})` : ""}`,
     };
     manifest.assets.push(asset);
@@ -60,13 +61,14 @@ export async function expandPrimaryEvidenceManifest(projectId = PROJECT_ID) {
     added.push(asset);
     manifest.policy.allowed_hosts = [...new Set([...(manifest.policy.allowed_hosts || []), parsed.hostname, ...redirectHosts])].sort();
   }
-  manifest.schema_version = "2.4-full-film-official-capture";
+  manifest.schema_version = "2.5-resilient-full-film-official-capture";
   manifest.policy.full_film_official_capture_required = true;
   manifest.policy.minimum_official_capture_fraction = 0.3;
   manifest.policy.maximum_uninterrupted_evidence_seconds = 16;
+  manifest.policy.web_capture_availability_mode = "best_effort_then_fail_closed_on_plan_quality";
   manifest.policy.unavailable_web_capture_sources = skipped;
   await writeJsonAtomic(manifestPath, manifest);
-  return { project_id: projectId, active_source_count: activeSourceIds.size, added_count: added.length, skipped_count: skipped.length, total_assets: manifest.assets.length, allowed_hosts: manifest.policy.allowed_hosts, skipped_sources: skipped, added_assets: added.map((asset) => ({ evidence_asset_id: asset.evidence_asset_id, source_ids: asset.source_ids, local_asset: asset.local_asset, allowed_redirect_hosts: asset.allowed_redirect_hosts })) };
+  return { project_id: projectId, active_source_count: activeSourceIds.size, added_count: added.length, skipped_count: skipped.length, total_assets: manifest.assets.length, allowed_hosts: manifest.policy.allowed_hosts, skipped_sources: skipped, added_assets: added.map((asset) => ({ evidence_asset_id: asset.evidence_asset_id, source_ids: asset.source_ids, local_asset: asset.local_asset, allowed_redirect_hosts: asset.allowed_redirect_hosts, required_for_full: asset.required_for_full, availability_policy: asset.availability_policy })) };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
