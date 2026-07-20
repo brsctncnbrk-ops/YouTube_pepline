@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
 import crypto from "node:crypto";
-import { measureFullPlanVisualMix, restoreOfficialBreakers } from "./orvyq_rebalance_full_plan.mjs";
+import { chooseBreakerShot, measureFullPlanVisualMix, restoreOfficialBreakers } from "./orvyq_rebalance_full_plan.mjs";
 
 const hash = (value) => crypto.createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const official = (shot_id, start_frame, end_frame) => ({
@@ -14,6 +14,21 @@ const official = (shot_id, start_frame, end_frame) => ({
     kind: "official_screen",
     source_ids: ["SRC_A"],
     image_assets: [`assets/evidence/${shot_id}.png`],
+    provenance_mode: "official_primary_capture",
+  },
+});
+const derived = (shot_id, start_frame, end_frame) => ({
+  shot_id,
+  start_frame,
+  end_frame,
+  asset_type: "evidence",
+  visual_role: "evidence",
+  evidence: {
+    kind: "comparison",
+    source_ids: ["SRC_A"],
+    source_label: "Official source",
+    title: "Source-backed finding",
+    provenance_mode: "source_derived_graphic",
   },
 });
 const breaker = (shot_id, start_frame, end_frame) => ({
@@ -93,4 +108,38 @@ assert.equal(blockedResult.converted.length, 0, "recovery must reject a conversi
 assert.equal(blocked.shots[1].asset_type, "footage", "rejected recovery must roll the shot back exactly");
 assert.equal(measureFullPlanVisualMix(blocked).maximum_uninterrupted_evidence_seconds, 10);
 
-console.log(JSON.stringify({ ok: true, regression: "official-breaker-recovery", official_fraction: result.metrics.official_fraction }));
+// Regression: breaking an overlong evidence run must never consume the official floor.
+const floorPlan = {
+  fps: 30,
+  duration_frames: 1000,
+  shots: [
+    official("floor_official_a", 0, 150),
+    derived("safe_derived_breaker", 150, 300),
+    official("floor_official_b", 300, 450),
+    { shot_id: "tail", start_frame: 450, end_frame: 1000, asset_type: "graphic", graphic: { type: "brand_close" } },
+  ],
+};
+const selected = chooseBreakerShot(floorPlan.shots.slice(0, 3), floorPlan, 0.3);
+assert.equal(selected?.shot_id, "safe_derived_breaker", "rebalance must prefer a non-official breaker at the official floor");
+
+const noSafeBreakerPlan = {
+  fps: 30,
+  duration_frames: 1000,
+  shots: [
+    official("only_official_a", 0, 150),
+    official("only_official_b", 150, 300),
+    { shot_id: "tail", start_frame: 300, end_frame: 1000, asset_type: "graphic", graphic: { type: "brand_close" } },
+  ],
+};
+assert.equal(
+  chooseBreakerShot(noSafeBreakerPlan.shots.slice(0, 2), noSafeBreakerPlan, 0.3),
+  null,
+  "rebalance must fail explicitly instead of lowering the official capture floor",
+);
+
+console.log(JSON.stringify({
+  ok: true,
+  regression: "official-floor-preserving-rebalance-v2",
+  official_fraction: result.metrics.official_fraction,
+  selected_breaker: selected?.shot_id,
+}));
