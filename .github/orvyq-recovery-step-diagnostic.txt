@@ -1,0 +1,51 @@
+RUN_ID=29768832811
+TARGET=logs/recover-and-dispatch/12_Build canonical full audio and captions.txt
+37:2026-07-20T18:44:16.8355635Z Error: Full-duration audio mix requires every canonical cue to be ready
+46:2026-07-20T18:44:16.8411389Z ##[error]Process completed with exit code 1.
+--- LAST 260 LINES ---
+﻿2026-07-20T18:44:00.4503956Z ##[group]Run set -euo pipefail
+2026-07-20T18:44:00.4504586Z [36;1mset -euo pipefail[0m
+2026-07-20T18:44:00.4504858Z [36;1mnode --input-type=module <<'NODE'[0m
+2026-07-20T18:44:00.4505299Z [36;1mimport {fetchProofMusic} from './scripts/orvyq_fetch_proof_music.mjs';[0m
+2026-07-20T18:44:00.4505818Z [36;1mimport {buildOrvyqAudioMix} from './scripts/orvyq_audio_mix.mjs';[0m
+2026-07-20T18:44:00.4506260Z [36;1mawait fetchProofMusic(process.env.PROJECT_ID);[0m
+2026-07-20T18:44:00.4506687Z [36;1mconst result = await buildOrvyqAudioMix(process.env.PROJECT_ID);[0m
+2026-07-20T18:44:00.4507127Z [36;1mconsole.log(JSON.stringify({ok: true, ...result}));[0m
+2026-07-20T18:44:00.4507460Z [36;1mNODE[0m
+2026-07-20T18:44:00.4507767Z [36;1mpython scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID"[0m
+2026-07-20T18:44:00.4508195Z [36;1mnode --input-type=module <<'NODE'[0m
+2026-07-20T18:44:00.4508600Z [36;1mimport {buildOrvyqCaptions} from './scripts/orvyq_caption_build.mjs';[0m
+2026-07-20T18:44:00.4509095Z [36;1mconst result = await buildOrvyqCaptions(process.env.PROJECT_ID);[0m
+2026-07-20T18:44:00.4509650Z [36;1mconsole.log(JSON.stringify({ok: true, caption_count: result.captions?.length || 0}));[0m
+2026-07-20T18:44:00.4510097Z [36;1mNODE[0m
+2026-07-20T18:44:00.4510423Z [36;1mtest -s "projects/$PROJECT_ID/assets/audio/final_mix.metadata.json"[0m
+2026-07-20T18:44:00.4510870Z [36;1mtest -s "projects/$PROJECT_ID/remotion/captions.json"[0m
+2026-07-20T18:44:00.4577319Z shell: /usr/bin/bash -e {0}
+2026-07-20T18:44:00.4577593Z env:
+2026-07-20T18:44:00.4577859Z   PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+2026-07-20T18:44:00.4580298Z   GH_TOKEN: ***
+2026-07-20T18:44:00.4580602Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T18:44:00.4581038Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+2026-07-20T18:44:00.4581468Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T18:44:00.4581844Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T18:44:00.4582222Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T18:44:00.4582597Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+2026-07-20T18:44:00.4583133Z   ORVYQ_NARRATION_LIMIT_SECONDS: 719.882
+2026-07-20T18:44:00.4583421Z   ORVYQ_AUDIO_LIMIT_SECONDS: 745.882
+2026-07-20T18:44:00.4583688Z   ORVYQ_EDITORIAL_PAUSES: 1
+2026-07-20T18:44:00.4583930Z   PROOF_RUN_ID: 29701621699
+2026-07-20T18:44:00.4584401Z ##[endgroup]
+2026-07-20T18:44:16.8353384Z file:///home/runner/work/YouTube_pepline/YouTube_pepline/scripts/orvyq_audio_mix_v2.mjs:352
+2026-07-20T18:44:16.8354461Z       throw new Error("Full-duration audio mix requires every canonical cue to be ready");
+2026-07-20T18:44:16.8355067Z             ^
+2026-07-20T18:44:16.8355228Z 
+2026-07-20T18:44:16.8355635Z Error: Full-duration audio mix requires every canonical cue to be ready
+2026-07-20T18:44:16.8356682Z     at resolveMusicSections (file:///home/runner/work/YouTube_pepline/YouTube_pepline/scripts/orvyq_audio_mix_v2.mjs:352:13)
+2026-07-20T18:44:16.8357995Z     at buildOrvyqAudioMix (file:///home/runner/work/YouTube_pepline/YouTube_pepline/scripts/orvyq_audio_mix_v2.mjs:468:25)
+2026-07-20T18:44:16.8359041Z     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2026-07-20T18:44:16.8359722Z     at async file:///home/runner/work/YouTube_pepline/YouTube_pepline/scripts/orvyq_audio_mix.mjs:74:20
+2026-07-20T18:44:16.8360524Z     at async withCanonicalNarrator (file:///home/runner/work/YouTube_pepline/YouTube_pepline/scripts/orvyq_audio_mix.mjs:55:12)
+2026-07-20T18:44:16.8361224Z     at async file:///home/runner/work/YouTube_pepline/YouTube_pepline/[eval1]:4:16
+2026-07-20T18:44:16.8361523Z 
+2026-07-20T18:44:16.8361621Z Node.js v20.20.2
+2026-07-20T18:44:16.8411389Z ##[error]Process completed with exit code 1.

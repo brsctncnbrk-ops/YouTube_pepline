@@ -1,3 +1,9 @@
+import {
+  isApprovedContextualFootage,
+  isOpeningHookFootage,
+  resolveEditorialMode,
+} from "./orvyq-visual-policy.mjs";
+
 const DEFAULT_MIN_SECONDS = 10;
 const DEFAULT_MAX_SECONDS = 14;
 
@@ -15,18 +21,22 @@ export function auditMotionHook(plan, options = {}) {
   );
   const shots = Array.isArray(plan.shots) ? plan.shots : [];
   const failures = [];
-  const hookShots = shots.filter((shot) => shot.hook_footage === true);
+  const hookShots = shots.filter(isOpeningHookFootage);
+  const contextualShots = shots.filter(isApprovedContextualFootage);
   const footageShots = shots.filter((shot) => shot.asset_type === "footage");
-  const allowsContextualBodyFootage =
-    plan.quality_policy?.cinematic_body_footage === true;
+  const editorial = resolveEditorialMode(plan);
 
   if (!plan.preview) {
     return {
       required: false,
       pass: true,
+      editorial_mode: editorial.mode,
       duration_seconds: 0,
       shot_count: 0,
-      footage_count: footageShots.length,
+      footage_count: 0,
+      hook_footage_count: 0,
+      contextual_footage_count: contextualShots.length,
+      total_footage_count: footageShots.length,
       failures,
     };
   }
@@ -36,18 +46,19 @@ export function auditMotionHook(plan, options = {}) {
   if (
     footageShots.some(
       (shot) =>
-        shot.hook_footage !== true &&
+        !isOpeningHookFootage(shot) &&
         !(
-          allowsContextualBodyFootage &&
-          shot.contextual_footage === true &&
-          shot.provenance_mode === "approved_contextual_footage"
+          editorial.allows_contextual_body_footage &&
+          isApprovedContextualFootage(shot)
         ),
     )
   )
-    failures.push("Footage is allowed only inside the approved opening hook");
+    failures.push(
+      "Preview footage must be an approved opening hook or approved contextual footage",
+    );
 
   const firstNonHookIndex = shots.findIndex(
-    (shot) => shot.hook_footage !== true,
+    (shot) => !isOpeningHookFootage(shot),
   );
   const openingCount =
     firstNonHookIndex === -1 ? shots.length : firstNonHookIndex;
@@ -55,7 +66,7 @@ export function auditMotionHook(plan, options = {}) {
   if (
     openingShots.length !== hookShots.length ||
     openingShots.some(
-      (shot) => shot.asset_type !== "footage" || shot.hook_footage !== true,
+      (shot) => shot.asset_type !== "footage" || !isOpeningHookFootage(shot),
     )
   ) {
     failures.push(
@@ -105,9 +116,13 @@ export function auditMotionHook(plan, options = {}) {
   return {
     required: true,
     pass: failures.length === 0,
+    editorial_mode: editorial.mode,
     duration_seconds: durationSeconds,
     shot_count: hookShots.length,
-    footage_count: footageShots.length,
+    footage_count: hookShots.length,
+    hook_footage_count: hookShots.length,
+    contextual_footage_count: contextualShots.length,
+    total_footage_count: footageShots.length,
     first_evidence_frame: firstBodyShot?.start_frame ?? null,
     failures,
   };

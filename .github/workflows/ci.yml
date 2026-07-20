@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: factforge-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -28,8 +32,14 @@ jobs:
       - name: Run pipeline smoke checks
         run: npm run ci:smoke
 
+      - name: Validate migrated ORVYQ canonical plan
+        run: node scripts/orvyq_production_plan.mjs validate --project-id 001-the-ai-race-no-one-can-afford-to-win --skip-assets
+
       - name: Check Node script syntax
         run: find scripts -type f -name '*.mjs' -print0 | xargs -0 -n1 node --check
+
+      - name: Test canonical production-plan and proof hash gates
+        run: npm run orvyq:production-plan:test
 
       - name: Install deterministic Remotion dependencies
         working-directory: templates/remotion

@@ -1,0 +1,144 @@
+{
+  "generated_at": "2026-07-20T17:21:06Z",
+  "latest_run": {
+    "id": 29763296244,
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "3cb26129fef337edea9e1ba2f130b2a9979a48bd",
+    "created_at": "2026-07-20T17:20:34Z",
+    "updated_at": "2026-07-20T17:20:38Z",
+    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29763296244"
+  },
+  "jobs": [
+    {
+      "id": 88423059029,
+      "name": "rebalance",
+      "status": "in_progress",
+      "conclusion": null,
+      "started_at": "2026-07-20T17:20:37Z",
+      "completed_at": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Checkout branch without LFS smudge",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Pull and verify LFS assets with retries",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Set up Node",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Set up Python",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Install deterministic tooling",
+          "status": "in_progress",
+          "conclusion": null,
+          "number": 6
+        },
+        {
+          "name": "Resolve canonical full-audio limits",
+          "status": "pending",
+          "conclusion": null,
+          "number": 7
+        },
+        {
+          "name": "Verify structural and audio regression contracts",
+          "status": "pending",
+          "conclusion": null,
+          "number": 8
+        },
+        {
+          "name": "Expand and fetch available full-film official evidence",
+          "status": "pending",
+          "conclusion": null,
+          "number": 9
+        },
+        {
+          "name": "Complete visual recovery, finalize audio contract, and bind evidence",
+          "status": "pending",
+          "conclusion": null,
+          "number": 10
+        },
+        {
+          "name": "Preserve existing proof approval by prefix continuity",
+          "status": "pending",
+          "conclusion": null,
+          "number": 11
+        },
+        {
+          "name": "Build canonical full-duration audio captions and SFX provenance",
+          "status": "pending",
+          "conclusion": null,
+          "number": 12
+        },
+        {
+          "name": "Build approved full edit and collect every gate result",
+          "status": "pending",
+          "conclusion": null,
+          "number": 13
+        },
+        {
+          "name": "Commit corrected plan preserved approval audio contract evidence bundle and QA state",
+          "status": "pending",
+          "conclusion": null,
+          "number": 14
+        },
+        {
+          "name": "Verify preserved approval bundled evidence and audio contract after commit",
+          "status": "pending",
+          "conclusion": null,
+          "number": 15
+        },
+        {
+          "name": "Dispatch corrected full render from immutable candidate ref",
+          "status": "pending",
+          "conclusion": null,
+          "number": 16
+        },
+        {
+          "name": "Upload rebalance diagnostics",
+          "status": "pending",
+          "conclusion": null,
+          "number": 17
+        },
+        {
+          "name": "Post Set up Python",
+          "status": "pending",
+          "conclusion": null,
+          "number": 32
+        },
+        {
+          "name": "Post Set up Node",
+          "status": "pending",
+          "conclusion": null,
+          "number": 33
+        },
+        {
+          "name": "Post Checkout branch without LFS smudge",
+          "status": "pending",
+          "conclusion": null,
+          "number": 34
+        }
+      ]
+    }
+  ]
+}

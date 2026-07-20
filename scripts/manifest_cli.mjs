@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 /**
  * The single place that reads or writes projects/<id>/manifest.json.
- * The factforge-orchestrator Skill calls these subcommands via Bash instead
- * of editing manifest.json directly, so state transitions are enforced by
- * code rather than by an LLM remembering the rules correctly.
+ *
+ * ORVYQ v3 adds a canonical full-duration production plan and a hash-bound
+ * human proof approval. A project can no longer become READY_FOR_RENDER from
+ * legacy Remotion readiness alone.
  */
 import path from "node:path";
 import { promises as fs } from "node:fs";
@@ -20,10 +21,25 @@ import {
   printJson,
   CliError,
 } from "./lib/fs-utils.mjs";
-import { STAGE_ORDER, STAGE_REQUIRED_FILES, STAGE_OUTPUT_FILES, GATES, ERROR_CODES, nextStage } from "./lib/pipeline.mjs";
+import {
+  STAGE_ORDER,
+  STAGE_REQUIRED_FILES,
+  STAGE_OUTPUT_FILES,
+  GATES,
+  ERROR_CODES,
+  SCHEMA_VERSION,
+  nextStage,
+} from "./lib/pipeline.mjs";
 import { scaffoldProject } from "./scaffold_project.mjs";
 import { validateAssets, validateAll, toHuman } from "./validate.mjs";
 import { reconcileProjectIndex } from "./index_reconciliation.mjs";
+import {
+  validateProductionPlan,
+  validateProofApproval,
+  writeProofApproval,
+  buildEditPlanFromProduction,
+  finalizeProductionPlan,
+} from "./lib/orvyq-production.mjs";
 
 function manifestPath(projectId) {
   return path.join(projectDir(projectId), "manifest.json");
@@ -38,6 +54,7 @@ async function loadManifest(projectId) {
 }
 
 async function saveManifest(projectId, manifest) {
+  manifest.schema_version = SCHEMA_VERSION;
   manifest.last_updated = nowIso();
   await writeJsonAtomic(manifestPath(projectId), manifest);
 }
@@ -54,7 +71,15 @@ async function logError(projectId, line) {
   await appendLine(path.join(projectDir(projectId), "logs", "errors.log"), line);
 }
 
-// ---- subcommands ----
+function summarizeCheck(check) {
+  if (!check) return null;
+  return {
+    valid: check.valid,
+    error_code: check.error_code || null,
+    issues: check.issues || [],
+    plan_sha256: check.plan_sha256 || null,
+  };
+}
 
 async function cmdInit(args) {
   const result = await scaffoldProject({
@@ -73,12 +98,17 @@ async function cmdInit(args) {
 async function projectSummary(id) {
   const manifest = await readJsonSafe(manifestPath(id), null);
   if (!manifest) return { project_id: id, status: "UNKNOWN (manifest.json missing)" };
+  const planPath = path.join(projectDir(id), "direction", "production_plan.json");
+  const approvalPath = path.join(projectDir(id), "qa", "proof_approval.json");
   return {
     project_id: manifest.project_id,
     project_name: manifest.project_name,
+    schema_version: manifest.schema_version,
     status: manifest.status,
     current_stage: manifest.current_stage,
     waiting_for: manifest.waiting_for,
+    canonical_plan_present: await pathExists(planPath),
+    proof_approval_present: await pathExists(approvalPath),
     paused: manifest.paused,
     open_errors: manifest.errors.length,
     last_updated: manifest.last_updated,
@@ -130,11 +160,43 @@ async function cmdAdvance(args) {
     return { project_id: projectId, stage, result, manifest };
   }
 
+  if (stage === "production_plan") {
+    const planCheck = await validateProductionPlan({
+      projectId,
+      requireReady: false,
+      requireAssets: false,
+    });
+    if (!planCheck.valid) {
+      throw new CliError(
+        `Cannot advance production_plan: ${planCheck.issues.map((entry) => entry.message).join("; ")}`,
+        "PRODUCTION_PLAN_INCOMPLETE",
+      );
+    }
+  }
+  if (stage === "production_plan_qa") {
+    await finalizeProductionPlan({ projectId });
+  }
+  if (stage === "proof_qa") {
+    const planCheck = await validateProductionPlan({
+      projectId,
+      requireReady: true,
+      requireAssets: false,
+    });
+    if (!planCheck.valid) {
+      throw new CliError(
+        `Cannot prepare proof: ${planCheck.issues.map((entry) => entry.message).join("; ")}`,
+        "PRODUCTION_PLAN_INCOMPLETE",
+      );
+    }
+  }
+
   manifest.pending_skills = manifest.pending_skills.filter((s) => s !== stage);
   if (!manifest.completed_skills.includes(stage)) manifest.completed_skills.push(stage);
+  manifest.completed_skills = STAGE_ORDER.filter((s) => manifest.completed_skills.includes(s));
   manifest.last_successful_stage = stage;
   manifest.current_stage = nextStage(stage);
   manifest.status = manifest.pending_skills.length === 0 ? "DONE" : "IN_PROGRESS";
+  if (stage === "proof_qa") manifest.status = "READY_FOR_PROOF_RENDER";
 
   await saveManifest(projectId, manifest);
   return { project_id: projectId, stage, result, manifest };
@@ -152,12 +214,12 @@ async function cmdGate(args) {
   if (check.valid) {
     if (manifest.status === gate.waitStatus) manifest.status = "IN_PROGRESS";
     manifest.waiting_for = manifest.waiting_for.filter((f) =>
-      gateName === "audio" ? f !== gate.requiredFile : !f.startsWith("assets/images/") && !f.startsWith("assets/footage/")
+      gateName === "audio" ? f !== gate.requiredFile : !f.startsWith("assets/images/") && !f.startsWith("assets/footage/"),
     );
   } else {
     manifest.status = gate.waitStatus;
     const others = manifest.waiting_for.filter((f) =>
-      gateName === "audio" ? f !== gate.requiredFile : !f.startsWith("assets/images/") && !f.startsWith("assets/footage/")
+      gateName === "audio" ? f !== gate.requiredFile : !f.startsWith("assets/images/") && !f.startsWith("assets/footage/"),
     );
     manifest.waiting_for = [...others, ...check.missing];
   }
@@ -173,6 +235,16 @@ async function cmdQa(args) {
   const result = await validateAll({ projectId, stage: gateName });
   const automated = toHuman(result);
   const qaPath = path.join(projectDir(projectId), "qa", `${gateName}.md`);
+  const judgment =
+    gateName === "production_plan_qa"
+      ? result.valid
+        ? "PASS — The canonical plan covers the full timeline, preserves an exact proof prefix, maps every shot to a section and sourced claim, and satisfies the declared visual-balance and reuse policies."
+        : "FAIL — The canonical full-duration production contract is incomplete or internally inconsistent."
+      : gateName === "proof_qa"
+        ? result.valid
+          ? "PASS — The proof is ready to be rendered as the exact opening prefix of the canonical full-duration plan. Human rendered-video approval remains a separate required gate."
+          : "FAIL — The proof cannot be rendered from the current canonical plan."
+        : "_Not yet completed. Run the corresponding ORVYQ / FactForge QA skill._";
   const content = [
     `# ${gateName} QA — ${projectId}`,
     "",
@@ -180,7 +252,7 @@ async function cmdQa(args) {
     "",
     "### Judgment-Based Checks",
     "",
-    "_Not yet completed. Run the corresponding FactForge QA skill to fill in the qualitative assessment (Phase 1 only wires the mechanical checks above)._",
+    judgment,
     "",
   ].join("\n");
   await fs.mkdir(path.dirname(qaPath), { recursive: true });
@@ -190,6 +262,8 @@ async function cmdQa(args) {
     let code = "SCHEMA_VALIDATION_FAILED";
     if (result.error_code) code = result.error_code;
     else if (result.reasons?.[0]) code = result.reasons[0].split(":")[0];
+    else if (result.productionPlanCheck && !result.productionPlanCheck.valid) code = result.productionPlanCheck.error_code || "PRODUCTION_PLAN_INCOMPLETE";
+    else if (result.proofApprovalCheck && !result.proofApprovalCheck.valid) code = result.proofApprovalCheck.error_code || "PROOF_APPROVAL_REQUIRED";
     else if (result.assetCheck && !result.assetCheck.valid && result.assetCheck.error_code) code = result.assetCheck.error_code;
     else if (result.filenamesCheck && !result.filenamesCheck.valid) code = "BROKEN_ASSET_PATH";
     else if (result.coverageCheck && !result.coverageCheck.valid) code = "BROKEN_ASSET_PATH";
@@ -203,11 +277,22 @@ async function cmdQa(args) {
       code,
       stage: gateName,
       message: `Automated QA checks failed for ${gateName}`,
-      action: "Review qa/" + gateName + ".md and fix the reported issues before proceeding.",
+      action: `Review qa/${gateName}.md and fix the reported issues before proceeding.`,
     });
   }
 
-  return { project_id: projectId, gate: gateName, valid: result.valid, qa_file: path.relative(process.cwd(), qaPath) };
+  let finalizedPlan = null;
+  if (result.valid && gateName === "production_plan_qa") {
+    finalizedPlan = await finalizeProductionPlan({ projectId });
+  }
+
+  return {
+    project_id: projectId,
+    gate: gateName,
+    valid: result.valid,
+    qa_file: path.relative(process.cwd(), qaPath),
+    ...(finalizedPlan ? { finalized_plan: finalizedPlan } : {}),
+  };
 }
 
 async function cmdError(args) {
@@ -294,37 +379,188 @@ async function cmdResetStage(args) {
   return { project_id: projectId, stage, force_clean: forceClean, cleaned_files: cleaned, manifest };
 }
 
+async function cmdMigrateV3(args) {
+  const { "project-id": projectId } = args;
+  if (!projectId) throw new CliError("--project-id is required", "UNKNOWN_ERROR");
+  const manifest = await loadManifest(projectId);
+  const previous = {
+    schema_version: manifest.schema_version,
+    status: manifest.status,
+    current_stage: manifest.current_stage,
+    completed_skills: [...manifest.completed_skills],
+  };
+
+  const productionIndex = STAGE_ORDER.indexOf("production_plan");
+  const priorStages = STAGE_ORDER.slice(0, productionIndex);
+  const completedSet = new Set(manifest.completed_skills || []);
+  manifest.completed_skills = priorStages.filter((stage) => completedSet.has(stage));
+  if (!manifest.completed_skills.includes("remotion") && completedSet.has("remotion")) manifest.completed_skills.push("remotion");
+  manifest.completed_skills = STAGE_ORDER.filter((stage) => manifest.completed_skills.includes(stage));
+  manifest.pending_skills = STAGE_ORDER.slice(productionIndex);
+  manifest.current_stage = "production_plan";
+  manifest.last_successful_stage = "remotion";
+  manifest.status = "IN_PROGRESS";
+  manifest.waiting_for = [];
+  manifest.errors = [];
+  delete manifest.render;
+
+  const legacyApprovalPath = path.join(
+    projectDir(projectId),
+    "qa",
+    "proof_approval.json",
+  );
+  if (await pathExists(legacyApprovalPath)) {
+    const legacyApproval = await readJsonSafe(legacyApprovalPath, null);
+    if (legacyApproval) {
+      await writeJsonAtomic(
+        path.join(projectDir(projectId), "qa", "legacy_proof_approval.json"),
+        {
+          archived_at: nowIso(),
+          reason:
+            "Pre-v3 approval was not bound to the canonical full-duration production plan hash",
+          approval: legacyApproval,
+        },
+      );
+    }
+    await fs.rm(legacyApprovalPath, { force: true });
+  }
+
+  manifest.migration = {
+    migrated_to: SCHEMA_VERSION,
+    migrated_at: nowIso(),
+    reason: "Canonical full-duration production plan and hash-bound proof approval are now mandatory",
+    previous,
+  };
+  await saveManifest(projectId, manifest);
+  await logOrchestrator(projectId, `MIGRATE_V3 previous_status=${previous.status} reset_to=production_plan`);
+  return { project_id: projectId, migrated: true, previous, manifest };
+}
+
+async function cmdPrepareProof(args) {
+  const { "project-id": projectId } = args;
+  if (!projectId) throw new CliError("--project-id is required", "UNKNOWN_ERROR");
+  const manifest = await loadManifest(projectId);
+  const planCheck = await validateProductionPlan({
+    projectId,
+    requireReady: true,
+    requireAssets: false,
+  });
+  if (!planCheck.valid) {
+    return { project_id: projectId, ready: false, check: summarizeCheck(planCheck) };
+  }
+  manifest.status = "READY_FOR_PROOF_RENDER";
+  manifest.current_stage = "render_qa";
+  manifest.proof = {
+    status: "ready_for_render",
+    production_plan_sha256: planCheck.plan_sha256,
+    duration_frames: planCheck.plan.proof.duration_frames,
+  };
+  await saveManifest(projectId, manifest);
+  await logOrchestrator(projectId, `PROOF_PREPARED plan_sha256=${planCheck.plan_sha256}`);
+  return {
+    project_id: projectId,
+    ready: true,
+    manifest_status: manifest.status,
+    production_plan_sha256: planCheck.plan_sha256,
+    next_step: `gh workflow run orvyq-proof.yml -f project_id=${projectId}`,
+  };
+}
+
+async function cmdProofComplete(args) {
+  const { "project-id": projectId, "proof-run-id": proofRunId, "render-source-sha": renderSourceSha } = args;
+  if (!projectId || !proofRunId || !renderSourceSha) {
+    throw new CliError("--project-id, --proof-run-id, and --render-source-sha are required", "PROOF_APPROVAL_REQUIRED");
+  }
+  const manifest = await loadManifest(projectId);
+  manifest.status = "WAITING_FOR_PROOF_APPROVAL";
+  manifest.proof = {
+    ...(manifest.proof || {}),
+    status: "rendered_waiting_for_human_review",
+    proof_run_id: String(proofRunId),
+    render_source_sha: String(renderSourceSha),
+    rendered_at: nowIso(),
+  };
+  await saveManifest(projectId, manifest);
+  await logSkillRun(projectId, `PROOF_COMPLETE run=${proofRunId} source=${renderSourceSha}`);
+  return { project_id: projectId, status: manifest.status, proof: manifest.proof };
+}
+
+async function cmdApproveProof(args) {
+  const { "project-id": projectId } = args;
+  if (!projectId) throw new CliError("--project-id is required", "PROOF_APPROVAL_REQUIRED");
+  const approval = await writeProofApproval({
+    projectId,
+    proofRunId: args["proof-run-id"],
+    humanScore: args["human-score"],
+    renderSourceSha: args["render-source-sha"],
+    reviewNotes: args["review-notes"] || "",
+  });
+  const manifest = await loadManifest(projectId);
+  manifest.status = "PROOF_APPROVED";
+  manifest.current_stage = "render_qa";
+  manifest.proof = {
+    status: "approved",
+    proof_run_id: approval.proof_run_id,
+    render_source_sha: approval.render_source_sha,
+    human_score: approval.human_score,
+    production_plan_sha256: approval.production_plan_sha256,
+    approved_at: approval.approved_at,
+  };
+  await saveManifest(projectId, manifest);
+  await logOrchestrator(projectId, `PROOF_APPROVED run=${approval.proof_run_id} score=${approval.human_score} plan_sha256=${approval.production_plan_sha256}`);
+  return { project_id: projectId, status: manifest.status, approval };
+}
+
 async function cmdPrepareRender(args) {
   const { "project-id": projectId } = args;
   if (!projectId) throw new CliError("--project-id is required", "UNKNOWN_ERROR");
 
+  const manifest = await loadManifest(projectId);
+  const planCheck = await validateProductionPlan({ projectId, requireReady: true });
+  if (!planCheck.valid) {
+    return {
+      project_id: projectId,
+      ready: false,
+      reasons: planCheck.issues.map((entry) => `${entry.code}: ${entry.message}`),
+      production_plan_check: summarizeCheck(planCheck),
+    };
+  }
+  const approvalCheck = await validateProofApproval({ projectId });
+  if (!approvalCheck.valid) {
+    return {
+      project_id: projectId,
+      ready: false,
+      reasons: approvalCheck.issues.map((entry) => `${entry.code}: ${entry.message}`),
+      proof_approval_check: summarizeCheck(approvalCheck),
+    };
+  }
+
+  const fullPlan = await buildEditPlanFromProduction({ projectId, mode: "full" });
   const { validateRenderReady } = await import("./validate.mjs");
   const check = await validateRenderReady({ projectId });
-  const manifest = await loadManifest(projectId);
 
   if (check.valid) {
     manifest.status = "READY_FOR_RENDER";
+    manifest.full_render = {
+      status: "ready",
+      production_plan_sha256: planCheck.plan_sha256,
+      approved_proof_run_id: approvalCheck.approval.proof_run_id,
+      duration_frames: fullPlan.duration_frames,
+    };
     await saveManifest(projectId, manifest);
     return {
       project_id: projectId,
       ready: true,
       manifest_status: manifest.status,
-      next_step:
-        "Trigger the render on GitHub Actions (never locally): " +
-        `gh workflow run render.yml -f project_id=${projectId}. ` +
-        "The workflow renders the Remotion project, commits output/final_video.mp4 back to the branch, " +
-        "and marks the manifest RENDER_DONE (via `manifest_cli.mjs render-complete`).",
+      production_plan_sha256: planCheck.plan_sha256,
+      approved_proof_run_id: approvalCheck.approval.proof_run_id,
+      next_step: `gh workflow run render.yml -f project_id=${projectId}`,
     };
   }
 
   return { project_id: projectId, ready: false, reasons: check.reasons, checks: check.checks };
 }
 
-/**
- * Called by the GitHub Actions render workflow after a successful render.
- * Sets status RENDER_DONE and records render metadata. Kept separate from
- * `advance` because the render is an external step, not one of STAGE_ORDER.
- */
 async function cmdRenderComplete(args) {
   const { "project-id": projectId, "output-file": outputFile, duration } = args;
   if (!projectId) throw new CliError("--project-id is required", "UNKNOWN_ERROR");
@@ -337,10 +573,21 @@ async function cmdRenderComplete(args) {
     throw new CliError(`Render output ${outRel} not found - refusing to mark RENDER_DONE`, "RENDER_CONFIG_MISSING");
   }
 
+  const approvalCheck = await validateProofApproval({ projectId });
+  if (!approvalCheck.valid) {
+    throw new CliError("Proof approval no longer matches the production plan; refusing to mark RENDER_DONE", approvalCheck.error_code || "PROOF_PLAN_DRIFT");
+  }
+
   manifest.status = "RENDER_DONE";
-  manifest.render = { output: outRel, rendered_at: nowIso(), duration_seconds: duration ? Number(duration) : null };
+  manifest.render = {
+    output: outRel,
+    rendered_at: nowIso(),
+    duration_seconds: duration ? Number(duration) : null,
+    production_plan_sha256: approvalCheck.plan_sha256,
+    approved_proof_run_id: approvalCheck.approval.proof_run_id,
+  };
   await saveManifest(projectId, manifest);
-  await logSkillRun(projectId, `RENDER_COMPLETE output=${outRel}`);
+  await logSkillRun(projectId, `RENDER_COMPLETE output=${outRel} plan_sha256=${approvalCheck.plan_sha256}`);
 
   return { project_id: projectId, status: manifest.status, output: outRel };
 }
@@ -360,19 +607,14 @@ async function cmdClearError(args) {
   if (removed !== 1) {
     throw new CliError(`Expected to clear exactly one active error, cleared ${removed}`, "UNKNOWN_ERROR");
   }
-  if (manifest.errors.length === 0 && manifest.status === "ERROR") {
-    manifest.status = "IN_PROGRESS";
-  }
+  if (manifest.errors.length === 0 && manifest.status === "ERROR") manifest.status = "IN_PROGRESS";
   await saveManifest(projectId, manifest);
   await logOrchestrator(projectId, `CLEAR_ERROR stage=${stage} removed=${removed}`);
   return { project_id: projectId, removed, open_errors: manifest.errors.length, manifest_status: manifest.status };
 }
 
 async function cmdIndexCheck(args) {
-  return reconcileProjectIndex({
-    projectId: args["project-id"] || null,
-    apply: false,
-  });
+  return reconcileProjectIndex({ projectId: args["project-id"] || null, apply: false });
 }
 
 async function cmdIndexSync(args) {
@@ -395,6 +637,10 @@ const SUBCOMMANDS = {
   pause: (args) => cmdPauseResume(args, true),
   resume: (args) => cmdPauseResume(args, false),
   "reset-stage": cmdResetStage,
+  "migrate-v3": cmdMigrateV3,
+  "prepare-proof": cmdPrepareProof,
+  "proof-complete": cmdProofComplete,
+  "approve-proof": cmdApproveProof,
   "prepare-render": cmdPrepareRender,
   "render-complete": cmdRenderComplete,
   "clear-error": cmdClearError,
@@ -403,13 +649,11 @@ const SUBCOMMANDS = {
 };
 
 function printUsage() {
-  console.log(
-    [
-      "Usage: node scripts/manifest_cli.mjs <subcommand> [--flag value ...]",
-      "",
-      "Subcommands: " + Object.keys(SUBCOMMANDS).join(", "),
-    ].join("\n")
-  );
+  console.log([
+    "Usage: node scripts/manifest_cli.mjs <subcommand> [--flag value ...]",
+    "",
+    "Subcommands: " + Object.keys(SUBCOMMANDS).join(", "),
+  ].join("\n"));
 }
 
 async function main() {
@@ -431,6 +675,4 @@ async function main() {
 }
 
 const isMain = process.argv[1] && import.meta.url === `file://${process.argv[1]}`;
-if (isMain) {
-  main();
-}
+if (isMain) main();

@@ -1,0 +1,3 @@
+requested_at=2026-07-20T20:25:00+03:00
+project_id=001-the-ai-race-no-one-can-afford-to-win
+reason=Preserve approved proof run 29701621699 and locked 160-second prefix; run current inset official-floor recovery, source-backed visual enforcement, canonical audio contract, aggregate audits and immutable full-render dispatch. If any full-render gate fails, retain diagnostics for structural correction and rerun without generating a new proof.

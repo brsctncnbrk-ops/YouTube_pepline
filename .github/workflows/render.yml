@@ -1,7 +1,7 @@
 name: FactForge Render
 
-# Full-duration renders are manual and blocked until a two-minute ORVYQ
-# quality-control render has been reviewed and explicitly approved.
+# Full-duration renders are manual. For ORVYQ projects, the workflow trusts only
+# the committed human approval whose locked proof prefix remains byte-identical.
 on:
   workflow_dispatch:
     inputs:
@@ -10,13 +10,14 @@ on:
         required: true
         type: string
       quality_control_approved:
-        description: "I confirm the two-minute quality-control render was reviewed and approved"
-        required: true
+        description: "Deprecated compatibility input; qa/proof_approval.json is authoritative"
+        required: false
         default: false
         type: boolean
       approved_preview_run_id:
-        description: "GitHub Actions run id of the approved two-minute preview"
-        required: true
+        description: "Deprecated compatibility input; the approved run id is read from qa/proof_approval.json"
+        required: false
+        default: ""
         type: string
 
 permissions:
@@ -28,19 +29,38 @@ concurrency:
 
 jobs:
   render:
-    if: ${{ inputs.quality_control_approved == true && inputs.approved_preview_run_id != '' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 360
     env:
       PROJECT_ID: ${{ inputs.project_id }}
-      APPROVED_PREVIEW_RUN_ID: ${{ inputs.approved_preview_run_id }}
     steps:
-      - name: Checkout (with LFS assets)
+      - name: Checkout exact source without LFS smudge
         uses: actions/checkout@v4
         with:
-          lfs: true
+          fetch-depth: 0
 
-      - name: Pull LFS assets
-        run: git lfs pull
+      - name: Lock exact source commit
+        run: |
+          set -euo pipefail
+          ACTUAL_SHA="$(git rev-parse HEAD)"
+          test "$ACTUAL_SHA" = "$GITHUB_SHA"
+          printf '%s\n' "$ACTUAL_SHA" | tee render-source-sha.txt
+
+      - name: Pull and verify LFS assets with retries
+        run: |
+          set -euo pipefail
+          git lfs install --local
+          success=0
+          for attempt in 1 2 3 4; do
+            if GIT_LFS_SKIP_SMUDGE=1 git lfs pull; then
+              success=1
+              break
+            fi
+            git lfs logs last || true
+            sleep $((attempt * 5))
+          done
+          test "$success" = "1"
+          git lfs fsck
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -58,28 +78,103 @@ jobs:
           set -euo pipefail
           npm ci
           sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get install -y ffmpeg poppler-utils
           python -m pip install --disable-pip-version-check faster-whisper==1.2.0 requests==2.32.5
 
-      - name: Validate approval and project id
+      - name: Validate project id
         run: |
           set -euo pipefail
-          test -n "$APPROVED_PREVIEW_RUN_ID"
           node --input-type=module -e '
             import {assertValidProjectId} from "./scripts/lib/fs-utils.mjs";
             assertValidProjectId(process.env.PROJECT_ID);
             console.log(`Validated project id: ${process.env.PROJECT_ID}`);
           '
 
-      - name: Build voice-first audio and verified captions
-        if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
+      - name: Resolve and verify canonical narration timeline
         run: |
           set -euo pipefail
-          node scripts/orvyq_fetch_proof_music.mjs
-          node scripts/orvyq_audio_mix.mjs
-          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID"
-          node scripts/orvyq_caption_build.mjs
-          node scripts/orvyq_edit_plan.mjs
+          python scripts/orvyq_narration_timeline.py --project-id "$PROJECT_ID"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          const dir = `projects/${process.env.PROJECT_ID}`;
+          const plan = JSON.parse(fs.readFileSync(`${dir}/direction/production_plan.json`, 'utf8'));
+          const timelineRaw = fs.readFileSync(`${dir}/direction/narration_timeline.json`, 'utf8');
+          const timeline = JSON.parse(timelineRaw);
+          const actual = crypto.createHash('sha256').update(timelineRaw).digest('hex');
+          const expected = plan.quality_policy?.narration_timeline_sha256;
+          if (!expected || actual !== expected) throw new Error(`Narration timeline drift: ${actual} != ${expected || 'missing'}`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_NARRATION_LIMIT_SECONDS=${timeline.source_duration_seconds}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_AUDIO_LIMIT_SECONDS=${timeline.full_output_duration_seconds}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, 'ORVYQ_EDITORIAL_PAUSES=1\n');
+          NODE
+
+      - name: Canonical full-production proof and audio-contract hard gate
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID" --skip-assets
+          node scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"
+          node scripts/orvyq_audio_contract_tests.mjs
+          test "$(jq -r '.new_proof_required' "projects/$PROJECT_ID/qa/proof_approval_continuity.json")" = "false"
+          test "$(jq -r '.prefix_unchanged' "projects/$PROJECT_ID/qa/proof_approval_continuity.json")" = "true"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/audio_contract.json")" = "true"
+          test "$(jq -r '.all_cues_ready' "projects/$PROJECT_ID/qa/audio_contract.json")" = "true"
+          test "$(jq -r '.quality_policy.require_sound_design_sfx' "projects/$PROJECT_ID/direction/production_plan.json")" = "true"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import {productionPlanSha256} from './scripts/lib/orvyq-production.mjs';
+          const plan = JSON.parse(fs.readFileSync(`projects/${process.env.PROJECT_ID}/direction/production_plan.json`, 'utf8'));
+          fs.writeFileSync('production-plan-sha256.txt', `${productionPlanSha256(plan)}\n`);
+          NODE
+
+      - name: Verify deterministic bundled official primary evidence
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_verify_bundled_evidence.mjs "$PROJECT_ID"
+          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
+
+      - name: Fetch licensed music and build canonical full-duration mix
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import {fetchProofMusic} from './scripts/orvyq_fetch_proof_music.mjs';
+          import {buildOrvyqAudioMix} from './scripts/orvyq_audio_mix.mjs';
+          await fetchProofMusic(process.env.PROJECT_ID);
+          const result = await buildOrvyqAudioMix(process.env.PROJECT_ID);
+          console.log(JSON.stringify({ok: true, ...result}));
+          NODE
+          node scripts/orvyq_finalize_rendered_audio_metadata.mjs "$PROJECT_ID"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/rendered_audio_contract.json")" = "true"
+
+      - name: Verify transformed narration and build captions
+        run: |
+          set -euo pipefail
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --min-similarity 0.85
+          node --input-type=module <<'NODE'
+          import {buildOrvyqCaptions} from './scripts/orvyq_caption_build.mjs';
+          const result = await buildOrvyqCaptions(process.env.PROJECT_ID);
+          console.log(JSON.stringify({ok: true, caption_count: result.captions?.length || 0}));
+          NODE
+
+      - name: Compile full edit from the approved canonical plan
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_production_plan.mjs build-full --project-id "$PROJECT_ID"
+
+      - name: Aggregate editorial provenance audio and render-readiness gates
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
+          node scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"
+          node scripts/orvyq_official_legibility_gate.mjs "$PROJECT_ID"
+          node scripts/orvyq_audit_suite.mjs "$PROJECT_ID"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/audit_suite.json")" = "true"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/source_mix_enforcement.json")" = "true"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/music_cue_audit.json")" = "true"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/license_audit.json")" = "true"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/alignment_readiness.json")" = "true"
+          test "$(jq -r '.script_similarity >= 0.85' "projects/$PROJECT_ID/qa/speech_transcript.json")" = "true"
+          node scripts/validate.mjs render-ready --project-id "$PROJECT_ID"
 
       - name: Rebuild render-ready Remotion project
         run: |
@@ -87,17 +182,7 @@ jobs:
           node scripts/remotion_build.mjs derive-configs --project-id "$PROJECT_ID"
           node scripts/remotion_build.mjs build-project --project-id "$PROJECT_ID"
 
-      - name: ORVYQ editorial quality gate
-        if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
-        run: |
-          set -euo pipefail
-          node scripts/orvyq_edit_plan_tests.mjs
-          node scripts/orvyq_license_audit.mjs
-
-      - name: Render-readiness hard gate
-        run: node scripts/validate.mjs render-ready --project-id "$PROJECT_ID"
-
-      - name: Install deterministic Remotion dependencies
+      - name: Install deterministic Remotion dependencies and type-check
         run: |
           set -euo pipefail
           cd "projects/$PROJECT_ID/remotion/render_ready_project"
@@ -118,15 +203,22 @@ jobs:
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
           mkdir -p "$APP/out"
           cd "$APP"
-          npx remotion render src/index.ts FactForgeVideo out/final_video.mp4 --codec=h264 --concurrency=1 2>&1 | tee out/render_stdout.txt
+          npx remotion render src/index.ts FactForgeVideo out/final_video.mp4 --codec=h264 --concurrency=1 --max-retries=3 2>&1 | tee out/render_stdout.txt
 
-      - name: ORVYQ post-render media gate
-        if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
+      - name: Post-render media transformed-speech and complete-ending gates
         run: |
           set -euo pipefail
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
           node scripts/orvyq_media_qa.mjs --project-id "$PROJECT_ID" --video "$APP/out/final_video.mp4"
-          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --media "$APP/out/final_video.mp4" --output-name final_video_speech_qa.json
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --media "$APP/out/final_video.mp4" --output-name final_video_speech_qa.json --min-similarity 0.85
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const qa = JSON.parse(fs.readFileSync(`projects/${process.env.PROJECT_ID}/qa/final_video_speech_qa.json`, 'utf8'));
+          const transcript = String(qa.transcript || '').trim();
+          const terminal = transcript.split(/\s+/).at(-1) || qa.words?.at(-1)?.text || '';
+          if (!qa.passed || qa.script_similarity < 0.85) throw new Error(`Full render transformed-speech QA failed: ${qa.script_similarity}`);
+          if (!terminal || /-$/.test(terminal)) throw new Error(`Full render narration ends incompletely: ${terminal || '<empty>'}`);
+          NODE
 
       - name: Collect successful render output
         run: |
@@ -135,11 +227,13 @@ jobs:
           DEST="projects/$PROJECT_ID/output"
           mkdir -p "$DEST"
           cp "$SRC/final_video.mp4" "$DEST/final_video.mp4"
+          APPROVED_RUN="$(node --input-type=module -e "import fs from 'node:fs'; const a=JSON.parse(fs.readFileSync('projects/$PROJECT_ID/qa/proof_approval.json')); process.stdout.write(String(a.proof_run_id));")"
           {
             echo "Rendered at: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo "Workflow run: ${{ github.run_id }}"
-            echo "Approved preview run: $APPROVED_PREVIEW_RUN_ID"
+            echo "Approved proof run: $APPROVED_RUN"
             echo "Source commit: ${{ github.sha }}"
+            echo "Production plan SHA-256: $(cat production-plan-sha256.txt)"
             echo "---"
             tail -n 80 "$SRC/render_stdout.txt" || true
           } > "$DEST/render_log.txt"
@@ -148,28 +242,37 @@ jobs:
       - name: Upload render bundle
         uses: actions/upload-artifact@v4
         with:
-          name: factforge-render-${{ env.PROJECT_ID }}-${{ github.run_id }}
+          name: orvyq-render-${{ env.PROJECT_ID }}-${{ github.run_id }}
           path: |
+            render-source-sha.txt
+            production-plan-sha256.txt
             projects/${{ env.PROJECT_ID }}/output/final_video.mp4
             projects/${{ env.PROJECT_ID }}/output/render_log.txt
             projects/${{ env.PROJECT_ID }}/manifest.json
-            projects/${{ env.PROJECT_ID }}/assets/asset_manifest.json
-          if-no-files-found: error
-          retention-days: 30
-
-      - name: Upload ORVYQ QA evidence
-        if: env.PROJECT_ID == '001-the-ai-race-no-one-can-afford-to-win'
-        uses: actions/upload-artifact@v4
-        with:
-          name: orvyq-qa-${{ github.run_id }}
-          path: |
-            projects/${{ env.PROJECT_ID }}/qa/orvyq_media_qa.json
-            projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
-            projects/${{ env.PROJECT_ID }}/qa/final_video_speech_qa.json
-            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
-            projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
-            projects/${{ env.PROJECT_ID }}/remotion/captions.json
+            projects/${{ env.PROJECT_ID }}/direction/production_plan.json
+            projects/${{ env.PROJECT_ID }}/direction/narration_timeline.json
+            projects/${{ env.PROJECT_ID }}/direction/music_cue_sheet.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
+            projects/${{ env.PROJECT_ID }}/qa/proof_approval.json
+            projects/${{ env.PROJECT_ID }}/qa/proof_approval_continuity.json
+            projects/${{ env.PROJECT_ID }}/qa/source_mix_enforcement.json
+            projects/${{ env.PROJECT_ID }}/qa/audio_contract.json
+            projects/${{ env.PROJECT_ID }}/qa/rendered_audio_contract.json
+            projects/${{ env.PROJECT_ID }}/qa/audit_suite.json
+            projects/${{ env.PROJECT_ID }}/qa/full_render_evidence_bundle.json
+            projects/${{ env.PROJECT_ID }}/qa/bundled_evidence_verification.json
+            projects/${{ env.PROJECT_ID }}/qa/production_plan_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/timeline_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/music_cue_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
+            projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
+            projects/${{ env.PROJECT_ID }}/qa/orvyq_media_qa.json
+            projects/${{ env.PROJECT_ID }}/qa/final_video_speech_qa.json
+            projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
+            projects/${{ env.PROJECT_ID }}/assets/sfx/*.provenance.json
+            projects/${{ env.PROJECT_ID }}/assets/asset_manifest.json
           if-no-files-found: error
           retention-days: 30
 
@@ -177,9 +280,24 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: factforge-render-diagnostics-${{ env.PROJECT_ID }}-${{ github.run_id }}
+          name: orvyq-render-diagnostics-${{ env.PROJECT_ID }}-${{ github.run_id }}
           path: |
+            render-source-sha.txt
+            production-plan-sha256.txt
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/render_stdout.txt
             projects/${{ env.PROJECT_ID }}/output/render_log.txt
+            projects/${{ env.PROJECT_ID }}/qa/source_mix_enforcement.json
+            projects/${{ env.PROJECT_ID }}/qa/audio_contract.json
+            projects/${{ env.PROJECT_ID }}/qa/rendered_audio_contract.json
+            projects/${{ env.PROJECT_ID }}/qa/audit_suite.json
+            projects/${{ env.PROJECT_ID }}/qa/full_render_evidence_bundle.json
+            projects/${{ env.PROJECT_ID }}/qa/bundled_evidence_verification.json
+            projects/${{ env.PROJECT_ID }}/qa/production_plan_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/timeline_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/music_cue_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
+            projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
           if-no-files-found: warn
           retention-days: 30

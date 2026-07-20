@@ -1,0 +1,181 @@
+2026-07-19T23:02:48.0473602Z         "scene_id": "scene_032",
+2026-07-19T23:02:48.0473747Z         "section_id": "SEC_09_FINAL_PARADOX",
+2026-07-19T23:02:48.0473847Z         "start_frame": 22106,
+2026-07-19T23:02:48.0473937Z         "end_frame": 22197,
+2026-07-19T23:02:48.0474103Z         "claim_id": "CLM_020_SYSTEMIC_INCENTIVE_FINAL",
+2026-07-19T23:02:48.0474221Z         "generic_stock": false,
+2026-07-19T23:02:48.0474334Z         "transition_in": "cut",
+2026-07-19T23:02:48.0474454Z         "transition_out": "cut",
+2026-07-19T23:02:48.0474553Z         "text_overlay": null,
+2026-07-19T23:02:48.0474644Z         "sound_cue": null,
+2026-07-19T23:02:48.0474761Z         "emphasis_card": null,
+2026-07-19T23:02:48.0474884Z         "editorial_overlay": null,
+2026-07-19T23:02:48.0474999Z         "asset_type": "evidence",
+2026-07-19T23:02:48.0475118Z         "visual_role": "evidence",
+2026-07-19T23:02:48.0475967Z         "editorial_purpose": "Reframe the danger as systemic incentive rather than a rogue machine, and state the real, harder challenge. Anchor the narration to an attributed source-derived visual before any metaphorical treatment.",
+2026-07-19T23:02:48.0476186Z         "evidence": {
+2026-07-19T23:02:48.0476308Z           "kind": "evidence_chain",
+2026-07-19T23:02:48.0476454Z           "eyebrow": "SOURCE-BACKED EVIDENCE",
+2026-07-19T23:02:48.0476854Z           "title": "The final paradox is an editorial synthesis: competition is measurable, safet…",
+2026-07-19T23:02:48.0477297Z           "subtitle": "Reframe the danger as systemic incentive rather than a rogue machine, and state the real, harder challenge.",
+2026-07-19T23:02:48.0478215Z           "source_label": "Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Anthropic · 2024  |  Google DeepMind · 2025",
+2026-07-19T23:02:48.0478314Z           "source_ids": [
+2026-07-19T23:02:48.0478460Z             "SRC_STANFORD_AI_INDEX_2025_ECONOMY",
+2026-07-19T23:02:48.0478901Z             "SRC_STANFORD_AI_INDEX_2025_TECHNICAL",
+2026-07-19T23:02:48.0479056Z             "SRC_ANTHROPIC_RSP_2024",
+2026-07-19T23:02:48.0479179Z             "SRC_DEEPMIND_FSF_2025"
+2026-07-19T23:02:48.0479266Z           ],
+2026-07-19T23:02:48.0480019Z           "limitation": "Investment levels show the scale of competition; they do not directly prove that every investor rewards speed over caution.",
+2026-07-19T23:02:48.0480125Z           "font_px": 32,
+2026-07-19T23:02:48.0480218Z           "steps": [
+2026-07-19T23:02:48.0480506Z             "Build the conclusion only from evidence already shown…",
+2026-07-19T23:02:48.0480756Z             "Label the frame as ORVYQ synthesis rather than a new…",
+2026-07-19T23:02:48.0481004Z             "Do not imply the cited sources independently endorse…"
+2026-07-19T23:02:48.0481090Z           ],
+2026-07-19T23:02:48.0481248Z           "provenance_mode": "source_derived_graphic"
+2026-07-19T23:02:48.0481530Z         },
+2026-07-19T23:02:48.0481732Z         "motif": "CLM_020_SYSTEMIC_INCENTIVE_FINAL:evidence_chain:3"
+2026-07-19T23:02:48.0481818Z       },
+2026-07-19T23:02:48.0481903Z       {
+2026-07-19T23:02:48.0482019Z         "shot_id": "shot_130",
+2026-07-19T23:02:48.0482133Z         "scene_id": "scene_033",
+2026-07-19T23:02:48.0482273Z         "section_id": "SEC_09_FINAL_PARADOX",
+2026-07-19T23:02:48.0482371Z         "start_frame": 22197,
+2026-07-19T23:02:48.0482465Z         "end_frame": 22376,
+2026-07-19T23:02:48.0482631Z         "claim_id": "CLM_020_SYSTEMIC_INCENTIVE_FINAL",
+2026-07-19T23:02:48.0482747Z         "generic_stock": false,
+2026-07-19T23:02:48.0482860Z         "transition_in": "cut",
+2026-07-19T23:02:48.0482982Z         "transition_out": "fade",
+2026-07-19T23:02:48.0483081Z         "text_overlay": null,
+2026-07-19T23:02:48.0483173Z         "sound_cue": null,
+2026-07-19T23:02:48.0483291Z         "emphasis_card": null,
+2026-07-19T23:02:48.0483411Z         "editorial_overlay": null,
+2026-07-19T23:02:48.0483529Z         "asset_type": "graphic",
+2026-07-19T23:02:48.0483646Z         "visual_role": "graphic",
+2026-07-19T23:02:48.0484063Z         "editorial_purpose": "Resolve the documentary on human agency and return the visual system to the ORVYQ brand.",
+2026-07-19T23:02:48.0484153Z         "graphic": {
+2026-07-19T23:02:48.0484273Z           "type": "brand_close",
+2026-07-19T23:02:48.0484371Z           "kicker": "ORVYQ",
+2026-07-19T23:02:48.0484501Z           "title": "THE RACE IS A CHOICE",
+2026-07-19T23:02:48.0484778Z           "subtitle": "Capability moves quickly. Governance is still a human decision."
+2026-07-19T23:02:48.0484865Z         },
+2026-07-19T23:02:48.0484974Z         "motif": "orvyq_close"
+2026-07-19T23:02:48.0485060Z       }
+2026-07-19T23:02:48.0485144Z     ],
+2026-07-19T23:02:48.0485361Z     "narration_timeline_asset": "direction/narration_timeline.json",
+2026-07-19T23:02:48.0485492Z     "canonical_timeline_contract": {
+2026-07-19T23:02:48.0485686Z       "schema_version": "1.0-canonical-timeline-contract",
+2026-07-19T23:02:48.0485885Z       "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+2026-07-19T23:02:48.0486214Z       "generated_at": "2026-07-19T23:02:47.807Z",
+2026-07-19T23:02:48.0486397Z       "timeline_ref": "direction/narration_timeline.json",
+2026-07-19T23:02:48.0486525Z       "canonical_duration_frames": 22376,
+2026-07-19T23:02:48.0486671Z       "semantic_proof_output_seconds": 157.82,
+2026-07-19T23:02:48.0486801Z       "terminal_brand_shot": "shot_130",
+2026-07-19T23:02:48.0486889Z       "issues": [],
+2026-07-19T23:02:48.0486989Z       "valid": true,
+2026-07-19T23:02:48.0487082Z       "pass": true
+2026-07-19T23:02:48.0487160Z     }
+2026-07-19T23:02:48.0487243Z   }
+2026-07-19T23:02:48.0487334Z }
+﻿2026-07-19T23:02:48.0513657Z ##[group]Run set -euo pipefail
+2026-07-19T23:02:48.0513834Z [36;1mset -euo pipefail[0m
+2026-07-19T23:02:48.0514083Z [36;1mnode scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"[0m
+2026-07-19T23:02:48.0514342Z [36;1mnode scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"[0m
+2026-07-19T23:02:48.0514554Z [36;1mif [ "$PROJECT_ID" = "001-the-ai-race-no-one-can-afford-to-win" ]; then[0m
+2026-07-19T23:02:48.0514724Z [36;1m  node scripts/orvyq_timeline_audit.mjs "$PROJECT_ID"[0m
+2026-07-19T23:02:48.0514838Z [36;1m  node scripts/orvyq_edit_plan_tests.mjs[0m
+2026-07-19T23:02:48.0514952Z [36;1m  node scripts/orvyq_license_audit.mjs[0m
+2026-07-19T23:02:48.0515026Z [36;1mfi[0m
+2026-07-19T23:02:48.0515233Z [36;1mnode scripts/validate.mjs render-ready --project-id "$PROJECT_ID"[0m
+2026-07-19T23:02:48.0574201Z shell: /usr/bin/bash -e {0}
+2026-07-19T23:02:48.0574289Z env:
+2026-07-19T23:02:48.0574465Z   PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+2026-07-19T23:02:48.0574670Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-19T23:02:48.0574870Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+2026-07-19T23:02:48.0575043Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-19T23:02:48.0575197Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-19T23:02:48.0575345Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-19T23:02:48.0575504Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+2026-07-19T23:02:48.0575604Z   ORVYQ_NARRATION_LIMIT_SECONDS: 719.882
+2026-07-19T23:02:48.0575704Z   ORVYQ_AUDIO_LIMIT_SECONDS: 745.882
+2026-07-19T23:02:48.0575797Z   ORVYQ_EDITORIAL_PAUSES: 1
+2026-07-19T23:02:48.0575878Z ##[endgroup]
+2026-07-19T23:02:48.2374605Z {
+2026-07-19T23:02:48.2375177Z   "ok": true,
+2026-07-19T23:02:48.2375622Z   "command": "validate",
+2026-07-19T23:02:48.2376310Z   "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+2026-07-19T23:02:48.2376955Z   "result": {
+2026-07-19T23:02:48.2377389Z     "valid": true,
+2026-07-19T23:02:48.2377782Z     "error_code": null,
+2026-07-19T23:02:48.2378195Z     "schema_check": {
+2026-07-19T23:02:48.2378876Z       "valid": true,
+2026-07-19T23:02:48.2379328Z       "error_code": null,
+2026-07-19T23:02:48.2379745Z       "errors": []
+2026-07-19T23:02:48.2380109Z     },
+2026-07-19T23:02:48.2380544Z     "asset_check_mode": "runtime",
+2026-07-19T23:02:48.2381414Z     "plan_sha256": "62cb8b7de2863bde794c68393dc932883fb923afb7ecc99beeccf548d7b4d58f",
+2026-07-19T23:02:48.2382236Z     "shot_count": 130,
+2026-07-19T23:02:48.2382660Z     "section_count": 9,
+2026-07-19T23:02:48.2383031Z     "fractions": {
+2026-07-19T23:02:48.2383392Z       "generic_stock": 0.0147,
+2026-07-19T23:02:48.2383826Z       "evidence_and_archive": 0.6018,
+2026-07-19T23:02:48.2384299Z       "full_screen_graphic": 0.0214
+2026-07-19T23:02:48.2384842Z     },
+2026-07-19T23:02:48.2385188Z     "issues": [],
+2026-07-19T23:02:48.2385586Z     "canonical_timeline_contract": {
+2026-07-19T23:02:48.2386177Z       "schema_version": "1.0-canonical-timeline-contract",
+2026-07-19T23:02:48.2386973Z       "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+2026-07-19T23:02:48.2387699Z       "generated_at": "2026-07-19T23:02:48.233Z",
+2026-07-19T23:02:48.2388330Z       "timeline_ref": "direction/narration_timeline.json",
+2026-07-19T23:02:48.2389666Z       "canonical_duration_frames": 22376,
+2026-07-19T23:02:48.2390233Z       "semantic_proof_output_seconds": 157.82,
+2026-07-19T23:02:48.2390796Z       "terminal_brand_shot": "shot_130",
+2026-07-19T23:02:48.2391277Z       "issues": [],
+2026-07-19T23:02:48.2391656Z       "valid": true,
+2026-07-19T23:02:48.2392044Z       "pass": true
+2026-07-19T23:02:48.2392397Z     }
+2026-07-19T23:02:48.2392699Z   }
+2026-07-19T23:02:48.2392990Z }
+2026-07-19T23:02:48.4167420Z {
+2026-07-19T23:02:48.4168051Z   "ok": true,
+2026-07-19T23:02:48.4168835Z   "command": "check-approval",
+2026-07-19T23:02:48.4169592Z   "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+2026-07-19T23:02:48.4170868Z   "result": {
+2026-07-19T23:02:48.4171256Z     "valid": true,
+2026-07-19T23:02:48.4171674Z     "error_code": null,
+2026-07-19T23:02:48.4172093Z     "schema_check": {
+2026-07-19T23:02:48.4172511Z       "valid": true,
+2026-07-19T23:02:48.4172913Z       "error_code": null,
+2026-07-19T23:02:48.4173336Z       "errors": []
+2026-07-19T23:02:48.4173726Z     },
+2026-07-19T23:02:48.4174454Z     "plan_sha256": "62cb8b7de2863bde794c68393dc932883fb923afb7ecc99beeccf548d7b4d58f",
+2026-07-19T23:02:48.4175268Z     "approval": {
+2026-07-19T23:02:48.4175701Z       "schema_version": "1.0",
+2026-07-19T23:02:48.4176285Z       "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+2026-07-19T23:02:48.4176844Z       "approved": true,
+2026-07-19T23:02:48.4177319Z       "review_type": "human_rendered_video_review",
+2026-07-19T23:02:48.4177926Z       "human_score": 95,
+2026-07-19T23:02:48.4178339Z       "proof_run_id": "29701621699",
+2026-07-19T23:02:48.4179257Z       "render_source_sha": "323988d75e16d468f1398a1322129bf117d5d68b",
+2026-07-19T23:02:48.4180386Z       "production_plan_sha256": "62cb8b7de2863bde794c68393dc932883fb923afb7ecc99beeccf548d7b4d58f",
+2026-07-19T23:02:48.4181353Z       "approved_at": "2026-07-19T22:01:00.000Z",
+2026-07-19T23:02:48.4183094Z       "review_notes": "Approved by Barış Çetin after review of the 160-second canonical proof; structural corrections and semantic ending accepted."
+2026-07-19T23:02:48.4184224Z     },
+2026-07-19T23:02:48.4184540Z     "issues": [],
+2026-07-19T23:02:48.4184977Z     "canonical_timeline_contract": {
+2026-07-19T23:02:48.4185643Z       "schema_version": "1.0-canonical-timeline-contract",
+2026-07-19T23:02:48.4186420Z       "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+2026-07-19T23:02:48.4187097Z       "generated_at": "2026-07-19T23:02:48.322Z",
+2026-07-19T23:02:48.4187803Z       "timeline_ref": "direction/narration_timeline.json",
+2026-07-19T23:02:48.4188431Z       "canonical_duration_frames": 22376,
+2026-07-19T23:02:48.4189473Z       "semantic_proof_output_seconds": 157.82,
+2026-07-19T23:02:48.4190069Z       "terminal_brand_shot": "shot_130",
+2026-07-19T23:02:48.4190551Z       "issues": [],
+2026-07-19T23:02:48.4190926Z       "valid": true,
+2026-07-19T23:02:48.4191314Z       "pass": true
+2026-07-19T23:02:48.4191667Z     }
+2026-07-19T23:02:48.4191987Z   }
+2026-07-19T23:02:48.4192314Z }
+2026-07-19T23:02:48.4661081Z {"ok":true,"schema_version":"1.0-canonical-timeline-audit","project_id":"001-the-ai-race-no-one-can-afford-to-win","generated_at":"2026-07-19T23:02:48.460Z","preview":false,"canonical_duration_frames":22376,"render_duration_frames":22376,"proof_semantic_source_end_seconds":131.82,"proof_semantic_output_end_seconds":157.82,"terminal_brand_shot":"shot_130","final_transcript_token":"now.","warnings":[],"failures":[],"pass":true}
+2026-07-19T23:02:48.5321320Z {"ok":false,"error":"ORVYQ semantic visual audit failed: official captures 7.3%; required 30.0%; uninterrupted evidence run 42.00s exceeds 16s"}
+2026-07-19T23:02:48.5381898Z ##[error]Process completed with exit code 1.

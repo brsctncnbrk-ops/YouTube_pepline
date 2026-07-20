@@ -1,0 +1,2 @@
+requested_at=2026-07-19T23:05:00+03:00
+purpose=bind-controlled-test-section-bridge-to-visible-source-provenance-and-preserve-graphic-variety

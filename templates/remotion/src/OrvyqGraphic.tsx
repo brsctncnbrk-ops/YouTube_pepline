@@ -9,6 +9,9 @@ export type OrvyqGraphicSpec = {
   subtitle?: string;
   labels?: string[];
   source?: string;
+  source_ids?: string[];
+  source_backed?: boolean;
+  provenance_mode?: string;
 };
 
 const clamp = { extrapolateLeft: "clamp" as const, extrapolateRight: "clamp" as const };
@@ -120,6 +123,11 @@ export const OrvyqGraphic: React.FC<{ spec: OrvyqGraphicSpec; durationInFrames: 
           {mode === "comparison" ? <Comparison spec={spec} p={p} /> : mode === "evidence" ? <Evidence spec={spec} p={p} /> : mode === "process" ? <Process spec={spec} p={p} /> : <Statement spec={spec} p={p} />}
         </div>
       </div>
+      {spec.source && mode !== "evidence" ? (
+        <div style={{ position: "absolute", left: "6.4%", right: "6.4%", bottom: 28, color: muted, fontSize: 18, lineHeight: 1.25, borderTop: "1px solid rgba(245,240,231,.14)", paddingTop: 12 }}>
+          Source: {spec.source}
+        </div>
+      ) : null}
     </AbsoluteFill>
   );
 };

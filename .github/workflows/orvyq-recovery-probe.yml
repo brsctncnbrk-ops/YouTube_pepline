@@ -1,0 +1,48 @@
+name: ORVYQ Recovery Probe
+
+on:
+  push:
+    branches:
+      - agent/orvyq-system-wide-production
+    paths:
+      - .github/orvyq-recovery-probe-trigger.txt
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Capture recovery and render state
+        run: |
+          set -euo pipefail
+          REBALANCE_RUNS="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-full-plan-rebalance.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=5")"
+          REBALANCE_ID="$(jq -r '.workflow_runs[0].id // empty' <<<"$REBALANCE_RUNS")"
+          test -n "$REBALANCE_ID"
+          REBALANCE_JOBS="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${REBALANCE_ID}/jobs?per_page=100")"
+          RENDER_RUNS="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/render.yml/runs?branch=agent%2Forvyq-system-wide-production&event=workflow_dispatch&per_page=10")"
+          jq -n \
+            --arg generated_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --argjson rebalance_runs "$REBALANCE_RUNS" \
+            --argjson rebalance_jobs "$REBALANCE_JOBS" \
+            --argjson render_runs "$RENDER_RUNS" \
+            '{generated_at:$generated_at,rebalance:($rebalance_runs.workflow_runs[0]|{id,status,conclusion,head_sha,created_at,updated_at,html_url}),rebalance_jobs:[$rebalance_jobs.jobs[]|{id,name,status,conclusion,started_at,completed_at,steps:[.steps[]|{name,status,conclusion,number}]}],latest_render:($render_runs.workflow_runs[0]//null|if .==null then null else {id,status,conclusion,head_sha,created_at,updated_at,html_url} end)}' > .github/orvyq-recovery-probe.json
+          cat .github/orvyq-recovery-probe.json
+      - name: Commit probe
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/orvyq-recovery-probe.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'Update ORVYQ recovery probe'
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"

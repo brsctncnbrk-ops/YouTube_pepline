@@ -1,0 +1,44 @@
+name: ORVYQ Structural Migration Status
+
+on:
+  pull_request:
+    paths:
+      - .github/orvyq-runtime-status.txt
+      - .github/workflows/orvyq-runtime-status.yml
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Inspect latest structural migration run
+        run: |
+          set -euo pipefail
+          RUNS="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-structural-migration.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=5")"
+          echo "$RUNS" | jq '{total_count, runs: [.workflow_runs[] | {id,status,conclusion,head_sha,run_number,created_at,updated_at,html_url}]}'
+          RUN_ID="$(echo "$RUNS" | jq -r '.workflow_runs[0].id // empty')"
+          test -n "$RUN_ID"
+          echo "STRUCTURAL_RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
+          gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs?per_page=100" \
+            --jq '{jobs: [.jobs[] | {id,name,status,conclusion,started_at,completed_at,steps: [.steps[] | {name,status,conclusion,number}]}]}'
+
+      - name: Extract failure when completed unsuccessfully
+        run: |
+          set -euo pipefail
+          RUN="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${STRUCTURAL_RUN_ID}")"
+          STATUS="$(echo "$RUN" | jq -r '.status')"
+          CONCLUSION="$(echo "$RUN" | jq -r '.conclusion // empty')"
+          if [ "$STATUS" = "completed" ] && [ "$CONCLUSION" != "success" ]; then
+            mkdir -p structural-logs
+            gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${STRUCTURAL_RUN_ID}/logs" > structural-logs.zip
+            unzip -q structural-logs.zip -d structural-logs
+            TARGET="$(grep -lR 'orvyq_migrate_canonical_timeline' structural-logs | head -n 1 || true)"
+            test -n "$TARGET"
+            echo "--- MIGRATION SCHEMA FAILURE ---"
+            grep -A12 -B2 '"code": "SCHEMA"' "$TARGET" | tail -n 40 || true
+          fi

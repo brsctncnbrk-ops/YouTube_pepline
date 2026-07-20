@@ -10,8 +10,15 @@ import {
 } from "./lib/fs-utils.mjs";
 import { loadResolvedEvidenceMap } from "./lib/orvyq-evidence.mjs";
 import { auditMotionHook } from "./lib/orvyq-motion-hook.mjs";
-const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win",
-  unique = (values) => [...new Set(values.filter(Boolean))];
+
+const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
+const unique = (values) => [...new Set(values.filter(Boolean))];
+
+async function sha256(file) {
+  const bytes = await fs.readFile(file);
+  return createHash("sha256").update(bytes).digest("hex");
+}
+
 export async function buildLicenseAudit(projectId = PROJECT_ID) {
   const dir = projectDir(projectId);
   const [plan, audioMetadata, evidenceMap, primaryManifest, runtime] =
@@ -25,17 +32,18 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
       ),
     ]);
   const sourceById = new Map(
-      evidenceMap.source_catalog.map((source) => [source.source_id, source]),
-    ),
-    declaredById = new Map(
-      primaryManifest.assets.map((asset) => [asset.evidence_asset_id, asset]),
-    ),
-    runtimeById = new Map(
-      runtime.assets.map((asset) => [asset.evidence_asset_id, asset]),
-    );
+    evidenceMap.source_catalog.map((source) => [source.source_id, source]),
+  );
+  const declaredById = new Map(
+    primaryManifest.assets.map((asset) => [asset.evidence_asset_id, asset]),
+  );
+  const runtimeById = new Map(
+    runtime.assets.map((asset) => [asset.evidence_asset_id, asset]),
+  );
   const evidenceSourceIds = unique(
     plan.shots.flatMap((shot) => [
       ...(shot.evidence?.source_ids || []),
+      ...(shot.graphic?.source_ids || []),
       ...(shot.editorial_overlay?.source_ids || []),
     ]),
   );
@@ -50,11 +58,11 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
     )
       throw new Error(`Evidence source ${sourceId} is incomplete`);
     const related = plan.shots.filter((shot) =>
-      (
-        shot.evidence?.source_ids ||
-        shot.editorial_overlay?.source_ids ||
-        []
-      ).includes(sourceId),
+      [
+        ...(shot.evidence?.source_ids || []),
+        ...(shot.graphic?.source_ids || []),
+        ...(shot.editorial_overlay?.source_ids || []),
+      ].includes(sourceId),
     );
     return {
       source_id: sourceId,
@@ -68,18 +76,19 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
       limitation: source.limitation || null,
     };
   });
-  const captures = [],
-    usage = new Map();
+
+  const captures = [];
+  const usage = new Map();
   for (const shot of plan.shots.filter(
     (item) => item.asset_type === "evidence",
-  ))
+  )) {
     for (const assetId of shot.evidence?.evidence_asset_ids || []) {
-      const declared = declaredById.get(assetId),
-        produced = runtimeById.get(assetId);
+      const declared = declaredById.get(assetId);
+      const produced = runtimeById.get(assetId);
       if (!declared || !produced)
         throw new Error(`Missing primary evidence provenance for ${assetId}`);
       usage.set(assetId, (usage.get(assetId) || 0) + 1);
-      if (!captures.some((item) => item.evidence_asset_id === assetId))
+      if (!captures.some((item) => item.evidence_asset_id === assetId)) {
         captures.push({
           evidence_asset_id: assetId,
           local_asset: produced.local_asset,
@@ -91,8 +100,10 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
           editorial_basis:
             "Official source capture with visible attribution for documentary analysis; provenance record, not a legal opinion.",
         });
+      }
     }
-  const derived = plan.shots
+  }
+  const derivedEvidence = plan.shots
     .filter(
       (shot) =>
         shot.asset_type === "evidence" &&
@@ -107,12 +118,30 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
       provenance_mode: "source_derived_graphic",
       limitation: shot.evidence.limitation || null,
     }));
+  const derivedGraphics = plan.shots
+    .filter(
+      (shot) =>
+        shot.asset_type === "graphic" &&
+        shot.graphic?.source_backed === true &&
+        shot.graphic?.provenance_mode === "source_derived_graphic",
+    )
+    .map((shot) => ({
+      shot_id: shot.shot_id,
+      kind: shot.graphic.type,
+      title: shot.graphic.title,
+      source_ids: shot.graphic.source_ids,
+      source_label: shot.graphic.source,
+      provenance_mode: "source_derived_graphic",
+      limitation: null,
+    }));
+  const derived = [...derivedEvidence, ...derivedGraphics];
+
   const footageAssets = unique(
-      plan.shots
-        .filter((shot) => shot.asset_type === "footage")
-        .map((shot) => shot.video_asset),
-    ),
-    footage = [];
+    plan.shots
+      .filter((shot) => shot.asset_type === "footage")
+      .map((shot) => shot.video_asset),
+  );
+  const footage = [];
   for (const asset of footageAssets) {
     const provenancePath = path.join(dir, `${asset}.provenance.json`);
     if (!(await pathExists(provenancePath)))
@@ -132,7 +161,10 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
   }
   const motionHook = auditMotionHook(plan);
   if (plan.preview && !motionHook.pass)
-    throw new Error(`Motion-hook provenance failed: ${motionHook.failures.join("; ")}`);
+    throw new Error(
+      `Motion-hook provenance failed: ${motionHook.failures.join("; ")}`,
+    );
+
   const audio = [
     {
       asset: audioMetadata.voice_source,
@@ -142,10 +174,11 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
     {
       asset: audioMetadata.mix_asset,
       role: "final audio mix",
-      license: "Derived locally from approved narration and music structure.",
+      license:
+        "Derived locally from approved narration, licensed music, and repository-authored SFX.",
     },
   ];
-  if (audioMetadata.music_asset)
+  if (audioMetadata.music_asset) {
     audio.push({
       asset: audioMetadata.music_asset,
       role: "music bed",
@@ -154,8 +187,10 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
       license:
         audioMetadata.music_profile === "original_tonal_score"
           ? "Original ORVYQ tonal score generated locally; no third-party recording."
-          : audioMetadata.music_attribution || "Approved licensed bed; evidence required.",
+          : audioMetadata.music_attribution ||
+            "Approved licensed bed; evidence required.",
     });
+  }
   let musicProvenance = null;
   if (audioMetadata.music_profile === "approved_licensed_bed") {
     if (!audioMetadata.music_provenance)
@@ -171,29 +206,72 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
       !musicProvenance.attribution
     )
       throw new Error("Approved music provenance is incomplete");
-    const musicBytes = await fs.readFile(path.join(dir, audioMetadata.music_asset));
-    const actualMusicHash = createHash("sha256").update(musicBytes).digest("hex");
+    const actualMusicHash = await sha256(
+      path.join(dir, audioMetadata.music_asset),
+    );
     if (actualMusicHash !== musicProvenance.sha256)
-      throw new Error("Approved music SHA-256 does not match its provenance record");
+      throw new Error(
+        "Approved music SHA-256 does not match its provenance record",
+      );
   }
+
+  const hasApprovedContextualFootage = plan.shots.some(
+    (shot) =>
+      shot.asset_type === "footage" &&
+      shot.contextual_footage === true &&
+      shot.provenance_mode === "approved_contextual_footage",
+  );
   const cinematicProof =
-    plan.preview && plan.quality_policy?.cinematic_body_footage === true;
+    plan.preview &&
+    (plan.quality_policy?.cinematic_body_footage === true ||
+      hasApprovedContextualFootage);
+  const soundDesignRequired =
+    plan.quality_policy?.require_sound_design_sfx === true || cinematicProof;
+  const minimumSfxTypes = Number(
+    plan.quality_policy?.minimum_original_sfx_types || 3,
+  );
+  const declaredProvenance = new Set(audioMetadata.sfx_provenance || []);
   const soundEffects = [];
   for (const asset of audioMetadata.sfx_assets || []) {
-    if (!(await pathExists(path.join(dir, asset))))
+    const absolute = path.join(dir, asset);
+    if (!(await pathExists(absolute)))
       throw new Error(`Declared SFX is missing: ${asset}`);
+    const provenanceRelative = `${asset}.provenance.json`;
+    if (!declaredProvenance.has(provenanceRelative))
+      throw new Error(`Declared SFX provenance is not bound in metadata: ${asset}`);
+    const provenancePath = path.join(dir, provenanceRelative);
+    if (!(await pathExists(provenancePath)))
+      throw new Error(`Declared SFX provenance is missing: ${provenanceRelative}`);
+    const provenance = await readJson(provenancePath);
+    const actualHash = await sha256(absolute);
+    if (
+      provenance.asset !== asset ||
+      provenance.origin !== "original_synthesized_sfx" ||
+      provenance.approved_for_final_edit !== true ||
+      provenance.procedural_noise_generation !== false ||
+      provenance.generated_by !== "scripts/orvyq_audio_mix.mjs" ||
+      !provenance.deterministic_recipe ||
+      provenance.sha256 !== actualHash
+    )
+      throw new Error(`Original SFX provenance is incomplete or stale: ${asset}`);
     soundEffects.push({
       asset,
-      origin: audioMetadata.sfx_origin,
-      license: "Original synthesized sound effect generated locally for ORVYQ.",
+      provenance: provenanceRelative,
+      sha256: actualHash,
+      origin: provenance.origin,
+      synthesis_version: provenance.synthesis_version,
+      deterministic_recipe: provenance.deterministic_recipe,
+      license: provenance.license,
+      approved_for_final_edit: true,
       placements: (audioMetadata.sfx_placements || []).filter(
         (placement) => placement.asset === asset,
       ),
     });
   }
+
   const maximum = Math.max(0, ...usage.values());
   const result = {
-    schema_version: "6.0-cinematic-proof-provenance",
+    schema_version: "7.0-canonical-full-film-audio-provenance",
     project_id: projectId,
     preview: Boolean(plan.preview),
     purpose:
@@ -207,28 +285,35 @@ export async function buildLicenseAudit(projectId = PROJECT_ID) {
     source_use_limit: plan.quality_policy?.max_uses_per_source ?? 2,
     audio,
     music_provenance: musicProvenance,
+    sound_design_required: soundDesignRequired,
+    minimum_original_sfx_types: minimumSfxTypes,
     sound_effects: soundEffects,
     procedural_noise_generation: audioMetadata.procedural_noise_generation,
     procedural_sfx_count: (audioMetadata.sfx_assets || []).length,
     sfx_origin: audioMetadata.sfx_origin || null,
+    pass: true,
   };
   if (maximum > result.source_use_limit)
     throw new Error(`Primary capture use limit exceeded: ${maximum}`);
   if (result.procedural_noise_generation !== false)
     throw new Error("Unapproved procedural noise remains");
-  if (
-    result.procedural_sfx_count > 0 &&
-    !(
-      cinematicProof &&
-      result.sfx_origin === "original_synthesized_sfx" &&
-      result.procedural_sfx_count >= 3
-    )
-  )
-    throw new Error("SFX assets are not approved original cinematic-proof effects");
+  if (soundDesignRequired) {
+    if (result.sfx_origin !== "original_synthesized_sfx")
+      throw new Error("Required sound design is not original synthesized SFX");
+    if (result.procedural_sfx_count < minimumSfxTypes)
+      throw new Error(
+        `Required sound design has ${result.procedural_sfx_count} SFX types; ${minimumSfxTypes} required`,
+      );
+    if (soundEffects.length !== result.procedural_sfx_count)
+      throw new Error("Not every required SFX asset has approved provenance");
+  } else if (result.procedural_sfx_count > 0) {
+    throw new Error("SFX assets are present without an explicit sound-design contract");
+  }
   await writeJsonAtomic(path.join(dir, "qa", "license_audit.json"), result);
   return result;
 }
-if (import.meta.url === `file://${process.argv[1]}`)
+
+if (import.meta.url === `file://${process.argv[1]}`) {
   buildLicenseAudit()
     .then((result) =>
       console.log(
@@ -237,6 +322,7 @@ if (import.meta.url === `file://${process.argv[1]}`)
           official_captures: result.official_primary_captures.length,
           source_derived_graphics: result.source_derived_graphics.length,
           footage: result.footage.length,
+          sound_effects: result.sound_effects.length,
           maximum_primary_capture_uses: result.maximum_primary_capture_uses,
         }),
       ),
@@ -245,3 +331,4 @@ if (import.meta.url === `file://${process.argv[1]}`)
       console.error(JSON.stringify({ ok: false, error: error.message }));
       process.exitCode = 1;
     });
+}

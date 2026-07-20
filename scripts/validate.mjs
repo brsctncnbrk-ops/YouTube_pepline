@@ -7,8 +7,6 @@
  */
 import path from "node:path";
 import { promises as fs } from "node:fs";
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
 import {
   SCHEMAS_DIR,
   projectDir,
@@ -21,6 +19,8 @@ import {
 } from "./lib/fs-utils.mjs";
 import { GATES } from "./lib/pipeline.mjs";
 import { lookupClaim } from "./lib/fact-registry.mjs";
+import { validateJsonFile } from "./lib/schema-check.mjs";
+import { validateProductionPlan, validateProofApproval } from "./lib/orvyq-production.mjs";
 
 /**
  * Living list (per the migration plan, section 6) - extend as real false
@@ -67,34 +67,8 @@ function walkStrings(value, jsonPath, onString) {
   }
 }
 
-async function loadAjvSchema(schemaName) {
-  const schemaPath = path.join(SCHEMAS_DIR, `${schemaName}.schema.json`);
-  if (!(await pathExists(schemaPath))) {
-    throw new CliError(`Unknown schema "${schemaName}" (expected ${schemaPath})`, "SCHEMA_VALIDATION_FAILED");
-  }
-  const schema = await readJson(schemaPath);
-  const ajv = new Ajv({ allErrors: true, strict: false });
-  addFormats(ajv);
-  return ajv.compile(schema);
-}
-
 export async function validateSchema({ file, schema }) {
-  if (!(await pathExists(file))) {
-    return { valid: false, error_code: "SCHEMA_VALIDATION_FAILED", errors: [`File not found: ${file}`] };
-  }
-  let data;
-  try {
-    data = await readJson(file);
-  } catch (err) {
-    return { valid: false, error_code: "INVALID_JSON", errors: [err.message] };
-  }
-  const validateFn = await loadAjvSchema(schema);
-  const valid = validateFn(data);
-  return {
-    valid,
-    error_code: valid ? null : "SCHEMA_VALIDATION_FAILED",
-    errors: valid ? [] : (validateFn.errors || []).map((e) => `${e.instancePath || "/"} ${e.message}`),
-  };
+  return validateJsonFile({ file, schemaName: schema });
 }
 
 export async function validatePaths({ projectId }) {
@@ -449,6 +423,23 @@ export async function validateRenderReady({ projectId }) {
   checks.visual_assets = await validateAssets({ projectId, check: "visual_assets" });
   checks.paths = await validatePaths({ projectId });
   checks.filenames = await validateFilenames({ projectId });
+  const productionPlanCheck = await validateProductionPlan({
+    projectId,
+    requireReady: true,
+    requireAssets: false,
+  });
+  checks.production_plan = {
+    valid: productionPlanCheck.valid,
+    error_code: productionPlanCheck.error_code,
+    schema_check: productionPlanCheck.schema_check,
+    asset_check_mode: productionPlanCheck.asset_check_mode,
+    plan_sha256: productionPlanCheck.plan_sha256,
+    shot_count: productionPlanCheck.shot_count,
+    section_count: productionPlanCheck.section_count,
+    fractions: productionPlanCheck.fractions,
+    issues: productionPlanCheck.issues,
+  };
+  checks.proof_approval = await validateProofApproval({ projectId });
 
   const renderReadyDir = path.join(dir, "remotion", "render_ready_project");
   checks.render_ready_project_exists = await pathExists(renderReadyDir);
@@ -469,6 +460,8 @@ export async function validateRenderReady({ projectId }) {
   if (!checks.visual_assets.valid) reasons.push("MISSING_VISUAL_ASSET: " + checks.visual_assets.missing.join(", "));
   if (!checks.paths.valid) reasons.push("BROKEN_ASSET_PATH: absolute/invalid paths found");
   if (!checks.filenames.valid) reasons.push("BROKEN_ASSET_PATH: scene filename/numbering issues");
+  if (!checks.production_plan.valid) reasons.push("PRODUCTION_PLAN_INCOMPLETE: " + checks.production_plan.issues.map((entry) => entry.message).join("; "));
+  if (!checks.proof_approval.valid) reasons.push((checks.proof_approval.error_code || "PROOF_APPROVAL_REQUIRED") + ": " + checks.proof_approval.issues.map((entry) => entry.message).join("; "));
   if (!checks.render_ready_project_exists) reasons.push("RENDER_CONFIG_MISSING: remotion/render_ready_project/ not built yet");
   if (!checks.remotion_configs_complete) reasons.push("RENDER_CONFIG_MISSING: " + checks.missing_remotion_configs.join(", "));
   if (!checks.github_workflow_present) reasons.push("RENDER_CONFIG_MISSING: .github/workflows/render.yml not present yet");
@@ -488,7 +481,17 @@ const SCHEMA_BY_STAGE = {
     { file: "prompts/visual_prompts.json", schema: "visual_prompts" },
     { file: "footage/footage_manifest.json", schema: "footage_manifest" },
   ],
-  render_qa: [{ file: "remotion/composition.json", schema: "composition" }],
+  production_plan_qa: [
+    { file: "direction/production_plan.json", schema: "orvyq_production_plan" },
+  ],
+  proof_qa: [
+    { file: "direction/production_plan.json", schema: "orvyq_production_plan" },
+  ],
+  render_qa: [
+    { file: "remotion/composition.json", schema: "composition" },
+    { file: "direction/production_plan.json", schema: "orvyq_production_plan" },
+    { file: "qa/proof_approval.json", schema: "orvyq_proof_approval" },
+  ],
   final_qa: [{ file: "packaging/packaging.json", schema: "packaging" }],
 };
 
@@ -535,6 +538,24 @@ export async function validateAll({ projectId, stage }) {
   let hedgeCheck = { valid: true, matches: [] };
   if (stage === "final_qa") hedgeCheck = await validateNoHedgeTokens({ projectId });
 
+  let productionPlanCheck = { valid: true, issues: [] };
+  if (stage === "production_plan_qa") {
+    const check = await validateProductionPlan({
+      projectId,
+      requireReady: false,
+      requireAssets: false,
+    });
+    productionPlanCheck = { ...check, plan: undefined };
+  }
+  if (stage === "proof_qa") {
+    const check = await validateProductionPlan({
+      projectId,
+      requireReady: true,
+      requireAssets: false,
+    });
+    productionPlanCheck = { ...check, plan: undefined };
+  }
+
   const valid =
     schemaChecks.every((c) => c.valid) &&
     assetCheck.valid &&
@@ -543,7 +564,8 @@ export async function validateAll({ projectId, stage }) {
     footageCheck.valid &&
     packagingCheck.valid &&
     factAuditCheck.valid &&
-    hedgeCheck.valid;
+    hedgeCheck.valid &&
+    productionPlanCheck.valid;
   return {
     valid,
     schemaChecks,
@@ -554,6 +576,7 @@ export async function validateAll({ projectId, stage }) {
     packagingCheck,
     factAuditCheck,
     hedgeCheck,
+    productionPlanCheck,
   };
 }
 
@@ -586,6 +609,15 @@ function toHuman(result) {
   if (result.hedgeCheck) {
     lines.push(`- Zero hedge tokens in script: ${result.hedgeCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.hedgeCheck.matches)}`);
   }
+  if (result.productionPlanCheck) {
+    lines.push(`- Canonical production plan: ${result.productionPlanCheck.valid ? "PASS" : "FAIL - " + JSON.stringify(result.productionPlanCheck.issues)}`);
+  }
+  if (result.checks?.production_plan) {
+    lines.push(`- Full-duration plan readiness: ${result.checks.production_plan.valid ? "PASS" : "FAIL - " + JSON.stringify(result.checks.production_plan.issues)}`);
+  }
+  if (result.checks?.proof_approval) {
+    lines.push(`- Hash-bound proof approval: ${result.checks.proof_approval.valid ? "PASS" : "FAIL - " + JSON.stringify(result.checks.proof_approval.issues)}`);
+  }
   if (result.reasons) {
     lines.push(`- Reasons: ${result.reasons.length ? result.reasons.join("; ") : "none"}`);
   }
@@ -616,6 +648,12 @@ async function main() {
       case "render-ready":
         result = await validateRenderReady({ projectId: args["project-id"] });
         break;
+      case "production-plan":
+        result = await validateProductionPlan({ projectId: args["project-id"], requireReady: args.draft !== true });
+        break;
+      case "proof-approval":
+        result = await validateProofApproval({ projectId: args["project-id"] });
+        break;
       case "fact-audit":
         result = await validateFactAudit({ projectId: args["project-id"] });
         break;
@@ -627,7 +665,7 @@ async function main() {
         break;
       default:
         throw new CliError(
-          `Unknown validate subcommand "${group}". Use: schema|paths|filenames|assets|render-ready|fact-audit|hedge-scan|all`,
+          `Unknown validate subcommand "${group}". Use: schema|paths|filenames|assets|production-plan|proof-approval|render-ready|fact-audit|hedge-scan|all`,
           "UNKNOWN_ERROR"
         );
     }

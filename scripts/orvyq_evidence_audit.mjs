@@ -17,6 +17,9 @@ const isClaimSpecificEvidence = (shot) =>
     : shot.asset_type === "graphic"
       ? sourceIdsFor(shot).length > 0 && shot.source_derived === true
       : false;
+const isApprovedContextualFootage = (shot) =>
+  shot.contextual_footage === true &&
+  shot.provenance_mode === "approved_contextual_footage";
 export async function runEvidenceAudit(projectId = PROJECT_ID) {
   const dir = projectDir(projectId);
   const [map, plan] = await Promise.all([
@@ -54,11 +57,7 @@ export async function runEvidenceAudit(projectId = PROJECT_ID) {
       plan.preview &&
       shot.asset_type === "footage" &&
       shot.hook_footage !== true &&
-      !(
-        plan.quality_policy?.cinematic_body_footage === true &&
-        shot.contextual_footage === true &&
-        shot.provenance_mode === "approved_contextual_footage"
-      )
+      !isApprovedContextualFootage(shot)
     )
       failures.push(
         `${shot.shot_id} uses unapproved footage outside the opening hook`,

@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0-canonical-narration-timeline",
+  "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+  "generated_by": "scripts/orvyq_narration_timeline.py",
+  "voice_source": "assets/audio/final_voice.mp3",
+  "voice_source_sha256": "3fb36e5e34c070b40abca48f8bec4594e46367e535c5265127b5ca60d23ccb17",
+  "voice_repair": {
+    "operation": "rotate",
+    "rotate_at_seconds": 72.12,
+    "config": "voice/audio_repair.json"
+  },
+  "fps": 30,
+  "source_duration_seconds": 719.882,
+  "source_duration_frames": 21596,
+  "canonical_pauses": [
+    {
+      "pause_id": "PAUSE_01_COMPETITION",
+      "source_time_seconds": 23.74,
+      "output_start_seconds": 23.74,
+      "duration_seconds": 5.0,
+      "output_end_seconds": 28.74,
+      "emphasis": "SLOW DOWN — AND LOSE?",
+      "eyebrow": "THE INCENTIVE",
+      "sound_cue": "low_impact",
+      "visual_intent": "Hold on a tense boardroom moment so the competitive dilemma lands before narration resumes."
+    },
+    {
+      "pause_id": "PAUSE_02_PRESENT_TENSE",
+      "source_time_seconds": 47.62,
+      "output_start_seconds": 52.62,
+      "duration_seconds": 7.0,
+      "output_end_seconds": 59.62,
+      "emphasis": "NOT SOMEDAY. RIGHT NOW.",
+      "eyebrow": "THE TIMELINE",
+      "sound_cue": "tonal_bloom",
+      "visual_intent": "Let a technical system image breathe while the score rises and the present-tense warning becomes the focus."
+    },
+    {
+      "pause_id": "PAUSE_03_REPLACEMENT",
+      "source_time_seconds": 81.4,
+      "output_start_seconds": 93.4,
+      "duration_seconds": 6.0,
+      "output_end_seconds": 99.4,
+      "emphasis": "SHUT DOWN — OR REPLACED.",
+      "eyebrow": "THE TEST CONDITION",
+      "sound_cue": "low_impact",
+      "visual_intent": "Interrupt the continuous explanation with a restrained typing image and a blunt statement of the engineered pressure."
+    },
+    {
+      "pause_id": "PAUSE_04_LIMIT",
+      "source_time_seconds": 108.56,
+      "output_start_seconds": 126.56,
+      "duration_seconds": 8.0,
+      "output_end_seconds": 134.56,
+      "emphasis": "A TEST. NOT AN INCIDENT.",
+      "eyebrow": "THE LIMIT",
+      "sound_cue": "tonal_bloom",
+      "visual_intent": "Create a full editorial breath on a research exterior before returning to the source limitation."
+    }
+  ],
+  "editorial_pause_seconds": 26.0,
+  "full_output_duration_seconds": 745.882,
+  "full_duration_frames": 22376,
+  "proof": {
+    "minimum_output_seconds": 150.0,
+    "source_end_seconds": 131.82,
+    "speech_output_end_seconds": 157.82,
+    "paragraph_index": 8,
+    "paragraph": "That distinction matters. It's the difference between a fire drill and a fire. But a fire drill still tells you something about the building.",
+    "terminal_text": "building.",
+    "alignment_confidence": 1.0,
+    "boundary_policy": "first_complete_script_paragraph_at_or_after_minimum_output_duration"
+  }
+}

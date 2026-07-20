@@ -1,0 +1,4 @@
+requested_at=2026-07-20T09:35:00Z
+project_id=001-the-ai-race-no-one-can-afford-to-win
+proof_run_id=29701621699
+reason=Normalize official captures before canonical rebalance without lowering quality thresholds.

@@ -1,0 +1,112 @@
+name: ORVYQ Structural Timeline Migration
+
+on:
+  push:
+    branches:
+      - agent/orvyq-system-wide-production
+    paths:
+      - .github/orvyq-structural-migration-trigger.txt
+
+permissions:
+  contents: write
+
+concurrency:
+  group: orvyq-structural-timeline-migration
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+    steps:
+      - name: Checkout branch with LFS
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Pull LFS assets
+        run: git lfs pull
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deterministic tooling
+        run: |
+          set -euo pipefail
+          npm ci
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg poppler-utils
+          python -m pip install --disable-pip-version-check faster-whisper==1.2.0 requests==2.32.5
+
+      - name: Resolve semantic narration timeline
+        run: |
+          set -euo pipefail
+          python scripts/orvyq_narration_timeline.py --project-id "$PROJECT_ID"
+
+      - name: Migrate and bind canonical plan
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_migrate_canonical_timeline.mjs "$PROJECT_ID"
+          node scripts/orvyq_bind_source_backed_bridge.mjs "$PROJECT_ID"
+          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID" --skip-assets
+          node --check scripts/orvyq_dynamic_proof.mjs
+          node --check scripts/orvyq_timeline_audit.mjs
+          node --check scripts/orvyq_rendered_proof_ending_audit.mjs
+          node --check scripts/orvyq_bind_source_backed_bridge.mjs
+          python -m py_compile scripts/orvyq_narration_timeline.py
+
+      - name: Verify structural invariants before commit
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          const dir = `projects/${process.env.PROJECT_ID}`;
+          const plan = JSON.parse(fs.readFileSync(`${dir}/direction/production_plan.json`, 'utf8'));
+          const composition = JSON.parse(fs.readFileSync(`${dir}/remotion/composition.json`, 'utf8'));
+          const timelineRaw = fs.readFileSync(`${dir}/direction/narration_timeline.json`, 'utf8');
+          const timeline = JSON.parse(timelineRaw);
+          const terminal = plan.shots.filter((shot) => shot.graphic?.type === 'brand_close' || shot.motif === 'brand_close' || shot.motif === 'orvyq_close');
+          if (terminal.length !== 1 || terminal[0].shot_id !== plan.shots.at(-1).shot_id) throw new Error('Brand close is not unique and final');
+          if (plan.shots.some((shot, index) => index < plan.shots.length - 1 && shot.graphic?.type === 'brand_close')) throw new Error('Internal brand close remains');
+          if (plan.duration_frames !== timeline.full_duration_frames || composition.duration_frames !== plan.duration_frames) throw new Error('Plan composition and narration timeline durations differ');
+          const digest = crypto.createHash('sha256').update(timelineRaw).digest('hex');
+          if (digest !== plan.quality_policy.narration_timeline_sha256) throw new Error('Narration timeline hash was not bound into the plan');
+          const semanticFrame = Math.ceil(timeline.proof.speech_output_end_seconds * plan.fps);
+          const proofBoundary = plan.shots.find((shot) => shot.end_frame >= semanticFrame);
+          if (!proofBoundary || proofBoundary.graphic?.type === 'brand_close') throw new Error('Semantic proof boundary is invalid');
+          const bridge = plan.shots.find((shot) => shot.motif === 'section_bridge_controlled_test_limit');
+          if (!bridge?.graphic?.source_backed || bridge.graphic.provenance_mode !== 'source_derived_graphic' || !(bridge.graphic.source_ids || []).length || !bridge.graphic.source) throw new Error('Controlled-test bridge lacks visible source provenance');
+          console.log(JSON.stringify({ok:true,duration_frames:plan.duration_frames,shot_count:plan.shots.length,proof_boundary:proofBoundary.shot_id,proof_seconds:proofBoundary.end_frame/plan.fps,source_backed_bridge:bridge.shot_id}));
+          NODE
+
+      - name: Commit migrated canonical state
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            "projects/$PROJECT_ID/direction/narration_timeline.json" \
+            "projects/$PROJECT_ID/direction/production_plan.json" \
+            "projects/$PROJECT_ID/remotion/composition.json" \
+            "projects/$PROJECT_ID/qa/proof_source_speech.json" \
+            "projects/$PROJECT_ID/qa/timeline_migration.json"
+          if git diff --cached --quiet; then
+            echo "No canonical state changes to commit."
+            exit 0
+          fi
+          git commit -m "Bind ORVYQ canonical timeline and sourced section bridge"
+          git reset --hard HEAD
+          git clean -fd
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"

@@ -1,0 +1,104 @@
+name: ORVYQ Official Capture Preflight Recovery
+
+on:
+  push:
+    branches:
+      - agent/orvyq-system-wide-production
+    paths:
+      - .github/orvyq-official-preflight-trigger.txt
+
+permissions:
+  contents: write
+
+concurrency:
+  group: orvyq-official-preflight-recovery
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+    steps:
+      - name: Checkout branch without LFS smudge
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Pull and verify LFS assets with retries
+        run: |
+          set -euo pipefail
+          git lfs install --local
+          success=0
+          for attempt in 1 2 3 4; do
+            if GIT_LFS_SKIP_SMUDGE=1 git lfs pull; then
+              success=1
+              break
+            fi
+            git lfs logs last || true
+            sleep $((attempt * 5))
+          done
+          test "$success" = "1"
+          git lfs fsck
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install deterministic tooling
+        run: npm ci
+
+      - name: Verify approved proof remains locked
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_proof_approval_continuity_tests.mjs "$PROJECT_ID"
+          test "$(jq -r '.proof_run_id' "projects/$PROJECT_ID/qa/proof_approval.json")" = "29701621699"
+
+      - name: Refresh available official evidence
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_expand_primary_evidence_manifest.mjs "$PROJECT_ID"
+          node scripts/orvyq_fetch_primary_evidence.mjs
+          node scripts/orvyq_prune_unavailable_optional_captures.mjs "$PROJECT_ID"
+
+      - name: Normalize official captures before rebalance
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID"
+          node scripts/orvyq_official_preflight_regression.mjs "$PROJECT_ID"
+
+      - name: Commit normalized plan and trigger canonical rebalance
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          cat > .github/orvyq-full-plan-rebalance-trigger.txt <<EOF
+          requested_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          project_id=$PROJECT_ID
+          reason=Pre-normalize mobile-legible official captures to at least 30 percent, preserve proof run 29701621699, retain the 16-second evidence ceiling and all quality thresholds, then continue to full render.
+          EOF
+          git add \
+            .github/orvyq-full-plan-rebalance-trigger.txt \
+            "projects/$PROJECT_ID/direction/production_plan.json" \
+            "projects/$PROJECT_ID/research/primary_evidence_manifest.json" \
+            "projects/$PROJECT_ID/qa/optional_capture_availability.json" \
+            "projects/$PROJECT_ID/qa/official_legibility_normalization.json" \
+            "projects/$PROJECT_ID/qa/official_preflight_regression.json"
+          git diff --cached --quiet && { echo 'No normalized recovery changes to commit'; exit 1; }
+          git commit -m "Pre-normalize ORVYQ official captures before full-plan rebalance"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Upload preflight diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-official-preflight-${{ github.run_id }}
+          path: |
+            projects/${{ env.PROJECT_ID }}/qa/optional_capture_availability.json
+            projects/${{ env.PROJECT_ID }}/qa/official_legibility_normalization.json
+            projects/${{ env.PROJECT_ID }}/qa/official_preflight_regression.json
+          if-no-files-found: ignore

@@ -1,0 +1,78 @@
+name: ORVYQ Full Render Status
+
+on:
+  push:
+    branches:
+      - agent/orvyq-system-wide-production
+    paths:
+      - .github/orvyq-full-render-status.txt
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: orvyq-full-render-status
+  cancel-in-progress: true
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Inspect dispatcher and full render runs
+        run: |
+          set -euo pipefail
+          DISPATCH="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-full-render-dispatch.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=5")"
+          RENDERS="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/render.yml/runs?branch=agent%2Forvyq-system-wide-production&event=workflow_dispatch&per_page=5")"
+          RUN_ID="$(echo "$RENDERS" | jq -r '.workflow_runs[0].id // empty')"
+          test -n "$RUN_ID"
+          JOBS="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs?per_page=100")"
+          jq -n \
+            --arg generated_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --argjson dispatch "$DISPATCH" \
+            --argjson renders "$RENDERS" \
+            --argjson jobs "$JOBS" \
+            '{
+              generated_at:$generated_at,
+              latest_dispatch:($dispatch.workflow_runs[0] | {id,status,conclusion,head_sha,created_at,updated_at,html_url}),
+              latest_full_render:($renders.workflow_runs[0] | {id,status,conclusion,head_sha,created_at,updated_at,html_url}),
+              jobs:[$jobs.jobs[] | {id,name,status,conclusion,started_at,completed_at,steps:[.steps[] | {name,status,conclusion,number}]}]
+            }' > .github/orvyq-full-render-latest.json
+          cat .github/orvyq-full-render-latest.json
+
+          STATUS="$(echo "$RENDERS" | jq -r '.workflow_runs[0].status')"
+          CONCLUSION="$(echo "$RENDERS" | jq -r '.workflow_runs[0].conclusion // empty')"
+          : > .github/orvyq-full-render-failure.txt
+          if [ "$STATUS" = "completed" ] && [ "$CONCLUSION" != "success" ]; then
+            gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > full-render-logs.zip
+            mkdir -p full-render-logs
+            unzip -q full-render-logs.zip -d full-render-logs
+            find full-render-logs -type f -print0 | sort -z | xargs -0 cat > full-render-all.log
+            LINE="$(grep -n 'Process completed with exit code' full-render-all.log | tail -n 1 | cut -d: -f1 || true)"
+            if [ -n "$LINE" ]; then
+              START=$(( LINE > 180 ? LINE - 180 : 1 ))
+              sed -n "${START},${LINE}p" full-render-all.log > .github/orvyq-full-render-failure.txt
+            else
+              tail -n 240 full-render-all.log > .github/orvyq-full-render-failure.txt
+            fi
+            cat .github/orvyq-full-render-failure.txt
+          fi
+
+      - name: Commit status snapshot
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/orvyq-full-render-latest.json .github/orvyq-full-render-failure.txt
+          git diff --cached --quiet && exit 0
+          git commit -m 'Update ORVYQ full render status snapshot'
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"

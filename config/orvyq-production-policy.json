@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "proof_run_id": "29701621699",
+  "official_capture_minimum_fraction": 0.3,
+  "source_derived_minimum_fraction": 0.6,
+  "official_capture_minimum_seconds": 4,
+  "maximum_uninterrupted_evidence_seconds": 16,
+  "preserve_proof_prefix": true,
+  "require_source_provenance": true,
+  "allow_stock_as_official_capture": false
+}

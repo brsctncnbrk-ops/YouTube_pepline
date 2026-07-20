@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.1",
+  "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+  "migrated_at": "2026-07-19T19:35:52.003Z",
+  "old_duration_frames": 21598,
+  "pause_expanded_duration_frames": 22378,
+  "new_duration_frames": 22376,
+  "duration_rounding_adjustment_frames": -2,
+  "inserted_pause_frames": 780,
+  "removed_internal_terminal_shot": "shot_030",
+  "continuation_shift_frames": 780,
+  "filler_shot_count": 6,
+  "invariant": "canonical plan, proof and full render now share the same pause-expanded narration timeline, including sub-frame source-duration rounding"
+}

@@ -1,0 +1,62 @@
+name: ORVYQ Full Render Recovery V4 Status
+
+on:
+  push:
+    branches:
+      - agent/orvyq-system-wide-production
+    paths:
+      - .github/orvyq-full-render-recovery-v4-status-trigger.txt
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Query recovery and render runs
+        run: |
+          set -euo pipefail
+          api_retry() {
+            local endpoint="$1"
+            local output="$2"
+            for attempt in 1 2 3 4 5; do
+              if gh api -H 'Accept: application/vnd.github+json' "$endpoint" > "$output"; then return 0; fi
+              sleep $((attempt * 4))
+            done
+            return 1
+          }
+          api_retry "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-full-render-recovery-v4.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=10" recovery.json
+          api_retry "/repos/${GITHUB_REPOSITORY}/actions/workflows/render.yml/runs?event=workflow_dispatch&per_page=20" renders.json
+          LATEST_RECOVERY_ID="$(jq -r '.workflow_runs[0].id // empty' recovery.json)"
+          if [ -n "$LATEST_RECOVERY_ID" ]; then
+            api_retry "/repos/${GITHUB_REPOSITORY}/actions/runs/${LATEST_RECOVERY_ID}/jobs?filter=latest" jobs.json
+          else
+            echo '{"jobs":[]}' > jobs.json
+          fi
+          jq -n \
+            --argjson recovery "$(jq '[.workflow_runs[] | {id,name,status,conclusion,head_sha,head_branch,created_at,updated_at,html_url}]' recovery.json)" \
+            --argjson renders "$(jq '[.workflow_runs[] | select(.head_branch | startswith("agent/orvyq-render-candidate-")) | {id,name,status,conclusion,head_sha,head_branch,created_at,updated_at,html_url}]' renders.json)" \
+            --argjson jobs "$(jq '[.jobs[] | {id,name,status,conclusion,steps:[.steps[] | {name,status,conclusion,number}]}]' jobs.json)" \
+            '{generated_at:(now|todate),recovery_runs:$recovery,candidate_render_runs:$renders,latest_recovery_jobs:$jobs}' \
+            > .github/orvyq-full-render-recovery-v4-status.json
+          cat .github/orvyq-full-render-recovery-v4-status.json
+      - name: Commit status snapshot
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/orvyq-full-render-recovery-v4-status.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'Update ORVYQ recovery v4 status'
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep $((attempt * 3))
+          done
+          exit 1

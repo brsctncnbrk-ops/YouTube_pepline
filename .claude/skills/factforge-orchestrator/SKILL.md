@@ -1,146 +1,124 @@
 ---
 name: factforge-orchestrator
-description: Owns and sequences the FactForge AI YouTube production pipeline. Use this whenever the user wants to start a new FactForge video project, check project status, resume after dropping in manual assets (voice/images), retry a failed stage, pause/resume a project, reset a stage, run a QA gate, or prepare a project for render. Triggers on words like "factforge", "start a video", "project status", "ready" (in the context of an in-progress FactForge project), "retry the stage", "reset stage", "prepare render".
+description: Owns and sequences the ORVYQ / FactForge documentary pipeline, including canonical full-film production planning, proof rendering, human proof approval, full render, packaging, and final QA.
 ---
 
-# FactForge Orchestrator
+# ORVYQ / FactForge Orchestrator
 
-You are the Orchestrator for FactForge, a modular AI YouTube production system.
-You never do the creative work yourself (research, scriptwriting, prompt
-design, etc.) — that belongs to the other FactForge skills. Your job is state
-management and sequencing: know what stage a project is on, know what's
-blocking it, invoke the right skill for the current stage, and tell the user
-clearly what to do next.
+You manage state and sequencing. Producer and QA skills do the creative or judgment work. Never hand-edit `projects/<id>/manifest.json`; all state changes go through `node scripts/manifest_cli.mjs`.
 
-**Hard rule: never hand-edit `projects/<id>/manifest.json` yourself.** Every
-state read or mutation goes through `node scripts/manifest_cli.mjs <subcommand>
---project-id <id> ...` via Bash, run from the repo root. This is what makes
-"never feed broken data to the next skill" and "resumable across sessions"
-actually true — the manifest is the single source of truth, not your
-conversation memory.
+The manifest and canonical production plan are authoritative. Conversation memory, a successful short render, or a UI checkbox can never substitute for those files.
 
-## The pipeline (19 stages, in order)
+## Pipeline
 
-Migrating to a footage-primary (Aperture-style) visual pipeline — see
-`/root/.claude/plans/pipeline-migration-flickering-minsky.md` for the full
-plan. Two stages were added relative to the original 17: `fact_audit`
-(post-draft claim verification, between `script` and `script_qa`) and
-`footage_retrieval` (stock-footage selection, between `storyboard_qa` and
-`visual_style_bible`).
-
-```
-research -> research_qa -> script -> fact_audit -> script_qa -> voice_script -> voice_qa
-  -> [GATE: assets/audio/final_voice.mp3 must exist -> WAITING_FOR_AUDIO if not]
-  -> storyboard -> storyboard_qa -> footage_retrieval -> visual_style_bible -> visual_prompt -> visual_qa
-  -> [GATE: every scene's visual asset (assets/footage/*.mp4 or assets/images/*.png, per scene's asset_type) must exist -> WAITING_FOR_VISUAL_ASSETS if not]
-  -> director -> remotion -> editor -> render_qa
-  -> [external: GitHub Actions renders -> output/final_video.mp4]
-  -> packaging -> final_qa -> DONE
+```text
+research -> research_qa -> script -> fact_audit -> script_qa
+-> voice_script -> voice_qa
+-- audio gate --
+-> storyboard -> storyboard_qa -> footage_retrieval
+-> visual_style_bible -> visual_prompt -> visual_qa
+-- visual-assets gate --
+-> director -> remotion
+-> production_plan -> production_plan_qa
+-> editor -> proof_qa
+-- external canonical proof render + human approval --
+-> render_qa
+-- external full render --
+-> packaging -> final_qa -> DONE
 ```
 
-Full stage list, required files per stage, and output files per stage live in
-`scripts/lib/pipeline.mjs` (`STAGE_ORDER`, `STAGE_REQUIRED_FILES`,
-`STAGE_OUTPUT_FILES`, `GATES`) — read it if you need the exact contract for a
-stage rather than guessing.
+The critical architectural rule is that `direction/production_plan.json` covers the complete film before any proof is rendered. The proof is the exact opening prefix of that same plan. `qa/proof_approval.json` is bound to the production-plan SHA-256. A plan change invalidates the approval automatically.
 
-**Current build status**: mid-migration. `research` through `render_qa` are
-footage-migration-complete — footage is the primary visual source, AI stills
-are fallback-only for scenes `factforge-footage-retrieval` flags
-`fallback_to_ai_visual`. `factforge-director`/`-motion`/`-editor` branch per
-scene's `asset_type` (footage clip trim vs. Ken Burns fallback motion), and
-the Remotion template (`templates/remotion/`) renders both via
-`OffthreadVideo`/`Img` respectively — verified with an actual
-`remotion still` render mixing both asset types. `factforge-packaging`/
-`factforge-final-qa`'s attribution/reused-content extensions are pending
-Phase E.
+## Stage-to-skill mapping
 
-## Commands you must understand
-
-| User says | What you do |
+| current_stage | Skill |
 |---|---|
-| `start` | Ask for: video idea, target duration (seconds), target audience, language, reference channel style (any can be "not sure" / defaults). Then run `node scripts/manifest_cli.mjs init --name "<name>" --idea "<idea>" --duration <sec> --audience "<audience>" --language <lang> --style-ref "<style>"`. Report the new project_id and that it's scaffolded, `status=NOT_STARTED`. |
-| `status` | If the user means one project, run `manifest_cli.mjs status --project-id <id>`. If ambiguous or they want the overview, run `--all`. Summarize status/current_stage/waiting_for/open_errors in plain language, not raw JSON. |
-| `ready` | Means the user has dropped a manual asset in place. Figure out which gate applies from the project's current status (`WAITING_FOR_AUDIO` -> `manifest_cli.mjs gate --project-id <id> --gate audio`; `WAITING_FOR_VISUAL_ASSETS` -> `--gate visual_assets`). Report whether the gate passed or what's still missing. |
-| `retry` | Run `manifest_cli.mjs retry --project-id <id>`. Report the stage it will resume at. |
-| `pause` | Run `manifest_cli.mjs pause --project-id <id>`. |
-| `resume` | Run `manifest_cli.mjs resume --project-id <id>`. |
-| `reset_stage <stage>` | Confirm with the user whether they also want `--force-clean` (deletes that stage's output files) before running `manifest_cli.mjs reset-stage --project-id <id> --stage <stage> [--force-clean]` — this is a destructive option, so don't pass it unless the user asked for it or clearly wants a clean redo. |
-| `run_qa <gate>` | Every QA gate now has a matching skill (`factforge-research-qa`, `-script-qa`, `-voice-qa`, `-storyboard-qa`, `-visual-qa`, `-render-qa`, `-final-qa`) — invoke it (it runs the mechanical check itself as its first step). |
-| `prepare_render` | Prefer invoking `factforge-render-qa` (it runs the checks, records the QA verdict, then calls prepare-render). Running `manifest_cli.mjs prepare-render --project-id <id>` directly also works; if not ready, list the reasons plainly. On success it prints the `gh workflow run render.yml -f project_id=<id>` command. |
+| research | factforge-research |
+| research_qa | factforge-research-qa |
+| script | factforge-script |
+| fact_audit | factforge-fact-audit |
+| script_qa | factforge-script-qa |
+| voice_script | factforge-voice |
+| voice_qa | factforge-voice-qa |
+| storyboard | factforge-storyboard |
+| storyboard_qa | factforge-storyboard-qa |
+| footage_retrieval | factforge-footage-retrieval |
+| visual_style_bible | factforge-visual-style-bible |
+| visual_prompt | factforge-visual-prompt |
+| visual_qa | factforge-visual-qa |
+| director | factforge-director |
+| remotion | factforge-motion |
+| production_plan | factforge-production-plan |
+| production_plan_qa | factforge-production-plan-qa |
+| editor | factforge-editor |
+| proof_qa | factforge-proof-qa |
+| render_qa | factforge-render-qa |
+| packaging | factforge-packaging |
+| final_qa | factforge-final-qa |
 
-When a project_id isn't given and there's more than one project, ask which one
-(or run `status --all` first to show the options). When starting a brand-new
-project, let `manifest_cli.mjs init` auto-generate the `project_id` (don't
-invent one yourself) unless the user explicitly names one.
+Read `scripts/lib/pipeline.mjs` for exact required and output files.
 
-## Sequencing logic ("run the next stage")
+## Standard commands
 
-Read `current_stage` from `status`. Map it to a skill using the table below.
-Each producer/QA skill is self-contained: it reads its own inputs, writes its
-own outputs, validates them, and calls `manifest_cli.mjs advance` (or
-`error`/reports back for a judgment-based redo) itself — your job is only to
-invoke the right one and relay what it reports, not to run `check-required`
-or `advance` yourself around it.
+- Start: `node scripts/manifest_cli.mjs init ...`
+- Status: `node scripts/manifest_cli.mjs status --project-id <id>`
+- Audio ready: `node scripts/manifest_cli.mjs gate --project-id <id> --gate audio`
+- Visual assets ready: `node scripts/manifest_cli.mjs gate --project-id <id> --gate visual_assets`
+- Retry: `node scripts/manifest_cli.mjs retry --project-id <id>`
+- Reset: `node scripts/manifest_cli.mjs reset-stage --project-id <id> --stage <stage> [--force-clean]`
+- Validate full plan: `node scripts/orvyq_production_plan.mjs validate --project-id <id>`
+- Build proof plan: `node scripts/orvyq_production_plan.mjs build-proof --project-id <id>`
+- Check proof approval: `node scripts/orvyq_production_plan.mjs check-approval --project-id <id>`
+- Build approved full plan: `node scripts/orvyq_production_plan.mjs build-full --project-id <id>`
 
-| current_stage | Skill to invoke |
-|---|---|
-| `research` | `factforge-research` |
-| `research_qa` | `factforge-research-qa` |
-| `script` | `factforge-script` |
-| `fact_audit` | `factforge-fact-audit` (no separate QA gate — it's self-auditing) |
-| `script_qa` | `factforge-script-qa` |
-| `voice_script` | `factforge-voice` |
-| `voice_qa` | `factforge-voice-qa` |
-| `storyboard` | `factforge-storyboard` |
-| `storyboard_qa` | `factforge-storyboard-qa` |
-| `footage_retrieval` | `factforge-footage-retrieval` |
-| `visual_style_bible` | `factforge-visual-style-bible` |
-| `visual_prompt` | `factforge-visual-prompt` |
-| `visual_qa` | `factforge-visual-qa` |
-| `director` | `factforge-director` |
-| `remotion` | `factforge-motion` |
-| `editor` | `factforge-editor` |
-| `render_qa` | `factforge-render-qa` |
-| `packaging` | `factforge-packaging` |
-| `final_qa` | `factforge-final-qa` |
+## Proof lifecycle
 
-Before invoking a producer skill (not a QA skill), you may sanity-check with
-`manifest_cli.mjs check-required --project-id <id> --stage <stage>` if you
-want to confirm inputs are in place, but the skills also fail safely on their
-own if inputs are missing.
+1. `production_plan` authors the complete timeline.
+2. `production_plan_qa` validates the complete timeline.
+3. `editor` assembles the render project.
+4. `proof_qa` compiles the exact proof prefix from the canonical plan.
+5. Trigger:
 
-After `voice_qa` passes, the project needs `assets/audio/final_voice.mp3`
-before `storyboard` can run. That transition is gated by you, not by any
-skill: once the human confirms they've dropped the file in (`ready`), run
-`manifest_cli.mjs gate --project-id <id> --gate audio`.
+```bash
+gh workflow run orvyq-proof.yml -f project_id=<id>
+```
 
-Similarly, after `visual_qa` passes, the project needs every scene's visual
-asset in place before `director` can run — for now (pending Phase C) that
-still means every `assets/images/scene_NNN.png` referenced by
-`storyboard.json`, mechanically checked the same way it always was.
-`factforge-visual-qa` deliberately does not check for these files (they
-don't exist yet at that point) — once the human confirms they've generated
-and dropped in all the images (`ready`), run `manifest_cli.mjs gate
---project-id <id> --gate visual_assets`.
+6. Review the rendered video, not only automated reports.
+7. Approve through `orvyq-approve-proof.yml`, supplying the successful proof run ID, source commit SHA, human score, and review note.
+8. `render_qa` verifies the approval hash still matches the plan.
+9. Trigger the full render only after the approval gate passes:
 
-## The render step (external, after `render_qa`)
+```bash
+gh workflow run render.yml -f project_id=<id>
+```
 
-`render_qa` is the last stage with a skill for now. When it passes,
-`factforge-render-qa` sets the project to `READY_FOR_RENDER` and prints the
-render command. The full-duration render runs **only** on GitHub Actions,
-never locally — trigger it with `gh workflow run render.yml -f project_id=<id>`
-(or the GitHub UI). The workflow renders the Remotion project, commits
-`output/final_video.mp4` back to the branch, and flips the manifest to
-`RENDER_DONE`. Only a single-frame `remotion still` preview is acceptable
-locally; never run a full local render. Once `output/final_video.mp4` exists
-(and the manifest is `RENDER_DONE`), the `packaging` stage is unblocked: run
-`factforge-packaging`, then `factforge-final-qa`. When final QA passes, the
-project is `DONE` and the deliverables to upload are `output/final_video.mp4`
-plus the `packaging/` files.
+Do not use the legacy `orvyq-preview.yml` as the approval authority for new projects. It remains only for historical diagnostics during migration.
 
-## Tone
+## Hard stops
 
-Be concise and status-report-like. Prefer short structured summaries (stage,
-status, what's blocking, what to do next) over long prose. If the manifest
-shows `status: ERROR`, always surface the most recent entry from `errors[]`
-(code, message, required_action) before suggesting `retry`.
+Never claim a project is ready for full render when any of these is true:
+
+- `direction/production_plan.json` is absent or `status` is not `ready`;
+- shots or sections do not cover the complete duration;
+- unresolved claims remain;
+- assets or provenance are incomplete;
+- the proof is based on a separate cut;
+- `qa/proof_approval.json` is absent;
+- the proof score is below the plan minimum;
+- the production-plan SHA differs from the approved SHA;
+- full render was not built by `build-full`.
+
+A successful proof demonstrates the grammar. It does not prove that the remaining film was authored. Only the canonical full-plan audit proves that.
+
+## Status reporting
+
+Be concise and explicit:
+
+- current stage;
+- exact blocker;
+- whether the canonical full plan is complete;
+- whether a proof exists;
+- whether approval is valid for the current plan hash;
+- the next executable action.
+
+Never describe work as completed solely because it was discussed or visually approved in conversation.

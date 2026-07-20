@@ -42,6 +42,100 @@ def clip_media(source: Path, seconds: float) -> tuple[Path, tempfile.TemporaryDi
     return output, temp_dir
 
 
+def read_json_optional(path: Path) -> dict | None:
+    if not path.exists():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def is_raw_unrepaired_voice(media: Path, project: Path) -> bool:
+    try:
+        return media.resolve() == (project / "assets" / "audio" / "final_voice.mp3").resolve()
+    except FileNotFoundError:
+        return False
+
+
+def reference_for_media(
+    reference_words: list[str],
+    transcript_words: list[str],
+    project: Path,
+    media: Path,
+) -> tuple[list[str], dict]:
+    repair = read_json_optional(project / "voice" / "audio_repair.json")
+    if not repair or repair.get("operation") != "rotate":
+        return reference_words, {
+            "operation": "none",
+            "reference_order": "canonical_script_order",
+        }
+
+    rotate_at = float(repair.get("rotate_at_seconds", 0))
+    metadata = read_json_optional(project / "assets" / "audio" / "final_mix.metadata.json") or {}
+    source_duration = float(
+        metadata.get("source_duration_seconds")
+        or metadata.get("narration_source_duration_seconds")
+        or 0
+    )
+    if rotate_at <= 0 or source_duration <= rotate_at or not reference_words:
+        raise RuntimeError("Invalid canonical voice rotation metadata for speech QA")
+
+    # The production mixer already rotates the supplied narrator recording into
+    # the approved script order. Final mix and rendered video therefore compare
+    # directly with voice_script.txt. Rotating the reference a second time is a
+    # contract error and creates an artificial similarity failure.
+    if not is_raw_unrepaired_voice(media, project):
+        return reference_words, {
+            "operation": "audio_repaired_to_canonical_script_order",
+            "audio_repair_operation": "rotate",
+            "rotate_at_seconds": rotate_at,
+            "source_duration_seconds": source_duration,
+            "reference_order": "canonical_script_order",
+            "double_rotation_forbidden": True,
+            "config": "voice/audio_repair.json",
+        }
+
+    # Raw source-voice diagnostics are the only case where the reference must be
+    # transformed to the supplied recording's non-canonical order.
+    estimated = round(len(reference_words) * rotate_at / source_duration)
+    search_radius = max(40, round(len(reference_words) * 0.035))
+    lower = max(1, estimated - search_radius)
+    upper = min(len(reference_words) - 1, estimated + search_radius)
+    step = max(1, round(len(reference_words) / 500))
+    sample_length = min(len(transcript_words), max(180, round(len(reference_words) * 0.35)))
+    transcript_sample = transcript_words[:sample_length]
+
+    best_index = estimated
+    best_ratio = -1.0
+    for index in range(lower, upper + 1, step):
+        raw_order = reference_words[-index:] + reference_words[:-index]
+        candidate = raw_order[:sample_length]
+        ratio = SequenceMatcher(None, transcript_sample, candidate, autojunk=False).ratio()
+        if ratio > best_ratio:
+            best_ratio = ratio
+            best_index = index
+
+    refine_lower = max(1, best_index - step)
+    refine_upper = min(len(reference_words) - 1, best_index + step)
+    for index in range(refine_lower, refine_upper + 1):
+        raw_order = reference_words[-index:] + reference_words[:-index]
+        candidate = raw_order[:sample_length]
+        ratio = SequenceMatcher(None, transcript_sample, candidate, autojunk=False).ratio()
+        if ratio > best_ratio:
+            best_ratio = ratio
+            best_index = index
+
+    transformed = reference_words[-best_index:] + reference_words[:-best_index]
+    return transformed, {
+        "operation": "canonical_script_to_raw_supplied_voice_order",
+        "audio_repair_operation": "rotate",
+        "rotate_at_seconds": rotate_at,
+        "source_duration_seconds": source_duration,
+        "rotation_word_index": best_index,
+        "rotation_search_similarity": round(best_ratio, 4),
+        "reference_order": "raw_supplied_voice_order",
+        "config": "voice/audio_repair.json",
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--project-id", required=True)
@@ -49,7 +143,7 @@ def main() -> None:
     parser.add_argument("--max-seconds", type=float, default=0)
     parser.add_argument("--output-name", default="speech_transcript.json")
     parser.add_argument("--model", default="tiny.en")
-    parser.add_argument("--min-similarity", type=float, default=0.55)
+    parser.add_argument("--min-similarity", type=float, default=0.85)
     args = parser.parse_args()
 
     project = Path("projects") / args.project_id
@@ -96,14 +190,22 @@ def main() -> None:
 
         transcript = " ".join(part for part in transcript_parts if part).strip()
         reference = script_path.read_text(encoding="utf-8")
-        reference_words = normalize(reference).split()
+        original_reference_words = normalize(reference).split()
         transcript_words = normalize(transcript).split()
+        reference_words, reference_transform = reference_for_media(
+            original_reference_words,
+            transcript_words,
+            project,
+            media,
+        )
 
-        # Compare the recognized preview against the same-length script prefix.
-        # The previous implementation appended 30 unspoken reference words, which
-        # artificially penalized every correctly clipped two-minute preview.
         reference_prefix_words = reference_words[:len(transcript_words)]
-        similarity = SequenceMatcher(None, transcript_words, reference_prefix_words).ratio()
+        similarity = SequenceMatcher(
+            None,
+            transcript_words,
+            reference_prefix_words,
+            autojunk=False,
+        ).ratio()
         speech_coverage = speech_seconds / analyzed_duration if analyzed_duration else 0.0
         average_probability = sum(w["probability"] for w in words) / len(words) if words else 0.0
 
@@ -119,7 +221,7 @@ def main() -> None:
             failures.append(f"word_probability:{average_probability:.3f}<0.450")
 
         payload = {
-            "schema_version": "1.1",
+            "schema_version": "2.1-canonical-repaired-media-reference",
             "project_id": args.project_id,
             "media": str(media),
             "model": args.model,
@@ -129,6 +231,9 @@ def main() -> None:
             "transcript": transcript,
             "word_count": len(transcript_words),
             "reference_word_count": len(reference_prefix_words),
+            "original_reference_word_count": len(original_reference_words),
+            "reference_transform": reference_transform,
+            "minimum_script_similarity": args.min_similarity,
             "speech_coverage": round(speech_coverage, 4),
             "average_word_probability": round(average_probability, 4),
             "script_similarity": round(similarity, 4),
@@ -137,7 +242,7 @@ def main() -> None:
             "failures": failures,
         }
         output.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        print(json.dumps({"ok": not failures, "output": str(output), **{k: payload[k] for k in ["word_count", "speech_coverage", "script_similarity", "average_word_probability"]}}))
+        print(json.dumps({"ok": not failures, "output": str(output), **{k: payload[k] for k in ["word_count", "speech_coverage", "script_similarity", "average_word_probability", "reference_transform"]}}))
         if failures:
             raise SystemExit("Speech QA failed: " + ", ".join(failures))
     finally:
