@@ -8,6 +8,14 @@ const OFFICIAL_KINDS = new Set(["split_documents", "official_document", "officia
 const hash = (value) => crypto.createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const framesOf = (shot) => Number(shot.end_frame) - Number(shot.start_frame);
 const sectionForFrame = (sections, frame) => sections.find((section) => frame >= section.start_frame && frame < section.end_frame) || sections.at(-1);
+const isSourceBackedGraphic = (shot) => Boolean(
+  shot?.asset_type === "graphic" &&
+  shot.graphic?.source_backed === true &&
+  shot.graphic?.provenance_mode === "source_derived_graphic" &&
+  Array.isArray(shot.graphic?.source_ids) &&
+  shot.graphic.source_ids.length > 0 &&
+  String(shot.graphic?.source || "").trim(),
+);
 
 async function loadFootagePool(dir, plan, composition) {
   const unique = new Map();
@@ -29,10 +37,12 @@ async function loadFootagePool(dir, plan, composition) {
   return [...unique.values()];
 }
 
-function measure(plan) {
+export function measureFullPlanVisualMix(plan) {
   let officialFrames = 0;
   let evidenceFrames = 0;
+  let sourceBackedGraphicFrames = 0;
   let contextualFrames = 0;
+  let graphicFrames = 0;
   let currentEvidence = 0;
   let maximumEvidence = 0;
   for (const shot of plan.shots || []) {
@@ -45,18 +55,80 @@ function measure(plan) {
     } else {
       currentEvidence = 0;
       if (shot.asset_type === "footage" && shot.contextual_footage === true) contextualFrames += frames;
+      if (shot.asset_type === "graphic") {
+        graphicFrames += frames;
+        if (isSourceBackedGraphic(shot)) sourceBackedGraphicFrames += frames;
+      }
     }
   }
   const duration = Math.max(1, Number(plan.duration_frames));
   return {
     official_frames: officialFrames,
     official_fraction: officialFrames / duration,
-    evidence_frames: evidenceFrames,
-    evidence_fraction: evidenceFrames / duration,
+    physical_evidence_frames: evidenceFrames,
+    source_backed_graphic_frames: sourceBackedGraphicFrames,
+    evidence_frames: evidenceFrames + sourceBackedGraphicFrames,
+    evidence_fraction: (evidenceFrames + sourceBackedGraphicFrames) / duration,
     contextual_frames: contextualFrames,
     contextual_fraction: contextualFrames / duration,
+    graphic_frames: graphicFrames,
+    graphic_fraction: graphicFrames / duration,
     maximum_uninterrupted_evidence_seconds: maximumEvidence / Number(plan.fps || 30),
   };
+}
+
+export function promoteSourceBackedBreakers(plan, {
+  lockedBoundaryFrame,
+  targetEvidenceFraction,
+  maximumGraphicFraction,
+}) {
+  const converted = [];
+  let metrics = measureFullPlanVisualMix(plan);
+  for (const shot of plan.shots || []) {
+    if (metrics.evidence_fraction >= targetEvidenceFraction - 0.0001) break;
+    if (shot.end_frame <= lockedBoundaryFrame) continue;
+    if (shot.asset_type !== "footage" || !shot.rebalanced_from?.evidence) continue;
+    const frames = framesOf(shot);
+    const projectedGraphicFraction = (metrics.graphic_frames + frames) / Math.max(1, Number(plan.duration_frames));
+    if (projectedGraphicFraction > maximumGraphicFraction + 0.0001) continue;
+    const originalEvidence = shot.rebalanced_from.evidence;
+    const sourceIds = originalEvidence.source_ids || [];
+    const source = String(originalEvidence.source_label || originalEvidence.source || sourceIds.join(" · ")).trim();
+    if (!sourceIds.length || !source) continue;
+    const originalMotif = shot.rebalanced_from.motif || shot.motif;
+    delete shot.video_asset;
+    delete shot.trim_in_sec;
+    delete shot.trim_out_sec;
+    delete shot.motion_variant;
+    delete shot.contextual_footage;
+    delete shot.hook_footage;
+    delete shot.provenance_mode;
+    shot.asset_type = "graphic";
+    shot.visual_role = "graphic";
+    shot.generic_stock = false;
+    shot.graphic = {
+      type: "report_scan",
+      family: "source_context",
+      kicker: "SOURCE-BACKED CONTEXT",
+      title: originalEvidence.title || "What the source establishes",
+      subtitle: originalEvidence.subtitle || shot.editorial_purpose,
+      labels: (originalEvidence.steps || []).slice(0, 3),
+      source,
+      source_ids: sourceIds,
+      source_backed: true,
+      provenance_mode: "source_derived_graphic",
+    };
+    shot.motif = `source-backed:${shot.claim_id || shot.shot_id}:${originalMotif || "context"}`;
+    shot.editorial_purpose = `${shot.editorial_purpose} Present the same source context as a visibly attributed moving graphic so it resets the screenshot run without weakening evidence provenance.`;
+    converted.push({
+      shot_id: shot.shot_id,
+      section_id: shot.section_id,
+      source_ids: sourceIds,
+      duration_seconds: frames / Number(plan.fps || 30),
+    });
+    metrics = measureFullPlanVisualMix(plan);
+  }
+  return { converted, metrics };
 }
 
 export async function rebalanceFullPlan(projectId = PROJECT_ID) {
@@ -78,7 +150,12 @@ export async function rebalanceFullPlan(projectId = PROJECT_ID) {
   const prefixHashBefore = hash(lockedPrefixBefore);
   const maxUses = Math.min(Number(plan.quality_policy?.max_uses_per_source || 5), Number(blueprint.global_rules?.max_uses_per_source || 5));
   const targetOfficialFraction = Math.max(0.3, Number(manifest.policy?.minimum_official_capture_fraction || 0.3));
+  const targetEvidenceFraction = Math.max(0.6, Number(plan.quality_policy?.evidence_asset_fraction_min || 0.6));
   const maxEvidenceSeconds = Math.min(16, Number(manifest.policy?.maximum_uninterrupted_evidence_seconds || 16));
+  const maximumGraphicFraction = Math.min(
+    Number(plan.quality_policy?.full_screen_graphic_fraction_max || 0.1),
+    Number(blueprint.global_rules?.full_screen_graphic_fraction_max || 0.1),
+  );
 
   const assetsBySource = new Map();
   for (const asset of manifest.assets || []) {
@@ -127,6 +204,7 @@ export async function rebalanceFullPlan(projectId = PROJECT_ID) {
     if (trimIn + duration > selected.duration) trimIn = 0;
     const trimOut = trimIn + duration;
     const originalEvidence = shot.evidence;
+    const originalMotif = shot.motif;
     delete shot.evidence;
     shot.asset_type = "footage";
     shot.visual_role = "context";
@@ -140,14 +218,14 @@ export async function rebalanceFullPlan(projectId = PROJECT_ID) {
     shot.provenance_mode = "approved_contextual_footage";
     shot.generic_stock = false;
     shot.motif = selected.asset;
-    shot.rebalanced_from = { asset_type: "evidence", kind: originalEvidence?.kind || null };
+    shot.rebalanced_from = { asset_type: "evidence", kind: originalEvidence?.kind || null, evidence: originalEvidence, motif: originalMotif };
     footageUses.set(selected.asset, (footageUses.get(selected.asset) || 0) + 1);
     trimCursor.set(selected.asset, trimOut);
     convertedBreakers.push({ shot_id: shot.shot_id, section_id: shot.section_id, video_asset: selected.asset, duration_seconds: duration });
     evidenceRunFrames = 0;
   }
 
-  let metrics = measure(plan);
+  let metrics = measureFullPlanVisualMix(plan);
   const convertedOfficial = [];
   let previousImage = null;
   for (const shot of plan.shots) {
@@ -183,11 +261,20 @@ export async function rebalanceFullPlan(projectId = PROJECT_ID) {
     imageUses.set(selected.local_asset, (imageUses.get(selected.local_asset) || 0) + 1);
     previousImage = selected.local_asset;
     convertedOfficial.push({ shot_id: shot.shot_id, section_id: shot.section_id, evidence_asset_id: selected.evidence_asset_id, local_asset: selected.local_asset });
-    metrics = measure(plan);
+    metrics = measureFullPlanVisualMix(plan);
   }
 
-  metrics = measure(plan);
+  const sourceBackedPromotion = promoteSourceBackedBreakers(plan, {
+    lockedBoundaryFrame,
+    targetEvidenceFraction,
+    maximumGraphicFraction,
+  });
+  const convertedSourceBackedGraphics = sourceBackedPromotion.converted;
+  metrics = sourceBackedPromotion.metrics;
+
   if (metrics.official_fraction < targetOfficialFraction - 0.0001) throw new Error(`Official capture target not reached: ${(metrics.official_fraction * 100).toFixed(2)}% < ${(targetOfficialFraction * 100).toFixed(2)}%`);
+  if (metrics.evidence_fraction < targetEvidenceFraction - 0.0001) throw new Error(`Evidence/source-derived target not reached: ${(metrics.evidence_fraction * 100).toFixed(2)}% < ${(targetEvidenceFraction * 100).toFixed(2)}%`);
+  if (metrics.graphic_fraction > maximumGraphicFraction + 0.0001) throw new Error(`Full-screen graphic fraction ${(metrics.graphic_fraction * 100).toFixed(2)}% exceeds ${(maximumGraphicFraction * 100).toFixed(2)}%`);
   if (metrics.maximum_uninterrupted_evidence_seconds > maxEvidenceSeconds + 0.001) throw new Error(`Evidence run remains ${metrics.maximum_uninterrupted_evidence_seconds.toFixed(2)}s`);
   const lockedPrefixAfter = plan.shots.filter((shot) => shot.end_frame <= lockedBoundaryFrame);
   const prefixHashAfter = hash(lockedPrefixAfter);
@@ -196,7 +283,7 @@ export async function rebalanceFullPlan(projectId = PROJECT_ID) {
   if (terminal.length !== 1 || terminal[0] !== plan.shots.at(-1)) throw new Error("Terminal brand close invariant failed after rebalance");
 
   plan.generated_at = new Date().toISOString();
-  plan.art_direction = { ...plan.art_direction, source_treatment: "official primary-source captures across the full film, alternated with source-derived graphics and licensed contextual motion" };
+  plan.art_direction = { ...plan.art_direction, source_treatment: "official primary-source captures across the full film, alternated with visibly attributed source-derived motion graphics and licensed contextual motion" };
   plan.quality_policy = {
     ...plan.quality_policy,
     editorial_mode: "cinematic_contextual",
@@ -204,24 +291,28 @@ export async function rebalanceFullPlan(projectId = PROJECT_ID) {
     official_capture_fraction_min: 0.3,
     evidence_asset_fraction_min: 0.6,
     maximum_uninterrupted_evidence_seconds: 16,
-    full_film_rebalance_version: "1.0",
+    full_film_rebalance_version: "1.1-source-backed-breakers",
     proof_prefix_sha256: prefixHashAfter,
     proof_prefix_locked_through_frame: lockedBoundaryFrame,
   };
   await writeJsonAtomic(planPath, plan);
   const report = {
-    schema_version: "1.0-full-film-rebalance",
+    schema_version: "1.1-source-backed-breakers",
     project_id: projectId,
     generated_at: new Date().toISOString(),
     locked_proof_boundary_frame: lockedBoundaryFrame,
     proof_prefix_sha256: prefixHashAfter,
     prefix_unchanged: true,
     target_official_capture_fraction: targetOfficialFraction,
+    target_evidence_fraction: targetEvidenceFraction,
+    maximum_graphic_fraction: maximumGraphicFraction,
     maximum_evidence_seconds: maxEvidenceSeconds,
     converted_official_count: convertedOfficial.length,
     converted_breaker_count: convertedBreakers.length,
+    converted_source_backed_graphic_count: convertedSourceBackedGraphics.length,
     converted_official: convertedOfficial,
     converted_breakers: convertedBreakers,
+    converted_source_backed_graphics: convertedSourceBackedGraphics,
     metrics,
     pass: true,
   };
