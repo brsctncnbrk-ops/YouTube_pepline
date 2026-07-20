@@ -30,7 +30,12 @@ jobs:
           unzip -q logs.zip -d logs
           TARGET="$(find logs -type f -name '*Build approved full edit and run all gates.txt' -print -quit)"
           test -n "$TARGET"
-          cp "$TARGET" .github/orvyq-full-edit-diagnostic.txt
+          {
+            echo '--- FAILURE SIGNATURES ---'
+            grep -nE '\{"ok":false|##\[error\]|Error:|FAILED|FAIL|failed|assert|below|above|exceeds|missing|mismatch|differ' "$TARGET" || true
+            echo '--- LAST 180 LINES ---'
+            tail -n 180 "$TARGET"
+          } > .github/orvyq-full-edit-diagnostic.txt
           cat .github/orvyq-full-edit-diagnostic.txt
       - name: Commit diagnostic
         run: |
@@ -39,6 +44,6 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add .github/orvyq-full-edit-diagnostic.txt
           git diff --cached --quiet && exit 0
-          git commit -m 'Capture ORVYQ full-edit gate failure'
+          git commit -m 'Capture concise ORVYQ full-edit gate failure'
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin "HEAD:$GITHUB_REF_NAME"
