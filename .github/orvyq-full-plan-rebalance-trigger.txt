@@ -1,3 +1,3 @@
-requested_at=2026-07-20T17:18:00+03:00
+requested_at=2026-07-20T17:34:00+03:00
 project_id=001-the-ai-race-no-one-can-afford-to-win
-reason=Preserve approved proof run 29701621699 and the locked prefix, complete visual recovery, fetch and verify approved music before finalizing nine canonical cues, generate SHA-bound original SFX provenance, verify rotated narration at 0.85 similarity, run all eleven audits, commit the immutable candidate and dispatch full render.
+reason=Preserve approved proof run 29701621699 and its locked prefix, complete visual and canonical audio recovery, compare repaired full media directly with canonical script order at 0.85 similarity, run all eleven audits, commit the immutable candidate and dispatch full render.
