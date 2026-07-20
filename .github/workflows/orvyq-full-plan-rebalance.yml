@@ -85,15 +85,12 @@ jobs:
           fs.appendFileSync(process.env.GITHUB_ENV, 'ORVYQ_EDITORIAL_PAUSES=1\n');
           NODE
 
-      - name: Verify proof approval continuity regression contract
+      - name: Verify structural regression contracts
         run: |
           set -euo pipefail
           node scripts/orvyq_proof_approval_continuity_tests.mjs "$PROJECT_ID"
-
-      - name: Verify structural legibility regression contract
-        run: |
-          set -euo pipefail
           node scripts/orvyq_official_legibility_regression_tests.mjs
+          node scripts/orvyq_enforce_source_mix_tests.mjs
 
       - name: Expand and fetch available full-film official evidence
         run: |
@@ -102,15 +99,17 @@ jobs:
           node scripts/orvyq_fetch_primary_evidence.mjs
           node scripts/orvyq_prune_unavailable_optional_captures.mjs "$PROJECT_ID"
 
-      - name: Normalize, rebalance, and bind deterministic evidence bundle
+      - name: Normalize, rebalance, enforce source mix, and bind evidence bundle
         run: |
           set -euo pipefail
           node scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID" --mode preflight
           node scripts/orvyq_rebalance_full_plan.mjs "$PROJECT_ID"
+          node scripts/orvyq_enforce_source_mix.mjs "$PROJECT_ID"
           node scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID" --mode final
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
           node scripts/orvyq_bind_full_render_evidence_bundle.mjs "$PROJECT_ID"
           test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/full_render_evidence_bundle.json")" = "true"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/source_mix_enforcement.json")" = "true"
 
       - name: Preserve existing proof approval by prefix continuity
         run: |
@@ -142,41 +141,37 @@ jobs:
           test -s "projects/$PROJECT_ID/assets/audio/final_mix.metadata.json"
           test -s "projects/$PROJECT_ID/remotion/captions.json"
 
-      - name: Build approved full edit and run all gates
+      - name: Build approved full edit and collect every gate result
         run: |
           set -euo pipefail
           node scripts/orvyq_production_plan.mjs build-full --project-id "$PROJECT_ID"
-          node scripts/orvyq_timeline_audit.mjs "$PROJECT_ID"
-          node scripts/orvyq_evidence_audit.mjs
-          node scripts/orvyq_evidence_asset_audit.mjs
-          node scripts/orvyq_semantic_visual_audit.mjs
-          node scripts/orvyq_pacing_audit.mjs
           node scripts/orvyq_official_legibility_gate.mjs "$PROJECT_ID"
-          node scripts/orvyq_mobile_legibility_audit.mjs
-          node scripts/orvyq_license_audit.mjs
-          node scripts/orvyq_edit_plan_tests.mjs
+          node scripts/orvyq_audit_suite.mjs "$PROJECT_ID"
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const dir = `projects/${process.env.PROJECT_ID}`;
           const policy = JSON.parse(fs.readFileSync('config/orvyq-production-policy.json', 'utf8'));
           const report = JSON.parse(fs.readFileSync(`${dir}/qa/full_film_rebalance.json`, 'utf8'));
+          const sourceMix = JSON.parse(fs.readFileSync(`${dir}/qa/source_mix_enforcement.json`, 'utf8'));
           const normalization = JSON.parse(fs.readFileSync(`${dir}/qa/official_legibility_normalization.json`, 'utf8'));
           const continuity = JSON.parse(fs.readFileSync(`${dir}/qa/proof_approval_continuity.json`, 'utf8'));
           const semantic = JSON.parse(fs.readFileSync(`${dir}/qa/semantic_visual_audit.json`, 'utf8'));
           const approval = JSON.parse(fs.readFileSync(`${dir}/qa/proof_approval.json`, 'utf8'));
           const manifest = JSON.parse(fs.readFileSync(`${dir}/manifest.json`, 'utf8'));
           const bundle = JSON.parse(fs.readFileSync(`${dir}/qa/full_render_evidence_bundle.json`, 'utf8'));
-          if (!report.pass || !normalization.pass || !continuity.pass || !semantic.pass || !bundle.pass) throw new Error('Full-film structural correction did not pass');
+          const suite = JSON.parse(fs.readFileSync(`${dir}/qa/audit_suite.json`, 'utf8'));
+          if (!report.pass || !sourceMix.pass || !normalization.pass || !continuity.pass || !semantic.pass || !bundle.pass || !suite.pass) throw new Error('Full-film structural correction did not pass');
           if (!normalization.target_enforced || !normalization.target_met) throw new Error('Final official-legibility gate was not enforced');
           if (!continuity.prefix_unchanged || !continuity.narration_unchanged || continuity.new_proof_required) throw new Error('Existing proof approval cannot be preserved');
           if (String(continuity.proof_run_id) !== String(policy.proof_run_id)) throw new Error('Approved proof run changed');
           if (semantic.official_primary_capture_fraction < policy.official_capture_minimum_fraction) throw new Error('Official capture ratio remains below policy');
+          if (semantic.evidence_archive_fraction < policy.source_derived_minimum_fraction) throw new Error('Source-backed visual ratio remains below policy');
           if (semantic.maximum_uninterrupted_evidence_seconds > policy.maximum_uninterrupted_evidence_seconds) throw new Error('Evidence run remains above policy');
           if (manifest.proof?.production_plan_sha256 !== approval.production_plan_sha256) throw new Error('Manifest and proof approval plan hashes differ');
-          console.log(JSON.stringify({ok:true, proof_run_id:continuity.proof_run_id, approval_preserved:continuity.approval_preserved, bundled_asset_count:bundle.bundled_asset_count, proof_prefix_sha256:continuity.current_prefix_sha256, official_capture_fraction:semantic.official_primary_capture_fraction, maximum_uninterrupted_evidence_seconds:semantic.maximum_uninterrupted_evidence_seconds, converted_official_count:report.converted_official_count, converted_breaker_count:report.converted_breaker_count}));
+          console.log(JSON.stringify({ok:true, proof_run_id:continuity.proof_run_id, approval_preserved:continuity.approval_preserved, audit_checks:suite.check_count, bundled_asset_count:bundle.bundled_asset_count, proof_prefix_sha256:continuity.current_prefix_sha256, official_capture_fraction:semantic.official_primary_capture_fraction, source_backed_fraction:semantic.evidence_archive_fraction, maximum_uninterrupted_evidence_seconds:semantic.maximum_uninterrupted_evidence_seconds, converted_source_graphics:sourceMix.converted_count}));
           NODE
 
-      - name: Commit corrected plan, preserved approval, and evidence bundle
+      - name: Commit corrected plan, preserved approval, evidence bundle, and QA state
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -190,17 +185,29 @@ jobs:
             "projects/$PROJECT_ID/qa/optional_capture_availability.json" \
             "projects/$PROJECT_ID/qa/full_render_evidence_bundle.json" \
             "projects/$PROJECT_ID/qa/official_legibility_normalization.json" \
+            "projects/$PROJECT_ID/qa/source_mix_enforcement.json" \
+            "projects/$PROJECT_ID/qa/audit_suite.json" \
+            "projects/$PROJECT_ID/qa/semantic_visual_audit.json" \
+            "projects/$PROJECT_ID/qa/evidence_asset_audit.json" \
+            "projects/$PROJECT_ID/qa/timeline_audit.json" \
+            "projects/$PROJECT_ID/qa/pacing_audit.json" \
+            "projects/$PROJECT_ID/qa/mobile_legibility_audit.json" \
+            "projects/$PROJECT_ID/qa/license_audit.json" \
+            "projects/$PROJECT_ID/qa/alignment_readiness.json" \
             "projects/$PROJECT_ID/qa/proof_approval.json" \
             "projects/$PROJECT_ID/qa/proof_approval_continuity.json" \
             "projects/$PROJECT_ID/qa/full_film_rebalance.json" \
             "projects/$PROJECT_ID/manifest.json" \
             "${BUNDLED_ASSETS[@]}"
-          git diff --cached --quiet && { echo 'No structural full-film changes to commit'; exit 1; }
-          git commit -m "Preserve approved proof and bundle ORVYQ full-render evidence"
-          git reset --hard HEAD
-          git clean -fd
-          git pull --rebase origin "$GITHUB_REF_NAME"
-          git push origin "HEAD:$GITHUB_REF_NAME"
+          if git diff --cached --quiet; then
+            echo "No new structural changes; using the already approved branch state"
+          else
+            git commit -m "Preserve approved proof and finalize ORVYQ full-render structure"
+            git reset --hard HEAD
+            git clean -fd
+            git pull --rebase origin "$GITHUB_REF_NAME"
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi
           echo "APPROVED_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
 
       - name: Verify preserved approval and bundled evidence after commit
@@ -223,25 +230,37 @@ jobs:
           test "$(jq -r '.prefix_unchanged' "projects/$PROJECT_ID/qa/proof_approval_continuity.json")" = "true"
           test "$(jq -r '.proof.production_plan_sha256' "projects/$PROJECT_ID/manifest.json")" = "$(jq -r '.production_plan_sha256' "projects/$PROJECT_ID/qa/proof_approval.json")"
 
-      - name: Dispatch corrected full render directly
+      - name: Dispatch corrected full render from immutable candidate ref
         run: |
           set -euo pipefail
-          gh workflow run render.yml \
-            --ref "$GITHUB_REF_NAME" \
-            -f project_id="$PROJECT_ID" \
-            -f quality_control_approved=true \
-            -f approved_preview_run_id="$PROOF_RUN_ID"
-          for attempt in $(seq 1 40); do
-            RUNS="$(gh run list --workflow render.yml --branch "$GITHUB_REF_NAME" --event workflow_dispatch --limit 10 --json databaseId,status,conclusion,headSha,createdAt,url)"
-            FULL_RENDER_RUN_ID="$(jq -r --arg sha "$APPROVED_SHA" '[.[] | select(.headSha==$sha)][0].databaseId // empty' <<<"$RUNS")"
+          RENDER_REF="agent/orvyq-render-candidate"
+          git push --force origin "$APPROVED_SHA:refs/heads/$RENDER_REF"
+          dispatched=0
+          for attempt in 1 2 3 4 5; do
+            if gh workflow run render.yml \
+              --ref "$RENDER_REF" \
+              -f project_id="$PROJECT_ID" \
+              -f quality_control_approved=true \
+              -f approved_preview_run_id="$PROOF_RUN_ID"; then
+              dispatched=1
+              break
+            fi
+            sleep $((attempt * 5))
+          done
+          test "$dispatched" = "1"
+          FULL_RENDER_RUN_ID=""
+          for attempt in $(seq 1 60); do
+            if RUNS="$(gh run list --workflow render.yml --branch "$RENDER_REF" --event workflow_dispatch --limit 10 --json databaseId,status,conclusion,headSha,createdAt,url 2>/dev/null)"; then
+              FULL_RENDER_RUN_ID="$(jq -r --arg sha "$APPROVED_SHA" '[.[] | select(.headSha==$sha)][0].databaseId // empty' <<<"$RUNS")"
+            fi
             if [ -n "$FULL_RENDER_RUN_ID" ]; then
               echo "FULL_RENDER_RUN_ID=$FULL_RENDER_RUN_ID" >> "$GITHUB_ENV"
               break
             fi
             sleep 5
           done
-          test -n "${FULL_RENDER_RUN_ID:-}"
-          jq -n --arg proof_run_id "$PROOF_RUN_ID" --arg full_render_run_id "$FULL_RENDER_RUN_ID" --arg source_sha "$APPROVED_SHA" '{proof_run_id:$proof_run_id,full_render_run_id:$full_render_run_id,source_sha:$source_sha,status:"dispatched",new_proof_run:false}' | tee full-render-dispatch.json
+          test -n "$FULL_RENDER_RUN_ID"
+          jq -n --arg proof_run_id "$PROOF_RUN_ID" --arg full_render_run_id "$FULL_RENDER_RUN_ID" --arg source_sha "$APPROVED_SHA" --arg render_ref "$RENDER_REF" '{proof_run_id:$proof_run_id,full_render_run_id:$full_render_run_id,source_sha:$source_sha,render_ref:$render_ref,status:"dispatched",new_proof_run:false}' | tee full-render-dispatch.json
 
       - name: Upload rebalance diagnostics
         if: always()
@@ -250,6 +269,8 @@ jobs:
           name: orvyq-full-plan-rebalance-${{ github.run_id }}
           path: |
             projects/${{ env.PROJECT_ID }}/qa/full_film_rebalance.json
+            projects/${{ env.PROJECT_ID }}/qa/source_mix_enforcement.json
+            projects/${{ env.PROJECT_ID }}/qa/audit_suite.json
             projects/${{ env.PROJECT_ID }}/qa/optional_capture_availability.json
             projects/${{ env.PROJECT_ID }}/qa/full_render_evidence_bundle.json
             projects/${{ env.PROJECT_ID }}/qa/official_legibility_normalization.json
@@ -257,6 +278,11 @@ jobs:
             projects/${{ env.PROJECT_ID }}/qa/proof_approval_continuity.json
             projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
             projects/${{ env.PROJECT_ID }}/qa/evidence_asset_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/timeline_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/pacing_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/mobile_legibility_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
             projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
             projects/${{ env.PROJECT_ID }}/research/primary_evidence_manifest.json
             full-render-dispatch.json
