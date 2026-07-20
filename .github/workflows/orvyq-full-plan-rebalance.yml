@@ -90,6 +90,11 @@ jobs:
           set -euo pipefail
           node scripts/orvyq_proof_approval_continuity_tests.mjs "$PROJECT_ID"
 
+      - name: Verify structural legibility regression contract
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_official_legibility_regression_tests.mjs
+
       - name: Expand and fetch available full-film official evidence
         run: |
           set -euo pipefail
@@ -97,11 +102,12 @@ jobs:
           node scripts/orvyq_fetch_primary_evidence.mjs
           node scripts/orvyq_prune_unavailable_optional_captures.mjs "$PROJECT_ID"
 
-      - name: Rebalance post-proof timeline and bind deterministic evidence bundle
+      - name: Normalize, rebalance, and bind deterministic evidence bundle
         run: |
           set -euo pipefail
+          node scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID" --mode preflight
           node scripts/orvyq_rebalance_full_plan.mjs "$PROJECT_ID"
-          node scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID"
+          node scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID" --mode final
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
           node scripts/orvyq_bind_full_render_evidence_bundle.mjs "$PROJECT_ID"
           test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/full_render_evidence_bundle.json")" = "true"
@@ -152,16 +158,20 @@ jobs:
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const dir = `projects/${process.env.PROJECT_ID}`;
+          const policy = JSON.parse(fs.readFileSync('config/orvyq-production-policy.json', 'utf8'));
           const report = JSON.parse(fs.readFileSync(`${dir}/qa/full_film_rebalance.json`, 'utf8'));
+          const normalization = JSON.parse(fs.readFileSync(`${dir}/qa/official_legibility_normalization.json`, 'utf8'));
           const continuity = JSON.parse(fs.readFileSync(`${dir}/qa/proof_approval_continuity.json`, 'utf8'));
           const semantic = JSON.parse(fs.readFileSync(`${dir}/qa/semantic_visual_audit.json`, 'utf8'));
           const approval = JSON.parse(fs.readFileSync(`${dir}/qa/proof_approval.json`, 'utf8'));
           const manifest = JSON.parse(fs.readFileSync(`${dir}/manifest.json`, 'utf8'));
           const bundle = JSON.parse(fs.readFileSync(`${dir}/qa/full_render_evidence_bundle.json`, 'utf8'));
-          if (!report.pass || !continuity.pass || !semantic.pass || !bundle.pass) throw new Error('Full-film structural correction did not pass');
+          if (!report.pass || !normalization.pass || !continuity.pass || !semantic.pass || !bundle.pass) throw new Error('Full-film structural correction did not pass');
+          if (!normalization.target_enforced || !normalization.target_met) throw new Error('Final official-legibility gate was not enforced');
           if (!continuity.prefix_unchanged || !continuity.narration_unchanged || continuity.new_proof_required) throw new Error('Existing proof approval cannot be preserved');
-          if (semantic.official_primary_capture_fraction < 0.3) throw new Error('Official capture ratio remains below 30%');
-          if (semantic.maximum_uninterrupted_evidence_seconds > 16) throw new Error('Evidence run remains above 16 seconds');
+          if (String(continuity.proof_run_id) !== String(policy.proof_run_id)) throw new Error('Approved proof run changed');
+          if (semantic.official_primary_capture_fraction < policy.official_capture_minimum_fraction) throw new Error('Official capture ratio remains below policy');
+          if (semantic.maximum_uninterrupted_evidence_seconds > policy.maximum_uninterrupted_evidence_seconds) throw new Error('Evidence run remains above policy');
           if (manifest.proof?.production_plan_sha256 !== approval.production_plan_sha256) throw new Error('Manifest and proof approval plan hashes differ');
           console.log(JSON.stringify({ok:true, proof_run_id:continuity.proof_run_id, approval_preserved:continuity.approval_preserved, bundled_asset_count:bundle.bundled_asset_count, proof_prefix_sha256:continuity.current_prefix_sha256, official_capture_fraction:semantic.official_primary_capture_fraction, maximum_uninterrupted_evidence_seconds:semantic.maximum_uninterrupted_evidence_seconds, converted_official_count:report.converted_official_count, converted_breaker_count:report.converted_breaker_count}));
           NODE
