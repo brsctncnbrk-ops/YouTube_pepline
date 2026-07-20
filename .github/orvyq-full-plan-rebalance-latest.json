@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-07-20T00:12:10Z",
+  "generated_at": "2026-07-20T00:14:48Z",
   "latest_run": {
     "id": 29709101659,
-    "status": "in_progress",
-    "conclusion": null,
+    "status": "completed",
+    "conclusion": "failure",
     "head_sha": "71da20c07517df35dff6c6092e536a943b66efef",
     "created_at": "2026-07-20T00:10:46Z",
-    "updated_at": "2026-07-20T00:10:50Z",
+    "updated_at": "2026-07-20T00:13:01Z",
     "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29709101659"
   },
   "jobs": [
     {
       "id": 88250527001,
       "name": "rebalance",
-      "status": "in_progress",
-      "conclusion": null,
+      "status": "completed",
+      "conclusion": "failure",
       "started_at": "2026-07-20T00:10:49Z",
-      "completed_at": null,
+      "completed_at": "2026-07-20T00:13:00Z",
       "steps": [
         {
           "name": "Set up job",
@@ -56,69 +56,75 @@
         },
         {
           "name": "Expand and fetch full-film official evidence",
-          "status": "in_progress",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "number": 7
         },
         {
           "name": "Rebalance only the post-proof canonical timeline",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "number": 8
         },
         {
           "name": "Preserve existing proof approval by prefix continuity",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "number": 9
         },
         {
           "name": "Build approved full edit and run all gates",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "failure",
           "number": 10
         },
         {
           "name": "Commit corrected full-film plan and preserved approval",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 11
         },
         {
           "name": "Verify preserved approval after commit",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 12
         },
         {
           "name": "Dispatch corrected full render directly",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 13
         },
         {
           "name": "Upload rebalance diagnostics",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "number": 14
         },
         {
           "name": "Post Set up Python",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 26
         },
         {
           "name": "Post Set up Node",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 27
         },
         {
           "name": "Post Checkout branch with LFS",
-          "status": "pending",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "number": 28
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 29
         }
       ]
     }

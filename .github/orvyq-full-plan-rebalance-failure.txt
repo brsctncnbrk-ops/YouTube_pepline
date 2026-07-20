@@ -1,0 +1,59 @@
+﻿2026-07-20T00:12:53.9915849Z ##[group]Run set -euo pipefail
+2026-07-20T00:12:53.9916414Z [36;1mset -euo pipefail[0m
+2026-07-20T00:12:53.9917132Z [36;1mnode scripts/orvyq_refresh_approval_for_unchanged_prefix.mjs "$PROJECT_ID"[0m
+2026-07-20T00:12:53.9918212Z [36;1mnode scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"[0m
+2026-07-20T00:12:53.9919330Z [36;1mPROOF_RUN_ID="$(jq -r '.proof_run_id' "projects/$PROJECT_ID/qa/proof_approval.json")"[0m
+2026-07-20T00:12:53.9920459Z [36;1mtest "$PROOF_RUN_ID" = "29701621699"[0m
+2026-07-20T00:12:53.9921147Z [36;1mecho "PROOF_RUN_ID=$PROOF_RUN_ID" >> "$GITHUB_ENV"[0m
+2026-07-20T00:12:54.0006761Z shell: /usr/bin/bash -e {0}
+2026-07-20T00:12:54.0007200Z env:
+2026-07-20T00:12:54.0007668Z   PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+2026-07-20T00:12:54.0013767Z   GH_TOKEN: ***
+2026-07-20T00:12:54.0014753Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T00:12:54.0015581Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+2026-07-20T00:12:54.0016456Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T00:12:54.0017198Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T00:12:54.0017928Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T00:12:54.0018670Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+2026-07-20T00:12:54.0019274Z ##[endgroup]
+2026-07-20T00:12:54.1207234Z {"ok":true,"schema_version":"1.0-proof-approval-continuity","project_id":"001-the-ai-race-no-one-can-afford-to-win","generated_at":"2026-07-20T00:12:54.118Z","proof_run_id":"29701621699","render_source_sha":"323988d75e16d468f1398a1322129bf117d5d68b","approved_plan_sha256":"62cb8b7de2863bde794c68393dc932883fb923afb7ecc99beeccf548d7b4d58f","current_plan_sha256":"13bb3eb34441c5d8ca1a4b7b3d0696dc5194031c856059f72d72684e29f5a979","approved_prefix_sha256":"88a8fe7aa428524a2f306de0cf09fd9a45690917578f997ae111f1acf2fa8791","current_prefix_sha256":"88a8fe7aa428524a2f306de0cf09fd9a45690917578f997ae111f1acf2fa8791","approved_narration_prefix_sha256":"9dbd70b9d55b1381bf103469966ef246092337adbb4449a6e47b815e41513b19","current_narration_prefix_sha256":"9dbd70b9d55b1381bf103469966ef246092337adbb4449a6e47b815e41513b19","proof_boundary_frame":4800,"proof_shot_count":32,"prefix_unchanged":true,"narration_unchanged":true,"approval_preserved":true,"new_proof_required":false,"pass":true}
+2026-07-20T00:12:54.2905124Z {
+2026-07-20T00:12:54.2905651Z   "ok": true,
+2026-07-20T00:12:54.2906184Z   "command": "check-approval",
+2026-07-20T00:12:54.2906899Z   "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+2026-07-20T00:12:54.2907561Z   "result": {
+2026-07-20T00:12:54.2907943Z     "valid": true,
+2026-07-20T00:12:54.2908337Z     "error_code": null,
+2026-07-20T00:12:54.2908750Z     "schema_check": {
+2026-07-20T00:12:54.2909156Z       "valid": true,
+2026-07-20T00:12:54.2909565Z       "error_code": null,
+2026-07-20T00:12:54.2909994Z       "errors": []
+2026-07-20T00:12:54.2910353Z     },
+2026-07-20T00:12:54.2911118Z     "plan_sha256": "13bb3eb34441c5d8ca1a4b7b3d0696dc5194031c856059f72d72684e29f5a979",
+2026-07-20T00:12:54.2911933Z     "approval": {
+2026-07-20T00:12:54.2912391Z       "schema_version": "1.0",
+2026-07-20T00:12:54.2913041Z       "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+2026-07-20T00:12:54.2913614Z       "approved": true,
+2026-07-20T00:12:54.2914098Z       "review_type": "human_rendered_video_review",
+2026-07-20T00:12:54.2915031Z       "human_score": 95,
+2026-07-20T00:12:54.2915486Z       "proof_run_id": "29701621699",
+2026-07-20T00:12:54.2916160Z       "render_source_sha": "323988d75e16d468f1398a1322129bf117d5d68b",
+2026-07-20T00:12:54.2917286Z       "production_plan_sha256": "13bb3eb34441c5d8ca1a4b7b3d0696dc5194031c856059f72d72684e29f5a979",
+2026-07-20T00:12:54.2918273Z       "approved_at": "2026-07-19T22:01:00.000Z",
+2026-07-20T00:12:54.2922953Z       "review_notes": "Approved by Barış Çetin after review of the 160-second canonical proof; structural corrections and semantic ending accepted. Approval continuity verified structurally: rendered prefix 88a8fe7aa428524a2f306de0cf09fd9a45690917578f997ae111f1acf2fa8791 and narration prefix 9dbd70b9d55b1381bf103469966ef246092337adbb4449a6e47b815e41513b19 are byte-stable through frame 4800; post-prefix plan changes only."
+2026-07-20T00:12:54.2926891Z     },
+2026-07-20T00:12:54.2927254Z     "issues": [],
+2026-07-20T00:12:54.2927751Z     "canonical_timeline_contract": {
+2026-07-20T00:12:54.2928446Z       "schema_version": "1.0-canonical-timeline-contract",
+2026-07-20T00:12:54.2929629Z       "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+2026-07-20T00:12:54.2930448Z       "generated_at": "2026-07-20T00:12:54.202Z",
+2026-07-20T00:12:54.2931224Z       "timeline_ref": "direction/narration_timeline.json",
+2026-07-20T00:12:54.2931953Z       "canonical_duration_frames": 22376,
+2026-07-20T00:12:54.2932632Z       "semantic_proof_output_seconds": 157.82,
+2026-07-20T00:12:54.2933298Z       "terminal_brand_shot": "shot_130",
+2026-07-20T00:12:54.2933818Z       "issues": [],
+2026-07-20T00:12:54.2934416Z       "valid": true,
+2026-07-20T00:12:54.2934852Z       "pass": true
+2026-07-20T00:12:54.2935201Z     }
+2026-07-20T00:12:54.2935528Z   }
+2026-07-20T00:12:54.2935842Z }
