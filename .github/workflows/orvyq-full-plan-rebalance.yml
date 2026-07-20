@@ -101,6 +101,7 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/orvyq_rebalance_full_plan.mjs "$PROJECT_ID"
+          node scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID"
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
           node scripts/orvyq_bind_full_render_evidence_bundle.mjs "$PROJECT_ID"
           test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/full_render_evidence_bundle.json")" = "true"
@@ -144,6 +145,7 @@ jobs:
           node scripts/orvyq_evidence_asset_audit.mjs
           node scripts/orvyq_semantic_visual_audit.mjs
           node scripts/orvyq_pacing_audit.mjs
+          node scripts/orvyq_official_legibility_gate.mjs "$PROJECT_ID"
           node scripts/orvyq_mobile_legibility_audit.mjs
           node scripts/orvyq_license_audit.mjs
           node scripts/orvyq_edit_plan_tests.mjs
@@ -177,6 +179,7 @@ jobs:
             "projects/$PROJECT_ID/direction/production_plan.json" \
             "projects/$PROJECT_ID/qa/optional_capture_availability.json" \
             "projects/$PROJECT_ID/qa/full_render_evidence_bundle.json" \
+            "projects/$PROJECT_ID/qa/official_legibility_normalization.json" \
             "projects/$PROJECT_ID/qa/proof_approval.json" \
             "projects/$PROJECT_ID/qa/proof_approval_continuity.json" \
             "projects/$PROJECT_ID/qa/full_film_rebalance.json" \
@@ -205,6 +208,7 @@ jobs:
           git lfs fsck
           node scripts/orvyq_verify_bundled_evidence.mjs "$PROJECT_ID"
           node scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"
+          node scripts/orvyq_official_legibility_gate.mjs "$PROJECT_ID"
           test "$(jq -r '.proof_run_id' "projects/$PROJECT_ID/qa/proof_approval.json")" = "$PROOF_RUN_ID"
           test "$(jq -r '.prefix_unchanged' "projects/$PROJECT_ID/qa/proof_approval_continuity.json")" = "true"
           test "$(jq -r '.proof.production_plan_sha256' "projects/$PROJECT_ID/manifest.json")" = "$(jq -r '.production_plan_sha256' "projects/$PROJECT_ID/qa/proof_approval.json")"
@@ -238,6 +242,7 @@ jobs:
             projects/${{ env.PROJECT_ID }}/qa/full_film_rebalance.json
             projects/${{ env.PROJECT_ID }}/qa/optional_capture_availability.json
             projects/${{ env.PROJECT_ID }}/qa/full_render_evidence_bundle.json
+            projects/${{ env.PROJECT_ID }}/qa/official_legibility_normalization.json
             projects/${{ env.PROJECT_ID }}/qa/bundled_evidence_verification.json
             projects/${{ env.PROJECT_ID }}/qa/proof_approval_continuity.json
             projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
