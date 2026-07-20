@@ -1,3 +1,3 @@
-requested_at=2026-07-20T16:22:00+03:00
+requested_at=2026-07-20T17:02:00+03:00
 project_id=001-the-ai-race-no-one-can-afford-to-win
-reason=Run strict recoverable v3 rebalance, split a motion breaker into a four-second official inset when required, restore the 30 percent official floor, enforce the 60 percent source-backed floor, reconcile all structural metrics, preserve proof run 29701621699, run every audit and dispatch the immutable full render.
+reason=Preserve approved proof run 29701621699, complete visual structural recovery, finalize nine canonical full-film music cues, generate and bind deterministic original SFX provenance, verify rotated narration at 0.85 similarity, run all aggregate audits and dispatch the immutable full render.
