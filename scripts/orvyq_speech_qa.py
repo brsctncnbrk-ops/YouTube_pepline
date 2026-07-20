@@ -48,14 +48,25 @@ def read_json_optional(path: Path) -> dict | None:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def rotate_reference_for_audio(
+def is_raw_unrepaired_voice(media: Path, project: Path) -> bool:
+    try:
+        return media.resolve() == (project / "assets" / "audio" / "final_voice.mp3").resolve()
+    except FileNotFoundError:
+        return False
+
+
+def reference_for_media(
     reference_words: list[str],
     transcript_words: list[str],
     project: Path,
+    media: Path,
 ) -> tuple[list[str], dict]:
     repair = read_json_optional(project / "voice" / "audio_repair.json")
     if not repair or repair.get("operation") != "rotate":
-        return reference_words, {"operation": "none", "rotation_word_index": 0}
+        return reference_words, {
+            "operation": "none",
+            "reference_order": "canonical_script_order",
+        }
 
     rotate_at = float(repair.get("rotate_at_seconds", 0))
     metadata = read_json_optional(project / "assets" / "audio" / "final_mix.metadata.json") or {}
@@ -67,6 +78,23 @@ def rotate_reference_for_audio(
     if rotate_at <= 0 or source_duration <= rotate_at or not reference_words:
         raise RuntimeError("Invalid canonical voice rotation metadata for speech QA")
 
+    # The production mixer already rotates the supplied narrator recording into
+    # the approved script order. Final mix and rendered video therefore compare
+    # directly with voice_script.txt. Rotating the reference a second time is a
+    # contract error and creates an artificial similarity failure.
+    if not is_raw_unrepaired_voice(media, project):
+        return reference_words, {
+            "operation": "audio_repaired_to_canonical_script_order",
+            "audio_repair_operation": "rotate",
+            "rotate_at_seconds": rotate_at,
+            "source_duration_seconds": source_duration,
+            "reference_order": "canonical_script_order",
+            "double_rotation_forbidden": True,
+            "config": "voice/audio_repair.json",
+        }
+
+    # Raw source-voice diagnostics are the only case where the reference must be
+    # transformed to the supplied recording's non-canonical order.
     estimated = round(len(reference_words) * rotate_at / source_duration)
     search_radius = max(40, round(len(reference_words) * 0.035))
     lower = max(1, estimated - search_radius)
@@ -78,8 +106,8 @@ def rotate_reference_for_audio(
     best_index = estimated
     best_ratio = -1.0
     for index in range(lower, upper + 1, step):
-        rotated = reference_words[index:] + reference_words[:index]
-        candidate = rotated[:sample_length]
+        raw_order = reference_words[-index:] + reference_words[:-index]
+        candidate = raw_order[:sample_length]
         ratio = SequenceMatcher(None, transcript_sample, candidate, autojunk=False).ratio()
         if ratio > best_ratio:
             best_ratio = ratio
@@ -88,21 +116,22 @@ def rotate_reference_for_audio(
     refine_lower = max(1, best_index - step)
     refine_upper = min(len(reference_words) - 1, best_index + step)
     for index in range(refine_lower, refine_upper + 1):
-        rotated = reference_words[index:] + reference_words[:index]
-        candidate = rotated[:sample_length]
+        raw_order = reference_words[-index:] + reference_words[:-index]
+        candidate = raw_order[:sample_length]
         ratio = SequenceMatcher(None, transcript_sample, candidate, autojunk=False).ratio()
         if ratio > best_ratio:
             best_ratio = ratio
             best_index = index
 
-    transformed = reference_words[best_index:] + reference_words[:best_index]
+    transformed = reference_words[-best_index:] + reference_words[:-best_index]
     return transformed, {
-        "operation": "rotate",
+        "operation": "canonical_script_to_raw_supplied_voice_order",
+        "audio_repair_operation": "rotate",
         "rotate_at_seconds": rotate_at,
         "source_duration_seconds": source_duration,
-        "estimated_rotation_word_index": estimated,
         "rotation_word_index": best_index,
         "rotation_search_similarity": round(best_ratio, 4),
+        "reference_order": "raw_supplied_voice_order",
         "config": "voice/audio_repair.json",
     }
 
@@ -163,10 +192,11 @@ def main() -> None:
         reference = script_path.read_text(encoding="utf-8")
         original_reference_words = normalize(reference).split()
         transcript_words = normalize(transcript).split()
-        reference_words, reference_transform = rotate_reference_for_audio(
+        reference_words, reference_transform = reference_for_media(
             original_reference_words,
             transcript_words,
             project,
+            media,
         )
 
         reference_prefix_words = reference_words[:len(transcript_words)]
@@ -191,7 +221,7 @@ def main() -> None:
             failures.append(f"word_probability:{average_probability:.3f}<0.450")
 
         payload = {
-            "schema_version": "2.0-canonical-voice-transform",
+            "schema_version": "2.1-canonical-repaired-media-reference",
             "project_id": args.project_id,
             "media": str(media),
             "model": args.model,
