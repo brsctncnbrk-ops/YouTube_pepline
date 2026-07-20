@@ -43,21 +43,22 @@ jobs:
             mkdir -p logs
             unzip -q logs.zip -d logs
             FAILED_STEP="$(jq -r '[.jobs[].steps[] | select(.conclusion=="failure")][0].name // empty' <<<"$JOBS")"
+            FAILED_NUMBER="$(jq -r '[.jobs[].steps[] | select(.conclusion=="failure")][0].number // empty' <<<"$JOBS")"
             TARGET=""
-            if [ -n "$FAILED_STEP" ]; then TARGET="$(find logs -type f -name "*${FAILED_STEP}.txt" ! -name 'Post *' -print -quit)"; fi
-            if [ -z "$TARGET" ]; then TARGET="$(find logs -type f -name '*Expand and fetch full-film official evidence.txt' -print -quit)"; fi
-            if [ -z "$TARGET" ]; then TARGET="$(find logs -type f -path '*/2_Checkout branch without LFS smudge.txt' -print -quit)"; fi
-            if [ -z "$TARGET" ]; then TARGET="$(find logs -type f -name '*Build approved full edit and run all gates.txt' -print -quit)"; fi
-            if [ -n "$TARGET" ]; then
-              {
-                echo "RUN_ID=$RUN_ID"
-                echo "FAILED_STEP=$FAILED_STEP"
-                echo "TARGET=$TARGET"
-                grep -nE 'AssertionError|Error:|ERR_ASSERTION|audit failed|failed:|fatal:|smudge|LFS|RPC failed|early EOF|redirect|download|capture|##\[error\]|Process completed with exit code|"ok"[[:space:]]*:[[:space:]]*false' "$TARGET" || true
-                echo '--- LAST 260 LINES ---'
-                tail -n 260 "$TARGET"
-              } > .github/orvyq-full-edit-diagnostic.txt
-            fi
+            if [ -n "$FAILED_NUMBER" ]; then TARGET="$(find logs -type f -name "${FAILED_NUMBER}_*.txt" -print -quit)"; fi
+            if [ -z "$TARGET" ] && [ -n "$FAILED_STEP" ]; then TARGET="$(find logs -type f -iname "*Build approved full edit*" -print -quit)"; fi
+            {
+              echo "RUN_ID=$RUN_ID"
+              echo "FAILED_STEP=$FAILED_STEP"
+              echo "FAILED_NUMBER=$FAILED_NUMBER"
+              echo "TARGET=$TARGET"
+              echo '--- ERROR INDEX ---'
+              grep -RInE 'AssertionError|Error:|ERR_ASSERTION|audit failed|failed:|fatal:|smudge|LFS|RPC failed|early EOF|redirect|download|capture|##\[error\]|Process completed with exit code|"ok"[[:space:]]*:[[:space:]]*false' logs || true
+              if [ -n "$TARGET" ]; then
+                echo '--- LAST 320 LINES OF FAILED STEP ---'
+                tail -n 320 "$TARGET"
+              fi
+            } > .github/orvyq-full-edit-diagnostic.txt
           fi
           cat .github/orvyq-current-recovery-status.json
           cat .github/orvyq-full-edit-diagnostic.txt
