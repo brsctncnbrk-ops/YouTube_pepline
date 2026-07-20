@@ -1,0 +1,241 @@
+name: ORVYQ Full Render Recovery V4
+
+on:
+  push:
+    branches:
+      - agent/orvyq-system-wide-production
+    paths:
+      - .github/orvyq-full-render-recovery-v4-trigger.txt
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: orvyq-full-render-recovery-v4
+  cancel-in-progress: false
+
+jobs:
+  recover-and-dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout branch without LFS smudge
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Pull and verify LFS assets with retries
+        run: |
+          set -euo pipefail
+          git lfs install --local
+          success=0
+          for attempt in 1 2 3 4; do
+            if GIT_LFS_SKIP_SMUDGE=1 git lfs pull; then
+              success=1
+              break
+            fi
+            git lfs logs last || true
+            sleep $((attempt * 5))
+          done
+          test "$success" = "1"
+          git lfs fsck
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deterministic tooling
+        run: |
+          set -euo pipefail
+          npm ci
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg poppler-utils
+          python -m pip install --disable-pip-version-check faster-whisper==1.2.0 requests==2.32.5
+          BROWSER="$(command -v google-chrome-stable || command -v google-chrome || command -v chromium-browser || command -v chromium || true)"
+          test -n "$BROWSER"
+          "$BROWSER" --version
+
+      - name: Resolve canonical narration contract
+        run: |
+          set -euo pipefail
+          python scripts/orvyq_narration_timeline.py --project-id "$PROJECT_ID"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          const dir = `projects/${process.env.PROJECT_ID}`;
+          const plan = JSON.parse(fs.readFileSync(`${dir}/direction/production_plan.json`, 'utf8'));
+          const raw = fs.readFileSync(`${dir}/direction/narration_timeline.json`, 'utf8');
+          const timeline = JSON.parse(raw);
+          const actual = crypto.createHash('sha256').update(raw).digest('hex');
+          const expected = plan.quality_policy?.narration_timeline_sha256;
+          if (!expected || actual !== expected) throw new Error(`Narration timeline drift: ${actual} != ${expected || 'missing'}`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_NARRATION_LIMIT_SECONDS=${timeline.source_duration_seconds}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_AUDIO_LIMIT_SECONDS=${timeline.full_output_duration_seconds}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, 'ORVYQ_EDITORIAL_PAUSES=1\n');
+          NODE
+
+      - name: Verify recovery regression contracts
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_proof_approval_continuity_tests.mjs "$PROJECT_ID"
+          node scripts/orvyq_official_legibility_regression_tests.mjs
+          node scripts/orvyq_enforce_source_mix_tests.mjs
+          node scripts/orvyq_v3_final_gate_contract_tests.mjs
+
+      - name: Build complete official evidence set
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_expand_primary_evidence_manifest.mjs "$PROJECT_ID"
+          node scripts/orvyq_fetch_primary_evidence.mjs
+          node scripts/orvyq_prune_unavailable_optional_captures.mjs "$PROJECT_ID"
+
+      - name: Rebalance and enforce every visual floor
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID" --mode preflight
+          node scripts/orvyq_rebalance_full_plan_v3_with_final_gate.mjs "$PROJECT_ID"
+          node scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID" --mode final
+          node scripts/orvyq_enforce_source_mix.mjs "$PROJECT_ID"
+          node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
+          node scripts/orvyq_bind_full_render_evidence_bundle.mjs "$PROJECT_ID"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/full_film_rebalance.json")" = "true"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/official_legibility_normalization.json")" = "true"
+          test "$(jq -r '.target_met' "projects/$PROJECT_ID/qa/official_legibility_normalization.json")" = "true"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/source_mix_enforcement.json")" = "true"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/full_render_evidence_bundle.json")" = "true"
+
+      - name: Preserve approved proof by exact prefix continuity
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_refresh_approval_for_unchanged_prefix.mjs "$PROJECT_ID"
+          node scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"
+          PROOF_RUN_ID="$(jq -r '.proof_run_id' "projects/$PROJECT_ID/qa/proof_approval.json")"
+          test "$PROOF_RUN_ID" = "29701621699"
+          test "$(jq -r '.new_proof_required' "projects/$PROJECT_ID/qa/proof_approval_continuity.json")" = "false"
+          test "$(jq -r '.prefix_unchanged' "projects/$PROJECT_ID/qa/proof_approval_continuity.json")" = "true"
+          test "$(jq -r '.narration_unchanged' "projects/$PROJECT_ID/qa/proof_approval_continuity.json")" = "true"
+          echo "PROOF_RUN_ID=$PROOF_RUN_ID" >> "$GITHUB_ENV"
+
+      - name: Build canonical full audio and captions
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import {fetchProofMusic} from './scripts/orvyq_fetch_proof_music.mjs';
+          import {buildOrvyqAudioMix} from './scripts/orvyq_audio_mix.mjs';
+          await fetchProofMusic(process.env.PROJECT_ID);
+          const result = await buildOrvyqAudioMix(process.env.PROJECT_ID);
+          console.log(JSON.stringify({ok: true, ...result}));
+          NODE
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID"
+          node --input-type=module <<'NODE'
+          import {buildOrvyqCaptions} from './scripts/orvyq_caption_build.mjs';
+          const result = await buildOrvyqCaptions(process.env.PROJECT_ID);
+          console.log(JSON.stringify({ok: true, caption_count: result.captions?.length || 0}));
+          NODE
+          test -s "projects/$PROJECT_ID/assets/audio/final_mix.metadata.json"
+          test -s "projects/$PROJECT_ID/remotion/captions.json"
+
+      - name: Compile full edit and run every pre-render gate
+        run: |
+          set -euo pipefail
+          node scripts/orvyq_production_plan.mjs build-full --project-id "$PROJECT_ID"
+          node scripts/orvyq_official_legibility_gate.mjs "$PROJECT_ID"
+          node scripts/orvyq_audit_suite.mjs "$PROJECT_ID"
+          node scripts/validate.mjs render-ready --project-id "$PROJECT_ID"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const dir = `projects/${process.env.PROJECT_ID}`;
+          const policy = JSON.parse(fs.readFileSync('config/orvyq-production-policy.json', 'utf8'));
+          const rebalance = JSON.parse(fs.readFileSync(`${dir}/qa/full_film_rebalance.json`, 'utf8'));
+          const normalization = JSON.parse(fs.readFileSync(`${dir}/qa/official_legibility_normalization.json`, 'utf8'));
+          const sourceMix = JSON.parse(fs.readFileSync(`${dir}/qa/source_mix_enforcement.json`, 'utf8'));
+          const continuity = JSON.parse(fs.readFileSync(`${dir}/qa/proof_approval_continuity.json`, 'utf8'));
+          const semantic = JSON.parse(fs.readFileSync(`${dir}/qa/semantic_visual_audit.json`, 'utf8'));
+          const bundle = JSON.parse(fs.readFileSync(`${dir}/qa/full_render_evidence_bundle.json`, 'utf8'));
+          const audits = JSON.parse(fs.readFileSync(`${dir}/qa/audit_suite.json`, 'utf8'));
+          if (!rebalance.pass || !normalization.pass || !sourceMix.pass || !continuity.pass || !semantic.pass || !bundle.pass || !audits.pass) throw new Error('One or more structural gates did not pass');
+          if (!normalization.target_enforced || !normalization.target_met) throw new Error('Final official gate was not enforced');
+          if (semantic.official_primary_capture_fraction < policy.official_capture_minimum_fraction) throw new Error('Official capture ratio remains below policy');
+          if (semantic.evidence_archive_fraction < policy.source_derived_minimum_fraction) throw new Error('Source-backed ratio remains below policy');
+          if (semantic.maximum_uninterrupted_evidence_seconds > policy.maximum_uninterrupted_evidence_seconds) throw new Error('Evidence chain remains above policy');
+          if (!continuity.prefix_unchanged || !continuity.narration_unchanged || continuity.new_proof_required) throw new Error('Approved proof continuity failed');
+          console.log(JSON.stringify({ok:true, proof_run_id:continuity.proof_run_id, official_capture_fraction:semantic.official_primary_capture_fraction, source_backed_fraction:semantic.evidence_archive_fraction, maximum_uninterrupted_evidence_seconds:semantic.maximum_uninterrupted_evidence_seconds, audit_passed_count:audits.passed_count, audit_check_count:audits.check_count}));
+          NODE
+
+      - name: Create immutable render candidate
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          BUNDLE="projects/$PROJECT_ID/qa/full_render_evidence_bundle.json"
+          mapfile -t BUNDLED_ASSETS < <(jq -r '.local_assets[]' "$BUNDLE")
+          git add \
+            "projects/$PROJECT_ID/research/primary_evidence_manifest.json" \
+            "projects/$PROJECT_ID/assets/evidence/primary_evidence.runtime.json" \
+            "projects/$PROJECT_ID/direction/production_plan.json" \
+            "projects/$PROJECT_ID/direction/edit_plan.json" \
+            "projects/$PROJECT_ID/qa"/*.json \
+            "projects/$PROJECT_ID/manifest.json" \
+            "${BUNDLED_ASSETS[@]}"
+          if ! git diff --cached --quiet; then
+            git commit -m "Prepare immutable ORVYQ full-render candidate"
+          fi
+          CANDIDATE_BRANCH="agent/orvyq-render-candidate-${GITHUB_RUN_ID}"
+          CANDIDATE_SHA="$(git rev-parse HEAD)"
+          git push origin "HEAD:refs/heads/$CANDIDATE_BRANCH"
+          echo "CANDIDATE_BRANCH=$CANDIDATE_BRANCH" >> "$GITHUB_ENV"
+          echo "CANDIDATE_SHA=$CANDIDATE_SHA" >> "$GITHUB_ENV"
+
+      - name: Dispatch full render from immutable candidate
+        run: |
+          set -euo pipefail
+          gh workflow run render.yml \
+            --ref "$CANDIDATE_BRANCH" \
+            -f project_id="$PROJECT_ID" \
+            -f quality_control_approved=true \
+            -f approved_preview_run_id="$PROOF_RUN_ID"
+          FULL_RENDER_RUN_ID=""
+          for attempt in $(seq 1 40); do
+            RUNS="$(gh run list --workflow render.yml --branch "$CANDIDATE_BRANCH" --event workflow_dispatch --limit 10 --json databaseId,status,conclusion,headSha,createdAt,url)"
+            FULL_RENDER_RUN_ID="$(jq -r --arg sha "$CANDIDATE_SHA" '[.[] | select(.headSha==$sha)][0].databaseId // empty' <<<"$RUNS")"
+            if [ -n "$FULL_RENDER_RUN_ID" ]; then break; fi
+            sleep 5
+          done
+          test -n "$FULL_RENDER_RUN_ID"
+          echo "FULL_RENDER_RUN_ID=$FULL_RENDER_RUN_ID" >> "$GITHUB_ENV"
+          jq -n \
+            --arg proof_run_id "$PROOF_RUN_ID" \
+            --arg full_render_run_id "$FULL_RENDER_RUN_ID" \
+            --arg source_sha "$CANDIDATE_SHA" \
+            --arg candidate_branch "$CANDIDATE_BRANCH" \
+            '{proof_run_id:$proof_run_id,full_render_run_id:$full_render_run_id,source_sha:$source_sha,candidate_branch:$candidate_branch,status:"dispatched",new_proof_run:false}' \
+            | tee full-render-dispatch.json
+
+      - name: Upload recovery diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: orvyq-full-render-recovery-v4-${{ github.run_id }}
+          path: |
+            projects/${{ env.PROJECT_ID }}/qa/full_film_rebalance.json
+            projects/${{ env.PROJECT_ID }}/qa/official_legibility_normalization.json
+            projects/${{ env.PROJECT_ID }}/qa/source_mix_enforcement.json
+            projects/${{ env.PROJECT_ID }}/qa/proof_approval_continuity.json
+            projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/audit_suite.json
+            projects/${{ env.PROJECT_ID }}/qa/full_render_evidence_bundle.json
+            projects/${{ env.PROJECT_ID }}/research/primary_evidence_manifest.json
+            full-render-dispatch.json
+          if-no-files-found: warn
+          retention-days: 30
