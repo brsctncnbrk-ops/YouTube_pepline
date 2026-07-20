@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
-      TARGET_RUN_ID: "29748503339"
+      TARGET_RUN_ID: "29749369463"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,9 +37,9 @@ jobs:
           {
             echo "RUN_ID=$TARGET_RUN_ID"
             echo "TARGET=$TARGET"
-            grep -nE 'Error:|failed|needs [0-9]+ frames|headroom|eligible contextual|unknown evidence|##\[error\]|Process completed with exit code|"ok"[[:space:]]*:[[:space:]]*false' "$TARGET" || true
-            echo '--- LAST 180 LINES ---'
-            tail -n 180 "$TARGET"
+            grep -nE 'Error:|failed|needs [0-9]+ frames|headroom|eligible contextual|unknown evidence|Official capture target|Evidence/source-derived target|graphic fraction|evidence run|##\[error\]|Process completed with exit code|"ok"[[:space:]]*:[[:space:]]*false' "$TARGET" || true
+            echo '--- LAST 220 LINES ---'
+            tail -n 220 "$TARGET"
           } > .github/orvyq-checkout-diagnostic.txt
           cat .github/orvyq-checkout-diagnostic.txt
       - name: Commit diagnostic
@@ -49,7 +49,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add .github/orvyq-checkout-diagnostic.txt
           git diff --cached --quiet && exit 0
-          git commit -m 'Capture ORVYQ source-mix enforcement failure'
+          git commit -m 'Capture latest ORVYQ source-mix enforcement failure'
           for attempt in 1 2 3 4 5; do
             git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
             sleep $((attempt * 3))
