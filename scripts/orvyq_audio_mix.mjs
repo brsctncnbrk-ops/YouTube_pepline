@@ -4,6 +4,7 @@ import { promises as fs } from "node:fs";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { buildOrvyqAudioMix as buildV2 } from "./orvyq_audio_mix_v2.mjs";
+import { prepareFullMusicCues } from "./orvyq_prepare_full_music_cues.mjs";
 
 const exec = promisify(execFile);
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
@@ -70,16 +71,30 @@ async function withCanonicalNarrator(projectId, callback) {
 }
 
 export async function buildOrvyqAudioMix(projectId = PROJECT_ID) {
+  const cuePreparation = await prepareFullMusicCues(projectId);
+  if (
+    cuePreparation.pass !== true ||
+    cuePreparation.all_cues_ready !== true ||
+    cuePreparation.continuous_coverage !== true ||
+    cuePreparation.provenance_bound !== true
+  ) {
+    throw new Error("Canonical full-duration music cue preparation failed");
+  }
   return withCanonicalNarrator(projectId, async (canonicalRepair) => {
     const result = await buildV2(projectId);
-    if (!canonicalRepair) return result;
     const metadataPath = path.join("projects", projectId, "assets", "audio", "final_mix.metadata.json");
     const metadata = JSON.parse(await fs.readFile(metadataPath, "utf8"));
-    metadata.voice_repair = canonicalRepair;
-    metadata.processed_voice_source = "assets/audio/final_voice.canonical-repaired.runtime.mp3";
-    metadata.canonical_narrator_reconstruction = true;
+    metadata.full_music_cue_preparation = "qa/full_music_cue_preparation.json";
+    metadata.canonical_full_cues_prepared = true;
+    metadata.canonical_music_cue_count = cuePreparation.cue_count;
+    metadata.canonical_music_state_count = cuePreparation.distinct_states;
+    if (canonicalRepair) {
+      metadata.voice_repair = canonicalRepair;
+      metadata.processed_voice_source = "assets/audio/final_voice.canonical-repaired.runtime.mp3";
+      metadata.canonical_narrator_reconstruction = true;
+    }
     await fs.writeFile(metadataPath, `${JSON.stringify(metadata, null, 2)}\n`, "utf8");
-    return { ...result, repair: canonicalRepair };
+    return { ...result, repair: canonicalRepair, cue_preparation: cuePreparation };
   });
 }
 
