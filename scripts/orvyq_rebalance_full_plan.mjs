@@ -131,6 +131,78 @@ export function promoteSourceBackedBreakers(plan, {
   return { converted, metrics };
 }
 
+export function restoreOfficialBreakers(plan, {
+  lockedBoundaryFrame,
+  targetOfficialFraction,
+  maximumEvidenceSeconds,
+  minimumOfficialSeconds = 4,
+  assetsBySource,
+  imageUses,
+  maxUses,
+}) {
+  const converted = [];
+  const fps = Number(plan.fps || 30);
+  let metrics = measureFullPlanVisualMix(plan);
+  for (const shot of plan.shots || []) {
+    if (metrics.official_fraction >= targetOfficialFraction - 0.0001) break;
+    if (shot.end_frame <= lockedBoundaryFrame) continue;
+    if (shot.asset_type !== "footage" || !shot.rebalanced_from?.evidence) continue;
+    const frames = framesOf(shot);
+    if (frames / fps < minimumOfficialSeconds) continue;
+
+    const originalEvidence = shot.rebalanced_from.evidence;
+    const sourceIds = originalEvidence.source_ids || [];
+    const candidates = sourceIds
+      .flatMap((sourceId) => assetsBySource.get(sourceId) || [])
+      .filter((asset, index, list) => list.findIndex((item) => item.evidence_asset_id === asset.evidence_asset_id) === index)
+      .filter((asset) => (imageUses.get(asset.local_asset) || 0) < maxUses)
+      .sort((a, b) => (imageUses.get(a.local_asset) || 0) - (imageUses.get(b.local_asset) || 0));
+    const selected = candidates[0];
+    if (!selected) continue;
+
+    const snapshot = structuredClone(shot);
+    delete shot.video_asset;
+    delete shot.trim_in_sec;
+    delete shot.trim_out_sec;
+    delete shot.motion_variant;
+    delete shot.contextual_footage;
+    delete shot.hook_footage;
+    delete shot.provenance_mode;
+    delete shot.graphic;
+    shot.asset_type = "evidence";
+    shot.visual_role = "evidence";
+    shot.generic_stock = false;
+    shot.evidence = {
+      ...originalEvidence,
+      kind: "official_screen",
+      eyebrow: "OFFICIAL PRIMARY SOURCE",
+      image_assets: [selected.local_asset],
+      evidence_asset_ids: [selected.evidence_asset_id],
+      provenance_mode: "official_primary_capture",
+      source_ids: sourceIds,
+    };
+    shot.motif = `${shot.claim_id}:official-recovered:${selected.evidence_asset_id}`;
+    shot.editorial_purpose = `${snapshot.editorial_purpose} Restore a legible official primary-source capture while preserving the approved proof boundary and the uninterrupted-evidence limit.`;
+
+    const projected = measureFullPlanVisualMix(plan);
+    if (projected.maximum_uninterrupted_evidence_seconds > maximumEvidenceSeconds + 0.001) {
+      Object.keys(shot).forEach((key) => delete shot[key]);
+      Object.assign(shot, snapshot);
+      continue;
+    }
+    imageUses.set(selected.local_asset, (imageUses.get(selected.local_asset) || 0) + 1);
+    converted.push({
+      shot_id: shot.shot_id,
+      section_id: shot.section_id,
+      evidence_asset_id: selected.evidence_asset_id,
+      local_asset: selected.local_asset,
+      duration_seconds: frames / fps,
+    });
+    metrics = projected;
+  }
+  return { converted, metrics };
+}
+
 export async function rebalanceFullPlan(projectId = PROJECT_ID) {
   const dir = projectDir(projectId);
   const planPath = path.join(dir, "direction", "production_plan.json");
@@ -264,6 +336,18 @@ export async function rebalanceFullPlan(projectId = PROJECT_ID) {
     metrics = measureFullPlanVisualMix(plan);
   }
 
+  const officialRecovery = restoreOfficialBreakers(plan, {
+    lockedBoundaryFrame,
+    targetOfficialFraction,
+    maximumEvidenceSeconds: maxEvidenceSeconds,
+    minimumOfficialSeconds: 4,
+    assetsBySource,
+    imageUses,
+    maxUses,
+  });
+  const recoveredOfficialBreakers = officialRecovery.converted;
+  metrics = officialRecovery.metrics;
+
   const sourceBackedPromotion = promoteSourceBackedBreakers(plan, {
     lockedBoundaryFrame,
     targetEvidenceFraction,
@@ -291,13 +375,13 @@ export async function rebalanceFullPlan(projectId = PROJECT_ID) {
     official_capture_fraction_min: 0.3,
     evidence_asset_fraction_min: 0.6,
     maximum_uninterrupted_evidence_seconds: 16,
-    full_film_rebalance_version: "1.1-source-backed-breakers",
+    full_film_rebalance_version: "1.2-official-breaker-recovery",
     proof_prefix_sha256: prefixHashAfter,
     proof_prefix_locked_through_frame: lockedBoundaryFrame,
   };
   await writeJsonAtomic(planPath, plan);
   const report = {
-    schema_version: "1.1-source-backed-breakers",
+    schema_version: "1.2-official-breaker-recovery",
     project_id: projectId,
     generated_at: new Date().toISOString(),
     locked_proof_boundary_frame: lockedBoundaryFrame,
@@ -308,9 +392,11 @@ export async function rebalanceFullPlan(projectId = PROJECT_ID) {
     maximum_graphic_fraction: maximumGraphicFraction,
     maximum_evidence_seconds: maxEvidenceSeconds,
     converted_official_count: convertedOfficial.length,
+    recovered_official_breaker_count: recoveredOfficialBreakers.length,
     converted_breaker_count: convertedBreakers.length,
     converted_source_backed_graphic_count: convertedSourceBackedGraphics.length,
     converted_official: convertedOfficial,
+    recovered_official_breakers: recoveredOfficialBreakers,
     converted_breakers: convertedBreakers,
     converted_source_backed_graphics: convertedSourceBackedGraphics,
     metrics,
