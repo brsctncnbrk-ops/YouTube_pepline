@@ -16,34 +16,58 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
-      RUN_ID: "29709216772"
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
           fetch-depth: 0
-      - name: Extract failed full-edit step
+      - name: Capture latest recovery and render state
         run: |
           set -euo pipefail
-          gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > logs.zip
-          mkdir -p logs
-          unzip -q logs.zip -d logs
-          TARGET="$(find logs -type f -name '*Build approved full edit and run all gates.txt' -print -quit)"
-          test -n "$TARGET"
-          {
-            echo '--- FAILURE SIGNATURES ---'
-            grep -nE '\{"ok":false|##\[error\]|Error:|FAILED|FAIL|failed|assert|below|above|exceeds|missing|mismatch|differ' "$TARGET" || true
-            echo '--- LAST 180 LINES ---'
-            tail -n 180 "$TARGET"
-          } > .github/orvyq-full-edit-diagnostic.txt
+          REBALANCE_RUNS="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-full-plan-rebalance.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=5")"
+          RUN_ID="$(jq -r '.workflow_runs[0].id // empty' <<<"$REBALANCE_RUNS")"
+          test -n "$RUN_ID"
+          JOBS="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs?per_page=100")"
+          RENDER_RUNS="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/render.yml/runs?branch=agent%2Forvyq-system-wide-production&event=workflow_dispatch&per_page=10")"
+          jq -n \
+            --arg generated_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --argjson rebalance_runs "$REBALANCE_RUNS" \
+            --argjson jobs "$JOBS" \
+            --argjson render_runs "$RENDER_RUNS" \
+            '{generated_at:$generated_at,rebalance:($rebalance_runs.workflow_runs[0]|{id,status,conclusion,head_sha,created_at,updated_at,html_url}),jobs:[$jobs.jobs[]|{id,name,status,conclusion,started_at,completed_at,steps:[.steps[]|{name,status,conclusion,number}]}],latest_render:($render_runs.workflow_runs[0]//null|if .==null then null else {id,status,conclusion,head_sha,created_at,updated_at,html_url} end)}' > .github/orvyq-current-recovery-status.json
+          : > .github/orvyq-full-edit-diagnostic.txt
+          STATUS="$(jq -r '.workflow_runs[0].status' <<<"$REBALANCE_RUNS")"
+          CONCLUSION="$(jq -r '.workflow_runs[0].conclusion // empty' <<<"$REBALANCE_RUNS")"
+          if [ "$STATUS" = "completed" ] && [ "$CONCLUSION" != "success" ]; then
+            gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > logs.zip
+            mkdir -p logs
+            unzip -q logs.zip -d logs
+            TARGET="$(find logs -type f -name '*Build approved full edit and run all gates.txt' -print -quit)"
+            if [ -z "$TARGET" ]; then TARGET="$(find logs -type f -name '*Build canonical full-duration audio and captions.txt' -print -quit)"; fi
+            if [ -z "$TARGET" ]; then TARGET="$(find logs -type f -name '*Preserve existing proof approval by prefix continuity.txt' -print -quit)"; fi
+            if [ -z "$TARGET" ]; then TARGET="$(find logs -type f -name '*Rebalance only the post-proof canonical timeline.txt' -print -quit)"; fi
+            if [ -n "$TARGET" ]; then
+              {
+                echo "RUN_ID=$RUN_ID"
+                echo "TARGET=$TARGET"
+                grep -nE 'AssertionError|Error:|ERR_ASSERTION|audit failed|failed:|##\[error\]|Process completed with exit code|"ok"[[:space:]]*:[[:space:]]*false' "$TARGET" || true
+                echo '--- LAST 260 LINES ---'
+                tail -n 260 "$TARGET"
+              } > .github/orvyq-full-edit-diagnostic.txt
+            fi
+          fi
+          cat .github/orvyq-current-recovery-status.json
           cat .github/orvyq-full-edit-diagnostic.txt
       - name: Commit diagnostic
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .github/orvyq-full-edit-diagnostic.txt
+          git add .github/orvyq-current-recovery-status.json .github/orvyq-full-edit-diagnostic.txt
           git diff --cached --quiet && exit 0
-          git commit -m 'Capture concise ORVYQ full-edit gate failure'
-          git pull --rebase origin "$GITHUB_REF_NAME"
-          git push origin "HEAD:$GITHUB_REF_NAME"
+          git commit -m 'Capture current ORVYQ recovery state'
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep $((attempt * 3))
+          done
+          exit 1
