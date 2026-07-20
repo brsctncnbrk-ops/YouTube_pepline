@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-07-20T00:41:48Z",
+  "generated_at": "2026-07-20T03:33:20Z",
   "rebalance": {
-    "id": 29709674695,
+    "id": 29711074442,
     "status": "completed",
     "conclusion": "failure",
-    "head_sha": "3b90defc0132c97540a5fdb6dec3eb5e60ece8b3",
-    "created_at": "2026-07-20T00:34:03Z",
-    "updated_at": "2026-07-20T00:35:08Z",
-    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29709674695"
+    "head_sha": "aabc1b0e70ff913a9cc268563c54f922b261cfec",
+    "created_at": "2026-07-20T01:32:45Z",
+    "updated_at": "2026-07-20T01:38:05Z",
+    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29711074442"
   },
   "jobs": [
     {
-      "id": 88251798343,
+      "id": 88254950714,
       "name": "rebalance",
       "status": "completed",
       "conclusion": "failure",
-      "started_at": "2026-07-20T00:34:05Z",
-      "completed_at": "2026-07-20T00:35:08Z",
+      "started_at": "2026-07-20T01:32:47Z",
+      "completed_at": "2026-07-20T01:38:04Z",
       "steps": [
         {
           "name": "Set up job",
@@ -25,85 +25,85 @@
           "number": 1
         },
         {
-          "name": "Checkout branch with LFS",
+          "name": "Checkout branch without LFS smudge",
           "status": "completed",
-          "conclusion": "failure",
+          "conclusion": "success",
           "number": 2
         },
         {
-          "name": "Pull LFS assets",
+          "name": "Pull and verify LFS assets with retries",
           "status": "completed",
-          "conclusion": "skipped",
+          "conclusion": "success",
           "number": 3
         },
         {
           "name": "Set up Node",
           "status": "completed",
-          "conclusion": "skipped",
+          "conclusion": "success",
           "number": 4
         },
         {
           "name": "Set up Python",
           "status": "completed",
-          "conclusion": "skipped",
+          "conclusion": "success",
           "number": 5
         },
         {
           "name": "Install deterministic tooling",
           "status": "completed",
-          "conclusion": "skipped",
+          "conclusion": "success",
           "number": 6
         },
         {
           "name": "Resolve canonical full-audio limits",
           "status": "completed",
-          "conclusion": "skipped",
+          "conclusion": "success",
           "number": 7
         },
         {
           "name": "Verify proof approval continuity regression contract",
           "status": "completed",
-          "conclusion": "skipped",
+          "conclusion": "success",
           "number": 8
         },
         {
-          "name": "Expand and fetch full-film official evidence",
+          "name": "Expand and fetch available full-film official evidence",
           "status": "completed",
-          "conclusion": "skipped",
+          "conclusion": "success",
           "number": 9
         },
         {
-          "name": "Rebalance only the post-proof canonical timeline",
+          "name": "Rebalance post-proof timeline and bind deterministic evidence bundle",
           "status": "completed",
-          "conclusion": "skipped",
+          "conclusion": "success",
           "number": 10
         },
         {
           "name": "Preserve existing proof approval by prefix continuity",
           "status": "completed",
-          "conclusion": "skipped",
+          "conclusion": "success",
           "number": 11
         },
         {
           "name": "Build canonical full-duration audio and captions",
           "status": "completed",
-          "conclusion": "skipped",
+          "conclusion": "success",
           "number": 12
         },
         {
           "name": "Build approved full edit and run all gates",
           "status": "completed",
-          "conclusion": "skipped",
+          "conclusion": "failure",
           "number": 13
         },
         {
-          "name": "Commit corrected full-film plan and preserved approval",
+          "name": "Commit corrected plan, preserved approval, and evidence bundle",
           "status": "completed",
           "conclusion": "skipped",
           "number": 14
         },
         {
-          "name": "Verify preserved approval after commit",
+          "name": "Verify preserved approval and bundled evidence after commit",
           "status": "completed",
           "conclusion": "skipped",
           "number": 15
@@ -121,7 +121,19 @@
           "number": 17
         },
         {
-          "name": "Post Checkout branch with LFS",
+          "name": "Post Set up Python",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 32
+        },
+        {
+          "name": "Post Set up Node",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 33
+        },
+        {
+          "name": "Post Checkout branch without LFS smudge",
           "status": "completed",
           "conclusion": "success",
           "number": 34
