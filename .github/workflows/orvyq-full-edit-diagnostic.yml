@@ -1,0 +1,44 @@
+name: ORVYQ Full Edit Diagnostic
+
+on:
+  push:
+    branches:
+      - agent/orvyq-system-wide-production
+    paths:
+      - .github/orvyq-full-edit-diagnostic-trigger.txt
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RUN_ID: "29709216772"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Extract failed full-edit step
+        run: |
+          set -euo pipefail
+          gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > logs.zip
+          mkdir -p logs
+          unzip -q logs.zip -d logs
+          TARGET="$(find logs -type f -name '*Build approved full edit and run all gates.txt' -print -quit)"
+          test -n "$TARGET"
+          cp "$TARGET" .github/orvyq-full-edit-diagnostic.txt
+          cat .github/orvyq-full-edit-diagnostic.txt
+      - name: Commit diagnostic
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/orvyq-full-edit-diagnostic.txt
+          git diff --cached --quiet && exit 0
+          git commit -m 'Capture ORVYQ full-edit gate failure'
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
