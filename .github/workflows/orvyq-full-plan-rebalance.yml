@@ -65,11 +65,7 @@ jobs:
           set -euo pipefail
           node scripts/orvyq_rebalance_full_plan.mjs "$PROJECT_ID"
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
-          node --input-type=module <<'NODE'
-          import {buildEditPlanFromProduction} from './scripts/lib/orvyq-production.mjs';
-          const result = await buildEditPlanFromProduction({projectId: process.env.PROJECT_ID, mode: 'full'});
-          console.log(JSON.stringify({ok: true, mode: 'full_review', duration_frames: result.duration_frames, shot_count: result.shots?.length || 0}));
-          NODE
+          node scripts/orvyq_build_candidate_full_edit.mjs "$PROJECT_ID"
 
       - name: Run full visual and editorial gates
         run: |
@@ -105,6 +101,8 @@ jobs:
             "projects/$PROJECT_ID/qa/full_film_rebalance.json"
           git diff --cached --quiet && { echo 'No rebalance changes to commit'; exit 1; }
           git commit -m "Rebalance ORVYQ full film with official captures and motion breaks"
+          git reset --hard HEAD
+          git clean -fd
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin "HEAD:$GITHUB_REF_NAME"
           echo "REBALANCED_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
@@ -146,6 +144,8 @@ jobs:
           node scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"
           git add "projects/$PROJECT_ID/qa/proof_approval.json" "projects/$PROJECT_ID/manifest.json"
           git commit -m "Approve unchanged ORVYQ proof prefix for rebalanced full plan"
+          git reset --hard HEAD
+          git clean -fd
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin "HEAD:$GITHUB_REF_NAME"
           echo "APPROVED_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
