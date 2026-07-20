@@ -2,7 +2,7 @@
 import path from "node:path";
 import { projectDir, readJson, writeJsonAtomic } from "./lib/fs-utils.mjs";
 import { rebalanceFullPlanV3 } from "./orvyq_rebalance_full_plan_v3.mjs";
-import { insertOfficialBridge } from "./orvyq_insert_official_bridge.mjs";
+import { insertOfficialBridgeV2 } from "./orvyq_insert_official_bridge_v2.mjs";
 
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
 
@@ -54,16 +54,16 @@ export async function rebalanceWithFinalGate(projectId = PROJECT_ID) {
       },
     };
     await writeJsonAtomic(reportPath, deferred);
-    const bridge = await insertOfficialBridge(projectId);
+    const bridge = await insertOfficialBridgeV2(projectId);
     return {
       ...deferred,
-      schema_version: "3.2-isolated-official-bridge",
+      schema_version: "3.3-canonical-isolated-official-bridge",
       official_normalization_pending: false,
       official_bridge: bridge,
       after: bridge.after,
       deferred_failures: [],
       resolved_deferred_failures: officialFailures,
-      pass: bridge.pass === true,
+      pass: bridge.pass === true && bridge.canonical_ids_valid === true,
     };
   }
 }
@@ -80,6 +80,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
           official_bridge_inserted:
             report.official_bridge?.inserted === true ||
             report.official_bridge_inserted === true,
+          canonical_ids_valid:
+            report.official_bridge?.canonical_ids_valid === true,
           official_fraction: report.after?.official_fraction ?? null,
           maximum_uninterrupted_evidence_seconds:
             report.after?.maximum_uninterrupted_evidence_seconds ?? null,
