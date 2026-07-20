@@ -109,13 +109,17 @@ jobs:
           fs.appendFileSync(process.env.GITHUB_ENV, 'ORVYQ_EDITORIAL_PAUSES=1\n');
           NODE
 
-      - name: Canonical full-production and proof-approval hard gate
+      - name: Canonical full-production proof and audio-contract hard gate
         run: |
           set -euo pipefail
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID" --skip-assets
           node scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"
+          node scripts/orvyq_audio_contract_tests.mjs
           test "$(jq -r '.new_proof_required' "projects/$PROJECT_ID/qa/proof_approval_continuity.json")" = "false"
           test "$(jq -r '.prefix_unchanged' "projects/$PROJECT_ID/qa/proof_approval_continuity.json")" = "true"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/audio_contract.json")" = "true"
+          test "$(jq -r '.all_cues_ready' "projects/$PROJECT_ID/qa/audio_contract.json")" = "true"
+          test "$(jq -r '.quality_policy.require_sound_design_sfx' "projects/$PROJECT_ID/direction/production_plan.json")" = "true"
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           import {productionPlanSha256} from './scripts/lib/orvyq-production.mjs';
@@ -129,7 +133,7 @@ jobs:
           node scripts/orvyq_verify_bundled_evidence.mjs "$PROJECT_ID"
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
 
-      - name: Fetch licensed music and build full-duration voice-first mix
+      - name: Fetch licensed music and build canonical full-duration mix
         run: |
           set -euo pipefail
           node --input-type=module <<'NODE'
@@ -139,11 +143,13 @@ jobs:
           const result = await buildOrvyqAudioMix(process.env.PROJECT_ID);
           console.log(JSON.stringify({ok: true, ...result}));
           NODE
+          node scripts/orvyq_finalize_rendered_audio_metadata.mjs "$PROJECT_ID"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/rendered_audio_contract.json")" = "true"
 
-      - name: Verify narration and build captions
+      - name: Verify transformed narration and build captions
         run: |
           set -euo pipefail
-          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID"
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --min-similarity 0.85
           node --input-type=module <<'NODE'
           import {buildOrvyqCaptions} from './scripts/orvyq_caption_build.mjs';
           const result = await buildOrvyqCaptions(process.env.PROJECT_ID);
@@ -155,7 +161,7 @@ jobs:
           set -euo pipefail
           node scripts/orvyq_production_plan.mjs build-full --project-id "$PROJECT_ID"
 
-      - name: Aggregate editorial provenance and render-readiness gates
+      - name: Aggregate editorial provenance audio and render-readiness gates
         run: |
           set -euo pipefail
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
@@ -164,6 +170,10 @@ jobs:
           node scripts/orvyq_audit_suite.mjs "$PROJECT_ID"
           test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/audit_suite.json")" = "true"
           test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/source_mix_enforcement.json")" = "true"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/music_cue_audit.json")" = "true"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/license_audit.json")" = "true"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/alignment_readiness.json")" = "true"
+          test "$(jq -r '.script_similarity >= 0.85' "projects/$PROJECT_ID/qa/speech_transcript.json")" = "true"
           node scripts/validate.mjs render-ready --project-id "$PROJECT_ID"
 
       - name: Rebuild render-ready Remotion project
@@ -195,17 +205,18 @@ jobs:
           cd "$APP"
           npx remotion render src/index.ts FactForgeVideo out/final_video.mp4 --codec=h264 --concurrency=1 --max-retries=3 2>&1 | tee out/render_stdout.txt
 
-      - name: Post-render media speech and complete-ending gates
+      - name: Post-render media transformed-speech and complete-ending gates
         run: |
           set -euo pipefail
           APP="projects/$PROJECT_ID/remotion/render_ready_project"
           node scripts/orvyq_media_qa.mjs --project-id "$PROJECT_ID" --video "$APP/out/final_video.mp4"
-          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --media "$APP/out/final_video.mp4" --output-name final_video_speech_qa.json
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID" --media "$APP/out/final_video.mp4" --output-name final_video_speech_qa.json --min-similarity 0.85
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const qa = JSON.parse(fs.readFileSync(`projects/${process.env.PROJECT_ID}/qa/final_video_speech_qa.json`, 'utf8'));
           const transcript = String(qa.transcript || '').trim();
           const terminal = transcript.split(/\s+/).at(-1) || qa.words?.at(-1)?.text || '';
+          if (!qa.passed || qa.script_similarity < 0.85) throw new Error(`Full render transformed-speech QA failed: ${qa.script_similarity}`);
           if (!terminal || /-$/.test(terminal)) throw new Error(`Full render narration ends incompletely: ${terminal || '<empty>'}`);
           NODE
 
@@ -240,19 +251,27 @@ jobs:
             projects/${{ env.PROJECT_ID }}/manifest.json
             projects/${{ env.PROJECT_ID }}/direction/production_plan.json
             projects/${{ env.PROJECT_ID }}/direction/narration_timeline.json
+            projects/${{ env.PROJECT_ID }}/direction/music_cue_sheet.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
             projects/${{ env.PROJECT_ID }}/qa/proof_approval.json
             projects/${{ env.PROJECT_ID }}/qa/proof_approval_continuity.json
             projects/${{ env.PROJECT_ID }}/qa/source_mix_enforcement.json
+            projects/${{ env.PROJECT_ID }}/qa/audio_contract.json
+            projects/${{ env.PROJECT_ID }}/qa/rendered_audio_contract.json
             projects/${{ env.PROJECT_ID }}/qa/audit_suite.json
             projects/${{ env.PROJECT_ID }}/qa/full_render_evidence_bundle.json
             projects/${{ env.PROJECT_ID }}/qa/bundled_evidence_verification.json
             projects/${{ env.PROJECT_ID }}/qa/production_plan_audit.json
             projects/${{ env.PROJECT_ID }}/qa/timeline_audit.json
             projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/music_cue_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
+            projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
             projects/${{ env.PROJECT_ID }}/qa/orvyq_media_qa.json
             projects/${{ env.PROJECT_ID }}/qa/final_video_speech_qa.json
             projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
+            projects/${{ env.PROJECT_ID }}/assets/sfx/*.provenance.json
             projects/${{ env.PROJECT_ID }}/assets/asset_manifest.json
           if-no-files-found: error
           retention-days: 30
@@ -268,11 +287,17 @@ jobs:
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/render_stdout.txt
             projects/${{ env.PROJECT_ID }}/output/render_log.txt
             projects/${{ env.PROJECT_ID }}/qa/source_mix_enforcement.json
+            projects/${{ env.PROJECT_ID }}/qa/audio_contract.json
+            projects/${{ env.PROJECT_ID }}/qa/rendered_audio_contract.json
             projects/${{ env.PROJECT_ID }}/qa/audit_suite.json
             projects/${{ env.PROJECT_ID }}/qa/full_render_evidence_bundle.json
             projects/${{ env.PROJECT_ID }}/qa/bundled_evidence_verification.json
             projects/${{ env.PROJECT_ID }}/qa/production_plan_audit.json
             projects/${{ env.PROJECT_ID }}/qa/timeline_audit.json
             projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/music_cue_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/license_audit.json
+            projects/${{ env.PROJECT_ID }}/qa/alignment_readiness.json
+            projects/${{ env.PROJECT_ID }}/qa/speech_transcript.json
           if-no-files-found: warn
           retention-days: 30
