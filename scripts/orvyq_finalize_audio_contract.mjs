@@ -7,6 +7,7 @@ import {
   writeJsonAtomic,
   pathExists,
 } from "./lib/fs-utils.mjs";
+import { fetchProofMusic } from "./orvyq_fetch_proof_music.mjs";
 
 const PROJECT_ID = "001-the-ai-race-no-one-can-afford-to-win";
 const MUSIC_ASSET = "assets/music/approved_bed.mp3";
@@ -46,6 +47,7 @@ function contiguous(cues, duration, tolerance = 0.001) {
 }
 
 export async function finalizeAudioContract(projectId = PROJECT_ID) {
+  await fetchProofMusic(projectId);
   const dir = projectDir(projectId);
   const planPath = path.join(dir, "direction", "production_plan.json");
   const cuePath = path.join(dir, "direction", "music_cue_sheet.json");
@@ -79,8 +81,7 @@ export async function finalizeAudioContract(projectId = PROJECT_ID) {
       state: section.music_state,
       energy_start: Number(template.energy_start ?? 0.35 + index * 0.02),
       energy_end: Number(template.energy_end ?? 0.5),
-      function:
-        template.function || section.dramatic_function,
+      function: template.function || section.dramatic_function,
       instrumentation:
         template.instrumentation ||
         "restrained cinematic tonal bed shaped through section-specific gain, filtering, and narration ducking",
@@ -165,6 +166,7 @@ export async function finalizeAudioContract(projectId = PROJECT_ID) {
     music_cue_contract_sha256: cueSheet.contract_sha256,
     require_sound_design_sfx: true,
     minimum_original_sfx_types: 3,
+    approved_music_fetched_and_verified: true,
     pass: true,
   };
   await writeJsonAtomic(path.join(dir, "qa", "audio_contract.json"), report);
