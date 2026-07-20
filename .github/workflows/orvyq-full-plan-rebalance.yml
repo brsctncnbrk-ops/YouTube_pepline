@@ -99,16 +99,19 @@ jobs:
           node scripts/orvyq_fetch_primary_evidence.mjs
           node scripts/orvyq_prune_unavailable_optional_captures.mjs "$PROJECT_ID"
 
-      - name: Three-phase structural rebalance and evidence binding
+      - name: Complete three-phase structural recovery and evidence binding
         run: |
           set -euo pipefail
           node scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID" --mode preflight
-          node scripts/orvyq_rebalance_full_plan_v3.mjs "$PROJECT_ID"
+          node scripts/orvyq_rebalance_full_plan_v3_recoverable.mjs "$PROJECT_ID"
+          node scripts/orvyq_recover_official_floor_with_inset.mjs "$PROJECT_ID"
           node scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID" --mode final
           node scripts/orvyq_enforce_source_mix.mjs "$PROJECT_ID"
+          node scripts/orvyq_reconcile_structural_recovery.mjs "$PROJECT_ID"
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
           node scripts/orvyq_bind_full_render_evidence_bundle.mjs "$PROJECT_ID"
           test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/full_film_rebalance.json")" = "true"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/official_floor_inset_recovery.json")" = "true"
           test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/official_legibility_normalization.json")" = "true"
           test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/full_render_evidence_bundle.json")" = "true"
           test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/source_mix_enforcement.json")" = "true"
@@ -154,6 +157,7 @@ jobs:
           const dir = `projects/${process.env.PROJECT_ID}`;
           const policy = JSON.parse(fs.readFileSync('config/orvyq-production-policy.json', 'utf8'));
           const report = JSON.parse(fs.readFileSync(`${dir}/qa/full_film_rebalance.json`, 'utf8'));
+          const inset = JSON.parse(fs.readFileSync(`${dir}/qa/official_floor_inset_recovery.json`, 'utf8'));
           const sourceMix = JSON.parse(fs.readFileSync(`${dir}/qa/source_mix_enforcement.json`, 'utf8'));
           const normalization = JSON.parse(fs.readFileSync(`${dir}/qa/official_legibility_normalization.json`, 'utf8'));
           const continuity = JSON.parse(fs.readFileSync(`${dir}/qa/proof_approval_continuity.json`, 'utf8'));
@@ -162,7 +166,7 @@ jobs:
           const manifest = JSON.parse(fs.readFileSync(`${dir}/manifest.json`, 'utf8'));
           const bundle = JSON.parse(fs.readFileSync(`${dir}/qa/full_render_evidence_bundle.json`, 'utf8'));
           const suite = JSON.parse(fs.readFileSync(`${dir}/qa/audit_suite.json`, 'utf8'));
-          if (!report.pass || !sourceMix.pass || !normalization.pass || !continuity.pass || !semantic.pass || !bundle.pass || !suite.pass) throw new Error('Full-film structural correction did not pass');
+          if (!report.pass || !inset.pass || !sourceMix.pass || !normalization.pass || !continuity.pass || !semantic.pass || !bundle.pass || !suite.pass) throw new Error('Full-film structural correction did not pass');
           if (!normalization.target_enforced || !normalization.target_met) throw new Error('Final official-legibility gate was not enforced');
           if (!continuity.prefix_unchanged || !continuity.narration_unchanged || continuity.new_proof_required) throw new Error('Existing proof approval cannot be preserved');
           if (String(continuity.proof_run_id) !== String(policy.proof_run_id)) throw new Error('Approved proof run changed');
@@ -170,7 +174,7 @@ jobs:
           if (semantic.evidence_archive_fraction < policy.source_derived_minimum_fraction) throw new Error('Source-backed visual ratio remains below policy');
           if (semantic.maximum_uninterrupted_evidence_seconds > policy.maximum_uninterrupted_evidence_seconds) throw new Error('Evidence run remains above policy');
           if (manifest.proof?.production_plan_sha256 !== approval.production_plan_sha256) throw new Error('Manifest and proof approval plan hashes differ');
-          console.log(JSON.stringify({ok:true, proof_run_id:continuity.proof_run_id, approval_preserved:continuity.approval_preserved, audit_checks:suite.check_count, bundled_asset_count:bundle.bundled_asset_count, proof_prefix_sha256:continuity.current_prefix_sha256, official_capture_fraction:semantic.official_primary_capture_fraction, source_backed_fraction:semantic.evidence_archive_fraction, maximum_uninterrupted_evidence_seconds:semantic.maximum_uninterrupted_evidence_seconds, converted_source_graphics:sourceMix.converted_count, restored_official_breakers:report.restored?.length || 0}));
+          console.log(JSON.stringify({ok:true, proof_run_id:continuity.proof_run_id, approval_preserved:continuity.approval_preserved, audit_checks:suite.check_count, bundled_asset_count:bundle.bundled_asset_count, proof_prefix_sha256:continuity.current_prefix_sha256, official_capture_fraction:semantic.official_primary_capture_fraction, source_backed_fraction:semantic.evidence_archive_fraction, maximum_uninterrupted_evidence_seconds:semantic.maximum_uninterrupted_evidence_seconds, converted_source_graphics:sourceMix.converted_count, official_inset_recoveries:inset.recovery_count}));
           NODE
 
       - name: Commit corrected plan, preserved approval, evidence bundle, and QA state
@@ -186,6 +190,7 @@ jobs:
             "projects/$PROJECT_ID/direction/production_plan.json" \
             "projects/$PROJECT_ID/qa/optional_capture_availability.json" \
             "projects/$PROJECT_ID/qa/full_render_evidence_bundle.json" \
+            "projects/$PROJECT_ID/qa/official_floor_inset_recovery.json" \
             "projects/$PROJECT_ID/qa/official_legibility_normalization.json" \
             "projects/$PROJECT_ID/qa/source_mix_enforcement.json" \
             "projects/$PROJECT_ID/qa/audit_suite.json" \
@@ -271,6 +276,7 @@ jobs:
           name: orvyq-full-plan-rebalance-${{ github.run_id }}
           path: |
             projects/${{ env.PROJECT_ID }}/qa/full_film_rebalance.json
+            projects/${{ env.PROJECT_ID }}/qa/official_floor_inset_recovery.json
             projects/${{ env.PROJECT_ID }}/qa/source_mix_enforcement.json
             projects/${{ env.PROJECT_ID }}/qa/audit_suite.json
             projects/${{ env.PROJECT_ID }}/qa/optional_capture_availability.json
