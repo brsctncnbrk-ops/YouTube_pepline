@@ -1,0 +1,40 @@
+name: ORVYQ Current Run Probe
+
+on:
+  push:
+    branches:
+      - agent/orvyq-system-wide-production
+    paths:
+      - .github/orvyq-current-run-probe-trigger.txt
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Read latest rebalance and render runs
+        run: |
+          set -euo pipefail
+          REBALANCE="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/orvyq-full-plan-rebalance.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=5")"
+          RENDER="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/render.yml/runs?branch=agent%2Forvyq-system-wide-production&per_page=5")"
+          jq -n --arg generated_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson rebalance "$REBALANCE" --argjson render "$RENDER" '{generated_at:$generated_at,rebalance_runs:[$rebalance.workflow_runs[]|{id,status,conclusion,head_sha,created_at,updated_at,event,html_url}],render_runs:[$render.workflow_runs[]|{id,status,conclusion,head_sha,created_at,updated_at,event,html_url}]}' > .github/orvyq-current-runs.json
+          cat .github/orvyq-current-runs.json
+      - name: Commit current runs
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/orvyq-current-runs.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'Update ORVYQ current workflow runs'
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
