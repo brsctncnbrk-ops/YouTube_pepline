@@ -29,12 +29,7 @@ jobs:
           test -n "$RUN_ID"
           JOBS="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs?per_page=100")"
           RENDER_RUNS="$(gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/workflows/render.yml/runs?branch=agent%2Forvyq-system-wide-production&event=workflow_dispatch&per_page=10")"
-          jq -n \
-            --arg generated_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-            --argjson rebalance_runs "$REBALANCE_RUNS" \
-            --argjson jobs "$JOBS" \
-            --argjson render_runs "$RENDER_RUNS" \
-            '{generated_at:$generated_at,rebalance:($rebalance_runs.workflow_runs[0]|{id,status,conclusion,head_sha,created_at,updated_at,html_url}),jobs:[$jobs.jobs[]|{id,name,status,conclusion,started_at,completed_at,steps:[.steps[]|{name,status,conclusion,number}]}],latest_render:($render_runs.workflow_runs[0]//null|if .==null then null else {id,status,conclusion,head_sha,created_at,updated_at,html_url} end)}' > .github/orvyq-current-recovery-status.json
+          jq -n --arg generated_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson rebalance_runs "$REBALANCE_RUNS" --argjson jobs "$JOBS" --argjson render_runs "$RENDER_RUNS" '{generated_at:$generated_at,rebalance:($rebalance_runs.workflow_runs[0]|{id,status,conclusion,head_sha,created_at,updated_at,html_url}),jobs:[$jobs.jobs[]|{id,name,status,conclusion,started_at,completed_at,steps:[.steps[]|{name,status,conclusion,number}]}],latest_render:($render_runs.workflow_runs[0]//null|if .==null then null else {id,status,conclusion,head_sha,created_at,updated_at,html_url} end)}' > .github/orvyq-current-recovery-status.json
           : > .github/orvyq-full-edit-diagnostic.txt
           STATUS="$(jq -r '.workflow_runs[0].status' <<<"$REBALANCE_RUNS")"
           CONCLUSION="$(jq -r '.workflow_runs[0].conclusion // empty' <<<"$REBALANCE_RUNS")"
@@ -47,16 +42,17 @@ jobs:
             TARGET=""
             if [ -n "$FAILED_NUMBER" ]; then TARGET="$(find logs -type f -name "${FAILED_NUMBER}_*.txt" -print -quit)"; fi
             if [ -z "$TARGET" ] && [ -n "$FAILED_STEP" ]; then TARGET="$(find logs -type f -iname "*Build approved full edit*" -print -quit)"; fi
+            if [ -z "$TARGET" ]; then TARGET="$(find logs -type f -name '*rebalance*.txt' -print -quit)"; fi
             {
               echo "RUN_ID=$RUN_ID"
               echo "FAILED_STEP=$FAILED_STEP"
               echo "FAILED_NUMBER=$FAILED_NUMBER"
               echo "TARGET=$TARGET"
               echo '--- ERROR INDEX ---'
-              grep -RInE 'AssertionError|Error:|ERR_ASSERTION|audit failed|failed:|fatal:|smudge|LFS|RPC failed|early EOF|redirect|download|capture|##\[error\]|Process completed with exit code|"ok"[[:space:]]*:[[:space:]]*false' logs || true
+              grep -RInE 'AssertionError|Error:|ERR_ASSERTION|audit failed|failed:|fatal:|smudge|LFS|RPC failed|early EOF|redirect|download|capture|##\[error\]|Process completed with exit code|"ok"[[:space:]]*:[[:space:]]*false|throw new Error' logs || true
               if [ -n "$TARGET" ]; then
-                echo '--- LAST 320 LINES OF FAILED STEP ---'
-                tail -n 320 "$TARGET"
+                echo '--- LAST 500 LINES OF FAILED JOB LOG ---'
+                tail -n 500 "$TARGET"
               fi
             } > .github/orvyq-full-edit-diagnostic.txt
           fi
