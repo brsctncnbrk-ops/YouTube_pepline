@@ -1,3 +1,3 @@
-requested_at=2026-07-20T10:30:00+03:00
+requested_at=2026-07-20T14:30:36+03:00
 project_id=001-the-ai-race-no-one-can-afford-to-win
-reason=Preserve approved proof run 29701621699, recover the official-capture ratio to at least 30% using only legible source-bound breakers, retain the 16-second evidence ceiling and all existing quality thresholds, then continue directly to full render.
+reason=Run the corrected two-stage official-legibility recovery while preserving approved proof run 29701621699, enforce official capture >=30%, source-derived evidence >=60%, maximum uninterrupted evidence <=16 seconds, then dispatch the approved full render and complete post-render QA.
