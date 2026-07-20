@@ -1,1 +1,2 @@
-requested_at=2026-07-20T11:28:09+03:00
+requested_at=2026-07-20T20:26:00+03:00
+purpose=latest-current-structural-recovery-and-render-status
