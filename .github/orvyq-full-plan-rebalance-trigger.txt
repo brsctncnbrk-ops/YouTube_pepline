@@ -1,3 +1,3 @@
-requested_at=2026-07-20T07:02:00+03:00
+requested_at=2026-07-20T07:10:00+03:00
 project_id=001-the-ai-race-no-one-can-afford-to-win
-reason=Preserve proof run 29701621699, use retry-safe LFS checkout, pass canonical audio and full-edit gates, and dispatch full render until completion
+reason=Preserve proof run 29701621699, use retry-safe LFS checkout in recovery and render, pass canonical audio and full-edit gates, and dispatch full render until completion
