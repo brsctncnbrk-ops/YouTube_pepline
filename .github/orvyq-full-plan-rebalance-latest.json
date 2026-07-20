@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-07-20T00:15:40Z",
+  "generated_at": "2026-07-20T05:29:22Z",
   "latest_run": {
-    "id": 29709216772,
-    "status": "in_progress",
-    "conclusion": null,
-    "head_sha": "9be802b05d91bc54952e7e559963f06082cefe72",
-    "created_at": "2026-07-20T00:14:50Z",
-    "updated_at": "2026-07-20T00:14:54Z",
-    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29709216772"
+    "id": 29715159850,
+    "status": "completed",
+    "conclusion": "failure",
+    "head_sha": "47b5406d6c48bb61bd02949ebcdb9812c8ed2444",
+    "created_at": "2026-07-20T03:40:19Z",
+    "updated_at": "2026-07-20T03:44:06Z",
+    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29715159850"
   },
   "jobs": [
     {
-      "id": 88250757139,
+      "id": 88266897112,
       "name": "rebalance",
-      "status": "in_progress",
-      "conclusion": null,
-      "started_at": "2026-07-20T00:14:54Z",
-      "completed_at": null,
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-07-20T03:40:22Z",
+      "completed_at": "2026-07-20T03:44:05Z",
       "steps": [
         {
           "name": "Set up job",
@@ -25,13 +25,13 @@
           "number": 1
         },
         {
-          "name": "Checkout branch with LFS",
+          "name": "Checkout branch without LFS smudge",
           "status": "completed",
           "conclusion": "success",
           "number": 2
         },
         {
-          "name": "Pull LFS assets",
+          "name": "Pull and verify LFS assets with retries",
           "status": "completed",
           "conclusion": "success",
           "number": 3
@@ -50,81 +50,99 @@
         },
         {
           "name": "Install deterministic tooling",
-          "status": "in_progress",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "number": 6
         },
         {
-          "name": "Verify proof approval continuity regression contract",
-          "status": "pending",
-          "conclusion": null,
+          "name": "Resolve canonical full-audio limits",
+          "status": "completed",
+          "conclusion": "success",
           "number": 7
         },
         {
-          "name": "Expand and fetch full-film official evidence",
-          "status": "pending",
-          "conclusion": null,
+          "name": "Verify proof approval continuity regression contract",
+          "status": "completed",
+          "conclusion": "success",
           "number": 8
         },
         {
-          "name": "Rebalance only the post-proof canonical timeline",
-          "status": "pending",
-          "conclusion": null,
+          "name": "Expand and fetch available full-film official evidence",
+          "status": "completed",
+          "conclusion": "success",
           "number": 9
         },
         {
-          "name": "Preserve existing proof approval by prefix continuity",
-          "status": "pending",
-          "conclusion": null,
+          "name": "Rebalance post-proof timeline and bind deterministic evidence bundle",
+          "status": "completed",
+          "conclusion": "failure",
           "number": 10
         },
         {
-          "name": "Build approved full edit and run all gates",
-          "status": "pending",
-          "conclusion": null,
+          "name": "Preserve existing proof approval by prefix continuity",
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 11
         },
         {
-          "name": "Commit corrected full-film plan and preserved approval",
-          "status": "pending",
-          "conclusion": null,
+          "name": "Build canonical full-duration audio and captions",
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 12
         },
         {
-          "name": "Verify preserved approval after commit",
-          "status": "pending",
-          "conclusion": null,
+          "name": "Build approved full edit and run all gates",
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 13
         },
         {
-          "name": "Dispatch corrected full render directly",
-          "status": "pending",
-          "conclusion": null,
+          "name": "Commit corrected plan, preserved approval, and evidence bundle",
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 14
         },
         {
-          "name": "Upload rebalance diagnostics",
-          "status": "pending",
-          "conclusion": null,
+          "name": "Verify preserved approval and bundled evidence after commit",
+          "status": "completed",
+          "conclusion": "skipped",
           "number": 15
         },
         {
+          "name": "Dispatch corrected full render directly",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 16
+        },
+        {
+          "name": "Upload rebalance diagnostics",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 17
+        },
+        {
           "name": "Post Set up Python",
-          "status": "pending",
-          "conclusion": null,
-          "number": 28
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 32
         },
         {
           "name": "Post Set up Node",
-          "status": "pending",
-          "conclusion": null,
-          "number": 29
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 33
         },
         {
-          "name": "Post Checkout branch with LFS",
-          "status": "pending",
-          "conclusion": null,
-          "number": 30
+          "name": "Post Checkout branch without LFS smudge",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 34
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 35
         }
       ]
     }
