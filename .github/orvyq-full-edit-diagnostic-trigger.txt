@@ -1,2 +1,2 @@
-requested_at=2026-07-20T07:25:00+03:00
+requested_at=2026-07-20T08:10:00+03:00
 mode=latest
