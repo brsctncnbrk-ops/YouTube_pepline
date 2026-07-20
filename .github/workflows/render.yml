@@ -121,10 +121,10 @@ jobs:
           fs.writeFileSync('production-plan-sha256.txt', `${productionPlanSha256(plan)}\n`);
           NODE
 
-      - name: Fetch and verify official primary evidence
+      - name: Verify deterministic bundled official primary evidence
         run: |
           set -euo pipefail
-          node scripts/orvyq_fetch_primary_evidence.mjs
+          node scripts/orvyq_verify_bundled_evidence.mjs "$PROJECT_ID"
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
 
       - name: Fetch licensed music and build full-duration voice-first mix
@@ -240,6 +240,8 @@ jobs:
             projects/${{ env.PROJECT_ID }}/direction/narration_timeline.json
             projects/${{ env.PROJECT_ID }}/direction/edit_plan.json
             projects/${{ env.PROJECT_ID }}/qa/proof_approval.json
+            projects/${{ env.PROJECT_ID }}/qa/full_render_evidence_bundle.json
+            projects/${{ env.PROJECT_ID }}/qa/bundled_evidence_verification.json
             projects/${{ env.PROJECT_ID }}/qa/production_plan_audit.json
             projects/${{ env.PROJECT_ID }}/qa/timeline_audit.json
             projects/${{ env.PROJECT_ID }}/qa/orvyq_media_qa.json
@@ -259,6 +261,8 @@ jobs:
             production-plan-sha256.txt
             projects/${{ env.PROJECT_ID }}/remotion/render_ready_project/out/render_stdout.txt
             projects/${{ env.PROJECT_ID }}/output/render_log.txt
+            projects/${{ env.PROJECT_ID }}/qa/full_render_evidence_bundle.json
+            projects/${{ env.PROJECT_ID }}/qa/bundled_evidence_verification.json
             projects/${{ env.PROJECT_ID }}/qa/production_plan_audit.json
             projects/${{ env.PROJECT_ID }}/qa/timeline_audit.json
           if-no-files-found: warn
