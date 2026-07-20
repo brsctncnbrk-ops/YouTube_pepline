@@ -1,3 +1,3 @@
-requested_at=2026-07-20T16:02:00+03:00
+requested_at=2026-07-20T16:22:00+03:00
 project_id=001-the-ai-race-no-one-can-afford-to-win
-reason=Run v3 break-restore-enforce structural recovery, preserve proof run 29701621699 and its locked prefix, restore official captures to at least 30 percent, enforce source-backed visuals to at least 60 percent, collect all audit results, and dispatch the immutable full-render candidate.
+reason=Run strict recoverable v3 rebalance, split a motion breaker into a four-second official inset when required, restore the 30 percent official floor, enforce the 60 percent source-backed floor, reconcile all structural metrics, preserve proof run 29701621699, run every audit and dispatch the immutable full render.
