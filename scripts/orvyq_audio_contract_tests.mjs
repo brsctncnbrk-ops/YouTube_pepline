@@ -31,7 +31,10 @@ assert.match(finalizer, /plan\.sections/, "Canonical cues must derive from produ
 assert.match(metadataFinalizer, /\.provenance\.json/, "Rendered SFX must receive provenance sidecars");
 assert.match(metadataFinalizer, /deterministic_recipe/, "SFX provenance must include a deterministic recipe");
 assert.match(metadataFinalizer, /approved_for_final_edit: true/, "SFX provenance must explicitly approve final edit use");
-assert.match(speechQa, /rotate_reference_for_audio/, "Speech QA must transform the reference with the canonical voice repair");
+assert.match(speechQa, /reference_for_media/, "Speech QA must resolve the reference order from the analyzed media");
+assert.match(speechQa, /audio_repaired_to_canonical_script_order/, "Repaired final media must compare directly with canonical script order");
+assert.match(speechQa, /double_rotation_forbidden/, "Speech QA must forbid rotating the canonical reference twice");
+assert.match(speechQa, /is_raw_unrepaired_voice/, "Only raw source-voice diagnostics may transform the script into supplied audio order");
 assert.match(speechQa, /default=0\.85/, "Full speech QA similarity floor must remain 0.85");
 assert.match(musicAudit, /section_specific_energy_arc/, "Music audit must verify the actual section energy arc");
 assert.match(musicAudit, /sfx_provenance/, "Music audit must require SFX provenance");
@@ -68,9 +71,10 @@ assert.doesNotMatch(
 console.log(
   JSON.stringify({
     ok: true,
-    contract: "orvyq-canonical-audio-v4",
+    contract: "orvyq-canonical-audio-v4.1-no-double-rotation",
     cue_source: "production_plan.sections",
     minimum_script_similarity: 0.85,
     original_sfx_provenance_required: true,
+    repaired_media_reference_order: "canonical_script_order",
   }),
 );
