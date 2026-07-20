@@ -1,4 +1,0 @@
-rebalance-logs/0_rebalance.txt:1066:2026-07-20T07:41:18.9669237Z {"ok":false,"error":"Official capture target not reached: 28.14% < 30.00%"}
-rebalance-logs/0_rebalance.txt:1067:2026-07-20T07:41:18.9787664Z ##[error]Process completed with exit code 1.
-rebalance-logs/rebalance/10_Rebalance post-proof timeline and bind deterministic evidence bundle.txt:22:2026-07-20T07:41:18.9669190Z {"ok":false,"error":"Official capture target not reached: 28.14% < 30.00%"}
-rebalance-logs/rebalance/10_Rebalance post-proof timeline and bind deterministic evidence bundle.txt:23:2026-07-20T07:41:18.9787633Z ##[error]Process completed with exit code 1.

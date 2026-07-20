@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-07-20T08:30:03Z",
+  "generated_at": "2026-07-20T17:21:06Z",
   "latest_run": {
-    "id": 29725200591,
-    "status": "completed",
-    "conclusion": "failure",
-    "head_sha": "1446697a757975874a2701d9438c214f782edd69",
-    "created_at": "2026-07-20T07:37:31Z",
-    "updated_at": "2026-07-20T07:41:23Z",
-    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29725200591"
+    "id": 29763296244,
+    "status": "in_progress",
+    "conclusion": null,
+    "head_sha": "3cb26129fef337edea9e1ba2f130b2a9979a48bd",
+    "created_at": "2026-07-20T17:20:34Z",
+    "updated_at": "2026-07-20T17:20:38Z",
+    "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29763296244"
   },
   "jobs": [
     {
-      "id": 88296576482,
+      "id": 88423059029,
       "name": "rebalance",
-      "status": "completed",
-      "conclusion": "failure",
-      "started_at": "2026-07-20T07:37:35Z",
-      "completed_at": "2026-07-20T07:41:22Z",
+      "status": "in_progress",
+      "conclusion": null,
+      "started_at": "2026-07-20T17:20:37Z",
+      "completed_at": null,
       "steps": [
         {
           "name": "Set up job",
@@ -50,99 +50,93 @@
         },
         {
           "name": "Install deterministic tooling",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "in_progress",
+          "conclusion": null,
           "number": 6
         },
         {
           "name": "Resolve canonical full-audio limits",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 7
         },
         {
-          "name": "Verify proof approval continuity regression contract",
-          "status": "completed",
-          "conclusion": "success",
+          "name": "Verify structural and audio regression contracts",
+          "status": "pending",
+          "conclusion": null,
           "number": 8
         },
         {
           "name": "Expand and fetch available full-film official evidence",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 9
         },
         {
-          "name": "Rebalance post-proof timeline and bind deterministic evidence bundle",
-          "status": "completed",
-          "conclusion": "failure",
+          "name": "Complete visual recovery, finalize audio contract, and bind evidence",
+          "status": "pending",
+          "conclusion": null,
           "number": 10
         },
         {
           "name": "Preserve existing proof approval by prefix continuity",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 11
         },
         {
-          "name": "Build canonical full-duration audio and captions",
-          "status": "completed",
-          "conclusion": "skipped",
+          "name": "Build canonical full-duration audio captions and SFX provenance",
+          "status": "pending",
+          "conclusion": null,
           "number": 12
         },
         {
-          "name": "Build approved full edit and run all gates",
-          "status": "completed",
-          "conclusion": "skipped",
+          "name": "Build approved full edit and collect every gate result",
+          "status": "pending",
+          "conclusion": null,
           "number": 13
         },
         {
-          "name": "Commit corrected plan, preserved approval, and evidence bundle",
-          "status": "completed",
-          "conclusion": "skipped",
+          "name": "Commit corrected plan preserved approval audio contract evidence bundle and QA state",
+          "status": "pending",
+          "conclusion": null,
           "number": 14
         },
         {
-          "name": "Verify preserved approval and bundled evidence after commit",
-          "status": "completed",
-          "conclusion": "skipped",
+          "name": "Verify preserved approval bundled evidence and audio contract after commit",
+          "status": "pending",
+          "conclusion": null,
           "number": 15
         },
         {
-          "name": "Dispatch corrected full render directly",
-          "status": "completed",
-          "conclusion": "skipped",
+          "name": "Dispatch corrected full render from immutable candidate ref",
+          "status": "pending",
+          "conclusion": null,
           "number": 16
         },
         {
           "name": "Upload rebalance diagnostics",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 17
         },
         {
           "name": "Post Set up Python",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 32
         },
         {
           "name": "Post Set up Node",
-          "status": "completed",
-          "conclusion": "skipped",
+          "status": "pending",
+          "conclusion": null,
           "number": 33
         },
         {
           "name": "Post Checkout branch without LFS smudge",
-          "status": "completed",
-          "conclusion": "success",
+          "status": "pending",
+          "conclusion": null,
           "number": 34
-        },
-        {
-          "name": "Complete job",
-          "status": "completed",
-          "conclusion": "success",
-          "number": 35
         }
       ]
     }
