@@ -34,10 +34,10 @@ jobs:
     env:
       PROJECT_ID: ${{ inputs.project_id }}
     steps:
-      - name: Checkout exact source with LFS assets
+      - name: Checkout exact source without LFS smudge
         uses: actions/checkout@v4
         with:
-          lfs: true
+          fetch-depth: 0
 
       - name: Lock exact source commit
         run: |
@@ -46,8 +46,21 @@ jobs:
           test "$ACTUAL_SHA" = "$GITHUB_SHA"
           printf '%s\n' "$ACTUAL_SHA" | tee render-source-sha.txt
 
-      - name: Pull LFS assets
-        run: git lfs pull
+      - name: Pull and verify LFS assets with retries
+        run: |
+          set -euo pipefail
+          git lfs install --local
+          success=0
+          for attempt in 1 2 3 4; do
+            if GIT_LFS_SKIP_SMUDGE=1 git lfs pull; then
+              success=1
+              break
+            fi
+            git lfs logs last || true
+            sleep $((attempt * 5))
+          done
+          test "$success" = "1"
+          git lfs fsck
 
       - name: Set up Node
         uses: actions/setup-node@v4
