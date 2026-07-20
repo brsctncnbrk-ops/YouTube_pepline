@@ -49,13 +49,14 @@ export async function normalizeOfficialLegibility(projectId = PROJECT_ID, { mode
   if (!["preflight", "final"].includes(mode)) throw new Error(`Unsupported normalization mode: ${mode}`);
   const dir = projectDir(projectId);
   const planPath = path.join(dir, "direction", "production_plan.json");
-  const [plan, timeline, manifest, blueprint, policy] = await Promise.all([
+  const [sourcePlan, timeline, manifest, blueprint, policy] = await Promise.all([
     readJson(planPath),
     readJson(path.join(dir, "direction", "narration_timeline.json")),
     readJson(path.join(dir, "research", "primary_evidence_manifest.json")),
     readJsonSafe(path.join(dir, "direction", "editorial_blueprint.json"), { global_rules: {} }),
     readJsonSafe(POLICY_PATH, {}),
   ]);
+  const plan = mode === "preflight" ? structuredClone(sourcePlan) : sourcePlan;
   const fps = Number(plan.fps || 30);
   const durationFrames = Math.max(1, Number(plan.duration_frames));
   const lockedBoundaryFrame = resolveLockedBoundaryFrame(plan, timeline, fps);
@@ -154,20 +155,24 @@ export async function normalizeOfficialLegibility(projectId = PROJECT_ID, { mode
     throw new Error(`Official capture target cannot be met with mobile-legible scenes: ${(finalOfficialFraction * 100).toFixed(2)}% < ${(targetOfficialFraction * 100).toFixed(2)}%`);
   }
 
-  plan.generated_at = new Date().toISOString();
-  plan.quality_policy = {
-    ...plan.quality_policy,
-    proof_prefix_locked_through_frame: lockedBoundaryFrame,
-    proof_prefix_sha256: prefixHashAfter,
-    minimum_official_capture_seconds: minimumSeconds,
-    official_capture_fraction_min: targetOfficialFraction,
-    official_legibility_normalization_version: "2.0-two-phase",
-  };
-  await writeJsonAtomic(planPath, plan);
+  if (mode === "final") {
+    plan.generated_at = new Date().toISOString();
+    plan.quality_policy = {
+      ...plan.quality_policy,
+      proof_prefix_locked_through_frame: lockedBoundaryFrame,
+      proof_prefix_sha256: prefixHashAfter,
+      minimum_official_capture_seconds: minimumSeconds,
+      official_capture_fraction_min: targetOfficialFraction,
+      official_legibility_normalization_version: "2.1-read-only-preflight",
+    };
+    await writeJsonAtomic(planPath, plan);
+  }
+
   const report = {
-    schema_version: "2.0-two-phase-official-mobile-legibility",
+    schema_version: "2.1-read-only-preflight",
     project_id: projectId,
     mode,
+    plan_mutated: mode === "final",
     locked_proof_boundary_frame: lockedBoundaryFrame,
     proof_prefix_sha256: prefixHashAfter,
     prefix_unchanged: true,
