@@ -13,6 +13,10 @@ const bridge = fs.readFileSync(
   "scripts/orvyq_insert_official_bridge.mjs",
   "utf8",
 );
+const canonicalBridge = fs.readFileSync(
+  "scripts/orvyq_insert_official_bridge_v2.mjs",
+  "utf8",
+);
 const workflow = fs.readFileSync(
   ".github/workflows/orvyq-full-render-recovery-v4.yml",
   "utf8",
@@ -24,7 +28,7 @@ assert.equal(policy.source_derived_minimum_fraction, 0.6);
 assert.equal(policy.maximum_uninterrupted_evidence_seconds, 16);
 assert.match(wrapper, /official_normalization_pending: true/);
 assert.match(wrapper, /otherFailures\.length === 0/);
-assert.match(wrapper, /insertOfficialBridge\(projectId\)/);
+assert.match(wrapper, /insertOfficialBridgeV2\(projectId\)/);
 assert.match(wrapper, /render_dispatch_forbidden_before_final_gate: true/);
 assert.match(bridge, /shot\.shot_id}_bridge_in/);
 assert.match(bridge, /shot\.shot_id}_official_bridge/);
@@ -32,6 +36,9 @@ assert.match(bridge, /shot\.shot_id}_bridge_out/);
 assert.match(bridge, /framesOf\(shot\) >= neededFrames \+ sideFrames \* 2/);
 assert.match(bridge, /prefixAfter !== prefixBefore/);
 assert.match(bridge, /maximum_uninterrupted_evidence_seconds/);
+assert.match(canonicalBridge, /VALID_SHOT_ID = \/\^shot_/);
+assert.match(canonicalBridge, /for \(let value = 9001; value <= 9999/);
+assert.match(canonicalBridge, /canonical_ids_valid: true/);
 
 const rebalance = workflow.indexOf(
   'node scripts/orvyq_rebalance_full_plan_v3_with_final_gate.mjs "$PROJECT_ID"',
@@ -48,7 +55,7 @@ const audits = workflow.indexOf(
 const dispatch = workflow.indexOf("gh workflow run render.yml");
 
 assert.ok(rebalance >= 0, "Recovery must execute guarded v3 rebalance");
-assert.ok(finalGate > rebalance, "Final official gate must follow v3 and bridge insertion");
+assert.ok(finalGate > rebalance, "Final official gate must follow canonical bridge insertion");
 assert.ok(sourceMix > finalGate, "Source mix must be enforced after final official normalization");
 assert.ok(audits > sourceMix, "All audits must run after structural correction");
 assert.ok(dispatch > audits, "Render dispatch must remain after every gate");
@@ -56,7 +63,7 @@ assert.ok(dispatch > audits, "Render dispatch must remain after every gate");
 console.log(
   JSON.stringify({
     ok: true,
-    contract: "orvyq-v3-isolated-official-bridge-final-gate",
+    contract: "orvyq-v3-canonical-isolated-official-bridge-final-gate",
     proof_run_id: policy.proof_run_id,
     official_capture_minimum_fraction:
       policy.official_capture_minimum_fraction,
