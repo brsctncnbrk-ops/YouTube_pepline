@@ -36,7 +36,9 @@ jobs:
             gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > rebalance-logs.zip
             mkdir -p rebalance-logs
             unzip -q rebalance-logs.zip -d rebalance-logs
-            TARGET="$(find rebalance-logs -type f \( -name '*Build approved full edit and run all gates.txt' -o -name '*Preserve existing proof approval by prefix continuity.txt' -o -name '*Rebalance only the post-proof canonical timeline.txt' \) | sort | tail -n 1)"
+            TARGET="$(find rebalance-logs -type f -name '*Build approved full edit and run all gates.txt' -print -quit)"
+            if [ -z "$TARGET" ]; then TARGET="$(find rebalance-logs -type f -name '*Preserve existing proof approval by prefix continuity.txt' -print -quit)"; fi
+            if [ -z "$TARGET" ]; then TARGET="$(find rebalance-logs -type f -name '*Rebalance only the post-proof canonical timeline.txt' -print -quit)"; fi
             if [ -n "$TARGET" ]; then
               cat "$TARGET" > .github/orvyq-full-plan-rebalance-failure.txt
             else
