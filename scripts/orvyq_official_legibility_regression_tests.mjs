@@ -16,21 +16,27 @@ assert.equal(policy.allow_stock_as_official_capture, false, "Stock must never co
 const preflight = 'node scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID" --mode preflight';
 const rebalance = 'node scripts/orvyq_rebalance_full_plan.mjs "$PROJECT_ID"';
 const finalGate = 'node scripts/orvyq_normalize_official_legibility.mjs "$PROJECT_ID" --mode final';
+const sourceMix = 'node scripts/orvyq_enforce_source_mix.mjs "$PROJECT_ID"';
 const preflightIndex = workflow.indexOf(preflight);
 const rebalanceIndex = workflow.indexOf(rebalance);
+const sourceMixIndex = workflow.indexOf(sourceMix);
 const finalIndex = workflow.indexOf(finalGate);
 assert.ok(preflightIndex >= 0, "Workflow must run official-legibility preflight");
-assert.ok(rebalanceIndex > preflightIndex, "Rebalance must run after official-legibility preflight");
-assert.ok(finalIndex > rebalanceIndex, "Final official-legibility gate must run after rebalance");
-assert.match(normalizer, /mode === "final"/, "Normalizer must distinguish final enforcement from preflight cleanup");
+assert.ok(rebalanceIndex > preflightIndex, "Rebalance must run after read-only official-legibility preflight");
+assert.ok(sourceMixIndex > rebalanceIndex, "Source-mix enforcement must run after evidence-chain rebalance");
+assert.ok(finalIndex > sourceMixIndex, "Final official-legibility gate must run after source-mix enforcement");
+assert.match(normalizer, /mode === "preflight" \? structuredClone\(sourcePlan\) : sourcePlan/, "Preflight must operate on a clone");
+assert.match(normalizer, /if \(mode === "final"\)[\s\S]*writeJsonAtomic\(planPath, plan\)/, "Only final mode may persist plan changes");
+assert.match(normalizer, /plan_mutated: mode === "final"/, "Report must disclose whether the plan was mutated");
 assert.match(normalizer, /prefixHashBefore !== prefixHashAfter/, "Normalizer must preserve the approved proof prefix");
 assert.match(normalizer, /durationSeconds\(shot, fps\).*minimumSeconds/s, "Normalizer must enforce minimum readable duration");
 
 console.log(JSON.stringify({
   ok: true,
-  contract: "orvyq-official-legibility-two-phase-v2",
+  contract: "orvyq-official-legibility-read-only-preflight-v2.1",
   proof_run_id: policy.proof_run_id,
   official_capture_minimum_fraction: policy.official_capture_minimum_fraction,
+  source_derived_minimum_fraction: policy.source_derived_minimum_fraction,
   official_capture_minimum_seconds: policy.official_capture_minimum_seconds,
   maximum_uninterrupted_evidence_seconds: policy.maximum_uninterrupted_evidence_seconds,
 }));
