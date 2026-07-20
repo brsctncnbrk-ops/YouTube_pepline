@@ -22,6 +22,12 @@ const musicAudit = fs.readFileSync("scripts/orvyq_music_cue_audit.mjs", "utf8");
 const licenseAudit = fs.readFileSync("scripts/orvyq_license_audit.mjs", "utf8");
 
 assert.match(wrapper, /orvyq_audio_mix_v2\.mjs/, "Legacy mixer entry point must route to v2");
+assert.match(wrapper, /drop_duplicate_prefix_and_retime/, "Mixer wrapper must remove the duplicated narrator prefix before final mixing");
+assert.match(wrapper, /atrim=start=\$\{rotateAt\}/, "Canonical narrator repair must trim at the configured splice point");
+assert.match(wrapper, /atempo=\$\{tempo\}/, "Canonical narrator repair must preserve the approved full narration duration without silence padding");
+assert.match(wrapper, /finally \{/, "Runtime narrator substitution must always restore the immutable source asset");
+assert.match(wrapper, /fs\.rename\(sourceBackup, voice\)/, "Raw narrator source must be restored after mixing");
+assert.match(wrapper, /canonical_narrator_reconstruction = true/, "Final metadata must disclose canonical narrator reconstruction");
 assert.match(mixer, /section_specific_energy_and_narration_ducking/, "Mixer must author section-specific cue energy");
 assert.match(mixer, /cueSheet\.full_cues/, "Mixer must read canonical full cues");
 assert.match(mixer, /original_synthesized_sfx/, "Mixer must generate original SFX");
@@ -71,10 +77,11 @@ assert.doesNotMatch(
 console.log(
   JSON.stringify({
     ok: true,
-    contract: "orvyq-canonical-audio-v4.1-no-double-rotation",
+    contract: "orvyq-canonical-audio-v4.2-duplicate-prefix-reconstruction",
     cue_source: "production_plan.sections",
     minimum_script_similarity: 0.85,
     original_sfx_provenance_required: true,
     repaired_media_reference_order: "canonical_script_order",
+    duplicate_prefix_regression_gate: true,
   }),
 );
