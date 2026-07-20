@@ -1,15 +1,26 @@
 {
-  "generated_at": "2026-07-20T18:27:30Z",
+  "generated_at": "2026-07-20T18:34:30Z",
   "recovery_runs": [
     {
-      "id": 29767763059,
+      "id": 29768268652,
       "name": "ORVYQ Full Render Recovery V4",
       "status": "in_progress",
       "conclusion": null,
+      "head_sha": "902f884d6f4e5e1f6a0cf7210be01971f438cb81",
+      "head_branch": "agent/orvyq-system-wide-production",
+      "created_at": "2026-07-20T18:33:39Z",
+      "updated_at": "2026-07-20T18:33:42Z",
+      "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29768268652"
+    },
+    {
+      "id": 29767763059,
+      "name": "ORVYQ Full Render Recovery V4",
+      "status": "completed",
+      "conclusion": "failure",
       "head_sha": "27abae58de829c0852e1ecfd81cdbd3b54781425",
       "head_branch": "agent/orvyq-system-wide-production",
       "created_at": "2026-07-20T18:26:30Z",
-      "updated_at": "2026-07-20T18:26:33Z",
+      "updated_at": "2026-07-20T18:29:26Z",
       "html_url": "https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29767763059"
     },
     {
@@ -27,7 +38,7 @@
   "candidate_render_runs": [],
   "latest_recovery_jobs": [
     {
-      "id": 88438018202,
+      "id": 88439715117,
       "name": "recover-and-dispatch",
       "status": "in_progress",
       "conclusion": null,
@@ -64,13 +75,13 @@
         },
         {
           "name": "Install deterministic tooling",
-          "status": "in_progress",
-          "conclusion": null,
+          "status": "completed",
+          "conclusion": "success",
           "number": 6
         },
         {
           "name": "Resolve canonical narration contract",
-          "status": "pending",
+          "status": "in_progress",
           "conclusion": null,
           "number": 7
         },
