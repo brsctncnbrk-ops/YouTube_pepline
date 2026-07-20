@@ -23,14 +23,26 @@ jobs:
       PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
       GH_TOKEN: ${{ github.token }}
     steps:
-      - name: Checkout branch with LFS
+      - name: Checkout branch without LFS smudge
         uses: actions/checkout@v4
         with:
-          lfs: true
           fetch-depth: 0
 
-      - name: Pull LFS assets
-        run: git lfs pull
+      - name: Pull and verify LFS assets with retries
+        run: |
+          set -euo pipefail
+          git lfs install --local
+          success=0
+          for attempt in 1 2 3 4; do
+            if GIT_LFS_SKIP_SMUDGE=1 git lfs pull; then
+              success=1
+              break
+            fi
+            git lfs logs last || true
+            sleep $((attempt * 5))
+          done
+          test "$success" = "1"
+          git lfs fsck
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -173,7 +185,14 @@ jobs:
           set -euo pipefail
           git fetch origin "$GITHUB_REF_NAME"
           git reset --hard "origin/$GITHUB_REF_NAME"
-          git lfs pull
+          success=0
+          for attempt in 1 2 3 4; do
+            if GIT_LFS_SKIP_SMUDGE=1 git lfs pull; then success=1; break; fi
+            git lfs logs last || true
+            sleep $((attempt * 5))
+          done
+          test "$success" = "1"
+          git lfs fsck
           node scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"
           test "$(jq -r '.proof_run_id' "projects/$PROJECT_ID/qa/proof_approval.json")" = "$PROOF_RUN_ID"
           test "$(jq -r '.prefix_unchanged' "projects/$PROJECT_ID/qa/proof_approval_continuity.json")" = "true"
