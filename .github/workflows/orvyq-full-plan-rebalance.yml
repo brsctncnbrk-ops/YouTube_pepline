@@ -90,17 +90,20 @@ jobs:
           set -euo pipefail
           node scripts/orvyq_proof_approval_continuity_tests.mjs "$PROJECT_ID"
 
-      - name: Expand and fetch full-film official evidence
+      - name: Expand and fetch available full-film official evidence
         run: |
           set -euo pipefail
           node scripts/orvyq_expand_primary_evidence_manifest.mjs "$PROJECT_ID"
           node scripts/orvyq_fetch_primary_evidence.mjs
+          node scripts/orvyq_prune_unavailable_optional_captures.mjs "$PROJECT_ID"
 
-      - name: Rebalance only the post-proof canonical timeline
+      - name: Rebalance post-proof timeline and bind deterministic evidence bundle
         run: |
           set -euo pipefail
           node scripts/orvyq_rebalance_full_plan.mjs "$PROJECT_ID"
           node scripts/orvyq_production_plan.mjs validate --project-id "$PROJECT_ID"
+          node scripts/orvyq_bind_full_render_evidence_bundle.mjs "$PROJECT_ID"
+          test "$(jq -r '.pass' "projects/$PROJECT_ID/qa/full_render_evidence_bundle.json")" = "true"
 
       - name: Preserve existing proof approval by prefix continuity
         run: |
@@ -152,35 +155,42 @@ jobs:
           const semantic = JSON.parse(fs.readFileSync(`${dir}/qa/semantic_visual_audit.json`, 'utf8'));
           const approval = JSON.parse(fs.readFileSync(`${dir}/qa/proof_approval.json`, 'utf8'));
           const manifest = JSON.parse(fs.readFileSync(`${dir}/manifest.json`, 'utf8'));
-          if (!report.pass || !continuity.pass || !semantic.pass) throw new Error('Full-film structural correction did not pass');
+          const bundle = JSON.parse(fs.readFileSync(`${dir}/qa/full_render_evidence_bundle.json`, 'utf8'));
+          if (!report.pass || !continuity.pass || !semantic.pass || !bundle.pass) throw new Error('Full-film structural correction did not pass');
           if (!continuity.prefix_unchanged || !continuity.narration_unchanged || continuity.new_proof_required) throw new Error('Existing proof approval cannot be preserved');
           if (semantic.official_primary_capture_fraction < 0.3) throw new Error('Official capture ratio remains below 30%');
           if (semantic.maximum_uninterrupted_evidence_seconds > 16) throw new Error('Evidence run remains above 16 seconds');
           if (manifest.proof?.production_plan_sha256 !== approval.production_plan_sha256) throw new Error('Manifest and proof approval plan hashes differ');
-          console.log(JSON.stringify({ok:true, proof_run_id:continuity.proof_run_id, approval_preserved:continuity.approval_preserved, proof_prefix_sha256:continuity.current_prefix_sha256, official_capture_fraction:semantic.official_primary_capture_fraction, maximum_uninterrupted_evidence_seconds:semantic.maximum_uninterrupted_evidence_seconds, converted_official_count:report.converted_official_count, converted_breaker_count:report.converted_breaker_count}));
+          console.log(JSON.stringify({ok:true, proof_run_id:continuity.proof_run_id, approval_preserved:continuity.approval_preserved, bundled_asset_count:bundle.bundled_asset_count, proof_prefix_sha256:continuity.current_prefix_sha256, official_capture_fraction:semantic.official_primary_capture_fraction, maximum_uninterrupted_evidence_seconds:semantic.maximum_uninterrupted_evidence_seconds, converted_official_count:report.converted_official_count, converted_breaker_count:report.converted_breaker_count}));
           NODE
 
-      - name: Commit corrected full-film plan and preserved approval
+      - name: Commit corrected plan, preserved approval, and evidence bundle
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          BUNDLE="projects/$PROJECT_ID/qa/full_render_evidence_bundle.json"
+          mapfile -t BUNDLED_ASSETS < <(jq -r '.local_assets[]' "$BUNDLE")
           git add \
             "projects/$PROJECT_ID/research/primary_evidence_manifest.json" \
+            "projects/$PROJECT_ID/assets/evidence/primary_evidence.runtime.json" \
             "projects/$PROJECT_ID/direction/production_plan.json" \
+            "projects/$PROJECT_ID/qa/optional_capture_availability.json" \
+            "projects/$PROJECT_ID/qa/full_render_evidence_bundle.json" \
             "projects/$PROJECT_ID/qa/proof_approval.json" \
             "projects/$PROJECT_ID/qa/proof_approval_continuity.json" \
             "projects/$PROJECT_ID/qa/full_film_rebalance.json" \
-            "projects/$PROJECT_ID/manifest.json"
+            "projects/$PROJECT_ID/manifest.json" \
+            "${BUNDLED_ASSETS[@]}"
           git diff --cached --quiet && { echo 'No structural full-film changes to commit'; exit 1; }
-          git commit -m "Preserve approved proof and correct ORVYQ full-film visual plan"
+          git commit -m "Preserve approved proof and bundle ORVYQ full-render evidence"
           git reset --hard HEAD
           git clean -fd
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin "HEAD:$GITHUB_REF_NAME"
           echo "APPROVED_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
 
-      - name: Verify preserved approval after commit
+      - name: Verify preserved approval and bundled evidence after commit
         run: |
           set -euo pipefail
           git fetch origin "$GITHUB_REF_NAME"
@@ -193,6 +203,7 @@ jobs:
           done
           test "$success" = "1"
           git lfs fsck
+          node scripts/orvyq_verify_bundled_evidence.mjs "$PROJECT_ID"
           node scripts/orvyq_production_plan.mjs check-approval --project-id "$PROJECT_ID"
           test "$(jq -r '.proof_run_id' "projects/$PROJECT_ID/qa/proof_approval.json")" = "$PROOF_RUN_ID"
           test "$(jq -r '.prefix_unchanged' "projects/$PROJECT_ID/qa/proof_approval_continuity.json")" = "true"
@@ -225,6 +236,9 @@ jobs:
           name: orvyq-full-plan-rebalance-${{ github.run_id }}
           path: |
             projects/${{ env.PROJECT_ID }}/qa/full_film_rebalance.json
+            projects/${{ env.PROJECT_ID }}/qa/optional_capture_availability.json
+            projects/${{ env.PROJECT_ID }}/qa/full_render_evidence_bundle.json
+            projects/${{ env.PROJECT_ID }}/qa/bundled_evidence_verification.json
             projects/${{ env.PROJECT_ID }}/qa/proof_approval_continuity.json
             projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
             projects/${{ env.PROJECT_ID }}/qa/evidence_asset_audit.json
