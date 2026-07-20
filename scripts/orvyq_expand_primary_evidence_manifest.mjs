@@ -48,6 +48,7 @@ export async function expandPrimaryEvidenceManifest(projectId = PROJECT_ID) {
       local_asset: `assets/evidence/${sourceSlug}.png`,
       mime: "text/html",
       min_bytes: 1200,
+      output_min_bytes: 8000,
       capture_type: "webpage",
       allowed_redirect_hosts: redirectHosts,
       provenance_mode: "official_primary_capture",
@@ -68,7 +69,7 @@ export async function expandPrimaryEvidenceManifest(projectId = PROJECT_ID) {
   manifest.policy.web_capture_availability_mode = "best_effort_then_fail_closed_on_plan_quality";
   manifest.policy.unavailable_web_capture_sources = skipped;
   await writeJsonAtomic(manifestPath, manifest);
-  return { project_id: projectId, active_source_count: activeSourceIds.size, added_count: added.length, skipped_count: skipped.length, total_assets: manifest.assets.length, allowed_hosts: manifest.policy.allowed_hosts, skipped_sources: skipped, added_assets: added.map((asset) => ({ evidence_asset_id: asset.evidence_asset_id, source_ids: asset.source_ids, local_asset: asset.local_asset, allowed_redirect_hosts: asset.allowed_redirect_hosts, required_for_full: asset.required_for_full, availability_policy: asset.availability_policy })) };
+  return { project_id: projectId, active_source_count: activeSourceIds.size, added_count: added.length, skipped_count: skipped.length, total_assets: manifest.assets.length, allowed_hosts: manifest.policy.allowed_hosts, skipped_sources: skipped, added_assets: added.map((asset) => ({ evidence_asset_id: asset.evidence_asset_id, source_ids: asset.source_ids, local_asset: asset.local_asset, allowed_redirect_hosts: asset.allowed_redirect_hosts, required_for_full: asset.required_for_full, availability_policy: asset.availability_policy, output_min_bytes: asset.output_min_bytes })) };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
