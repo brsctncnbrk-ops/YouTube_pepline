@@ -1,4 +1,4 @@
-name: ORVYQ Checkout Diagnostic
+name: ORVYQ Source Mix Diagnostic
 
 on:
   push:
@@ -16,13 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
-      TARGET_RUN_ID: "29709943965"
+      TARGET_RUN_ID: "29748503339"
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
           fetch-depth: 0
-      - name: Extract full-edit audit failure
+      - name: Extract source-mix enforcement failure
         run: |
           set -euo pipefail
           for attempt in 1 2 3 4 5; do
@@ -32,14 +32,14 @@ jobs:
           test -s logs.zip
           mkdir -p logs
           unzip -q logs.zip -d logs
-          TARGET="$(find logs -type f -name '*Build approved full edit and run all gates.txt' -print -quit)"
+          TARGET="$(find logs -type f -name '*Normalize, rebalance, enforce source mix, and bind evidence bundle.txt' -print -quit)"
           test -n "$TARGET"
           {
             echo "RUN_ID=$TARGET_RUN_ID"
             echo "TARGET=$TARGET"
-            grep -nE 'AssertionError|Error:|ERR_ASSERTION|audit failed|failed:|below|above|missing|mismatch|differ|##\[error\]|Process completed with exit code|"ok"[[:space:]]*:[[:space:]]*false' "$TARGET" || true
-            echo '--- LAST 300 LINES ---'
-            tail -n 300 "$TARGET"
+            grep -nE 'Error:|failed|needs [0-9]+ frames|headroom|eligible contextual|unknown evidence|##\[error\]|Process completed with exit code|"ok"[[:space:]]*:[[:space:]]*false' "$TARGET" || true
+            echo '--- LAST 180 LINES ---'
+            tail -n 180 "$TARGET"
           } > .github/orvyq-checkout-diagnostic.txt
           cat .github/orvyq-checkout-diagnostic.txt
       - name: Commit diagnostic
@@ -49,7 +49,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add .github/orvyq-checkout-diagnostic.txt
           git diff --cached --quiet && exit 0
-          git commit -m 'Capture ORVYQ full-edit audit failure'
+          git commit -m 'Capture ORVYQ source-mix enforcement failure'
           for attempt in 1 2 3 4 5; do
             git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
             sleep $((attempt * 3))
