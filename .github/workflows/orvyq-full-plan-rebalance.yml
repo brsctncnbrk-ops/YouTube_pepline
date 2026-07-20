@@ -54,6 +54,25 @@ jobs:
           test -n "$BROWSER"
           "$BROWSER" --version
 
+      - name: Resolve canonical full-audio limits
+        run: |
+          set -euo pipefail
+          python scripts/orvyq_narration_timeline.py --project-id "$PROJECT_ID"
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import crypto from 'node:crypto';
+          const dir = `projects/${process.env.PROJECT_ID}`;
+          const plan = JSON.parse(fs.readFileSync(`${dir}/direction/production_plan.json`, 'utf8'));
+          const timelineRaw = fs.readFileSync(`${dir}/direction/narration_timeline.json`, 'utf8');
+          const timeline = JSON.parse(timelineRaw);
+          const actual = crypto.createHash('sha256').update(timelineRaw).digest('hex');
+          const expected = plan.quality_policy?.narration_timeline_sha256;
+          if (!expected || actual !== expected) throw new Error(`Narration timeline drift: ${actual} != ${expected || 'missing'}`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_NARRATION_LIMIT_SECONDS=${timeline.source_duration_seconds}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, `ORVYQ_AUDIO_LIMIT_SECONDS=${timeline.full_output_duration_seconds}\n`);
+          fs.appendFileSync(process.env.GITHUB_ENV, 'ORVYQ_EDITORIAL_PAUSES=1\n');
+          NODE
+
       - name: Verify proof approval continuity regression contract
         run: |
           set -euo pipefail
@@ -81,6 +100,25 @@ jobs:
           test "$(jq -r '.new_proof_required' "projects/$PROJECT_ID/qa/proof_approval_continuity.json")" = "false"
           test "$(jq -r '.manifest_synchronized' "projects/$PROJECT_ID/qa/proof_approval_continuity.json")" = "true"
           echo "PROOF_RUN_ID=$PROOF_RUN_ID" >> "$GITHUB_ENV"
+
+      - name: Build canonical full-duration audio and captions
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import {fetchProofMusic} from './scripts/orvyq_fetch_proof_music.mjs';
+          import {buildOrvyqAudioMix} from './scripts/orvyq_audio_mix.mjs';
+          await fetchProofMusic(process.env.PROJECT_ID);
+          const result = await buildOrvyqAudioMix(process.env.PROJECT_ID);
+          console.log(JSON.stringify({ok: true, ...result}));
+          NODE
+          python scripts/orvyq_speech_qa.py --project-id "$PROJECT_ID"
+          node --input-type=module <<'NODE'
+          import {buildOrvyqCaptions} from './scripts/orvyq_caption_build.mjs';
+          const result = await buildOrvyqCaptions(process.env.PROJECT_ID);
+          console.log(JSON.stringify({ok: true, caption_count: result.captions?.length || 0}));
+          NODE
+          test -s "projects/$PROJECT_ID/assets/audio/final_mix.metadata.json"
+          test -s "projects/$PROJECT_ID/remotion/captions.json"
 
       - name: Build approved full edit and run all gates
         run: |
@@ -171,6 +209,7 @@ jobs:
             projects/${{ env.PROJECT_ID }}/qa/proof_approval_continuity.json
             projects/${{ env.PROJECT_ID }}/qa/semantic_visual_audit.json
             projects/${{ env.PROJECT_ID }}/qa/evidence_asset_audit.json
+            projects/${{ env.PROJECT_ID }}/assets/audio/final_mix.metadata.json
             projects/${{ env.PROJECT_ID }}/research/primary_evidence_manifest.json
             full-render-dispatch.json
           if-no-files-found: warn
