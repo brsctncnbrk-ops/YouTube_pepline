@@ -1,3 +1,3 @@
-requested_at=2026-07-20T15:20:00+03:00
+requested_at=2026-07-20T15:36:00+03:00
 project_id=001-the-ai-race-no-one-can-afford-to-win
-reason=Preserve approved proof run 29701621699, enforce source-backed visuals at or above 60 percent without changing the locked prefix, collect all audit failures in one report, commit the corrected canonical plan and evidence bundle, then dispatch the immutable full-render candidate.
+reason=Run read-only official-legibility preflight, rebalance evidence chains before any final official promotion, enforce source-backed visuals at or above 60 percent, preserve proof run 29701621699 and dispatch the immutable full-render candidate after all aggregate gates pass.
