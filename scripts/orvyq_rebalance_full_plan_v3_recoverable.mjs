@@ -3,6 +3,7 @@ import path from "node:path";
 import {
   projectDir,
   readJson,
+  writeJsonAtomic,
 } from "./lib/fs-utils.mjs";
 import { rebalanceFullPlanV3 } from "./orvyq_rebalance_full_plan_v3.mjs";
 
@@ -12,9 +13,12 @@ export async function runRecoverableRebalance(projectId = PROJECT_ID) {
   try {
     return await rebalanceFullPlanV3(projectId);
   } catch (error) {
-    const report = await readJson(
-      path.join(projectDir(projectId), "qa", "full_film_rebalance.json"),
+    const reportPath = path.join(
+      projectDir(projectId),
+      "qa",
+      "full_film_rebalance.json",
     );
+    const report = await readJson(reportPath);
     const failures = report.failures || [];
     const recoverable =
       report.prefix_unchanged === true &&
@@ -29,10 +33,13 @@ export async function runRecoverableRebalance(projectId = PROJECT_ID) {
     if (!recoverable) throw error;
     report.recoverable_handoff = {
       required: true,
+      completed: false,
       next_stage: "official_floor_inset_recovery",
       reason: failures[0],
       all_other_structural_gates_passed: true,
+      recorded_at: new Date().toISOString(),
     };
+    await writeJsonAtomic(reportPath, report);
     console.log(
       JSON.stringify({
         ok: true,
