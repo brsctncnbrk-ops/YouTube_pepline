@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
 import path from "node:path";
+import "./orvyq_rebalance_full_plan_tests.mjs";
 import { projectDir, readJson } from "./lib/fs-utils.mjs";
 import { proofFingerprint } from "./orvyq_refresh_approval_for_unchanged_prefix.mjs";
 
@@ -61,6 +62,7 @@ async function main(projectId = PROJECT_ID) {
       post_proof_change_preserves_approval: true,
       proof_change_invalidates_approval: true,
       narration_change_invalidates_approval: true,
+      source_backed_breaker_regression_gate: true,
     }),
   );
 }
