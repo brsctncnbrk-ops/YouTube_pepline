@@ -26,7 +26,7 @@ function sha256(value) {
   return crypto.createHash("sha256").update(JSON.stringify(stableValue(value))).digest("hex");
 }
 
-function proofFingerprint(plan, timeline) {
+export function proofFingerprint(plan, timeline) {
   const fps = Number(plan.fps || timeline.fps || 30);
   const semanticFrame = Math.ceil(Number(timeline.proof?.speech_output_end_seconds || 0) * fps);
   const boundaryShot = (plan.shots || []).find((shot) => Number(shot.end_frame) >= semanticFrame);
@@ -76,10 +76,12 @@ async function gitJson(commitSha, repoPath) {
 export async function refreshApproval(projectId = PROJECT_ID) {
   const dir = projectDir(projectId);
   const approvalPath = path.join(dir, "qa", "proof_approval.json");
+  const manifestPath = path.join(dir, "manifest.json");
   const planPath = path.join(dir, "direction", "production_plan.json");
   const timelinePath = path.join(dir, "direction", "narration_timeline.json");
-  const [approval, currentPlan, currentTimeline] = await Promise.all([
+  const [approval, manifest, currentPlan, currentTimeline] = await Promise.all([
     readJson(approvalPath),
+    readJson(manifestPath),
     readJson(planPath),
     readJson(timelinePath),
   ]);
@@ -114,10 +116,28 @@ export async function refreshApproval(projectId = PROJECT_ID) {
     production_plan_sha256: currentPlanSha,
     review_notes: [approval.review_notes, note].filter(Boolean).join(" "),
   };
-  await writeJsonAtomic(approvalPath, updatedApproval);
+  const updatedManifest = {
+    ...manifest,
+    status: "PROOF_APPROVED",
+    current_stage: "render_qa",
+    last_updated: new Date().toISOString(),
+    proof: {
+      ...(manifest.proof || {}),
+      status: "approved",
+      proof_run_id: String(approval.proof_run_id),
+      render_source_sha: String(approval.render_source_sha),
+      human_score: Number(approval.human_score),
+      production_plan_sha256: currentPlanSha,
+      approved_at: approval.approved_at,
+    },
+  };
+  await Promise.all([
+    writeJsonAtomic(approvalPath, updatedApproval),
+    writeJsonAtomic(manifestPath, updatedManifest),
+  ]);
 
   const report = {
-    schema_version: "1.0-proof-approval-continuity",
+    schema_version: "1.1-proof-approval-continuity",
     project_id: projectId,
     generated_at: new Date().toISOString(),
     proof_run_id: approval.proof_run_id,
@@ -133,6 +153,7 @@ export async function refreshApproval(projectId = PROJECT_ID) {
     prefix_unchanged: true,
     narration_unchanged: true,
     approval_preserved: true,
+    manifest_synchronized: true,
     new_proof_required: false,
     pass: true,
   };
