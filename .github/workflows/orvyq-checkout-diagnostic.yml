@@ -1,0 +1,53 @@
+name: ORVYQ Checkout Diagnostic
+
+on:
+  push:
+    branches:
+      - agent/orvyq-system-wide-production
+    paths:
+      - .github/orvyq-checkout-diagnostic-trigger.txt
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TARGET_RUN_ID: "29709674695"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Extract checkout failure
+        run: |
+          set -euo pipefail
+          gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${TARGET_RUN_ID}/logs" > logs.zip
+          mkdir -p logs
+          unzip -q logs.zip -d logs
+          TARGET="$(find logs -type f -name '*Checkout branch with LFS.txt' -print -quit)"
+          test -n "$TARGET"
+          {
+            echo "RUN_ID=$TARGET_RUN_ID"
+            echo "TARGET=$TARGET"
+            grep -nE 'fatal:|error:|Error:|LFS|smudge|RPC failed|early EOF|timed out|timeout|HTTP|##\[error\]|Process completed' "$TARGET" || true
+            echo '--- COMPLETE CHECKOUT LOG ---'
+            cat "$TARGET"
+          } > .github/orvyq-checkout-diagnostic.txt
+          cat .github/orvyq-checkout-diagnostic.txt
+      - name: Commit checkout diagnostic
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .github/orvyq-checkout-diagnostic.txt
+          git diff --cached --quiet && exit 0
+          git commit -m 'Capture ORVYQ checkout failure'
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin "$GITHUB_REF_NAME" && git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            sleep $((attempt * 3))
+          done
+          exit 1
