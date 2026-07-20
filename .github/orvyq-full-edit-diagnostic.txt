@@ -1,7 +1,7 @@
 RUN_ID=29711074442
 FAILED_STEP=Build approved full edit and run all gates
 FAILED_NUMBER=13
-TARGET=
+TARGET=logs/0_rebalance.txt
 --- ERROR INDEX ---
 logs/0_rebalance.txt:29:2026-07-20T01:32:48.0088294Z Getting action download info
 logs/0_rebalance.txt:147:2026-07-20T01:32:50.4356639Z [36;1m  if GIT_LFS_SKIP_SMUDGE=1 git lfs pull; then[0m
@@ -9,12 +9,17 @@ logs/0_rebalance.txt:162:2026-07-20T01:32:50.4888125Z Git LFS initialized.
 logs/0_rebalance.txt:163:2026-07-20T01:32:58.0274660Z Git LFS fsck OK
 logs/0_rebalance.txt:176:2026-07-20T01:32:58.5042123Z Attempting to download 20...
 logs/0_rebalance.txt:179:2026-07-20T01:32:59.2111740Z Acquiring 20.20.2 - x64 from https://github.com/actions/node-versions/releases/download/20.20.2-23521894959/node-20.20.2-linux-x64.tar.gz
+logs/0_rebalance.txt:984:2026-07-20T01:33:29.9424799Z [36;1mif (!expected || actual !== expected) throw new Error(`Narration timeline drift: ${actual} != ${expected || 'missing'}`);[0m
 logs/0_rebalance.txt:1000:2026-07-20T01:33:34.4010338Z Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 logs/0_rebalance.txt:1026:2026-07-20T01:33:46.4770890Z [36;1mnode scripts/orvyq_prune_unavailable_optional_captures.mjs "$PROJECT_ID"[0m
 logs/0_rebalance.txt:1041:2026-07-20T01:33:46.5312395Z {"ok":true,"project_id":"001-the-ai-race-no-one-can-afford-to-win","active_source_count":17,"added_count":13,"skipped_count":1,"total_assets":25,"allowed_hosts":["digital-strategy.ec.europa.eu","hai.stanford.edu","internationalaisafetyreport.org","storage.googleapis.com","www-cdn.anthropic.com","www.anthropic.com","www.gov.uk","www.ilo.org"],"skipped_sources":[{"source_id":"SRC_NTIA_OPEN_WEIGHTS_2024","reason":"official page is not reachable from GitHub-hosted runners; retain source-derived visual treatment"}],"added_assets":[{"evidence_asset_id":"EVID_WEB_ANTHROPIC_CYBER_MISUSE_2025","source_ids":["SRC_ANTHROPIC_CYBER_MISUSE_2025"],"local_asset":"assets/evidence/anthropic_cyber_misuse_2025.png","allowed_redirect_hosts":[],"required_for_full":false,"availability_policy":"best_effort_with_global_quality_gate","output_min_bytes":8000},{"evidence_asset_id":"EVID_WEB_ANTHROPIC_ESPIONAGE_2025","source_ids":["SRC_ANTHROPIC_ESPIONAGE_2025"],"local_asset":"assets/evidence/anthropic_espionage_2025.png","allowed_redirect_hosts":[],"required_for_full":false,"availability_policy":"best_effort_with_global_quality_gate","output_min_bytes":8000},{"evidence_asset_id":"EVID_WEB_ANTHROPIC_ASL3_2025","source_ids":["SRC_ANTHROPIC_ASL3_2025"],"local_asset":"assets/evidence/anthropic_asl3_2025.png","allowed_redirect_hosts":[],"required_for_full":false,"availability_policy":"best_effort_with_global_quality_gate","output_min_bytes":8000},{"evidence_asset_id":"EVID_WEB_ILO_JOBS_2025","source_ids":["SRC_ILO_JOBS_2025"],"local_asset":"assets/evidence/ilo_jobs_2025.png","allowed_redirect_hosts":[],"required_for_full":false,"availability_policy":"best_effort_with_global_quality_gate","output_min_bytes":8000},{"evidence_asset_id":"EVID_WEB_ILO_EXPOSURE_LIMITS_2026","source_ids":["SRC_ILO_EXPOSURE_LIMITS_2026"],"local_asset":"assets/evidence/ilo_exposure_limits_2026.png","allowed_redirect_hosts":[],"required_for_full":false,"availability_policy":"best_effort_with_global_quality_gate","output_min_bytes":8000},{"evidence_asset_id":"EVID_WEB_EU_GPAI_OBLIGATIONS_2025","source_ids":["SRC_EU_GPAI_OBLIGATIONS_2025"],"local_asset":"assets/evidence/eu_gpai_obligations_2025.png","allowed_redirect_hosts":[],"required_for_full":false,"availability_policy":"best_effort_with_global_quality_gate","output_min_bytes":8000},{"evidence_asset_id":"EVID_WEB_EU_GPAI_GUIDELINES_2025","source_ids":["SRC_EU_GPAI_GUIDELINES_2025"],"local_asset":"assets/evidence/eu_gpai_guidelines_2025.png","allowed_redirect_hosts":[],"required_for_full":false,"availability_policy":"best_effort_with_global_quality_gate","output_min_bytes":8000},{"evidence_asset_id":"EVID_WEB_UK_AISI_EVALS_2024","source_ids":["SRC_UK_AISI_EVALS_2024"],"local_asset":"assets/evidence/uk_aisi_evals_2024.png","allowed_redirect_hosts":[],"required_for_full":false,"availability_policy":"best_effort_with_global_quality_gate","output_min_bytes":8000},{"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_ECONOMY","source_ids":["SRC_STANFORD_AI_INDEX_2025_ECONOMY"],"local_asset":"assets/evidence/stanford_ai_index_2025_economy.png","allowed_redirect_hosts":[],"required_for_full":false,"availability_policy":"best_effort_with_global_quality_gate","output_min_bytes":8000},{"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_TECHNICAL","source_ids":["SRC_STANFORD_AI_INDEX_2025_TECHNICAL"],"local_asset":"assets/evidence/stanford_ai_index_2025_technical.png","allowed_redirect_hosts":[],"required_for_full":false,"availability_policy":"best_effort_with_global_quality_gate","output_min_bytes":8000},{"evidence_asset_id":"EVID_WEB_CMA_FOUNDATION_MODELS_UPDATE_2024","source_ids":["SRC_CMA_FOUNDATION_MODELS_UPDATE_2024"],"local_asset":"assets/evidence/cma_foundation_models_update_2024.png","allowed_redirect_hosts":[],"required_for_full":false,"availability_policy":"best_effort_with_global_quality_gate","output_min_bytes":8000},{"evidence_asset_id":"EVID_WEB_CMA_CLOUD_MARKET_2025","source_ids":["SRC_CMA_CLOUD_MARKET_2025"],"local_asset":"assets/evidence/cma_cloud_market_2025.png","allowed_redirect_hosts":[],"required_for_full":false,"availability_policy":"best_effort_with_global_quality_gate","output_min_bytes":8000},{"evidence_asset_id":"EVID_WEB_INTERNATIONAL_AI_SAFETY_REPORT_2025","source_ids":["SRC_INTERNATIONAL_AI_SAFETY_REPORT_2025"],"local_asset":"assets/evidence/international_ai_safety_report_2025.png","allowed_redirect_hosts":["internationalaisafetyreport.org"],"required_for_full":false,"availability_policy":"best_effort_with_global_quality_gate","output_min_bytes":8000}]}
 logs/0_rebalance.txt:1043:2026-07-20T01:34:33.6648364Z {"ok":true,"schema_version":"1.0-optional-capture-availability","project_id":"001-the-ai-race-no-one-can-afford-to-win","generated_at":"2026-07-20T01:34:33.660Z","runtime_asset_count":25,"required_failure_count":0,"optional_failure_count":0,"removed_optional_count":0,"retained_asset_count":25,"removed":[],"pass":true}
 logs/0_rebalance.txt:1064:2026-07-20T01:34:33.7508816Z {"ok":true,"schema_version":"1.1-source-backed-breakers","project_id":"001-the-ai-race-no-one-can-afford-to-win","generated_at":"2026-07-20T01:34:33.742Z","locked_proof_boundary_frame":4800,"proof_prefix_sha256":"1b80c4dcd9e408f0fd1c98168c1a3c9d7374a3019cd1dc12a6cdeda7ef11a61b","prefix_unchanged":true,"target_official_capture_fraction":0.3,"target_evidence_fraction":0.6,"maximum_graphic_fraction":0.1,"maximum_evidence_seconds":16,"converted_official_count":28,"converted_breaker_count":9,"converted_source_backed_graphic_count":6,"converted_official":[{"shot_id":"shot_036","section_id":"SEC_03_INCENTIVE_RACE","evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_ECONOMY","local_asset":"assets/evidence/stanford_ai_index_2025_economy.png"},{"shot_id":"shot_037","section_id":"SEC_03_INCENTIVE_RACE","evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_TECHNICAL","local_asset":"assets/evidence/stanford_ai_index_2025_technical.png"},{"shot_id":"shot_038","section_id":"SEC_03_INCENTIVE_RACE","evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_ECONOMY","local_asset":"assets/evidence/stanford_ai_index_2025_economy.png"},{"shot_id":"shot_040","section_id":"SEC_03_INCENTIVE_RACE","evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_TECHNICAL","local_asset":"assets/evidence/stanford_ai_index_2025_technical.png"},{"shot_id":"shot_048","section_id":"SEC_04_REAL_WORLD_MISUSE","evidence_asset_id":"EVID_WEB_ANTHROPIC_CYBER_MISUSE_2025","local_asset":"assets/evidence/anthropic_cyber_misuse_2025.png"},{"shot_id":"shot_049","section_id":"SEC_04_REAL_WORLD_MISUSE","evidence_asset_id":"EVID_WEB_ANTHROPIC_ESPIONAGE_2025","local_asset":"assets/evidence/anthropic_espionage_2025.png"},{"shot_id":"shot_051","section_id":"SEC_04_REAL_WORLD_MISUSE","evidence_asset_id":"EVID_WEB_INTERNATIONAL_AI_SAFETY_REPORT_2025","local_asset":"assets/evidence/international_ai_safety_report_2025.png"},{"shot_id":"shot_052","section_id":"SEC_04_REAL_WORLD_MISUSE","evidence_asset_id":"EVID_WEB_ANTHROPIC_CYBER_MISUSE_2025","local_asset":"assets/evidence/anthropic_cyber_misuse_2025.png"},{"shot_id":"shot_054","section_id":"SEC_04_REAL_WORLD_MISUSE","evidence_asset_id":"EVID_WEB_ANTHROPIC_ASL3_2025","local_asset":"assets/evidence/anthropic_asl3_2025.png"},{"shot_id":"shot_057","section_id":"SEC_04_REAL_WORLD_MISUSE","evidence_asset_id":"EVID_WEB_ANTHROPIC_ESPIONAGE_2025","local_asset":"assets/evidence/anthropic_espionage_2025.png"},{"shot_id":"shot_059","section_id":"SEC_04_REAL_WORLD_MISUSE","evidence_asset_id":"EVID_WEB_INTERNATIONAL_AI_SAFETY_REPORT_2025","local_asset":"assets/evidence/international_ai_safety_report_2025.png"},{"shot_id":"shot_064","section_id":"SEC_05_WORK_AND_CONCENTRATION","evidence_asset_id":"EVID_WEB_ILO_JOBS_2025","local_asset":"assets/evidence/ilo_jobs_2025.png"},{"shot_id":"shot_066","section_id":"SEC_05_WORK_AND_CONCENTRATION","evidence_asset_id":"EVID_WEB_ILO_EXPOSURE_LIMITS_2026","local_asset":"assets/evidence/ilo_exposure_limits_2026.png"},{"shot_id":"shot_067","section_id":"SEC_05_WORK_AND_CONCENTRATION","evidence_asset_id":"EVID_WEB_ILO_JOBS_2025","local_asset":"assets/evidence/ilo_jobs_2025.png"},{"shot_id":"shot_069","section_id":"SEC_05_WORK_AND_CONCENTRATION","evidence_asset_id":"EVID_WEB_ILO_EXPOSURE_LIMITS_2026","local_asset":"assets/evidence/ilo_exposure_limits_2026.png"},{"shot_id":"shot_071","section_id":"SEC_05_WORK_AND_CONCENTRATION","evidence_asset_id":"EVID_WEB_CMA_FOUNDATION_MODELS_UPDATE_2024","local_asset":"assets/evidence/cma_foundation_models_update_2024.png"},{"shot_id":"shot_074","section_id":"SEC_05_WORK_AND_CONCENTRATION","evidence_asset_id":"EVID_WEB_CMA_CLOUD_MARKET_2025","local_asset":"assets/evidence/cma_cloud_market_2025.png"},{"shot_id":"shot_076","section_id":"SEC_06_REGULATION_PARADOX","evidence_asset_id":"EVID_WEB_EU_GPAI_OBLIGATIONS_2025","local_asset":"assets/evidence/eu_gpai_obligations_2025.png"},{"shot_id":"shot_079","section_id":"SEC_06_REGULATION_PARADOX","evidence_asset_id":"EVID_WEB_EU_GPAI_OBLIGATIONS_2025","local_asset":"assets/evidence/eu_gpai_obligations_2025.png"},{"shot_id":"shot_082","section_id":"SEC_06_REGULATION_PARADOX","evidence_asset_id":"EVID_WEB_EU_GPAI_GUIDELINES_2025","local_asset":"assets/evidence/eu_gpai_guidelines_2025.png"},{"shot_id":"shot_086","section_id":"SEC_06_REGULATION_PARADOX","evidence_asset_id":"EVID_WEB_EU_GPAI_GUIDELINES_2025","local_asset":"assets/evidence/eu_gpai_guidelines_2025.png"},{"shot_id":"shot_104","section_id":"SEC_08_SAFETY_ARCHITECTURE","evidence_asset_id":"EVID_WEB_UK_AISI_EVALS_2024","local_asset":"assets/evidence/uk_aisi_evals_2024.png"},{"shot_id":"shot_106","section_id":"SEC_08_SAFETY_ARCHITECTURE","evidence_asset_id":"EVID_WEB_UK_AISI_EVALS_2024","local_asset":"assets/evidence/uk_aisi_evals_2024.png"},{"shot_id":"shot_121","section_id":"SEC_09_FINAL_PARADOX","evidence_asset_id":"EVID_RSP_SUMMARY_CAPTURE","local_asset":"assets/evidence/anthropic_rsp_summary.png"},{"shot_id":"shot_123","section_id":"SEC_09_FINAL_PARADOX","evidence_asset_id":"EVID_RSP_THRESHOLDS_CAPTURE","local_asset":"assets/evidence/anthropic_rsp_thresholds.png"},{"shot_id":"shot_124","section_id":"SEC_09_FINAL_PARADOX","evidence_asset_id":"EVID_RSP_SUMMARY_CAPTURE","local_asset":"assets/evidence/anthropic_rsp_summary.png"},{"shot_id":"shot_126","section_id":"SEC_09_FINAL_PARADOX","evidence_asset_id":"EVID_FSF_FRAMEWORK_CAPTURE","local_asset":"assets/evidence/deepmind_fsf_framework.png"},{"shot_id":"shot_127","section_id":"SEC_09_FINAL_PARADOX","evidence_asset_id":"EVID_FSF_ALIGNMENT_CAPTURE","local_asset":"assets/evidence/deepmind_fsf_alignment.png"}],"converted_breakers":[{"shot_id":"shot_046","section_id":"SEC_04_REAL_WORLD_MISUSE","video_asset":"assets/footage/scene_004_52abd7f745cc24b4ecad0215.mp4","duration_seconds":5.8},{"shot_id":"shot_050","section_id":"SEC_04_REAL_WORLD_MISUSE","video_asset":"assets/footage/scene_006_7e0d77fb76615c10d441204a.mp4","duration_seconds":6.2},{"shot_id":"shot_058","section_id":"SEC_04_REAL_WORLD_MISUSE","video_asset":"assets/footage/scene_010_6f7bc11f2a696985af0db15f.mp4","duration_seconds":7},{"shot_id":"shot_068","section_id":"SEC_05_WORK_AND_CONCENTRATION","video_asset":"assets/footage/scene_012_d356fd9efe14c61c8594ff1f.mp4","duration_seconds":6.6},{"shot_id":"shot_084","section_id":"SEC_06_REGULATION_PARADOX","video_asset":"assets/footage/scene_020_820a251a5b10ad8f5a63266f.mp4","duration_seconds":6.533333333333333},{"shot_id":"shot_087","section_id":"SEC_06_REGULATION_PARADOX","video_asset":"assets/footage/scene_032_29ff7ef6ff7df132006f8e97.mp4","duration_seconds":7.366666666666666},{"shot_id":"shot_097","section_id":"SEC_07_OPEN_CLOSED","video_asset":"assets/footage/scene_033_1b2f289c850d35e4a6e96dc4.mp4","duration_seconds":7},{"shot_id":"shot_125","section_id":"SEC_09_FINAL_PARADOX","video_asset":"assets/footage/scene_033_1b2f289c850d35e4a6e96dc4.mp4","duration_seconds":5.8},{"shot_id":"shot_128","section_id":"SEC_09_FINAL_PARADOX","video_asset":"assets/footage/scene_001_52c2ebe35b131555e20a5ab5.mp4","duration_seconds":7.6}],"converted_source_backed_graphics":[{"shot_id":"shot_046","section_id":"SEC_04_REAL_WORLD_MISUSE","source_ids":["SRC_ANTHROPIC_ASL3_2025"],"duration_seconds":5.8},{"shot_id":"shot_050","section_id":"SEC_04_REAL_WORLD_MISUSE","source_ids":["SRC_ANTHROPIC_ASL3_2025"],"duration_seconds":6.2},{"shot_id":"shot_058","section_id":"SEC_04_REAL_WORLD_MISUSE","source_ids":["SRC_ANTHROPIC_ASL3_2025"],"duration_seconds":7},{"shot_id":"shot_068","section_id":"SEC_05_WORK_AND_CONCENTRATION","source_ids":["SRC_CMA_FOUNDATION_MODELS_UPDATE_2024","SRC_CMA_CLOUD_MARKET_2025"],"duration_seconds":6.6},{"shot_id":"shot_084","section_id":"SEC_06_REGULATION_PARADOX","source_ids":["SRC_EU_GPAI_OBLIGATIONS_2025","SRC_EU_GPAI_GUIDELINES_2025"],"duration_seconds":6.533333333333333},{"shot_id":"shot_087","section_id":"SEC_06_REGULATION_PARADOX","source_ids":["SRC_EU_GPAI_OBLIGATIONS_2025"],"duration_seconds":7.366666666666666}],"metrics":{"official_frames":6746,"official_fraction":0.3014837325706114,"physical_evidence_frames":12265,"source_backed_graphic_frames":1335,"evidence_frames":13600,"evidence_fraction":0.6077940650697176,"contextual_frames":8117,"contextual_fraction":0.36275473721844836,"graphic_frames":1664,"graphic_fraction":0.07436539149088309,"maximum_uninterrupted_evidence_seconds":15.3},"pass":true}
+logs/0_rebalance.txt:1222:2026-07-20T01:38:01.6560507Z [36;1mif (!report.pass || !continuity.pass || !semantic.pass || !bundle.pass) throw new Error('Full-film structural correction did not pass');[0m
+logs/0_rebalance.txt:1223:2026-07-20T01:38:01.6561620Z [36;1mif (!continuity.prefix_unchanged || !continuity.narration_unchanged || continuity.new_proof_required) throw new Error('Existing proof approval cannot be preserved');[0m
 logs/0_rebalance.txt:1224:2026-07-20T01:38:01.6562791Z [36;1mif (semantic.official_primary_capture_fraction < 0.3) throw new Error('Official capture ratio remains below 30%');[0m
+logs/0_rebalance.txt:1225:2026-07-20T01:38:01.6563712Z [36;1mif (semantic.maximum_uninterrupted_evidence_seconds > 16) throw new Error('Evidence run remains above 16 seconds');[0m
+logs/0_rebalance.txt:1226:2026-07-20T01:38:01.6564766Z [36;1mif (manifest.proof?.production_plan_sha256 !== approval.production_plan_sha256) throw new Error('Manifest and proof approval plan hashes differ');[0m
 logs/0_rebalance.txt:1227:2026-07-20T01:38:01.6567459Z [36;1mconsole.log(JSON.stringify({ok:true, proof_run_id:continuity.proof_run_id, approval_preserved:continuity.approval_preserved, bundled_asset_count:bundle.bundled_asset_count, proof_prefix_sha256:continuity.current_prefix_sha256, official_capture_fraction:semantic.official_primary_capture_fraction, maximum_uninterrupted_evidence_seconds:semantic.maximum_uninterrupted_evidence_seconds, converted_official_count:report.converted_official_count, converted_breaker_count:report.converted_breaker_count}));[0m
 logs/0_rebalance.txt:1268:2026-07-20T01:38:01.8949245Z       "source_treatment": "official primary-source captures across the full film, alternated with visibly attributed source-derived motion graphics and licensed contextual motion",
 logs/0_rebalance.txt:1295:2026-07-20T01:38:01.8967614Z       "official_capture_fraction_min": 0.3,
@@ -62,3 +67,504 @@ logs/0_rebalance.txt:6106:2026-07-20T01:38:02.1911479Z {"ok":false,"error":"ORVY
 logs/0_rebalance.txt:6107:2026-07-20T01:38:02.1960443Z ##[error]Process completed with exit code 1.
 logs/0_rebalance.txt:6113:projects/001-the-ai-race-no-one-can-afford-to-win/qa/optional_capture_availability.json
 logs/0_rebalance.txt:6157:2026-07-20T01:38:02.8098130Z Artifact download URL: https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29711074442/artifacts/8448989343
+--- LAST 500 LINES OF FAILED JOB LOG ---
+2026-07-20T01:38:02.0313089Z             "Build the conclusion only from evidence already shown…",
+2026-07-20T01:38:02.0313339Z             "Label the frame as ORVYQ synthesis rather than a new…",
+2026-07-20T01:38:02.0313593Z             "Do not imply the cited sources independently endorse…"
+2026-07-20T01:38:02.0313678Z           ],
+2026-07-20T01:38:02.0313856Z           "provenance_mode": "official_primary_capture",
+2026-07-20T01:38:02.0313948Z           "image_assets": [
+2026-07-20T01:38:02.0314112Z             "assets/evidence/anthropic_rsp_summary.png"
+2026-07-20T01:38:02.0314196Z           ],
+2026-07-20T01:38:02.0314308Z           "evidence_asset_ids": [
+2026-07-20T01:38:02.0314436Z             "EVID_RSP_SUMMARY_CAPTURE"
+2026-07-20T01:38:02.0314526Z           ]
+2026-07-20T01:38:02.0314602Z         },
+2026-07-20T01:38:02.0315187Z         "motif": "CLM_020_SYSTEMIC_INCENTIVE_FINAL:official:EVID_RSP_SUMMARY_CAPTURE"
+2026-07-20T01:38:02.0315309Z       },
+2026-07-20T01:38:02.0315390Z       {
+2026-07-20T01:38:02.0315515Z         "shot_id": "shot_122",
+2026-07-20T01:38:02.0315635Z         "scene_id": "scene_031",
+2026-07-20T01:38:02.0315777Z         "section_id": "SEC_09_FINAL_PARADOX",
+2026-07-20T01:38:02.0315878Z         "start_frame": 20735,
+2026-07-20T01:38:02.0316119Z         "end_frame": 20945,
+2026-07-20T01:38:02.0316492Z         "claim_id": "CLM_020_SYSTEMIC_INCENTIVE_FINAL",
+2026-07-20T01:38:02.0316630Z         "generic_stock": false,
+2026-07-20T01:38:02.0316746Z         "transition_in": "cut",
+2026-07-20T01:38:02.0316857Z         "transition_out": "cut",
+2026-07-20T01:38:02.0316954Z         "text_overlay": null,
+2026-07-20T01:38:02.0317048Z         "sound_cue": null,
+2026-07-20T01:38:02.0317158Z         "emphasis_card": null,
+2026-07-20T01:38:02.0317413Z         "editorial_overlay": null,
+2026-07-20T01:38:02.0317530Z         "asset_type": "footage",
+2026-07-20T01:38:02.0317641Z         "visual_role": "context",
+2026-07-20T01:38:02.0318496Z         "editorial_purpose": "Convey the film's core closing idea: risk accumulates through many small decisions, not a single dramatic event. Use licensed moving context without presenting it as literal evidence of a named event.",
+2026-07-20T01:38:02.0318760Z         "video_asset": "assets/footage/scene_031_12e168b42df0ef02be3b9707.mp4",
+2026-07-20T01:38:02.0318853Z         "trim_in_sec": 0,
+2026-07-20T01:38:02.0318951Z         "trim_out_sec": 7,
+2026-07-20T01:38:02.0319082Z         "motion_variant": "drift_left",
+2026-07-20T01:38:02.0319201Z         "contextual_footage": true,
+2026-07-20T01:38:02.0319379Z         "provenance_mode": "approved_contextual_footage",
+2026-07-20T01:38:02.0319597Z         "motif": "assets/footage/scene_031_12e168b42df0ef02be3b9707.mp4"
+2026-07-20T01:38:02.0319676Z       },
+2026-07-20T01:38:02.0319761Z       {
+2026-07-20T01:38:02.0319877Z         "shot_id": "shot_123",
+2026-07-20T01:38:02.0319986Z         "scene_id": "scene_031",
+2026-07-20T01:38:02.0320123Z         "section_id": "SEC_09_FINAL_PARADOX",
+2026-07-20T01:38:02.0320221Z         "start_frame": 20945,
+2026-07-20T01:38:02.0320309Z         "end_frame": 21131,
+2026-07-20T01:38:02.0320471Z         "claim_id": "CLM_020_SYSTEMIC_INCENTIVE_FINAL",
+2026-07-20T01:38:02.0320587Z         "generic_stock": false,
+2026-07-20T01:38:02.0320696Z         "transition_in": "cut",
+2026-07-20T01:38:02.0320811Z         "transition_out": "cut",
+2026-07-20T01:38:02.0320906Z         "text_overlay": null,
+2026-07-20T01:38:02.0320995Z         "sound_cue": null,
+2026-07-20T01:38:02.0321116Z         "emphasis_card": null,
+2026-07-20T01:38:02.0321242Z         "editorial_overlay": null,
+2026-07-20T01:38:02.0321356Z         "asset_type": "evidence",
+2026-07-20T01:38:02.0321475Z         "visual_role": "evidence",
+2026-07-20T01:38:02.0322350Z         "editorial_purpose": "Convey the film's core closing idea: risk accumulates through many small decisions, not a single dramatic event. Anchor the narration to an attributed source-derived visual before any metaphorical treatment.",
+2026-07-20T01:38:02.0322442Z         "evidence": {
+2026-07-20T01:38:02.0322566Z           "kind": "official_screen",
+2026-07-20T01:38:02.0322712Z           "eyebrow": "OFFICIAL PRIMARY SOURCE",
+2026-07-20T01:38:02.0323144Z           "title": "The final paradox is an editorial synthesis: competition is measurable, safet…",
+2026-07-20T01:38:02.0323609Z           "subtitle": "Convey the film's core closing idea: risk accumulates through many small decisions, not a single dramatic event.",
+2026-07-20T01:38:02.0324542Z           "source_label": "Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Anthropic · 2024  |  Google DeepMind · 2025",
+2026-07-20T01:38:02.0324643Z           "source_ids": [
+2026-07-20T01:38:02.0324790Z             "SRC_STANFORD_AI_INDEX_2025_ECONOMY",
+2026-07-20T01:38:02.0325124Z             "SRC_STANFORD_AI_INDEX_2025_TECHNICAL",
+2026-07-20T01:38:02.0325256Z             "SRC_ANTHROPIC_RSP_2024",
+2026-07-20T01:38:02.0325370Z             "SRC_DEEPMIND_FSF_2025"
+2026-07-20T01:38:02.0325455Z           ],
+2026-07-20T01:38:02.0325973Z           "limitation": "Investment levels show the scale of competition; they do not directly prove that every investor rewards speed over caution.",
+2026-07-20T01:38:02.0326195Z           "font_px": 32,
+2026-07-20T01:38:02.0326292Z           "items": [
+2026-07-20T01:38:02.0326377Z             {
+2026-07-20T01:38:02.0326467Z               "label": "01",
+2026-07-20T01:38:02.0326820Z               "value": "Build the conclusion only from evidence already shown earlier…"
+2026-07-20T01:38:02.0326910Z             },
+2026-07-20T01:38:02.0326988Z             {
+2026-07-20T01:38:02.0327082Z               "label": "02",
+2026-07-20T01:38:02.0327395Z               "value": "Label the frame as ORVYQ synthesis rather than a new empirica…"
+2026-07-20T01:38:02.0327625Z             },
+2026-07-20T01:38:02.0327713Z             {
+2026-07-20T01:38:02.0327809Z               "label": "03",
+2026-07-20T01:38:02.0328133Z               "value": "Do not imply the cited sources independently endorse the film…",
+2026-07-20T01:38:02.0328638Z               "detail": "Investment levels show the scale of competition; they do not directly prove that every investor rewards speed over caution."
+2026-07-20T01:38:02.0328730Z             }
+2026-07-20T01:38:02.0328817Z           ],
+2026-07-20T01:38:02.0328987Z           "provenance_mode": "official_primary_capture",
+2026-07-20T01:38:02.0329084Z           "image_assets": [
+2026-07-20T01:38:02.0329263Z             "assets/evidence/anthropic_rsp_thresholds.png"
+2026-07-20T01:38:02.0329342Z           ],
+2026-07-20T01:38:02.0329462Z           "evidence_asset_ids": [
+2026-07-20T01:38:02.0329597Z             "EVID_RSP_THRESHOLDS_CAPTURE"
+2026-07-20T01:38:02.0329681Z           ]
+2026-07-20T01:38:02.0329767Z         },
+2026-07-20T01:38:02.0330042Z         "motif": "CLM_020_SYSTEMIC_INCENTIVE_FINAL:official:EVID_RSP_THRESHOLDS_CAPTURE"
+2026-07-20T01:38:02.0330120Z       },
+2026-07-20T01:38:02.0330202Z       {
+2026-07-20T01:38:02.0330315Z         "shot_id": "shot_124",
+2026-07-20T01:38:02.0330432Z         "scene_id": "scene_031",
+2026-07-20T01:38:02.0330571Z         "section_id": "SEC_09_FINAL_PARADOX",
+2026-07-20T01:38:02.0330662Z         "start_frame": 21131,
+2026-07-20T01:38:02.0330760Z         "end_frame": 21308,
+2026-07-20T01:38:02.0330924Z         "claim_id": "CLM_020_SYSTEMIC_INCENTIVE_FINAL",
+2026-07-20T01:38:02.0331038Z         "generic_stock": false,
+2026-07-20T01:38:02.0331153Z         "transition_in": "cut",
+2026-07-20T01:38:02.0331270Z         "transition_out": "cut",
+2026-07-20T01:38:02.0331362Z         "text_overlay": null,
+2026-07-20T01:38:02.0331457Z         "sound_cue": null,
+2026-07-20T01:38:02.0331573Z         "emphasis_card": null,
+2026-07-20T01:38:02.0331692Z         "editorial_overlay": null,
+2026-07-20T01:38:02.0331812Z         "asset_type": "evidence",
+2026-07-20T01:38:02.0331934Z         "visual_role": "evidence",
+2026-07-20T01:38:02.0332801Z         "editorial_purpose": "Convey the film's core closing idea: risk accumulates through many small decisions, not a single dramatic event. Anchor the narration to an attributed source-derived visual before any metaphorical treatment.",
+2026-07-20T01:38:02.0332890Z         "evidence": {
+2026-07-20T01:38:02.0333022Z           "kind": "official_screen",
+2026-07-20T01:38:02.0333166Z           "eyebrow": "OFFICIAL PRIMARY SOURCE",
+2026-07-20T01:38:02.0333561Z           "title": "The final paradox is an editorial synthesis: competition is measurable, safet…",
+2026-07-20T01:38:02.0334023Z           "subtitle": "Convey the film's core closing idea: risk accumulates through many small decisions, not a single dramatic event.",
+2026-07-20T01:38:02.0335126Z           "source_label": "Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Anthropic · 2024  |  Google DeepMind · 2025",
+2026-07-20T01:38:02.0335235Z           "source_ids": [
+2026-07-20T01:38:02.0335374Z             "SRC_STANFORD_AI_INDEX_2025_ECONOMY",
+2026-07-20T01:38:02.0335523Z             "SRC_STANFORD_AI_INDEX_2025_TECHNICAL",
+2026-07-20T01:38:02.0335650Z             "SRC_ANTHROPIC_RSP_2024",
+2026-07-20T01:38:02.0335766Z             "SRC_DEEPMIND_FSF_2025"
+2026-07-20T01:38:02.0336018Z           ],
+2026-07-20T01:38:02.0336539Z           "limitation": "Investment levels show the scale of competition; they do not directly prove that every investor rewards speed over caution.",
+2026-07-20T01:38:02.0336631Z           "font_px": 32,
+2026-07-20T01:38:02.0336722Z           "steps": [
+2026-07-20T01:38:02.0336998Z             "Build the conclusion only from evidence already shown…",
+2026-07-20T01:38:02.0337247Z             "Label the frame as ORVYQ synthesis rather than a new…",
+2026-07-20T01:38:02.0337621Z             "Do not imply the cited sources independently endorse…"
+2026-07-20T01:38:02.0337711Z           ],
+2026-07-20T01:38:02.0337879Z           "provenance_mode": "official_primary_capture",
+2026-07-20T01:38:02.0337977Z           "image_assets": [
+2026-07-20T01:38:02.0338142Z             "assets/evidence/anthropic_rsp_summary.png"
+2026-07-20T01:38:02.0338221Z           ],
+2026-07-20T01:38:02.0338343Z           "evidence_asset_ids": [
+2026-07-20T01:38:02.0338476Z             "EVID_RSP_SUMMARY_CAPTURE"
+2026-07-20T01:38:02.0338553Z           ]
+2026-07-20T01:38:02.0338635Z         },
+2026-07-20T01:38:02.0338909Z         "motif": "CLM_020_SYSTEMIC_INCENTIVE_FINAL:official:EVID_RSP_SUMMARY_CAPTURE"
+2026-07-20T01:38:02.0338987Z       },
+2026-07-20T01:38:02.0339070Z       {
+2026-07-20T01:38:02.0339186Z         "shot_id": "shot_125",
+2026-07-20T01:38:02.0339299Z         "scene_id": "scene_032",
+2026-07-20T01:38:02.0339441Z         "section_id": "SEC_09_FINAL_PARADOX",
+2026-07-20T01:38:02.0339545Z         "start_frame": 21308,
+2026-07-20T01:38:02.0339634Z         "end_frame": 21482,
+2026-07-20T01:38:02.0339797Z         "claim_id": "CLM_020_SYSTEMIC_INCENTIVE_FINAL",
+2026-07-20T01:38:02.0339915Z         "generic_stock": false,
+2026-07-20T01:38:02.0340024Z         "transition_in": "cut",
+2026-07-20T01:38:02.0340143Z         "transition_out": "cut",
+2026-07-20T01:38:02.0340240Z         "text_overlay": null,
+2026-07-20T01:38:02.0340329Z         "sound_cue": null,
+2026-07-20T01:38:02.0340447Z         "emphasis_card": null,
+2026-07-20T01:38:02.0340570Z         "editorial_overlay": null,
+2026-07-20T01:38:02.0340680Z         "asset_type": "footage",
+2026-07-20T01:38:02.0340796Z         "visual_role": "context",
+2026-07-20T01:38:02.0342206Z         "editorial_purpose": "Reframe the danger as systemic incentive rather than a rogue machine, and state the real, harder challenge. Anchor the narration to an attributed source-derived visual before any metaphorical treatment. Break the evidence sequence with licensed, section-relevant moving context; the footage is not presented as literal proof of the cited claim.",
+2026-07-20T01:38:02.0342434Z         "motif": "assets/footage/scene_033_1b2f289c850d35e4a6e96dc4.mp4",
+2026-07-20T01:38:02.0342671Z         "video_asset": "assets/footage/scene_033_1b2f289c850d35e4a6e96dc4.mp4",
+2026-07-20T01:38:02.0342768Z         "trim_in_sec": 0,
+2026-07-20T01:38:02.0342865Z         "trim_out_sec": 5.8,
+2026-07-20T01:38:02.0342977Z         "motion_variant": "hold",
+2026-07-20T01:38:02.0343102Z         "contextual_footage": true,
+2026-07-20T01:38:02.0343217Z         "hook_footage": false,
+2026-07-20T01:38:02.0343391Z         "provenance_mode": "approved_contextual_footage",
+2026-07-20T01:38:02.0343489Z         "rebalanced_from": {
+2026-07-20T01:38:02.0343610Z           "asset_type": "evidence",
+2026-07-20T01:38:02.0343723Z           "kind": "comparison",
+2026-07-20T01:38:02.0343817Z           "evidence": {
+2026-07-20T01:38:02.0343934Z             "kind": "comparison",
+2026-07-20T01:38:02.0344082Z             "eyebrow": "SOURCE-BACKED EVIDENCE",
+2026-07-20T01:38:02.0344492Z             "title": "The final paradox is an editorial synthesis: competition is measurable, safet…",
+2026-07-20T01:38:02.0345102Z             "subtitle": "Reframe the danger as systemic incentive rather than a rogue machine, and state the real, harder challenge.",
+2026-07-20T01:38:02.0346160Z             "source_label": "Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Anthropic · 2024  |  Google DeepMind · 2025",
+2026-07-20T01:38:02.0346264Z             "source_ids": [
+2026-07-20T01:38:02.0346414Z               "SRC_STANFORD_AI_INDEX_2025_ECONOMY",
+2026-07-20T01:38:02.0346565Z               "SRC_STANFORD_AI_INDEX_2025_TECHNICAL",
+2026-07-20T01:38:02.0346694Z               "SRC_ANTHROPIC_RSP_2024",
+2026-07-20T01:38:02.0346816Z               "SRC_DEEPMIND_FSF_2025"
+2026-07-20T01:38:02.0346896Z             ],
+2026-07-20T01:38:02.0347534Z             "limitation": "Investment levels show the scale of competition; they do not directly prove that every investor rewards speed over caution.",
+2026-07-20T01:38:02.0347631Z             "font_px": 32,
+2026-07-20T01:38:02.0347775Z             "left": "WHAT THE SOURCE SUPPORTS",
+2026-07-20T01:38:02.0348102Z             "left_detail": "Build the conclusion only from evidence already shown earlier in the film.",
+2026-07-20T01:38:02.0348246Z             "right": "WHAT IT DOES NOT PROVE",
+2026-07-20T01:38:02.0348777Z             "right_detail": "Investment levels show the scale of competition; they do not directly prove that every investor rewards speed over caution.",
+2026-07-20T01:38:02.0348937Z             "provenance_mode": "source_derived_graphic"
+2026-07-20T01:38:02.0349026Z           },
+2026-07-20T01:38:02.0349226Z           "motif": "CLM_020_SYSTEMIC_INCENTIVE_FINAL:comparison:3"
+2026-07-20T01:38:02.0349305Z         }
+2026-07-20T01:38:02.0349390Z       },
+2026-07-20T01:38:02.0349476Z       {
+2026-07-20T01:38:02.0349588Z         "shot_id": "shot_126",
+2026-07-20T01:38:02.0349706Z         "scene_id": "scene_032",
+2026-07-20T01:38:02.0349845Z         "section_id": "SEC_09_FINAL_PARADOX",
+2026-07-20T01:38:02.0349936Z         "start_frame": 21482,
+2026-07-20T01:38:02.0350031Z         "end_frame": 21692,
+2026-07-20T01:38:02.0350193Z         "claim_id": "CLM_020_SYSTEMIC_INCENTIVE_FINAL",
+2026-07-20T01:38:02.0350302Z         "generic_stock": false,
+2026-07-20T01:38:02.0350425Z         "transition_in": "cut",
+2026-07-20T01:38:02.0350543Z         "transition_out": "cut",
+2026-07-20T01:38:02.0350634Z         "text_overlay": null,
+2026-07-20T01:38:02.0350731Z         "sound_cue": null,
+2026-07-20T01:38:02.0350845Z         "emphasis_card": null,
+2026-07-20T01:38:02.0350962Z         "editorial_overlay": null,
+2026-07-20T01:38:02.0351082Z         "asset_type": "evidence",
+2026-07-20T01:38:02.0351202Z         "visual_role": "evidence",
+2026-07-20T01:38:02.0352049Z         "editorial_purpose": "Reframe the danger as systemic incentive rather than a rogue machine, and state the real, harder challenge. Anchor the narration to an attributed source-derived visual before any metaphorical treatment.",
+2026-07-20T01:38:02.0352150Z         "evidence": {
+2026-07-20T01:38:02.0352277Z           "kind": "official_screen",
+2026-07-20T01:38:02.0352427Z           "eyebrow": "OFFICIAL PRIMARY SOURCE",
+2026-07-20T01:38:02.0352843Z           "title": "The final paradox is an editorial synthesis: competition is measurable, safet…",
+2026-07-20T01:38:02.0353298Z           "subtitle": "Reframe the danger as systemic incentive rather than a rogue machine, and state the real, harder challenge.",
+2026-07-20T01:38:02.0354225Z           "source_label": "Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Anthropic · 2024  |  Google DeepMind · 2025",
+2026-07-20T01:38:02.0354329Z           "source_ids": [
+2026-07-20T01:38:02.0354480Z             "SRC_STANFORD_AI_INDEX_2025_ECONOMY",
+2026-07-20T01:38:02.0354632Z             "SRC_STANFORD_AI_INDEX_2025_TECHNICAL",
+2026-07-20T01:38:02.0354763Z             "SRC_ANTHROPIC_RSP_2024",
+2026-07-20T01:38:02.0355055Z             "SRC_DEEPMIND_FSF_2025"
+2026-07-20T01:38:02.0355145Z           ],
+2026-07-20T01:38:02.0355664Z           "limitation": "Investment levels show the scale of competition; they do not directly prove that every investor rewards speed over caution.",
+2026-07-20T01:38:02.0355880Z           "font_px": 32,
+2026-07-20T01:38:02.0355983Z           "steps": [
+2026-07-20T01:38:02.0356270Z             "Build the conclusion only from evidence already shown…",
+2026-07-20T01:38:02.0356524Z             "Label the frame as ORVYQ synthesis rather than a new…",
+2026-07-20T01:38:02.0356775Z             "Do not imply the cited sources independently endorse…"
+2026-07-20T01:38:02.0356861Z           ],
+2026-07-20T01:38:02.0357032Z           "provenance_mode": "official_primary_capture",
+2026-07-20T01:38:02.0357247Z           "image_assets": [
+2026-07-20T01:38:02.0357422Z             "assets/evidence/deepmind_fsf_framework.png"
+2026-07-20T01:38:02.0357501Z           ],
+2026-07-20T01:38:02.0357626Z           "evidence_asset_ids": [
+2026-07-20T01:38:02.0357757Z             "EVID_FSF_FRAMEWORK_CAPTURE"
+2026-07-20T01:38:02.0357835Z           ]
+2026-07-20T01:38:02.0357919Z         },
+2026-07-20T01:38:02.0358196Z         "motif": "CLM_020_SYSTEMIC_INCENTIVE_FINAL:official:EVID_FSF_FRAMEWORK_CAPTURE"
+2026-07-20T01:38:02.0358280Z       },
+2026-07-20T01:38:02.0358365Z       {
+2026-07-20T01:38:02.0358481Z         "shot_id": "shot_127",
+2026-07-20T01:38:02.0358594Z         "scene_id": "scene_032",
+2026-07-20T01:38:02.0358734Z         "section_id": "SEC_09_FINAL_PARADOX",
+2026-07-20T01:38:02.0358832Z         "start_frame": 21692,
+2026-07-20T01:38:02.0358925Z         "end_frame": 21878,
+2026-07-20T01:38:02.0359093Z         "claim_id": "CLM_020_SYSTEMIC_INCENTIVE_FINAL",
+2026-07-20T01:38:02.0359215Z         "generic_stock": false,
+2026-07-20T01:38:02.0359334Z         "transition_in": "cut",
+2026-07-20T01:38:02.0359455Z         "transition_out": "cut",
+2026-07-20T01:38:02.0359554Z         "text_overlay": null,
+2026-07-20T01:38:02.0359643Z         "sound_cue": null,
+2026-07-20T01:38:02.0359762Z         "emphasis_card": null,
+2026-07-20T01:38:02.0359886Z         "editorial_overlay": null,
+2026-07-20T01:38:02.0360001Z         "asset_type": "evidence",
+2026-07-20T01:38:02.0360120Z         "visual_role": "evidence",
+2026-07-20T01:38:02.0360977Z         "editorial_purpose": "Reframe the danger as systemic incentive rather than a rogue machine, and state the real, harder challenge. Anchor the narration to an attributed source-derived visual before any metaphorical treatment.",
+2026-07-20T01:38:02.0361067Z         "evidence": {
+2026-07-20T01:38:02.0361191Z           "kind": "official_screen",
+2026-07-20T01:38:02.0361337Z           "eyebrow": "OFFICIAL PRIMARY SOURCE",
+2026-07-20T01:38:02.0361735Z           "title": "The final paradox is an editorial synthesis: competition is measurable, safet…",
+2026-07-20T01:38:02.0362188Z           "subtitle": "Reframe the danger as systemic incentive rather than a rogue machine, and state the real, harder challenge.",
+2026-07-20T01:38:02.0363106Z           "source_label": "Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Anthropic · 2024  |  Google DeepMind · 2025",
+2026-07-20T01:38:02.0363211Z           "source_ids": [
+2026-07-20T01:38:02.0363352Z             "SRC_STANFORD_AI_INDEX_2025_ECONOMY",
+2026-07-20T01:38:02.0363502Z             "SRC_STANFORD_AI_INDEX_2025_TECHNICAL",
+2026-07-20T01:38:02.0363639Z             "SRC_ANTHROPIC_RSP_2024",
+2026-07-20T01:38:02.0363754Z             "SRC_DEEPMIND_FSF_2025"
+2026-07-20T01:38:02.0363839Z           ],
+2026-07-20T01:38:02.0364351Z           "limitation": "Investment levels show the scale of competition; they do not directly prove that every investor rewards speed over caution.",
+2026-07-20T01:38:02.0364447Z           "font_px": 32,
+2026-07-20T01:38:02.0364584Z           "left": "WHAT THE SOURCE SUPPORTS",
+2026-07-20T01:38:02.0365161Z           "left_detail": "Build the conclusion only from evidence already shown earlier in the film.",
+2026-07-20T01:38:02.0365307Z           "right": "WHAT IT DOES NOT PROVE",
+2026-07-20T01:38:02.0365964Z           "right_detail": "Investment levels show the scale of competition; they do not directly prove that every investor rewards speed over caution.",
+2026-07-20T01:38:02.0366152Z           "provenance_mode": "official_primary_capture",
+2026-07-20T01:38:02.0366249Z           "image_assets": [
+2026-07-20T01:38:02.0366420Z             "assets/evidence/deepmind_fsf_alignment.png"
+2026-07-20T01:38:02.0366506Z           ],
+2026-07-20T01:38:02.0366622Z           "evidence_asset_ids": [
+2026-07-20T01:38:02.0366754Z             "EVID_FSF_ALIGNMENT_CAPTURE"
+2026-07-20T01:38:02.0366836Z           ]
+2026-07-20T01:38:02.0366914Z         },
+2026-07-20T01:38:02.0367306Z         "motif": "CLM_020_SYSTEMIC_INCENTIVE_FINAL:official:EVID_FSF_ALIGNMENT_CAPTURE"
+2026-07-20T01:38:02.0367390Z       },
+2026-07-20T01:38:02.0367467Z       {
+2026-07-20T01:38:02.0367585Z         "shot_id": "shot_128",
+2026-07-20T01:38:02.0367703Z         "scene_id": "scene_032",
+2026-07-20T01:38:02.0367835Z         "section_id": "SEC_09_FINAL_PARADOX",
+2026-07-20T01:38:02.0367933Z         "start_frame": 21878,
+2026-07-20T01:38:02.0368027Z         "end_frame": 22106,
+2026-07-20T01:38:02.0368190Z         "claim_id": "CLM_020_SYSTEMIC_INCENTIVE_FINAL",
+2026-07-20T01:38:02.0368306Z         "generic_stock": false,
+2026-07-20T01:38:02.0368421Z         "transition_in": "cut",
+2026-07-20T01:38:02.0368534Z         "transition_out": "cut",
+2026-07-20T01:38:02.0368630Z         "text_overlay": null,
+2026-07-20T01:38:02.0368725Z         "sound_cue": null,
+2026-07-20T01:38:02.0368835Z         "emphasis_card": null,
+2026-07-20T01:38:02.0368954Z         "editorial_overlay": null,
+2026-07-20T01:38:02.0369073Z         "asset_type": "footage",
+2026-07-20T01:38:02.0369184Z         "visual_role": "context",
+2026-07-20T01:38:02.0370586Z         "editorial_purpose": "Reframe the danger as systemic incentive rather than a rogue machine, and state the real, harder challenge. Anchor the narration to an attributed source-derived visual before any metaphorical treatment. Break the evidence sequence with licensed, section-relevant moving context; the footage is not presented as literal proof of the cited claim.",
+2026-07-20T01:38:02.0370814Z         "motif": "assets/footage/scene_001_52c2ebe35b131555e20a5ab5.mp4",
+2026-07-20T01:38:02.0371058Z         "video_asset": "assets/footage/scene_001_52c2ebe35b131555e20a5ab5.mp4",
+2026-07-20T01:38:02.0371149Z         "trim_in_sec": 0,
+2026-07-20T01:38:02.0371248Z         "trim_out_sec": 7.6,
+2026-07-20T01:38:02.0371364Z         "motion_variant": "hold",
+2026-07-20T01:38:02.0371482Z         "contextual_footage": true,
+2026-07-20T01:38:02.0371595Z         "hook_footage": false,
+2026-07-20T01:38:02.0371776Z         "provenance_mode": "approved_contextual_footage",
+2026-07-20T01:38:02.0371875Z         "rebalanced_from": {
+2026-07-20T01:38:02.0372000Z           "asset_type": "evidence",
+2026-07-20T01:38:02.0372121Z           "kind": "source_timeline",
+2026-07-20T01:38:02.0372210Z           "evidence": {
+2026-07-20T01:38:02.0372337Z             "kind": "source_timeline",
+2026-07-20T01:38:02.0372486Z             "eyebrow": "SOURCE-BACKED EVIDENCE",
+2026-07-20T01:38:02.0372914Z             "title": "The final paradox is an editorial synthesis: competition is measurable, safet…",
+2026-07-20T01:38:02.0373367Z             "subtitle": "Reframe the danger as systemic incentive rather than a rogue machine, and state the real, harder challenge.",
+2026-07-20T01:38:02.0374330Z             "source_label": "Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Anthropic · 2024  |  Google DeepMind · 2025",
+2026-07-20T01:38:02.0374437Z             "source_ids": [
+2026-07-20T01:38:02.0374582Z               "SRC_STANFORD_AI_INDEX_2025_ECONOMY",
+2026-07-20T01:38:02.0374734Z               "SRC_STANFORD_AI_INDEX_2025_TECHNICAL",
+2026-07-20T01:38:02.0375062Z               "SRC_ANTHROPIC_RSP_2024",
+2026-07-20T01:38:02.0375191Z               "SRC_DEEPMIND_FSF_2025"
+2026-07-20T01:38:02.0375282Z             ],
+2026-07-20T01:38:02.0375940Z             "limitation": "Investment levels show the scale of competition; they do not directly prove that every investor rewards speed over caution.",
+2026-07-20T01:38:02.0376041Z             "font_px": 32,
+2026-07-20T01:38:02.0376135Z             "items": [
+2026-07-20T01:38:02.0376221Z               {
+2026-07-20T01:38:02.0376329Z                 "label": "01",
+2026-07-20T01:38:02.0376691Z                 "value": "Build the conclusion only from evidence already shown earlier…"
+2026-07-20T01:38:02.0376778Z               },
+2026-07-20T01:38:02.0376857Z               {
+2026-07-20T01:38:02.0377096Z                 "label": "02",
+2026-07-20T01:38:02.0377421Z                 "value": "Label the frame as ORVYQ synthesis rather than a new empirica…"
+2026-07-20T01:38:02.0377501Z               },
+2026-07-20T01:38:02.0377585Z               {
+2026-07-20T01:38:02.0377694Z                 "label": "03",
+2026-07-20T01:38:02.0378012Z                 "value": "Do not imply the cited sources independently endorse the film…",
+2026-07-20T01:38:02.0378527Z                 "detail": "Investment levels show the scale of competition; they do not directly prove that every investor rewards speed over caution."
+2026-07-20T01:38:02.0378612Z               }
+2026-07-20T01:38:02.0378693Z             ],
+2026-07-20T01:38:02.0378860Z             "provenance_mode": "source_derived_graphic"
+2026-07-20T01:38:02.0378946Z           },
+2026-07-20T01:38:02.0379154Z           "motif": "CLM_020_SYSTEMIC_INCENTIVE_FINAL:source_timeline:3"
+2026-07-20T01:38:02.0379238Z         }
+2026-07-20T01:38:02.0379319Z       },
+2026-07-20T01:38:02.0379403Z       {
+2026-07-20T01:38:02.0379517Z         "shot_id": "shot_129",
+2026-07-20T01:38:02.0379637Z         "scene_id": "scene_032",
+2026-07-20T01:38:02.0379771Z         "section_id": "SEC_09_FINAL_PARADOX",
+2026-07-20T01:38:02.0379870Z         "start_frame": 22106,
+2026-07-20T01:38:02.0379964Z         "end_frame": 22197,
+2026-07-20T01:38:02.0380121Z         "claim_id": "CLM_020_SYSTEMIC_INCENTIVE_FINAL",
+2026-07-20T01:38:02.0380236Z         "generic_stock": false,
+2026-07-20T01:38:02.0380355Z         "transition_in": "cut",
+2026-07-20T01:38:02.0380467Z         "transition_out": "cut",
+2026-07-20T01:38:02.0380565Z         "text_overlay": null,
+2026-07-20T01:38:02.0380663Z         "sound_cue": null,
+2026-07-20T01:38:02.0380772Z         "emphasis_card": null,
+2026-07-20T01:38:02.0380894Z         "editorial_overlay": null,
+2026-07-20T01:38:02.0381015Z         "asset_type": "evidence",
+2026-07-20T01:38:02.0381127Z         "visual_role": "evidence",
+2026-07-20T01:38:02.0381977Z         "editorial_purpose": "Reframe the danger as systemic incentive rather than a rogue machine, and state the real, harder challenge. Anchor the narration to an attributed source-derived visual before any metaphorical treatment.",
+2026-07-20T01:38:02.0382074Z         "evidence": {
+2026-07-20T01:38:02.0382188Z           "kind": "evidence_chain",
+2026-07-20T01:38:02.0382334Z           "eyebrow": "SOURCE-BACKED EVIDENCE",
+2026-07-20T01:38:02.0382739Z           "title": "The final paradox is an editorial synthesis: competition is measurable, safet…",
+2026-07-20T01:38:02.0383183Z           "subtitle": "Reframe the danger as systemic incentive rather than a rogue machine, and state the real, harder challenge.",
+2026-07-20T01:38:02.0384091Z           "source_label": "Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Stanford Institute for Human-Centered Artificial Intelligence · 2025  |  Anthropic · 2024  |  Google DeepMind · 2025",
+2026-07-20T01:38:02.0384191Z           "source_ids": [
+2026-07-20T01:38:02.0384342Z             "SRC_STANFORD_AI_INDEX_2025_ECONOMY",
+2026-07-20T01:38:02.0384484Z             "SRC_STANFORD_AI_INDEX_2025_TECHNICAL",
+2026-07-20T01:38:02.0384610Z             "SRC_ANTHROPIC_RSP_2024",
+2026-07-20T01:38:02.0384729Z             "SRC_DEEPMIND_FSF_2025"
+2026-07-20T01:38:02.0384960Z           ],
+2026-07-20T01:38:02.0385498Z           "limitation": "Investment levels show the scale of competition; they do not directly prove that every investor rewards speed over caution.",
+2026-07-20T01:38:02.0385722Z           "font_px": 32,
+2026-07-20T01:38:02.0385813Z           "steps": [
+2026-07-20T01:38:02.0386094Z             "Build the conclusion only from evidence already shown…",
+2026-07-20T01:38:02.0386347Z             "Label the frame as ORVYQ synthesis rather than a new…",
+2026-07-20T01:38:02.0386595Z             "Do not imply the cited sources independently endorse…"
+2026-07-20T01:38:02.0386675Z           ],
+2026-07-20T01:38:02.0386839Z           "provenance_mode": "source_derived_graphic"
+2026-07-20T01:38:02.0387059Z         },
+2026-07-20T01:38:02.0387264Z         "motif": "CLM_020_SYSTEMIC_INCENTIVE_FINAL:evidence_chain:3"
+2026-07-20T01:38:02.0387347Z       },
+2026-07-20T01:38:02.0387424Z       {
+2026-07-20T01:38:02.0387540Z         "shot_id": "shot_130",
+2026-07-20T01:38:02.0387656Z         "scene_id": "scene_033",
+2026-07-20T01:38:02.0387790Z         "section_id": "SEC_09_FINAL_PARADOX",
+2026-07-20T01:38:02.0387886Z         "start_frame": 22197,
+2026-07-20T01:38:02.0387980Z         "end_frame": 22376,
+2026-07-20T01:38:02.0388145Z         "claim_id": "CLM_020_SYSTEMIC_INCENTIVE_FINAL",
+2026-07-20T01:38:02.0388267Z         "generic_stock": false,
+2026-07-20T01:38:02.0388381Z         "transition_in": "cut",
+2026-07-20T01:38:02.0388493Z         "transition_out": "fade",
+2026-07-20T01:38:02.0388588Z         "text_overlay": null,
+2026-07-20T01:38:02.0388682Z         "sound_cue": null,
+2026-07-20T01:38:02.0388791Z         "emphasis_card": null,
+2026-07-20T01:38:02.0388910Z         "editorial_overlay": null,
+2026-07-20T01:38:02.0389032Z         "asset_type": "graphic",
+2026-07-20T01:38:02.0389142Z         "visual_role": "graphic",
+2026-07-20T01:38:02.0389553Z         "editorial_purpose": "Resolve the documentary on human agency and return the visual system to the ORVYQ brand.",
+2026-07-20T01:38:02.0389645Z         "graphic": {
+2026-07-20T01:38:02.0389756Z           "type": "brand_close",
+2026-07-20T01:38:02.0389853Z           "kicker": "ORVYQ",
+2026-07-20T01:38:02.0389983Z           "title": "THE RACE IS A CHOICE",
+2026-07-20T01:38:02.0390269Z           "subtitle": "Capability moves quickly. Governance is still a human decision."
+2026-07-20T01:38:02.0390347Z         },
+2026-07-20T01:38:02.0390460Z         "motif": "orvyq_close"
+2026-07-20T01:38:02.0390536Z       }
+2026-07-20T01:38:02.0390619Z     ],
+2026-07-20T01:38:02.0390841Z     "narration_timeline_asset": "direction/narration_timeline.json",
+2026-07-20T01:38:02.0390963Z     "canonical_timeline_contract": {
+2026-07-20T01:38:02.0391151Z       "schema_version": "1.0-canonical-timeline-contract",
+2026-07-20T01:38:02.0391359Z       "project_id": "001-the-ai-race-no-one-can-afford-to-win",
+2026-07-20T01:38:02.0391501Z       "generated_at": "2026-07-20T01:38:01.749Z",
+2026-07-20T01:38:02.0391672Z       "timeline_ref": "direction/narration_timeline.json",
+2026-07-20T01:38:02.0391804Z       "canonical_duration_frames": 22376,
+2026-07-20T01:38:02.0391948Z       "semantic_proof_output_seconds": 157.82,
+2026-07-20T01:38:02.0392071Z       "terminal_brand_shot": "shot_130",
+2026-07-20T01:38:02.0392165Z       "issues": [],
+2026-07-20T01:38:02.0392259Z       "valid": true,
+2026-07-20T01:38:02.0392353Z       "pass": true
+2026-07-20T01:38:02.0392437Z     }
+2026-07-20T01:38:02.0392520Z   }
+2026-07-20T01:38:02.0392600Z }
+2026-07-20T01:38:02.0394504Z {"ok":true,"schema_version":"1.0-canonical-timeline-audit","project_id":"001-the-ai-race-no-one-can-afford-to-win","generated_at":"2026-07-20T01:38:01.956Z","preview":false,"canonical_duration_frames":22376,"render_duration_frames":22376,"proof_semantic_source_end_seconds":131.82,"proof_semantic_output_end_seconds":157.82,"terminal_brand_shot":"shot_130","final_transcript_token":"now.","warnings":[],"failures":[],"pass":true}
+2026-07-20T01:38:02.0417537Z {"ok":true,"schema_version":"2.0-physical-evidence","project_id":"001-the-ai-race-no-one-can-afford-to-win","preview":false,"resolved_evidence_schema":"1.0+resolution-1.1","active_claim_count":20,"weighted_supported_coverage":1,"weighted_visual_evidence_coverage":1,"minimum_required":0.9,"metadata_only_evidence_rejected":true,"motion_hook":{"required":false,"pass":true,"editorial_mode":"cinematic_contextual","duration_seconds":0,"shot_count":0,"footage_count":0,"hook_footage_count":0,"contextual_footage_count":47,"total_footage_count":51,"failures":[]},"claim_reports":[{"claim_id":"CLM_001_LABS_PUBLISH_SAFETY_FRAMEWORKS","status":"verified","importance":5,"shot_count":4,"physical_evidence_shot_count":2,"source_ids_used":["SRC_ANTHROPIC_RSP_2024","SRC_DEEPMIND_FSF_2025"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_002_COMPETITIVE_INCENTIVE","status":"attributed_commentary","importance":5,"shot_count":5,"physical_evidence_shot_count":2,"source_ids_used":["SRC_ANTHROPIC_RSP_2024","SRC_DEEPMIND_FSF_2025"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_003_GOVERNANCE_LAG","status":"attributed_commentary","importance":4,"shot_count":3,"physical_evidence_shot_count":1,"source_ids_used":["SRC_ANTHROPIC_RSP_2024","SRC_DEEPMIND_FSF_2025"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_004_AGENTIC_MISALIGNMENT_TEST","status":"verified","importance":5,"shot_count":4,"physical_evidence_shot_count":2,"source_ids_used":["SRC_ANTHROPIC_AGENTIC_MISALIGNMENT_2025"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_005_BLACKMAIL_SCENARIO","status":"verified","importance":5,"shot_count":9,"physical_evidence_shot_count":6,"source_ids_used":["SRC_ANTHROPIC_AGENTIC_MISALIGNMENT_2025"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_006_NO_REAL_WORLD_INCIDENT","status":"verified","importance":5,"shot_count":7,"physical_evidence_shot_count":4,"source_ids_used":["SRC_ANTHROPIC_AGENTIC_MISALIGNMENT_2025","SRC_ANTHROPIC_RSP_2024","SRC_DEEPMIND_FSF_2025"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_007_MARKET_PRESSURE","status":"verified","importance":4,"shot_count":13,"physical_evidence_shot_count":7,"source_ids_used":["SRC_STANFORD_AI_INDEX_2025_ECONOMY","SRC_STANFORD_AI_INDEX_2025_TECHNICAL"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_011_BIO_SAFEGUARD_THRESHOLD","status":"verified","importance":5,"shot_count":5,"physical_evidence_shot_count":1,"source_ids_used":["SRC_ANTHROPIC_ASL3_2025"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_021_INFORMATION_INTEGRITY","status":"verified","importance":4,"shot_count":5,"physical_evidence_shot_count":2,"source_ids_used":["SRC_INTERNATIONAL_AI_SAFETY_REPORT_2025"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_009_CYBER_EXTORTION","status":"verified","importance":5,"shot_count":4,"physical_evidence_shot_count":3,"source_ids_used":["SRC_ANTHROPIC_CYBER_MISUSE_2025"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_010_CYBER_ESPIONAGE","status":"verified","importance":5,"shot_count":4,"physical_evidence_shot_count":3,"source_ids_used":["SRC_ANTHROPIC_ESPIONAGE_2025"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_013_JOB_EXPOSURE","status":"verified","importance":4,"shot_count":4,"physical_evidence_shot_count":3,"source_ids_used":["SRC_ILO_JOBS_2025","SRC_ILO_EXPOSURE_LIMITS_2026"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_014_CONCENTRATION","status":"verified","importance":5,"shot_count":4,"physical_evidence_shot_count":2,"source_ids_used":["SRC_CMA_FOUNDATION_MODELS_UPDATE_2024","SRC_CMA_CLOUD_MARKET_2025"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_012_JOB_FORECAST_DIVERGENCE","status":"verified","importance":4,"shot_count":3,"physical_evidence_shot_count":2,"source_ids_used":["SRC_ILO_JOBS_2025","SRC_ILO_EXPOSURE_LIMITS_2026"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_016_COMPLIANCE_INCUMBENCY","status":"attributed_commentary","importance":4,"shot_count":7,"physical_evidence_shot_count":4,"source_ids_used":["SRC_EU_GPAI_OBLIGATIONS_2025"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_015_EU_SYSTEMIC_RISK_THRESHOLD","status":"verified","importance":5,"shot_count":6,"physical_evidence_shot_count":3,"source_ids_used":["SRC_EU_GPAI_OBLIGATIONS_2025","SRC_EU_GPAI_GUIDELINES_2025"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_017_OPEN_CLOSED_TRADEOFF","status":"verified","importance":5,"shot_count":16,"physical_evidence_shot_count":8,"source_ids_used":["SRC_NTIA_OPEN_WEIGHTS_2024"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_018_INDEPENDENT_EVALUATIONS","status":"verified","importance":5,"shot_count":9,"physical_evidence_shot_count":5,"source_ids_used":["SRC_UK_AISI_EVALS_2024"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_019_INCIDENT_REPORTING","status":"verified","importance":4,"shot_count":8,"physical_evidence_shot_count":4,"source_ids_used":["SRC_EU_GPAI_OBLIGATIONS_2025"],"status_pass":true,"evidence_pass":true},{"claim_id":"CLM_020_SYSTEMIC_INCENTIVE_FINAL","status":"attributed_commentary","importance":5,"shot_count":10,"physical_evidence_shot_count":6,"source_ids_used":["SRC_STANFORD_AI_INDEX_2025_ECONOMY","SRC_STANFORD_AI_INDEX_2025_TECHNICAL","SRC_ANTHROPIC_RSP_2024","SRC_DEEPMIND_FSF_2025"],"status_pass":true,"evidence_pass":true}],"warnings":[],"failures":[],"pass":true}
+2026-07-20T01:38:02.0690043Z {"ok":true,"schema_version":"2.1-runtime-primary-evidence","project_id":"001-the-ai-race-no-one-can-afford-to-win","preview":false,"legacy_footage_count":0,"approved_contextual_footage_count":47,"approved_hook_footage_count":4,"motion_hook":{"required":false,"pass":true,"editorial_mode":"cinematic_contextual","duration_seconds":0,"shot_count":0,"footage_count":0,"hook_footage_count":0,"contextual_footage_count":47,"total_footage_count":51,"failures":[]},"used_official_capture_count":25,"used_source_derived_graphic_count":32,"used_asset_ids":["EVID_RSP_COVER_CAPTURE","EVID_FSF_COVER_CAPTURE","EVID_FSF_FRAMEWORK_CAPTURE","EVID_RSP_THRESHOLDS_CAPTURE","EVID_FSF_ALIGNMENT_CAPTURE","EVID_AGENTIC_FIG1","EVID_AGENTIC_FIG2","EVID_AGENTIC_FIG3","EVID_AGENTIC_FIG4","EVID_AGENTIC_FIG5","EVID_AGENTIC_FIG7","EVID_WEB_STANFORD_AI_INDEX_2025_ECONOMY","EVID_WEB_STANFORD_AI_INDEX_2025_TECHNICAL","EVID_WEB_ANTHROPIC_CYBER_MISUSE_2025","EVID_WEB_ANTHROPIC_ESPIONAGE_2025","EVID_WEB_INTERNATIONAL_AI_SAFETY_REPORT_2025","EVID_WEB_ANTHROPIC_ASL3_2025","EVID_WEB_ILO_JOBS_2025","EVID_WEB_ILO_EXPOSURE_LIMITS_2026","EVID_WEB_CMA_FOUNDATION_MODELS_UPDATE_2024","EVID_WEB_CMA_CLOUD_MARKET_2025","EVID_WEB_EU_GPAI_OBLIGATIONS_2025","EVID_WEB_EU_GPAI_GUIDELINES_2025","EVID_WEB_UK_AISI_EVALS_2024","EVID_RSP_SUMMARY_CAPTURE"],"used_image_assets":["assets/evidence/anthropic_rsp_cover.png","assets/evidence/deepmind_fsf_cover.png","assets/evidence/deepmind_fsf_framework.png","assets/evidence/anthropic_rsp_thresholds.png","assets/evidence/deepmind_fsf_alignment.png","assets/evidence/anthropic_agentic_figure1.png","assets/evidence/anthropic_agentic_figure2.png","assets/evidence/anthropic_agentic_figure3.png","assets/evidence/anthropic_agentic_figure4.png","assets/evidence/anthropic_agentic_figure5.png","assets/evidence/anthropic_agentic_figure7.png","assets/evidence/stanford_ai_index_2025_economy.png","assets/evidence/stanford_ai_index_2025_technical.png","assets/evidence/anthropic_cyber_misuse_2025.png","assets/evidence/anthropic_espionage_2025.png","assets/evidence/international_ai_safety_report_2025.png","assets/evidence/anthropic_asl3_2025.png","assets/evidence/ilo_jobs_2025.png","assets/evidence/ilo_exposure_limits_2026.png","assets/evidence/cma_foundation_models_update_2024.png","assets/evidence/cma_cloud_market_2025.png","assets/evidence/eu_gpai_obligations_2025.png","assets/evidence/eu_gpai_guidelines_2025.png","assets/evidence/uk_aisi_evals_2024.png","assets/evidence/anthropic_rsp_summary.png"],"assets":[{"evidence_asset_id":"EVID_RSP_COVER_CAPTURE","local_asset":"assets/evidence/anthropic_rsp_cover.png","source_url":"https://www-cdn.anthropic.com/616dee633636e5bd309cb73aed8622e80fe47839.pdf","sha256":"306848d26cd2f18b4f94bf412905342a15f2ec1362a99cd85a41b9b1bad8e2e9","bytes":65539,"provenance_mode":"official_primary_capture","source_ids":["SRC_ANTHROPIC_RSP_2024"]},{"evidence_asset_id":"EVID_FSF_COVER_CAPTURE","local_asset":"assets/evidence/deepmind_fsf_cover.png","source_url":"https://storage.googleapis.com/deepmind-media/DeepMind.com/Blog/updating-the-frontier-safety-framework/Frontier%20Safety%20Framework%202.0.pdf","sha256":"e1948b68e2e4a4bf392c5fc5c975da78defbb235876bbeebae8daaf7190704dd","bytes":266378,"provenance_mode":"official_primary_capture","source_ids":["SRC_DEEPMIND_FSF_2025"]},{"evidence_asset_id":"EVID_FSF_FRAMEWORK_CAPTURE","local_asset":"assets/evidence/deepmind_fsf_framework.png","source_url":"https://storage.googleapis.com/deepmind-media/DeepMind.com/Blog/updating-the-frontier-safety-framework/Frontier%20Safety%20Framework%202.0.pdf","sha256":"cef2b06c0e3ab4d41bea66996b350d5ba6b0596194830be10cfd21bfa854bcdb","bytes":268930,"provenance_mode":"official_primary_capture","source_ids":["SRC_DEEPMIND_FSF_2025"]},{"evidence_asset_id":"EVID_RSP_THRESHOLDS_CAPTURE","local_asset":"assets/evidence/anthropic_rsp_thresholds.png","source_url":"https://www-cdn.anthropic.com/616dee633636e5bd309cb73aed8622e80fe47839.pdf","sha256":"f7a99057b773b3baa45a7ecca5d696c77622e7084f8a62c37489bd2c03529b79","bytes":417686,"provenance_mode":"official_primary_capture","source_ids":["SRC_ANTHROPIC_RSP_2024"]},{"evidence_asset_id":"EVID_FSF_ALIGNMENT_CAPTURE","local_asset":"assets/evidence/deepmind_fsf_alignment.png","source_url":"https://storage.googleapis.com/deepmind-media/DeepMind.com/Blog/updating-the-frontier-safety-framework/Frontier%20Safety%20Framework%202.0.pdf","sha256":"0432d6310b7d0d1e491381f84d521dfc4bf2d1cfbd4f1c83af22a4aba855ff17","bytes":264158,"provenance_mode":"official_primary_capture","source_ids":["SRC_DEEPMIND_FSF_2025"]},{"evidence_asset_id":"EVID_AGENTIC_FIG1","local_asset":"assets/evidence/anthropic_agentic_figure1.png","source_url":"https://www-cdn.anthropic.com/images/4zrzovbb/website/246a928da96d21474848647bc4b0938d182aeb8b-4096x1746.png","sha256":"cfaecf0b38c18aa8192f0b57b50c93b6208125cd46be0458118831545b5ce98b","bytes":239260,"provenance_mode":"official_primary_capture","source_ids":["SRC_ANTHROPIC_AGENTIC_MISALIGNMENT_2025"]},{"evidence_asset_id":"EVID_AGENTIC_FIG2","local_asset":"assets/evidence/anthropic_agentic_figure2.png","source_url":"https://www-cdn.anthropic.com/images/4zrzovbb/website/f8ade2db0fefac490af1e2a991b0d4ce3f0b238c-3840x2160.png","sha256":"ee1906e24034c96d208955c27c4725d83fab598db28c694270ddad232236cc8c","bytes":3004290,"provenance_mode":"official_primary_capture","source_ids":["SRC_ANTHROPIC_AGENTIC_MISALIGNMENT_2025"]},{"evidence_asset_id":"EVID_AGENTIC_FIG3","local_asset":"assets/evidence/anthropic_agentic_figure3.png","source_url":"https://www-cdn.anthropic.com/images/4zrzovbb/website/f16473f9893693a59cb4794883ed0dce965ce93e-2514x1414.png","sha256":"872eb01708bf45e01d3dcd00e4b0f39046c1f4234d6f2d7cf00f90fec9345f3b","bytes":914620,"provenance_mode":"official_primary_capture","source_ids":["SRC_ANTHROPIC_AGENTIC_MISALIGNMENT_2025"]},{"evidence_asset_id":"EVID_AGENTIC_FIG4","local_asset":"assets/evidence/anthropic_agentic_figure4.png","source_url":"https://www-cdn.anthropic.com/images/4zrzovbb/website/d8889f94ef801509c36d02fabe7e61bd468ca6f6-3840x2160.png","sha256":"ff0440f72c5e43ecef6bae1d069ec190fc23e2a6dddd811aa44b16977c7fb5a9","bytes":1959015,"provenance_mode":"official_primary_capture","source_ids":["SRC_ANTHROPIC_AGENTIC_MISALIGNMENT_2025"]},{"evidence_asset_id":"EVID_AGENTIC_FIG5","local_asset":"assets/evidence/anthropic_agentic_figure5.png","source_url":"https://www-cdn.anthropic.com/images/4zrzovbb/website/d4ecf930303d3c5b9bdb6d953fd845eac92ffb48-3840x2160.png","sha256":"96049e4f8be2fada996fc9bec734ec5ba446456474733c15b1ee9b1fb5c146d8","bytes":2321741,"provenance_mode":"official_primary_capture","source_ids":["SRC_ANTHROPIC_AGENTIC_MISALIGNMENT_2025"]},{"evidence_asset_id":"EVID_AGENTIC_FIG7","local_asset":"assets/evidence/anthropic_agentic_figure7.png","source_url":"https://www-cdn.anthropic.com/images/4zrzovbb/website/a7c09ecd57c986788a20b71daaa533bc691830b3-4096x2304.png","sha256":"a4c05c2fd1dff329a4930221e959ee8b4960288e6ffeb113cb8a4df360d93cbe","bytes":372992,"provenance_mode":"official_primary_capture","source_ids":["SRC_ANTHROPIC_AGENTIC_MISALIGNMENT_2025"]},{"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_ECONOMY","local_asset":"assets/evidence/stanford_ai_index_2025_economy.png","source_url":"https://hai.stanford.edu/ai-index/2025-ai-index-report/economy","sha256":"eea78f80eeab6e7745f8e98bd5e6b33f0d52c9a8d6e2f6ddd428cd30edbf98b0","bytes":273534,"provenance_mode":"official_primary_capture","source_ids":["SRC_STANFORD_AI_INDEX_2025_ECONOMY"]},{"evidence_asset_id":"EVID_WEB_STANFORD_AI_INDEX_2025_TECHNICAL","local_asset":"assets/evidence/stanford_ai_index_2025_technical.png","source_url":"https://hai.stanford.edu/ai-index/2025-ai-index-report/technical-performance","sha256":"5221dd2c872d84a7f34f578e2c817f2d937be25c2b12be394e95c87f9516485e","bytes":258599,"provenance_mode":"official_primary_capture","source_ids":["SRC_STANFORD_AI_INDEX_2025_TECHNICAL"]},{"evidence_asset_id":"EVID_WEB_ANTHROPIC_CYBER_MISUSE_2025","local_asset":"assets/evidence/anthropic_cyber_misuse_2025.png","source_url":"https://www.anthropic.com/news/detecting-countering-misuse-aug-2025","sha256":"a3144a751ab3a7e6fb798475d114845606aead80298427d25cf02045e7d68de9","bytes":89826,"provenance_mode":"official_primary_capture","source_ids":["SRC_ANTHROPIC_CYBER_MISUSE_2025"]},{"evidence_asset_id":"EVID_WEB_ANTHROPIC_ESPIONAGE_2025","local_asset":"assets/evidence/anthropic_espionage_2025.png","source_url":"https://www.anthropic.com/news/disrupting-AI-espionage","sha256":"187df224f7f3e713a82b29d204c154a7614865e6506d1846b03422666674e78e","bytes":42410,"provenance_mode":"official_primary_capture","source_ids":["SRC_ANTHROPIC_ESPIONAGE_2025"]},{"evidence_asset_id":"EVID_WEB_INTERNATIONAL_AI_SAFETY_REPORT_2025","local_asset":"assets/evidence/international_ai_safety_report_2025.png","source_url":"https://www.gov.uk/government/publications/international-ai-safety-report-2025/international-ai-safety-report-2025","sha256":"2334f2726028416d3d76b22e02f8d4b35200c74f7954b1326c273acb7cd8af2a","bytes":483124,"provenance_mode":"official_primary_capture","source_ids":["SRC_INTERNATIONAL_AI_SAFETY_REPORT_2025"]},{"evidence_asset_id":"EVID_WEB_ANTHROPIC_ASL3_2025","local_asset":"assets/evidence/anthropic_asl3_2025.png","source_url":"https://www.anthropic.com/news/activating-asl3-protections","sha256":"7167590c405c713468c5ccc69c10d0e6f4807960f4eb7ee28a215ca7549d9fe6","bytes":42452,"provenance_mode":"official_primary_capture","source_ids":["SRC_ANTHROPIC_ASL3_2025"]},{"evidence_asset_id":"EVID_WEB_ILO_JOBS_2025","local_asset":"assets/evidence/ilo_jobs_2025.png","source_url":"https://www.ilo.org/publications/generative-ai-and-jobs-refined-global-index-occupational-exposure","sha256":"4196beb10941b35f599f219d43ce87c5a67f31187b77c541ab5f99a516aef3ef","bytes":217962,"provenance_mode":"official_primary_capture","source_ids":["SRC_ILO_JOBS_2025"]},{"evidence_asset_id":"EVID_WEB_ILO_EXPOSURE_LIMITS_2026","local_asset":"assets/evidence/ilo_exposure_limits_2026.png","source_url":"https://www.ilo.org/publications/workers%E2%80%99-exposure-ai-what-indicators-tell-us-%E2%80%93-and-what-they-don%E2%80%99t","sha256":"7adc6ac6c30d82d07d8161e7fb315bba046437837df5dab5dcb75968e4da546b","bytes":190995,"provenance_mode":"official_primary_capture","source_ids":["SRC_ILO_EXPOSURE_LIMITS_2026"]},{"evidence_asset_id":"EVID_WEB_CMA_FOUNDATION_MODELS_UPDATE_2024","local_asset":"assets/evidence/cma_foundation_models_update_2024.png","source_url":"https://www.gov.uk/government/publications/ai-foundation-models-update-paper","sha256":"8c17f07ca8aa309d3c2573fb1273f2ca351dadfecff1cc7fef076e1c4d887ec0","bytes":121124,"provenance_mode":"official_primary_capture","source_ids":["SRC_CMA_FOUNDATION_MODELS_UPDATE_2024"]},{"evidence_asset_id":"EVID_WEB_CMA_CLOUD_MARKET_2025","local_asset":"assets/evidence/cma_cloud_market_2025.png","source_url":"https://www.gov.uk/cma-cases/cloud-services-market-investigation","sha256":"875f52b62896e7c8ea3d548c342cb454cc2e29eed1209b62779f30c4d3736581","bytes":138975,"provenance_mode":"official_primary_capture","source_ids":["SRC_CMA_CLOUD_MARKET_2025"]},{"evidence_asset_id":"EVID_WEB_EU_GPAI_OBLIGATIONS_2025","local_asset":"assets/evidence/eu_gpai_obligations_2025.png","source_url":"https://digital-strategy.ec.europa.eu/en/factpages/general-purpose-ai-obligations-under-ai-act","sha256":"aa3c8227448f7637d6b52cabd3fe4cd4d4461d4d959330a0610cadcb2c309153","bytes":170733,"provenance_mode":"official_primary_capture","source_ids":["SRC_EU_GPAI_OBLIGATIONS_2025"]},{"evidence_asset_id":"EVID_WEB_EU_GPAI_GUIDELINES_2025","local_asset":"assets/evidence/eu_gpai_guidelines_2025.png","source_url":"https://digital-strategy.ec.europa.eu/en/faqs/guidelines-obligations-general-purpose-ai-providers","sha256":"8e8cbf2c457b8db8520db75981a4c19775bdd86485a22418a244cc5e2ec975c4","bytes":167361,"provenance_mode":"official_primary_capture","source_ids":["SRC_EU_GPAI_GUIDELINES_2025"]},{"evidence_asset_id":"EVID_WEB_UK_AISI_EVALS_2024","local_asset":"assets/evidence/uk_aisi_evals_2024.png","source_url":"https://www.gov.uk/government/publications/ai-safety-institute-approach-to-evaluations/ai-safety-institute-approach-to-evaluations","sha256":"b59fb719c7fb03bb2226d3566eca9683091307bfbae847b401fb0e8f2b8326b5","bytes":163488,"provenance_mode":"official_primary_capture","source_ids":["SRC_UK_AISI_EVALS_2024"]},{"evidence_asset_id":"EVID_RSP_SUMMARY_CAPTURE","local_asset":"assets/evidence/anthropic_rsp_summary.png","source_url":"https://www-cdn.anthropic.com/616dee633636e5bd309cb73aed8622e80fe47839.pdf","sha256":"b1fdd2d144d0dd19e43e3faa815eb4547b7e1fa1a3bc2df1d6b6622b2722c1c0","bytes":456803,"provenance_mode":"official_primary_capture","source_ids":["SRC_ANTHROPIC_RSP_2024"]}],"warnings":[],"failures":[],"pass":true}
+2026-07-20T01:38:02.1100419Z {"ok":true,"schema_version":"3.1-source-backed-graphic-policy","project_id":"001-the-ai-race-no-one-can-afford-to-win","preview":false,"editorial_mode":"cinematic_contextual","editorial_mode_resolution":{"mode":"cinematic_contextual","declared_mode":"cinematic_contextual","inferred_mode":"cinematic_contextual","declaration_matches_timeline":true,"approved_contextual_footage_count":47,"allows_contextual_body_footage":true},"resolved_thresholds":{"motion_hook_fraction_max":0.12,"contextual_body_footage_fraction_min":0.25,"contextual_body_footage_fraction_max":0.4,"official_capture_fraction_min":0.3,"evidence_asset_fraction_min":0.6,"generic_stock_fraction_max":0.25,"full_screen_graphic_fraction_max":0.1,"maximum_uninterrupted_evidence_seconds":16},"role_fractions":{"metaphor":0.07570611369324276,"context":0.301796567751162,"evidence":0.5214515552377548,"graphic":0.10104576331784054},"opening_hook_fraction":0.014747944225956381,"generic_stock_fraction":0.014747944225956381,"total_footage_fraction":0.37750268144440474,"contextual_body_footage_fraction":0.36275473721844836,"official_primary_capture_fraction":0.3014837325706114,"source_derived_graphic_fraction":0.30631033249910616,"source_backed_graphic_fraction":0.05966213800500536,"evidence_archive_fraction":0.6077940650697176,"full_screen_graphic_fraction":0.07436539149088309,"emphasis_beat_count":4,"maximum_uninterrupted_evidence_seconds":15.3,"image_uses":{"assets/evidence/anthropic_rsp_cover.png":2,"assets/evidence/deepmind_fsf_cover.png":2,"assets/evidence/deepmind_fsf_framework.png":2,"assets/evidence/anthropic_rsp_thresholds.png":2,"assets/evidence/deepmind_fsf_alignment.png":2,"assets/evidence/anthropic_agentic_figure1.png":2,"assets/evidence/anthropic_agentic_figure2.png":2,"assets/evidence/anthropic_agentic_figure3.png":2,"assets/evidence/anthropic_agentic_figure4.png":2,"assets/evidence/stanford_ai_index_2025_economy.png":2,"assets/evidence/stanford_ai_index_2025_technical.png":2,"assets/evidence/anthropic_cyber_misuse_2025.png":2,"assets/evidence/anthropic_espionage_2025.png":2,"assets/evidence/international_ai_safety_report_2025.png":2,"assets/evidence/ilo_jobs_2025.png":2,"assets/evidence/ilo_exposure_limits_2026.png":2,"assets/evidence/eu_gpai_obligations_2025.png":2,"assets/evidence/eu_gpai_guidelines_2025.png":2,"assets/evidence/uk_aisi_evals_2024.png":2,"assets/evidence/anthropic_rsp_summary.png":2,"assets/evidence/anthropic_agentic_figure5.png":1,"assets/evidence/anthropic_agentic_figure7.png":1,"assets/evidence/anthropic_asl3_2025.png":1,"assets/evidence/cma_foundation_models_update_2024.png":1,"assets/evidence/cma_cloud_market_2025.png":1},"source_backed_graphic_requires_visible_source":true,"metadata_cannot_override_asset_class":true,"motion_hook":{"required":false,"pass":true,"editorial_mode":"cinematic_contextual","duration_seconds":0,"shot_count":0,"footage_count":0,"hook_footage_count":0,"contextual_footage_count":47,"total_footage_count":51,"failures":[]},"warnings":["repeated motifs: assets/footage/scene_017_17388828bde9ac80bd22eb8e.mp4=3, assets/footage/scene_008_42946788405d61ee3a28fa31.mp4=3, assets/footage/scene_027_57a43a4f4b65321112dfb0bf.mp4=4, evidence:official_screen:Competition is visible in the money and in how narrow the frontier has become.=4, report_scan=6, assets/footage/scene_015_ed4bf30c1279d75b6cfe8187.mp4=3, evidence:official_screen:The AI Act separates high-risk system duties from obligations for general-pur…=3, assets/footage/scene_022_740741da33e14d6a45468490.mp4=4, evidence:evidence_chain:Neither side has a clean claim to safety.=3, evidence:concept_map:Neither side has a clean claim to safety.=3, evidence:official_screen:The final paradox is an editorial synthesis: competition is measurable, safet…=5"],"failures":[],"pass":true}
+2026-07-20T01:38:02.1506081Z {"ok":true,"schema_version":"1.0","project_id":"001-the-ai-race-no-one-can-afford-to-win","preview":false,"shot_count":130,"average_shot_seconds":5.737435897435897,"duration_variants":[2.4,2.433,2.5,2.667,3,3.033,3.367,3.733,4,4.5,4.767,5,5.3,5.367,5.5,5.633,5.667,5.767,5.8,5.9,5.967,6,6.133,6.2,6.433,6.467,6.5,6.533,6.6,6.8,6.9,6.933,6.967,7,7.167,7.367,7.6,7.633,7.833,8],"duration_buckets":{"short":21,"medium":49,"long":60},"transition_counts":{"fade":1,"cut":122,"dissolve":7},"warnings":["shot_037 may be too short for evidence reading","shot_069 may be too short for evidence reading","shot_074 may be too short for evidence reading","shot_081 may be too short for evidence reading","shot_095 may be too short for evidence reading","shot_119 may be too short for evidence reading","shot_129 may be too short for evidence reading","more than 90% of shots enter with a hard cut; confirm this is narratively motivated"],"failures":[],"pass":true}
+2026-07-20T01:38:02.1911479Z {"ok":false,"error":"ORVYQ mobile legibility audit failed: shot_037 official evidence lasts only 2.40s; shot_069 official evidence lasts only 2.43s; shot_074 official evidence lasts only 2.40s"}
+2026-07-20T01:38:02.1960443Z ##[error]Process completed with exit code 1.
+2026-07-20T01:38:02.2060909Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-07-20T01:38:02.2062209Z ##[group]Run actions/upload-artifact@v4
+2026-07-20T01:38:02.2062483Z with:
+2026-07-20T01:38:02.2062713Z   name: orvyq-full-plan-rebalance-29711074442
+2026-07-20T01:38:02.2066028Z   path: projects/001-the-ai-race-no-one-can-afford-to-win/qa/full_film_rebalance.json
+projects/001-the-ai-race-no-one-can-afford-to-win/qa/optional_capture_availability.json
+projects/001-the-ai-race-no-one-can-afford-to-win/qa/full_render_evidence_bundle.json
+projects/001-the-ai-race-no-one-can-afford-to-win/qa/bundled_evidence_verification.json
+projects/001-the-ai-race-no-one-can-afford-to-win/qa/proof_approval_continuity.json
+projects/001-the-ai-race-no-one-can-afford-to-win/qa/semantic_visual_audit.json
+projects/001-the-ai-race-no-one-can-afford-to-win/qa/evidence_asset_audit.json
+projects/001-the-ai-race-no-one-can-afford-to-win/assets/audio/final_mix.metadata.json
+projects/001-the-ai-race-no-one-can-afford-to-win/research/primary_evidence_manifest.json
+full-render-dispatch.json
+
+2026-07-20T01:38:02.2069036Z   if-no-files-found: warn
+2026-07-20T01:38:02.2069267Z   retention-days: 30
+2026-07-20T01:38:02.2069488Z   compression-level: 6
+2026-07-20T01:38:02.2069701Z   overwrite: false
+2026-07-20T01:38:02.2069914Z   include-hidden-files: false
+2026-07-20T01:38:02.2070144Z env:
+2026-07-20T01:38:02.2070380Z   PROJECT_ID: 001-the-ai-race-no-one-can-afford-to-win
+2026-07-20T01:38:02.2072919Z   GH_TOKEN: ***
+2026-07-20T01:38:02.2073208Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T01:38:02.2073650Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+2026-07-20T01:38:02.2074084Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T01:38:02.2074672Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T01:38:02.2075405Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-20T01:38:02.2075815Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+2026-07-20T01:38:02.2076159Z   ORVYQ_NARRATION_LIMIT_SECONDS: 719.882
+2026-07-20T01:38:02.2076437Z   ORVYQ_AUDIO_LIMIT_SECONDS: 745.882
+2026-07-20T01:38:02.2076696Z   ORVYQ_EDITORIAL_PAUSES: 1
+2026-07-20T01:38:02.2076927Z   PROOF_RUN_ID: 29701621699
+2026-07-20T01:38:02.2077148Z ##[endgroup]
+2026-07-20T01:38:02.3778189Z (node:8289) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-07-20T01:38:02.3779455Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-07-20T01:38:02.3890336Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-07-20T01:38:02.3906270Z The least common ancestor is /home/runner/work/YouTube_pepline/YouTube_pepline. This will be the root directory of the artifact
+2026-07-20T01:38:02.3907683Z With the provided path, there will be 8 files uploaded
+2026-07-20T01:38:02.3908676Z Artifact name is valid!
+2026-07-20T01:38:02.3909212Z Root directory input is valid!
+2026-07-20T01:38:02.5338358Z Beginning upload of artifact content to blob storage
+2026-07-20T01:38:02.5672723Z (node:8289) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-07-20T01:38:02.6183902Z Uploaded bytes 19031
+2026-07-20T01:38:02.6364213Z Finished uploading artifact content to blob storage!
+2026-07-20T01:38:02.6365889Z SHA256 digest of uploaded artifact zip is ac43fb80248d91c1c98c8dc23fd16484a81bf198427f085519185fcb87b0b81f
+2026-07-20T01:38:02.6367711Z Finalizing artifact upload
+2026-07-20T01:38:02.8091378Z Artifact orvyq-full-plan-rebalance-29711074442.zip successfully finalized. Artifact ID 8448989343
+2026-07-20T01:38:02.8092678Z Artifact orvyq-full-plan-rebalance-29711074442 has been successfully uploaded! Final size is 19031 bytes. Artifact ID is 8448989343
+2026-07-20T01:38:02.8098130Z Artifact download URL: https://github.com/brsctncnbrk-ops/YouTube_pepline/actions/runs/29711074442/artifacts/8448989343
+2026-07-20T01:38:02.8302986Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-07-20T01:38:02.8304226Z Post job cleanup.
+2026-07-20T01:38:02.9151912Z [command]/usr/bin/git version
+2026-07-20T01:38:02.9199819Z git version 2.54.0
+2026-07-20T01:38:02.9246479Z Temporarily overriding HOME='/home/runner/work/_temp/f1f02aab-b7bb-40aa-b945-3d78b19305a6' before making global git config changes
+2026-07-20T01:38:02.9247591Z Adding repository directory to the temporary git global config as a safe directory
+2026-07-20T01:38:02.9252968Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/YouTube_pepline/YouTube_pepline
+2026-07-20T01:38:02.9298294Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-07-20T01:38:02.9333955Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-07-20T01:38:02.9590955Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-07-20T01:38:02.9621622Z http.https://github.com/.extraheader
+2026-07-20T01:38:02.9635513Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-07-20T01:38:02.9672652Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-07-20T01:38:02.9982740Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-07-20T01:38:03.0027381Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-07-20T01:38:03.0473399Z Cleaning up orphan processes
+2026-07-20T01:38:03.0782972Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
