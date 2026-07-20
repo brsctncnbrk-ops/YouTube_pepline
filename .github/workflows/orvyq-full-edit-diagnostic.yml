@@ -42,16 +42,18 @@ jobs:
             gh api -H 'Accept: application/vnd.github+json' "/repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/logs" > logs.zip
             mkdir -p logs
             unzip -q logs.zip -d logs
-            TARGET="$(find logs -type f -path '*/2_Checkout branch with LFS.txt' -print -quit)"
+            FAILED_STEP="$(jq -r '[.jobs[].steps[] | select(.conclusion=="failure")][0].name // empty' <<<"$JOBS")"
+            TARGET=""
+            if [ -n "$FAILED_STEP" ]; then TARGET="$(find logs -type f -name "*${FAILED_STEP}.txt" ! -name 'Post *' -print -quit)"; fi
+            if [ -z "$TARGET" ]; then TARGET="$(find logs -type f -name '*Expand and fetch full-film official evidence.txt' -print -quit)"; fi
+            if [ -z "$TARGET" ]; then TARGET="$(find logs -type f -path '*/2_Checkout branch without LFS smudge.txt' -print -quit)"; fi
             if [ -z "$TARGET" ]; then TARGET="$(find logs -type f -name '*Build approved full edit and run all gates.txt' -print -quit)"; fi
-            if [ -z "$TARGET" ]; then TARGET="$(find logs -type f -name '*Build canonical full-duration audio and captions.txt' -print -quit)"; fi
-            if [ -z "$TARGET" ]; then TARGET="$(find logs -type f -name '*Preserve existing proof approval by prefix continuity.txt' -print -quit)"; fi
-            if [ -z "$TARGET" ]; then TARGET="$(find logs -type f -name '*Rebalance only the post-proof canonical timeline.txt' -print -quit)"; fi
             if [ -n "$TARGET" ]; then
               {
                 echo "RUN_ID=$RUN_ID"
+                echo "FAILED_STEP=$FAILED_STEP"
                 echo "TARGET=$TARGET"
-                grep -nE 'AssertionError|Error:|ERR_ASSERTION|audit failed|failed:|fatal:|smudge|LFS|RPC failed|early EOF|##\[error\]|Process completed with exit code|"ok"[[:space:]]*:[[:space:]]*false' "$TARGET" || true
+                grep -nE 'AssertionError|Error:|ERR_ASSERTION|audit failed|failed:|fatal:|smudge|LFS|RPC failed|early EOF|redirect|download|capture|##\[error\]|Process completed with exit code|"ok"[[:space:]]*:[[:space:]]*false' "$TARGET" || true
                 echo '--- LAST 260 LINES ---'
                 tail -n 260 "$TARGET"
               } > .github/orvyq-full-edit-diagnostic.txt
